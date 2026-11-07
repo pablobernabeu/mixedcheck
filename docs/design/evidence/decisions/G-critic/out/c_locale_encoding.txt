@@ -1,0 +1,17 @@
+# R 4.3.3, jsonlite 1.8.8, cli 3.6.2. A UTF-8 CSV with ID 'école' read in the session locale.
+# Lines from scripts/c_locale_readcsv.R (hash after enc2utf8) then scripts/c_locale_tojson_bytes.R (byte-level JSON).
+# Note: printed text in a C locale shows <U+00E9> for correctly marked strings (display only); use bytes.
+C | default read: Encoding unknown bytes after enc2utf8: 3c 63 33 3e 3c 61 39 3e 63 6f 6c 65 | sha: b56e97906161 
+C | encoding='UTF-8': Encoding UTF-8 bytes after enc2utf8: c3 a9 63 6f 6c 65 | sha: f0f772e182a4 
+C.UTF-8 | default read: Encoding unknown bytes after enc2utf8: c3 a9 63 6f 6c 65 | sha: f0f772e182a4 
+C.UTF-8 | encoding='UTF-8': Encoding UTF-8 bytes after enc2utf8: c3 a9 63 6f 6c 65 | sha: f0f772e182a4 
+C jsonlite 1.8.8 
+ toJSON(unknown-encoded) bytes: 5b 22 3c 63 33 3e 3c 61 39 3e 63 6f 6c 65 22 5d | Encoding: unknown 
+ toJSON(marked UTF-8)    bytes: 5b 22 c3 a9 63 6f 6c 65 22 5d | Encoding: UTF-8 
+ sha of marked toJSON via cli: 0248553cf09b 
+C.UTF-8 jsonlite 1.8.8 
+ toJSON(unknown-encoded) bytes: 5b 22 c3 a9 63 6f 6c 65 22 5d | Encoding: UTF-8 
+ toJSON(marked UTF-8)    bytes: 5b 22 c3 a9 63 6f 6c 65 22 5d | Encoding: UTF-8 
+ sha of marked toJSON via cli: 0248553cf09b 
+python sha of école: f0f772e182a4 | of ["école"]: 0248553cf09b
+# read.csv(fileEncoding='UTF-8') in the C locale: 'invalid input found on input connection' (see scripts/c_locale_marked_utf8.R)

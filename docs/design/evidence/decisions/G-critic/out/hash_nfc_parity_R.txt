@@ -1,0 +1,10 @@
+R: R version 4.3.3 (2024-02-29) | LC_CTYPE: C 
+tools::sha256sum available (added in R 4.5.0): FALSE 
+cli 3.6.2 hash_sha256(marked string): b3a092a6af48807fa9482b2ee140105575daa26d5b24b3c0e60a7e2dee6683b1 
+utf8 1.2.4 utf8_normalize(e+U+0301) bytes: c3 a9 (NFC e-acute = c3 a9)
+R: R version 4.3.3 (2024-02-29) | LC_CTYPE: C.UTF-8 
+tools::sha256sum available (added in R 4.5.0): FALSE 
+cli 3.6.2 hash_sha256(marked string): b3a092a6af48807fa9482b2ee140105575daa26d5b24b3c0e60a7e2dee6683b1 
+utf8 1.2.4 utf8_normalize(e+U+0301) bytes: c3 a9 (NFC e-acute = c3 a9)
+python hashlib sha256: b3a092a6af48807fa9482b2ee140105575daa26d5b24b3c0e60a7e2dee6683b1
+python NFC bytes: c3 a9

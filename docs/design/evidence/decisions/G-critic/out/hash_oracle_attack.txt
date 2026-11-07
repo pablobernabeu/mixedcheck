@@ -1,0 +1,3 @@
+all-but-one: recovered y[13]=[0] (true 0) in 0.0000s
+full brute force n=20: recovered=True in 1.6s
+all-but-one against HMAC without the key succeeds: False

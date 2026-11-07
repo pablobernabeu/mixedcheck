@@ -1,0 +1,6 @@
+SM_FORMULA_ENGINE= patsy | exog_names: ['Intercept', 'cond[T.b]', 'cond[T.c]', 'flag[T.True]', 'x']
+fe_params: [np.float64(0.139713), np.float64(0.278679), np.float64(-0.088567), np.float64(-0.123475), np.float64(0.339316)]
+REML llf: -394.10843894
+SM_FORMULA_ENGINE= formulaic | exog_names: ['Intercept', 'cond[T.b]', 'cond[T.c]', 'flag', 'x']
+fe_params: [np.float64(0.139713), np.float64(0.278679), np.float64(-0.088567), np.float64(-0.123475), np.float64(0.339316)]
+REML llf: -394.10843894

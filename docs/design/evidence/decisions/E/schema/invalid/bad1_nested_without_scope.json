@@ -1,0 +1,1 @@
+{"schema_version": "0.1.0", "units": [{"name": "school", "columns": ["school"]}, {"name": "class", "columns": ["class"], "nested_in": "school"}]}

@@ -1,0 +1,24 @@
+model                  engine            reported-ref       tol verdict
+cbpp_laplace           R:lme4               5.604e-04   1.8e-04 MISMATCH
+cbpp_agq25             R:lme4              -8.396e+01   1.8e-04 MISMATCH
+crossed_ML             R:glmmTMB                   NA        NA no reported objective
+owls_pois_agq25        R:lme4              -1.681e+03   5.2e-03 MISMATCH
+weighted_REML          R:glmmTMB            2.134e+03   1.6e-03 MISMATCH
+weighted_ML            R:glmmTMB            2.134e+03   1.6e-03 MISMATCH
+binxd_laplace          R:lme4               1.610e-03   1.4e-03 MISMATCH
+jq_REML                R:glmmTMB                   NA        NA no reported objective
+crossed_zcp_ML         gpboost             -8.448e-02   2.6e-02 MISMATCH
+pastes_ML              gpboost              5.071e-01   2.5e-04 MISMATCH
+pen_ML                 gpboost              5.392e-01   3.3e-04 MISMATCH
+school_zcp_ML          gpboost             -5.953e-01   1.4e-02 MISMATCH
+sleep_zcp_ML           gpboost              1.675e-01   1.8e-03 MISMATCH
+binxd_laplace          rpy2_lme4            1.610e-03   1.4e-03 MISMATCH
+cbpp_agq25             rpy2_lme4           -8.396e+01   1.8e-04 MISMATCH
+cbpp_laplace           rpy2_lme4            5.604e-04   1.8e-04 MISMATCH
+owls_pois_agq25        rpy2_lme4           -1.681e+03   5.2e-03 MISMATCH
+cbpp_agq25             statsmodels                 NA        NA no reported objective
+cbpp_agq25             statsmodels:map             NA        NA no reported objective
+cbpp_laplace           statsmodels                 NA        NA no reported objective
+cbpp_laplace           statsmodels:map             NA        NA no reported objective
+
+rows ok=151 mismatch=15 no-objective=6

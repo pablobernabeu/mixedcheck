@@ -1,0 +1,21 @@
+{
+ "data_sha256": "4de88aefe3c01e1f10c7bb9553c82c1711028aaa4ad0564e7a6d96e0566f7bdb",
+ "findings": [
+  {
+   "check": "structure.connected_components",
+   "components": 2,
+   "note": "group is constant within each component: its effect rests on 2 components only",
+   "pair": [
+    "subject",
+    "item"
+   ],
+   "status": "flag"
+  }
+ ],
+ "fixture": "Z13_disconnected_crossed",
+ "generator": {
+  "items": 16,
+  "seed": 20261107,
+  "subjects": 20
+ }
+}

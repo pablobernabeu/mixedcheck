@@ -1,0 +1,11 @@
+R:glmmTMB     n=25 time ratio min=   0.88 median=  13.46 max=   17.8 | LMM n=22 max gap=7.36e+02 max dbeta(SE)=1.4e-01 max rel dSE=5.9e-01 | GLMM n=3 max gap=3.31e-09 max dbeta(SE)=5.2e-03 max rel dSE=1.3e-02
+rpy2_lme4     n=27 time ratio min=   0.99 median=   1.33 max=    1.7 | LMM n=22 max gap=9.01e-07 max dbeta(SE)=9.1e-14 max rel dSE=4.0e-15 | GLMM n=5 max gap=3.49e-05 max dbeta(SE)=2.2e-08 max rel dSE=1.2e-06
+glmm          n=27 time ratio min=   0.02 median=   0.07 max=    0.3 | LMM n=22 max gap=5.50e-09 max dbeta(SE)=6.7e-05 max rel dSE=6.0e-05 | GLMM n=5 max gap=3.37e-11 max dbeta(SE)=5.3e-03 max rel dSE=1.3e-02
+mixedlm       n=27 time ratio min=   0.37 median=   2.52 max=   26.7 | LMM n=22 max gap=1.48e-12 max dbeta(SE)=6.6e-05 max rel dSE=5.9e-05 | GLMM n=5 max gap=6.00e-11 max dbeta(SE)=5.3e-03 max rel dSE=2.2e-02
+statsmodels   n=19 time ratio min=   1.27 median=   5.38 max=  313.4 | LMM n=17 max gap=1.16e+00 max dbeta(SE)=1.4e-02 max rel dSE=4.6e-01 | GLMM n=2 max gap=6.84e-02 max dbeta(SE)=4.8e-02 max rel dSE=5.2e-01
+gpboost_chol  n= 9 time ratio min=   0.32 median=  15.66 max=   80.7 | LMM n=7 max gap=3.40e-03 max dbeta(SE)=1.5e-05 max rel dSE=5.5e-04 | GLMM n=2 max gap=2.77e-04 max dbeta(SE)=1.1e-02 max rel dSE=9.5e-03
+gpboost       n= 9 time ratio min=   0.11 median=  22.67 max=  300.7 | LMM n=7 max gap=1.24e-01 max dbeta(SE)=1.1e-03 max rel dSE=6.3e-02 | GLMM n=2 max gap=2.77e-04 max dbeta(SE)=1.1e-02 max rel dSE=9.5e-03
+glmm          first-call ratio vs lme4 median: min=0.12 median=0.33 max=1.6; big models: [('crossedbig_REML', 0.33), ('crossedbig_zcp_REML', 0.33)]
+mixedlm       first-call ratio vs lme4 median: min=0.37 median=5.68 max=29.1; big models: [('crossedbig_REML', 0.37), ('crossedbig_zcp_REML', 1.37)]
+statsmodels   first-call ratio vs lme4 median: min=1.42 median=5.38 max=357.9; big models: [('crossedbig_zcp_REML', 178.5)]
+gpboost_chol  first-call ratio vs lme4 median: min=3.83 median=15.66 max=80.7; big models: []

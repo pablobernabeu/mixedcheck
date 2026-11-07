@@ -1,0 +1,65 @@
+glmm   : {'(Intercept)': np.float64(0.7718), 'x1': np.float64(0.4136), 'x2': np.float64(-0.3119), 'x3': np.float64(nan)} aliased: [False False False  True] | warnings: []
+Fixed-effects design matrix is rank deficient (rank 3 < 4 columns). Dropping columns: [1]
+mixedlm: {'(Intercept)': np.float64(0.7718), 'x2': np.float64(-0.7255), 'x3': np.float64(0.4136)} | warnings: []
+Traceback (most recent call last):
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/scripts/rank_probe.py", line 23, in <module>
+    s = smf.mixedlm("y ~ x1 + x2 + x3", d, groups=d["g"]).fit()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/regression/mixed_linear_model.py", line 2384, in fit
+    rslt = super().fit(
+           ^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/base/model.py", line 610, in fit
+    xopt, retvals, optim_settings = optimizer._fit(
+                                    ^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/base/optimizer.py", line 264, in _fit
+    xopt, retvals = func(
+                    ^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/base/optimizer.py", line 638, in _fit_bfgs
+    retvals = optimize.fmin_bfgs(
+              ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_optimize.py", line 1330, in fmin_bfgs
+    res = _minimize_bfgs(f, x0, args, fprime, callback=callback, **opts)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_optimize.py", line 1443, in _minimize_bfgs
+    _line_search_wolfe12(f, myfprime, xk, pk, gfk,
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_optimize.py", line 1172, in _line_search_wolfe12
+    ret = line_search_wolfe1(f, fprime, xk, pk, gfk,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_linesearch.py", line 101, in line_search_wolfe1
+    stp, fval, old_fval = scalar_search_wolfe1(
+                          ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_linesearch.py", line 176, in scalar_search_wolfe1
+    stp, phi1, phi0, task = dcsrch(
+                            ^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_dcsrch.py", line 255, in __call__
+    phi1 = self.phi(stp)
+           ^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_linesearch.py", line 92, in phi
+    return f(xk + s*pk, *args)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 394, in fun
+    self._update_fun()
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/optimize/_differentiable_functions.py", line 362, in _update_fun
+    fx = self._wrapped_fun(self.x)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/scipy/_lib/_util.py", line 544, in __call__
+    fx = self.f(np.copy(x), *self.args)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/base/model.py", line 586, in f
+    return -self.loglike(params, *args) / nobs
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/regression/mixed_linear_model.py", line 1625, in loglike
+    fe_params, sing = self.get_fe_params(cov_re, vcomp)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/statsmodels/regression/mixed_linear_model.py", line 1457, in get_fe_params
+    fe_params = np.linalg.solve(xtxy[:, 0:-1], xtxy[:, -1])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/numpy/linalg/_linalg.py", line 463, in solve
+    r = gufunc(a, b, signature=signature)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-0/-home-user-lmecheck/76ff8921-f521-5c13-b469-59b514d4e510/scratchpad/r2/A-verify/venv/lib/python3.12/site-packages/numpy/linalg/_linalg.py", line 144, in _raise_linalgerror_singular
+    raise LinAlgError("Singular matrix")
+numpy.linalg.LinAlgError: Singular matrix
+fixed-effect model matrix is rank deficient so dropping 1 column / coefficient
+(Intercept)          x1          x2 
+     0.7718      0.4136     -0.3119 

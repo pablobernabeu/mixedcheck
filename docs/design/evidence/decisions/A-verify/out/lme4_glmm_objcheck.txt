@@ -1,0 +1,4 @@
+lme4 1.1.35.1  glmmTMB 1.1.8 
+cbpp_laplace   reported -2logL 184.053133 | devfun at estimates 184.053133, again 184.053133 | reported - devfun = 0.000e+00
+binxd_laplace  reported -2logL 1421.660325 | devfun at estimates 1421.660325, again 1421.660325 | reported - devfun = 0.000e+00
+glmmTMB cbpp -2logL at its optimum 184.052564

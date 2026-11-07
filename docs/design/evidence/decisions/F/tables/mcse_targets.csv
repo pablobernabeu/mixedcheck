@@ -1,0 +1,15 @@
+performance_measure,formula,assumed_p,n_sim,mcse,n_for_mcse_0.005,n_for_mcse_0.01,used_in
+False-flag rate (FFR) of one check under a correct model,sqrt(p(1-p)/n_sim),0.05,2000,0.0049,1900,475,"V1, V8: every check, every cell"
+Type I error of the focal fixed-effect test,sqrt(p(1-p)/n_sim),0.05,2000,0.0049,1900,475,"V1, V5 (H0 cells), V8"
+Coverage of 95% CIs for focal estimands,sqrt(p(1-p)/n_sim),0.95,2000,0.0049,1900,475,"V1, V8"
+Family-wise flag rate: P(at least one consequential flag | correct model),sqrt(p(1-p)/n_sim),0.1,2000,0.0067,3600,900,"V1, V8 (multiplicity, L5-15)"
+"Detection rate (DR) of the targeted misspecification, worst case p = .5",sqrt(p(1-p)/n_sim),0.5,1000,0.0158,10000,2500,"V2, V9: per module x magnitude x cell"
+Power of the focal test (H1 cells),sqrt(p(1-p)/n_sim),0.5,1000,0.0158,10000,2500,V5 (H1 cells)
+"Rate in expensive studies (allFit triage, PB tests), worst case",sqrt(p(1-p)/n_sim),0.5,500,0.0224,10000,2500,"V3-crossed, V10"
+Rate in expensive studies at p = .05,sqrt(p(1-p)/n_sim),0.05,1000,0.0069,1900,475,V4 (PB Type I error)
+Bias of a focal estimate,EmpSE / sqrt(n_sim),,1000,,,,"V2, V9 consequence estimands: MCSE = 0.032 x EmpSE"
+Empirical SE,EmpSE / sqrt(2(n_sim - 1)),,1000,,,,"V2, V9: MCSE = 0.022 x EmpSE"
+Relative error in model-based SE,Morris et al. (2019) Table 6 formula,,1000,,,,"V1, V2"
+Conditional coverage or bias given flag status,as above with n = number of flagged (or unflagged) replicates,,,,,,"V2, V9: interpret only if n_flagged >= 200 (rate MCSE <= .035)"
+Brier score and reliability of predicted probabilities (V6),bootstrap over outer replicates,,500,,,,V6
+"Missingness: failed, non-converged or not-assessable runs",rate with sqrt(p(1-p)/n) MCSE; always reported (Pawel et al. 2026),,,,,,all studies

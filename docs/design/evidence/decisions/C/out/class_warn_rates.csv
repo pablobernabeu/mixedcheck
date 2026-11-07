@@ -1,0 +1,9 @@
+"model","n","error","any_msg","conv_or_sing_msg","singular_lme4","tmb_not_pdHess","tmb_na_se"
+"gauss_lmer",30,0,5,5,5,0,0
+"gauss_tmb",30,0,5,5,0,1,0
+"bern_glmer",30,0,15,15,13,0,0
+"bern_tmb",30,0,19,19,0,9,0
+"pois_glmer",30,0,0,0,0,0,0
+"nb2_tmb",30,0,7,7,0,1,0
+"beta_tmb",30,0,0,0,0,0,0
+"zip_tmb",30,0,1,1,0,0,0

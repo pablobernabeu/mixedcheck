@@ -1,0 +1,57 @@
+{
+ "observation": {
+  "key": [
+   "pupil"
+  ],
+  "unit": "pupil"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "school",
+    "type": "string"
+   },
+   {
+    "name": "class",
+    "type": "string"
+   },
+   {
+    "name": "pupil",
+    "type": "string"
+   },
+   {
+    "name": "y",
+    "type": "number"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z01_reused_class_labels",
+ "units": [
+  {
+   "columns": [
+    "school"
+   ],
+   "name": "school"
+  },
+  {
+   "columns": [
+    "class"
+   ],
+   "id_scope": "within_parent",
+   "name": "class",
+   "nested_in": "school"
+  },
+  {
+   "columns": [
+    "pupil"
+   ],
+   "id_scope": "global",
+   "name": "pupil",
+   "nested_in": "class"
+  }
+ ]
+}

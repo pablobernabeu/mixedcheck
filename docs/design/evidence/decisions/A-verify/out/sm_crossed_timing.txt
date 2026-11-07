@@ -1,0 +1,5 @@
+crossed_zcp_ML use_sparse=False: fit 56.0 s, peak RSS 330 MB, gap to best 1.29e-06, converged=True
+crossed_zcp_ML use_sparse=True: fit 2.7 s, peak RSS 322 MB, gap to best 1.29e-06, converged=True
+crossed_zcp_REML use_sparse=True: fit 2.8 s, peak RSS 323 MB, gap to best 3.85e-08, converged=True
+crossedbig_zcp_REML use_sparse=True: fit 23.6 s, peak RSS 556 MB, gap to best 1.52e-06, converged=True
+crossed_zcp_ML use_sparse=False: fit 62.5 s, peak RSS 330 MB, gap to best 1.29e-06, converged=True

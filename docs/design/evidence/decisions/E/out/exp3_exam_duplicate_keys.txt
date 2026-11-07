@@ -1,0 +1,18 @@
+     school   normexam schgend    schavg      vr     intake   standLRT sex type
+2758     43 -0.8526700   mixed 0.4334322 top 25%    mid 50%  0.1231502   M  Mxd
+2759     43  0.8219882   mixed 0.4334322 top 25%    top 25% -0.0421520   F  Mxd
+3227     50  0.2613242   mixed 0.0065332 mid 50%    mid 50% -0.1248040   F  Mxd
+3228     50 -2.1086440   mixed 0.0065332 mid 50%    mid 50% -1.1992730   F  Mxd
+3314     52 -0.1976110    boys 0.1963172 mid 50% bottom 25%  0.3711052   M Sngl
+3316     52  2.0397092    boys 0.1963172 mid 50% bottom 25%  1.8588312   M Sngl
+3349     52 -0.6230510    boys 0.1963172 mid 50%    top 25% -1.9431360   M Sngl
+3351     52 -1.7238820    boys 0.1963172 mid 50%    top 25% -0.6207130   M Sngl
+     student
+2758      86
+2759      86
+3227      39
+3228      39
+3314       2
+3316       2
+3349      21
+3351      21

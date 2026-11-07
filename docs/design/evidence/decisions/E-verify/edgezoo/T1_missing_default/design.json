@@ -1,0 +1,1 @@
+{"schema_version": "0.1.0", "table": {"fields": [{"name": "id", "type": "string"}, {"name": "g", "type": "string"}, {"name": "y", "type": "number"}]}}

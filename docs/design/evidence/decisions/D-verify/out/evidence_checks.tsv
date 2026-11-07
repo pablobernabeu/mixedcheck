@@ -1,0 +1,31 @@
+id	verdict	how_checked	note
+D-E01	confirmed	refetched 28 DESCRIPTIONs from cran mirror (D-verify/desc)	all versions, licences, dates, Imports as stated; also afex current is 1.5-1 (container has 1.3-1)
+D-E02	confirmed	independent closure script scripts/closure.py -> out/closure.json	3/14(7)/18/94(49)/65(34)/61(31)/33(18)/20(8)/118(59) reproduced exactly; S0+reformulas = 6 (2 compiled non-rec)
+D-E03	confirmed	git history of cran/Deriv tags 4.3.0/4.3.5/4.3.6; glmmTMB Imports pbkrtest; pbkrtest Imports doBy; doBy Imports Deriv	Deriv 4.3.0 (2026-07-23) also became compiled (Rcpp)
+D-E04	confirmed	R-exts.texi trunk lines ~1080-1121; CRAN_policies.texi rev 6985 (crp mirror updated 2026-10-25)	policy wording is conditional ('if it cannot straightforwardly be installed'); R-exts recommends always
+D-E05	confirmed	R-exts.texi line ~4396	
+D-E06	corrected	insight/performance git HEAD; gh code search of cran org	generics as stated; but ivreg 0.6-8 registers S3method(insight::find_formula, ivreg) with insight in Suggests, so third-party delayed registration exists on CRAN
+D-E07	confirmed	insight R/is_converged.R at HEAD (1.7.0)	only for non-singular fits; singular fits return optimizer code==0
+D-E08	confirmed	cran mirror tag counts since 2024-11-07	exact match
+D-E09	confirmed	DESCRIPTION Suggests parsing	insight 139, performance 82 Suggests
+D-E10	confirmed (extended)	reran R CMD check (full and _R_CHECK_DEPENDS_ONLY_), load timing 7 runs; new RDS experiment	S4 fits deserialised where engine is absent error in dispatch before method guards; generic-level guard fixes it (out/rds_dispatch_*.txt)
+D-E11	confirmed (partly unverifiable)	scripts/names_verify.py with controls; gh repo search	R-universe, Bioconductor web, and 'MixChecker' search-noise claim not checkable (blocked; web-search budget exhausted)
+D-E12	confirmed	pypi/warehouse migration d18d443f89f0	
+D-E13	confirmed	CRAN policy, R-exts, ropensci/dev_guide pkg_building.Rmd, PEP 8/541, PyPA names	
+D-E14	confirmed	raw files from apache/arrow, dmlc/xgboost, microsoft/LightGBM	
+D-E15	confirmed	r-universe-org/docs (2026-10-19), remotes, pkgdepends, pip docs, gh-action-pypi-publish action.yml	
+D-E16	confirmed	PyPI JSON + cran mirror + project URLs	all five precedents use separate repositories
+D-E17	confirmed	openjournals/joss docs/submitting.md	'at least six months of public history' applies; AI disclosure required
+D-E18	confirmed	tidyverse.org source (author Mara Averick, 2019-04-01); r-source tag commits	
+D-E19	confirmed	doc/NEWS.Rd, Changes in R 4.2.0, Windows	
+D-E20	corrected	Ubuntu Packages.gz; cran/Matrix tags; r-source tags	Ubuntu facts correct; but R 4.2.0 (2022-04-22) and 4.2.1 (2022-06-23) predate Matrix 1.5-0 (2022-09-10), so they also bundle Matrix < 1.5-0
+D-E21	confirmed	python/peps 619, 664, 790	
+D-E22	confirmed	scientific-python/specs schedule.md (2026-10-12)	
+D-E23	confirmed	PyPI JSON, scripts/pyver.py	
+D-E24	confirmed	pandas-dev/pandas whatsnew v3.0.0.rst (January 21, 2026)	
+D-E25	confirmed	R-FAQ.texi, r-pkgs license.Rmd, share/licenses/AGPL-3, license.db	r-pkgs view is explicitly the authors' 'personal opinion'
+D-E26	confirmed	recount over report D's 171 cached DESCRIPTIONs	25 reproduced (LGPL counted as GPL-family)
+D-E27	unverifiable	gnu.org blocked; web-search budget exhausted	
+D-E28	confirmed	PyPI JSON	
+D-E29	confirmed	dev_guide pkg_building.Rmd l.400; PEP 639; pyproject-toml.rst; uv resolution.md	
+D-E30	unverifiable	Oxford site blocked	

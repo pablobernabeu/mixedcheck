@@ -1,0 +1,71 @@
+{
+ "assignment": [
+  {
+   "blocks": [
+    "school"
+   ],
+   "column": "arm",
+   "control_level": "control",
+   "scheme": "blocked_cluster",
+   "unit": "class"
+  }
+ ],
+ "features": [
+  "cluster_randomised"
+ ],
+ "observation": {
+  "key": [
+   "pupil"
+  ],
+  "unit": "pupil"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "school",
+    "type": "string"
+   },
+   {
+    "name": "class",
+    "type": "string"
+   },
+   {
+    "name": "pupil",
+    "type": "string"
+   },
+   {
+    "categories": [
+     "control",
+     "tutoring"
+    ],
+    "name": "arm",
+    "type": "string"
+   },
+   {
+    "name": "y",
+    "type": "number"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z08_crt_randomisation_level_omitted",
+ "units": [
+  {
+   "columns": [
+    "school"
+   ],
+   "name": "school"
+  },
+  {
+   "columns": [
+    "class"
+   ],
+   "id_scope": "global",
+   "name": "class",
+   "nested_in": "school"
+  }
+ ]
+}

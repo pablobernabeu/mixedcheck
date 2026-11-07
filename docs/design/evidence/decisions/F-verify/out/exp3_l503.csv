@@ -1,0 +1,13 @@
+"cell","reps","test","false_flag_rate","mcse"
+"F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15",500,"T1 Bartlett by cluster, raw (F pilot)",0.04,0.00876356092008266
+"F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15",500,"T2 Brown-Forsythe by size stratum, raw",0.068,0.0112584190719657
+"F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15",500,"T3 Brown-Forsythe by size stratum, studentised",0.058,0.0104533248299285
+"J40 sizes 2/5/20/50 icc.3 RI",500,"T1 Bartlett by cluster, raw (F pilot)",0.032,0.00787095928079926
+"J40 sizes 2/5/20/50 icc.3 RI",500,"T2 Brown-Forsythe by size stratum, raw",0.092,0.01292563344676
+"J40 sizes 2/5/20/50 icc.3 RI",500,"T3 Brown-Forsythe by size stratum, studentised",0.056,0.0102824121683582
+"J40 sizes 2/5/20/50 icc.5 RI",500,"T1 Bartlett by cluster, raw (F pilot)",0.054,0.0101078187557949
+"J40 sizes 2/5/20/50 icc.5 RI",500,"T2 Brown-Forsythe by size stratum, raw",0.146,0.015791390059143
+"J40 sizes 2/5/20/50 icc.5 RI",500,"T3 Brown-Forsythe by size stratum, studentised",0.08,0.0121326007104825
+"J100 sizes 2/5/20/50 icc.3 RI",500,"T1 Bartlett by cluster, raw (F pilot)",0.034,0.00810481338464989
+"J100 sizes 2/5/20/50 icc.3 RI",500,"T2 Brown-Forsythe by size stratum, raw",0.182,0.0172554918793989
+"J100 sizes 2/5/20/50 icc.3 RI",500,"T3 Brown-Forsythe by size stratum, studentised",0.054,0.0101078187557949

@@ -1,0 +1,149 @@
+{
+  "_note": "Design sketch for Q3, not an implemented schema. Example: crossed subjects x items, focal 2-level factor 'cond' (within subject and item), nuisance item-level covariate 'freq_c' (centred log word frequency; between-item, within-subject), Gaussian LMM.",
+  "schema": "streamB.plan/0.1-proposal",
+  "outcome_access": {
+    "tier_used": "T0",
+    "attestation": "No outcome column was supplied to any T0 function (user attestation; not enforceable).",
+    "design_hash": "sha256:<canonical design columns + IDs + declared roles>",
+    "log": []
+  },
+  "preconditions": {
+    "coding": {
+      "cond": "deviation (-0.5/+0.5), reference-free"
+    },
+    "centring": {
+      "freq_c": {
+        "constant": 3.21,
+        "source": "design sample (rows complete on predictors and IDs)"
+      }
+    },
+    "why": "Diagonal (zero-correlation) rungs are not invariant to coding or centring; frozen before the ladder is built (see sim4_zcp_coding.txt)."
+  },
+  "ceiling": {
+    "terms": [
+      {
+        "group": "subj",
+        "unstructured": [
+          "(Intercept)",
+          "cond",
+          "freq_c",
+          "cond:freq_c"
+        ],
+        "informative_groups": 48,
+        "d_g_budget": 47
+      },
+      {
+        "group": "item",
+        "unstructured": [
+          "(Intercept)",
+          "cond"
+        ],
+        "informative_groups": 32,
+        "excluded": [
+          {
+            "term": "freq_c",
+            "reason": "between-item predictor: a by-item slope would only parameterise heteroscedasticity"
+          }
+        ]
+      }
+    ],
+    "lme4": "y ~ cond * freq_c + (1 + cond * freq_c | subj) + (1 + cond | item)"
+  },
+  "identifiability_verdict": {
+    "family": "gaussian (declared, an assumption)",
+    "ceiling": "identified (exact test for Gaussian LMM with unstructured/diagonal covariances)",
+    "per_rung": "every rung below is checked with the same test; a rung that fails is removed from the ladder and listed"
+  },
+  "protected_set": [
+    {
+      "term": "(1 | subj)",
+      "reason": "replication unit"
+    },
+    {
+      "term": "(1 | item)",
+      "reason": "replication unit"
+    },
+    {
+      "term": "cond | subj",
+      "reason": "focal within-subject effect (Barr et al. 2013)"
+    },
+    {
+      "term": "cond | item",
+      "reason": "focal within-item effect (Barr et al. 2013)"
+    }
+  ],
+  "ladder": [
+    {
+      "rung": 0,
+      "change": "ceiling",
+      "lme4": "y ~ cond * freq_c + (1 + cond * freq_c | subj) + (1 + cond | item)"
+    },
+    {
+      "rung": 1,
+      "change": "item covariance: unstructured -> diagonal (fewer informative groups first)",
+      "lme4": "... + (1 + cond * freq_c | subj) + (1 + cond || item)"
+    },
+    {
+      "rung": 2,
+      "change": "subj covariance: unstructured -> diagonal",
+      "lme4": "... + (1 + cond * freq_c || subj) + (1 + cond || item)"
+    },
+    {
+      "rung": 3,
+      "change": "drop nuisance interaction slope cond:freq_c | subj (higher order first)",
+      "lme4": "... + (1 + cond + freq_c || subj) + (1 + cond || item)"
+    },
+    {
+      "rung": 4,
+      "change": "drop nuisance slope freq_c | subj",
+      "lme4": "... + (1 + cond || subj) + (1 + cond || item)",
+      "note": "protected set reached"
+    }
+  ],
+  "ordering_keys": [
+    "k1 covariance structure before variances (unstructured -> cs for factors with >= 3 levels, diag for numeric columns), grouping factor with fewer informative groups first",
+    "k2 nuisance before focal; higher-order before marginal",
+    "k3 among nuisance terms: uncorrelated with focal predictors and compositionally homogeneous first; then fewer informative groups first",
+    "k4 never below the protected set; use the declared terminal alternative instead"
+  ],
+  "stopping_rule": {
+    "id": "SR-protected-failure-backoff/0.1",
+    "accept_first_rung_that": [
+      "converges by the registry criterion (suite-computed scaled gradient below tolerance and positive-definite Hessian for interior parameters, confirmed by a second optimiser)",
+      "has no rank-deficient random-effects covariance block (scale-free relative-eigenvalue tolerance from the registry)"
+    ],
+    "outcome_dependence": "Data-dependent: convergence and singularity depend on y. Pre-specified, not outcome-free.",
+    "masked_execution": "Allowed for Gaussian LMMs: run on y + X_focal * b_secret; selection is invariant up to optimiser tolerance (sim5_reml_masking.txt). Not exact for GLMMs.",
+    "alternatives_registered": [
+      "SR-LRT-0.2 (Matuschek et al. 2017) along the same ladder, REML, naive chi-square",
+      "SR-AIC",
+      "SR-none (keep ceiling)",
+      "SR-Bayes (priors declared, no ladder)"
+    ],
+    "protected_rung": "Accepted even when singular; zero-variance directions are named in the report. Keeping a zero-variance focal slope is inference-neutral relative to dropping it (SE and Satterthwaite df unchanged; sim6_singular_df.txt).",
+    "unprotected_rungs": "Stepped past when they fail either criterion."
+  },
+  "terminal_alternative": {
+    "if": "the protected rung (rung 4) fails the convergence criterion (singularity alone is not a failure at this rung)",
+    "then": "refit rung 4 with a penalised (MAP) covariance prior declared here; report as alternative estimator",
+    "never": "drop protected terms silently"
+  },
+  "deferred_checks": [
+    {
+      "tier": "T1",
+      "check": "per-cell share at response deadline",
+      "rule": "if > 10% of trials at the deadline, add the censored-RT sensitivity model M2 (declared)",
+      "basis": "effect-size threshold, not p-value"
+    },
+    {
+      "tier": "T2",
+      "check": "residual heteroscedasticity by cond",
+      "rule": "report as consequence for the declared estimand; no model change"
+    }
+  ],
+  "reporting_commitments": [
+    "primary = model selected by the stopping rule",
+    "sensitivity = ceiling (or protected rung) and next-lower rung",
+    "deviation table for any change after unlock"
+  ]
+}

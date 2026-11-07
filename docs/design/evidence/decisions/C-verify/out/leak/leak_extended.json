@@ -1,0 +1,114 @@
+{
+  "svg_coordinate_decimals": {
+    "min": 2,
+    "max": 5,
+    "n_markers": 300,
+    "example": [
+      "200.47275",
+      "146.3235",
+      "193.7535"
+    ]
+  },
+  "png_ticks_attacker": {
+    "frame_px": [
+      63,
+      450,
+      48,
+      356
+    ],
+    "blobs": 206,
+    "five_most_extreme_blobs": [
+      {
+        "est_y": -31.948,
+        "true_y": -31.868,
+        "abs_err_y": 0.08,
+        "is_true_top5": true
+      },
+      {
+        "est_y": 14.026,
+        "true_y": 14.104,
+        "abs_err_y": 0.078,
+        "is_true_top5": true
+      },
+      {
+        "est_y": 13.506,
+        "true_y": 13.578,
+        "abs_err_y": 0.072,
+        "is_true_top5": true
+      },
+      {
+        "est_y": 13.247,
+        "true_y": 13.374,
+        "abs_err_y": 0.127,
+        "is_true_top5": true
+      },
+      {
+        "est_y": -12.727,
+        "true_y": -12.685,
+        "abs_err_y": 0.042,
+        "is_true_top5": true
+      }
+    ],
+    "units_per_pixel_y": 0.26
+  },
+  "tail_quantile_with_k_subjects": [
+    {
+      "n_subjects": 10,
+      "median_dist_q05_to_min_SD": 0.186,
+      "median_dist_q10_to_min_SD": 0.372,
+      "q05_uses_order_stats": "x(1) and x(2)",
+      "subjects_beyond_q05": 0
+    },
+    {
+      "n_subjects": 20,
+      "median_dist_q05_to_min_SD": 0.325,
+      "median_dist_q10_to_min_SD": 0.612,
+      "q05_uses_order_stats": "x(1) and x(2)",
+      "subjects_beyond_q05": 1
+    },
+    {
+      "n_subjects": 30,
+      "median_dist_q05_to_min_SD": 0.455,
+      "median_dist_q10_to_min_SD": 0.784,
+      "q05_uses_order_stats": "x(2) and x(3)",
+      "subjects_beyond_q05": 1
+    },
+    {
+      "n_subjects": 50,
+      "median_dist_q05_to_min_SD": 0.615,
+      "median_dist_q10_to_min_SD": 0.958,
+      "q05_uses_order_stats": "x(3) and x(4)",
+      "subjects_beyond_q05": 2
+    },
+    {
+      "n_subjects": 200,
+      "median_dist_q05_to_min_SD": 1.089,
+      "median_dist_q10_to_min_SD": 1.438,
+      "q05_uses_order_stats": "x(10) and x(11)",
+      "subjects_beyond_q05": 10
+    }
+  ],
+  "contrast_vs_white": {
+    "blue": 5.19,
+    "vermillion": 3.87,
+    "bluish green": 3.42,
+    "reddish purple": 3.06,
+    "black": 21.0,
+    "orange": 2.25,
+    "sky blue": 2.31,
+    "yellow": 1.32,
+    "grey": 2.85
+  },
+  "contrast_between_essential_colours": {
+    "blue / vermillion": 1.34,
+    "blue / bluish green": 1.52,
+    "blue / reddish purple": 1.69,
+    "blue / black": 4.05,
+    "vermillion / bluish green": 1.13,
+    "vermillion / reddish purple": 1.26,
+    "vermillion / black": 5.43,
+    "bluish green / reddish purple": 1.12,
+    "bluish green / black": 6.14,
+    "reddish purple / black": 6.86
+  }
+}

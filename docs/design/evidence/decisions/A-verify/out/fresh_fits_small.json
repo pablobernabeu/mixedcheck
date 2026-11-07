@@ -1,0 +1,362 @@
+[
+ {
+  "model": "sleep_REML",
+  "glmm": {
+   "obj": 1743.6282719584926,
+   "reported_minus_obj": 1.5234036254696548e-11,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.036246793999453075,
+    0.0008527850004611537
+   ],
+   "names": [
+    "(Intercept)",
+    "Days"
+   ],
+   "max_dbeta_se": 4.997518951075562e-14,
+   "max_rel_dse": 5.746712891219197e-06
+  },
+  "mixedlm": {
+   "obj": 1743.6282719584908,
+   "reported_minus_obj": 0.0,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.30704496699945594,
+    0.05585226899893314
+   ],
+   "names": [
+    "(Intercept)",
+    "Days"
+   ],
+   "max_dbeta_se": 2.125942663573922e-13,
+   "max_rel_dse": 5.885052378196143e-06
+  },
+  "scores": {
+   "lme4": 1743.6282719599517,
+   "glmmTMB": 1743.6282719586552,
+   "glmm": 1743.6282719584926,
+   "mixedlm": 1743.6282719584908
+  },
+  "gaps": {
+   "lme4": 1.460875864722766e-09,
+   "glmmTMB": 1.6439116734545678e-10,
+   "glmm": 1.8189894035458565e-12,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.0129999999999999
+ },
+ {
+  "model": "sleep_zcp_ML",
+  "glmm": {
+   "obj": 1752.003255139883,
+   "reported_minus_obj": 1.318767317570746e-11,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.0014996170011727372,
+    0.0008025560000533005
+   ],
+   "names": [
+    "(Intercept)",
+    "Days"
+   ],
+   "max_dbeta_se": 2.796520936527327e-13,
+   "max_rel_dse": 9.45188287537757e-06
+  },
+  "mixedlm": {
+   "obj": 1752.003255139883,
+   "reported_minus_obj": 0.0,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.16630157200052054,
+    0.14313445100015088
+   ],
+   "names": [
+    "(Intercept)",
+    "Days"
+   ],
+   "max_dbeta_se": 5.508298814372007e-13,
+   "max_rel_dse": 9.521440931248293e-06
+  },
+  "scores": {
+   "lme4": 1752.0032551446009,
+   "glmmTMB": 1752.003255140331,
+   "glmm": 1752.003255139883,
+   "mixedlm": 1752.003255139883
+  },
+  "gaps": {
+   "lme4": 4.717776391771622e-09,
+   "glmmTMB": 4.4792614062316716e-10,
+   "glmm": 0.0,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.0129999999999999
+ },
+ {
+  "model": "nearsing_ML",
+  "glmm": {
+   "obj": 136.68650810157453,
+   "reported_minus_obj": 1.7053025658242404e-13,
+   "converged": true,
+   "singular": true,
+   "times": [
+    0.005174400999749196,
+    0.0008642379998491379
+   ],
+   "names": [
+    "(Intercept)",
+    "t"
+   ],
+   "max_dbeta_se": 8.157454466371021e-15,
+   "max_rel_dse": 2.0674502922979343e-06
+  },
+  "mixedlm": {
+   "obj": 136.68650810157453,
+   "reported_minus_obj": 5.684341886080802e-14,
+   "converged": true,
+   "singular": true,
+   "times": [
+    0.15767516400046588,
+    0.10699541199937812
+   ],
+   "names": [
+    "(Intercept)",
+    "t"
+   ],
+   "max_dbeta_se": 2.1962377409460443e-14,
+   "max_rel_dse": 2.0701090630570462e-06
+  },
+  "scores": {
+   "lme4": 136.68650810164843,
+   "glmmTMB": 136.68650883965125,
+   "glmm": 136.68650810157453,
+   "mixedlm": 136.68650810157453
+  },
+  "gaps": {
+   "lme4": 7.389644451905042e-11,
+   "glmmTMB": 7.38076721518155e-07,
+   "glmm": 0.0,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.0120000000000005
+ },
+ {
+  "model": "jq_REML",
+  "glmm": {
+   "obj": 187.34516677484112,
+   "reported_minus_obj": -2.842170943040401e-14,
+   "converged": true,
+   "singular": true,
+   "times": [
+    0.005210426001212909,
+    0.000928918001591228
+   ],
+   "names": [
+    "(Intercept)",
+    "x1",
+    "x2"
+   ],
+   "max_dbeta_se": 9.221053655097304e-07,
+   "max_rel_dse": 2.0038424540125277e-05
+  },
+  "mixedlm": {
+   "obj": 187.34516677484106,
+   "reported_minus_obj": -2.842170943040401e-14,
+   "converged": true,
+   "singular": true,
+   "times": [
+    0.34974563700052386,
+    0.34263111200016283
+   ],
+   "names": [
+    "(Intercept)",
+    "x1",
+    "x2"
+   ],
+   "max_dbeta_se": 9.717702792151195e-07,
+   "max_rel_dse": 2.0311986291376982e-05
+  },
+  "scores": {
+   "lme4": 187.34516678514487,
+   "glmmTMB": 187.35897880748536,
+   "glmm": 187.34516677484112,
+   "mixedlm": 187.34516677484106
+  },
+  "gaps": {
+   "lme4": 1.0303807584932656e-08,
+   "glmmTMB": 0.013812032644295869,
+   "glmm": 5.684341886080802e-14,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.0129999999999999
+ },
+ {
+  "model": "weighted_REML",
+  "glmm": {
+   "obj": 866.7728938800483,
+   "reported_minus_obj": 3.410605131648481e-13,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.001218270999743254,
+    0.0007835279993742006
+   ],
+   "names": [
+    "(Intercept)",
+    "x"
+   ],
+   "max_dbeta_se": 5.659534107665635e-09,
+   "max_rel_dse": 1.550192729737887e-08
+  },
+  "mixedlm": {
+   "obj": 866.7728938800483,
+   "reported_minus_obj": 2.2737367544323206e-13,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.047148044999630656,
+    0.031960243000867194
+   ],
+   "names": [
+    "(Intercept)",
+    "x"
+   ],
+   "max_dbeta_se": 6.069102233791839e-09,
+   "max_rel_dse": 1.662381887701514e-08
+  },
+  "scores": {
+   "lme4": 866.7728938800483,
+   "glmmTMB": 1602.9947134378629,
+   "glmm": 866.7728938800483,
+   "mixedlm": 866.7728938800483
+  },
+  "gaps": {
+   "lme4": 0.0,
+   "glmmTMB": 736.2218195578146,
+   "glmm": 0.0,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.0120000000000005
+ },
+ {
+  "model": "cbpp_laplace",
+  "glmm": {
+   "error": "ValueError(\"formula syntax error at position 0: cbind() takes exactly two column names, got 'cbind(incidence,size-incidence)'\")"
+  },
+  "mixedlm": {
+   "obj": 184.0525637295194,
+   "reported_minus_obj": 0.0,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.1825063209998916,
+    0.08873259299980418
+   ],
+   "names": [
+    "(Intercept)",
+    "period.1",
+    "period.2",
+    "period.3"
+   ],
+   "max_dbeta_se": 0.0014129016473459419,
+   "max_rel_dse": 0.015984118530646407
+  },
+  "scores": {
+   "lme4": 184.05257240347916,
+   "glmmTMB": 184.0525637295217,
+   "mixedlm": 184.0525637295194
+  },
+  "gaps": {
+   "lme4": 8.673959769112116e-06,
+   "glmmTMB": 2.3021584638627246e-12,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.0510000000000002
+ },
+ {
+  "model": "cbpp_agq25",
+  "glmm": {
+   "error": "ValueError(\"formula syntax error at position 0: cbind() takes exactly two column names, got 'cbind(incidence,size-incidence)'\")"
+  },
+  "mixedlm": {
+   "obj": 183.96673807462167,
+   "reported_minus_obj": 5.684341886080802e-14,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.1427419869996811,
+    0.08921991800161777
+   ],
+   "names": [
+    "(Intercept)",
+    "period.1",
+    "period.2",
+    "period.3"
+   ],
+   "max_dbeta_se": 3.0413816728608634e-05,
+   "max_rel_dse": 0.019538741334305998
+  },
+  "scores": {
+   "lme4": 183.96673807806135,
+   "mixedlm": 183.96673807462167
+  },
+  "gaps": {
+   "lme4": 3.439680540395784e-09,
+   "mixedlm": 0.0
+  },
+  "lme4_time_median_A": 0.048
+ },
+ {
+  "model": "owls_pois_agq25",
+  "glmm": {
+   "obj": 5202.745210382403,
+   "reported_minus_obj": 3.637978807091713e-12,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.029097713999362895,
+    0.028867576000266126
+   ],
+   "names": [
+    "(Intercept)",
+    "FoodTreatmentSatiated",
+    "SexParentMale",
+    "FoodTreatmentSatiated:SexParentMale"
+   ],
+   "max_dbeta_se": 5.5741197760425725e-05,
+   "max_rel_dse": 3.3129148844235345e-06
+  },
+  "mixedlm": {
+   "obj": 5202.745210382462,
+   "reported_minus_obj": -9.094947017729282e-13,
+   "converged": true,
+   "singular": false,
+   "times": [
+    0.14905591400020057,
+    0.14776494999932765
+   ],
+   "names": [
+    "(Intercept)",
+    "FoodTreatment.1",
+    "SexParent.1",
+    "FoodTreatment.1:SexParent.1"
+   ],
+   "max_dbeta_se": 5.4977586393602714e-05,
+   "max_rel_dse": 0.0007423441601209779
+  },
+  "scores": {
+   "lme4": 5202.745210386998,
+   "glmm": 5202.745210382403,
+   "mixedlm": 5202.745210382462
+  },
+  "gaps": {
+   "lme4": 4.595676728058606e-09,
+   "glmm": 0.0,
+   "mixedlm": 5.911715561524034e-11
+  },
+  "lme4_time_median_A": 0.110999999999997
+ }
+]

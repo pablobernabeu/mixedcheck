@@ -1,0 +1,4 @@
+{"x-edge": {"Zürich": "café", "b": [1, 1.0, 3000000000, -0, 1e2, 0.5, 7.5, 1e-3, 123.456, 0.1, 2026.10],
+ "A": {}, "a": [], "esc": "tab\there \"q\" back\\slash \u0001 ctrl", "emoji": "😀 😀",
+ "nested": {"z": true, "y": false}, "_": "underscore sorts after uppercase"},
+ "schema_version": "0.1.0", "title": "edge cases for canonical hashing"}

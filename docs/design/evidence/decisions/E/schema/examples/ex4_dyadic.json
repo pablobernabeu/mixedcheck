@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1.0",
+  "title": "Parent-child dyads, one observation per member",
+  "features": ["dyadic"],
+  "units": [
+    {"name": "dyad", "columns": ["family_id"], "role": "dyad"},
+    {"name": "member", "columns": ["member_id"], "nested_in": "dyad", "id_scope": "within_parent", "role": "participant"}
+  ],
+  "dyad": {"unit": "dyad", "role_column": "member_role", "distinguishable": true},
+  "observation": {"unit": "member", "key": ["family_id", "member_id"]},
+  "variables": {"wellbeing": {"role": "outcome"}, "member_role": {"role": "id"}}
+}

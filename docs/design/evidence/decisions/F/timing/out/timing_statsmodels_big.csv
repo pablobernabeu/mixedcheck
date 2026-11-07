@@ -1,0 +1,3 @@
+design,size,n_obs,engine_family,rep,elapsed,converged,n_warn
+crossed_vc,S48_I32,1536,statsmodels_gauss,1,0.9462782979999247,True,0
+crossed_vc,S96_I64,6144,statsmodels_gauss,1,16.689599471999827,True,0

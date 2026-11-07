@@ -1,0 +1,20 @@
+        REMLcrit slope_SE slope_t satt_df singular
+us_trt  1773.273  0.10072  1.7657    29.0        0
+us_dev  1773.273  0.10072  1.7657    29.0        0
+zcp_trt 1773.664  0.10306  1.7256    31.3        0
+zcp_dev 1774.988  0.10072  1.7657    29.0        0
+
+Three-level factor: lme4 expansion of (1 + f || s) and its parameter count
+ Groups   Name        Std.Dev.   Corr       
+ s        (Intercept) 8.0737e-01            
+ s.1      f3a         0.0000e+00            
+          f3b         1.3256e-05   NaN      
+          f3c         1.1597e-05   NaN 0.304
+ Residual             9.9773e-01            
+theta length: 7 
+ Groups   Name        Std.Dev.
+ s        (Intercept) 0.80737 
+ s.1      c1          0.00000 
+ s.2      c2          0.00000 
+ Residual             0.99773 
+theta length: 3 

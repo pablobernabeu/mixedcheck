@@ -1,0 +1,56 @@
+{
+ "observation": {
+  "key": [
+   "pupil",
+   "wave"
+  ],
+  "time": {
+   "column": "wave",
+   "kind": "occasion",
+   "within": "pupil"
+  },
+  "unit": "pupil"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "pupil",
+    "type": "string"
+   },
+   {
+    "name": "school",
+    "type": "string"
+   },
+   {
+    "name": "wave",
+    "type": "integer"
+   },
+   {
+    "name": "y",
+    "type": "number"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z02_mobility",
+ "units": [
+  {
+   "columns": [
+    "school"
+   ],
+   "name": "school"
+  },
+  {
+   "columns": [
+    "pupil"
+   ],
+   "id_scope": "global",
+   "membership": "may_change_over_time",
+   "name": "pupil",
+   "nested_in": "school"
+  }
+ ]
+}

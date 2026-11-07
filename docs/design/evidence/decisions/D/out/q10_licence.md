@@ -1,0 +1,28 @@
+# Q10 Licence: evidence gathered 2026-11-07
+
+## Licences of plausible dependencies
+R (DESCRIPTION, cran mirror): lme4 GPL (>= 2); glmmTMB AGPL-3; reformulas GPL-3; Matrix GPL (>= 2) | file LICENCE; performance, insight and bayestestR GPL-3; datawizard MIT; DHARMa GPL (>= 3); HLMdiag GPL-2; lmerTest and pbkrtest GPL (>= 2); jsonlite MIT; whisker GPL-3; quarto MIT. GPL-2-only packages in the lme4 and glmmTMB closures: minqa, rbibutils, numDeriv, TMB.
+Python (PyPI JSON): statsmodels BSD-3-Clause; numpy BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0; pandas BSD-3-Clause; scipy BSD; formulaic MIT; patsy BSD-2; matplotlib PSF-based; mixedlm MIT; glmm LGPL-3.0-or-later; gpboost Apache-2.0; pymer4 MIT; rpy2 GPL-2.0-or-later; chevron and pystache MIT; jsonschema MIT; narwhals MIT. The Mustache spec is MIT.
+
+## Positions on runtime use of GPL packages
+| Source | Position | Status |
+|---|---|---|
+| R FAQ (R-FAQ.texi, "Can I use R for commercial purposes?") | The GPL "permits all and any use ... It only restricts distribution of R or of other programs containing code from R". Quotes GPL clause 0: "The act of running the Program is not restricted" | verified (r-source trunk) |
+| R Packages 2e, Licensing, "Code you use" (hadley/r-pkgs license.Rmd) | The R Foundation said in 2009 that code using R need not be GPL. The authors' "personal opinion" is that a package's licence need not be compatible with packages used only through exported R functions (Suggests or Imports). LinkingTo and compiled linking need "more investigation". Users must still comply with every dependency's licence | verified (repo at 2026-06-04) |
+| Writing R Extensions, Licensing | "Please ensure that the license you choose also covers any dependencies ... it is particularly important that any restrictions on the use of such dependencies are evident" | verified |
+| CRAN policy | Packages may not require, directly or indirectly, software "which restricts users or usage". FOSS licences, GPL and AGPL included, do not | verified (texi revision 6985) |
+| GPL-3 §5 (aggregate) and AGPL-3 §13 | AGPL network obligations apply "if you modify the Program" | verified (r-source share/licenses) |
+| FSF GPL FAQ (#IfLibraryIsGPL and related entries) | A program that uses a GPL library must be released under the GPL "or a GPL-compatible license" as a combined work | partly verified: gnu.org was unreachable, and the wording comes from secondary quotations |
+| FSF licence list, Expat | "a lax, permissive non-copyleft free software license, compatible with the GNU GPL" | partly verified: seen only in a mirror snippet returned by search |
+
+## CRAN practice
+Among the 171 DESCRIPTION files cached, 25 permissively licensed (MIT, BSD or Apache) packages have GPL-family strong dependencies. Examples: datawizard (MIT) imports insight (GPL-3); effectsize, correlation and see (MIT) import insight, performance, parameters and bayestestR (GPL-3); shiny, rmarkdown and quarto (MIT) import htmltools (GPL (>= 2)) and knitr (GPL); later, plyr and reshape2 (MIT) list Rcpp (GPL (>= 2)) in LinkingTo, which means compiled linking. CRAN also distributes combinations that the FSF regards as incompatible: lme4 (GPL >= 2) imports both minqa (GPL-2) and reformulas (GPL-3), and glmmTMB (AGPL-3) compiles against TMB (GPL-2, LinkingTo). So CRAN does not police compatibility across dependency licences. This is evidence of practice, not of legal soundness.
+
+## Conclusion for this project
+- An MIT package that calls GPL-2, GPL-3, AGPL-3 or LGPL-3 packages at run time is acceptable under both readings. Under the R Core and R Packages reading no compatibility is required. Under the FSF reading, MIT code is GPL-compatible, so a combined work can be conveyed under the GPL while the package's own files stay MIT.
+- Apache-2.0 would be worse here, because the FSF treats it as incompatible with GPL-2-only code (minqa, TMB, HLMdiag, numDeriv). A GPL licence would push the Python package outside BSD and MIT norms and would itself be incompatible with GPL-2-only code (GPL-3) or with GPL-3-only code (GPL-2).
+- Licence obligations bite only on copying. Do not translate or copy code from lme4, DHARMa, HLMdiag, glmmTMB, insight or performance into either package. Re-implement from papers and documentation and record the provenance of each algorithm. Calling base R functions such as `qr(LAPACK = FALSE)` (LINPACK dqrdc2) is use, not copying.
+- Registry, schema and fixtures: keep them in the same MIT repository and generate the fixtures by simulation, so that the vendored copies need no extra licence text. Third-party datasets keep their own licences: record them in fixtures/PROVENANCE and ship only CC0 or CC BY data with attribution. Do not vendor GPL-packaged datasets (for example `lme4::sleepstudy`) into the Python package. R's license.db recognises MIT (a template requiring '+ file LICENSE'), CC BY 4.0 and CC0.
+- Packaging form: R `License: MIT + file LICENSE`, where LICENSE holds only the YEAR and COPYRIGHT HOLDER lines and the full text sits in an .Rbuildignore'd LICENSE.md. Python `license = "MIT"` with `license-files = ["LICENSE"]`, following PEP 639 (Final) and the pyproject spec.
+- JOSS, rOpenSci and pyOpenSci all require OSI licences, and MIT satisfies them.
+- Institutional point (unverified, from a search snippet of Oxford Research Support): researchers may release software under an open-source licence with the approval of their head of department, and Oxford University Innovation should be consulted if there is commercial potential. The copyright holder line, author or University of Oxford, must name the actual legal entity (R-exts).

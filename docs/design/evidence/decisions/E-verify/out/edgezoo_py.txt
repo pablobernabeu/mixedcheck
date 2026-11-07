@@ -1,0 +1,18 @@
+T10_clean_control	CANON	{"columns":{"id":["1","2"],"s":["x","y"],"y":[0.5,1.25]},"levels":{},"nrow":2}
+T10_clean_control	f08da7fb48aa138c56b0deefd97a4479c80a6b3e5f2076e301af736d4e1d412d
+T1_missing_default	CANON	{"columns":{"g":["a",null,"b"],"id":["1","2","3"],"y":[1.5,2.5,null]},"levels":{},"nrow":3}
+T1_missing_default	b66c32007c1ee35895db0e650b38394f95cca294e1e836d2b0496a37f34b93e0
+T2_integer_forms	CANON	{"columns":{"id":["1","2","3","4"],"k":[7,5,12,1000]},"levels":{},"nrow":4}
+T2_integer_forms	d7f8f125dceda2d038e8a13bc80469a18d095d8e860602f0c684d70505245e15
+T3_hex_integer	ERROR	ValueError: invalid literal for int() with base 10: '0x1A'
+T4_number_tokens	ERROR	FloatDomainError: nan is not representable in JCS
+T5_strings	CANON	{"columns":{"id":["1","2","3","4"],"s":["NA","café"," padded ","a,b"]},"levels":{},"nrow":4}
+T5_strings	6572b8de28c364eca83c7bc1f98feeb9e8770b157e9b91fba9e17142bc0172a1
+T6_crlf	CANON	{"columns":{"id":["1","2"],"s":["x","y"]},"levels":{},"nrow":2}
+T6_crlf	6f09e844424935645faeaa18e4705f08635e62a529ef725f853c5dd9dd6c807e
+T7_bom	CANON	{"columns":{"id":["1"],"s":["x"]},"levels":{},"nrow":1}
+T7_bom	41b24d929b0b136c4cc8cbc9340a13912f3475effaf254fe091c7fe18e44402b
+T8_volts	CANON	{"columns":{"amp":[0.0000032,-1.25e-7],"id":["1","2"]},"levels":{},"nrow":2}
+T8_volts	e4935c27b301c4dc7a9dda6d8c9edd8a82fff1e01b0c6353a43d9e2bbfe9e02a
+T9_embedded_newline	CANON	{"columns":{"id":["1","2"],"s":["two\nlines","z"]},"levels":{},"nrow":2}
+T9_embedded_newline	4b4786751a9c6d6fda6bf25334e073668aaeb464798bbd36e1a0fd7be65f01c1

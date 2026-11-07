@@ -1,0 +1,11 @@
+Package: auditdemoB
+Title: Demo of Engine Packages in Suggests
+Version: 0.0.1
+Authors@R: person("Demo", "Author", email = "<email redacted>", role = c("aut", "cre"))
+Description: Minimal demonstration that S3 methods for lme4 (S4) and glmmTMB
+    fits can be registered without importing the engines.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.2.0)
+Imports: stats, Matrix, jsonlite, lme4
+Suggests: lmerTest, glmmTMB, afex, testthat (>= 3.0.0)

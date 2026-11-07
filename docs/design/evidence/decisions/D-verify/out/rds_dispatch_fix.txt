@@ -1,0 +1,7 @@
+lme4 findable: FALSE | glmmTMB findable: FALSE 
+f1.rds | class: lmerMod | pkg attr: lme4 | result:  not_available lme4 
+f3.rds | class: lmerModLmerTest | pkg attr: lmerTest | result:  not_available lmerTest 
+g.rds | class: glmmTMB | pkg attr: - | result:  not_available glmmTMB 
+f1.rds | class: lmerMod | loaded before: lme4 | result: merMod  | loaded after: lme4 
+f3.rds | class: lmerModLmerTest | loaded before: lme4 | result: merMod  | loaded after: lme4,lmerTest 
+g.rds | class: glmmTMB | loaded before: lme4,lmerTest | result: glmmTMB  | loaded after: lme4,lmerTest,glmmTMB 

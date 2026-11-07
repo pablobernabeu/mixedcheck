@@ -1,0 +1,15 @@
+reference	fields_confirmed	fields_not_confirmed	source_checked	verdict
+Blair, Cooper, Coppock & Humphreys (2019) APSR	authors, year, title, journal, volume 113, issue 3, pages 838-859	DOI	DeclareDesign 2.0.0 inst/CITATION (raw.githubusercontent.com/cran/DeclareDesign)	unverifiable (DOI only)
+Blair, Coppock & Humphreys (2023) Princeton UP	authors, year, title, publisher	DOI 10.1515/9780691199580, ISBN	DeclareDesign 2.0.0 inst/CITATION; DeclareDesign/rdss README	unverifiable (DOI)
+Campbell, Piaggio, Elbourne & Altman (2012) BMJ	none	all	BMJ, PubMed, doi.org, Crossref unreachable; search budget exhausted	unverifiable
+DeBruine & Barr (2021) AMPPS	authors, title (hyphenation variant), journal, DOI	year, volume, issue, article number	debruine/lmem_sim README (raw.githubusercontent.com)	unverifiable (vol/issue); APA entry lacks e-locator
+Green & MacLeod (2016) MEE	authors, year, journal, volume 7, issue 4, pages 493-498, DOI	title spelling: CITATION has 'generalised', report 'generalized'	simr 1.0.11 inst/CITATION and DESCRIPTION	verified (title spelling variant unresolved)
+Hopewell et al. (2025) BMJ	none	all (report itself notes a 388 vs 389 volume conflict)	no reachable source	unverifiable
+Kappenman, Farrens, Zhang, Stewart & Luck (2021) NeuroImage	authors (order), year, title, journal, volume 225, article 117465, DOI	-	mne-python doc/references.bib; eegverse/erpcore README credit line (gives 2020, the online-first year)	verified
+Kirtley et al. (2021) AMPPS	none	all (entry also lacks volume, issue, pages)	no reachable source	unverifiable
+Klein et al. (2018) AMPPS	none	all	ManyLabs2 GitHub README has no citation; SAGE unreachable	unverifiable
+Kumle, Vo & Draschkow (2021) BRM	authors, year, title, journal (Behav Res), DOI	volume 53, issue, pages 2528-2543	DejanDraschkow/mixedpower README	unverifiable (vol/pages)
+Lakens & DeBruine (2021) AMPPS	none	all	scienceverse README has no citation	unverifiable
+Meteyard & Davies (2020) JML	none	all	no reachable source	unverifiable
+Paul, Govaart & Schettino (2021) IJP	none	all	no reachable source	unverifiable
+Siepe et al. (2026) BRM	none	all	openesm CRAN sources, PyPI metadata and GitHub READMEs carry no article citation	unverifiable

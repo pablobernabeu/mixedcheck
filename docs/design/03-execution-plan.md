@@ -18,12 +18,12 @@ CI is tiered. A minimal set of jobs runs on every push, the full matrix runs nig
 | M2 Stream B core | Strict readers, canonicalisation, formula parser, design matrices, T0 and T1 audits, results object and writer, pathology zoo | Cloud | Exact parity on all zoo fixtures, clean R CMD check with and without Suggests and under LC_ALL=C, and Python tests on 3.11 to 3.15 |
 | M3 Plan object | Ceiling, protected set, ladder, stopping-rule menu, terminal states, design-plan hash and execution binding, preregistration text, access log, draft_design() and builders | Cloud | Identical design-plan hashes across languages on the zoo, and every plan validates |
 | M3b Convergence-triage core | Optimisation statuses, scale-free rank and second-optimiser restarts for lme4 fits in R | Cloud | Statuses agree with the H0 benchmark, and the stopping rule can run end to end in R |
-| R0 Release 0.x | Stream B with the results object, console output and preregistration text, privacy-filtered | Cloud and local | CRAN incoming checks pass, the name is confirmed and plans are marked 'not for preregistration' until plan versioning is in place |
+| R0 Release 0.x | Stream B with the results object, console output and preregistration text, privacy-filtered | Cloud and local | CRAN incoming checks pass, the name is confirmed and plans are marked 'not for preregistration' until plan versioning is in place, and every unvalidated thresholded check is labelled descriptive |
 | P1 Stage 1 Registered Report | Protocol for the ladder and stopping-rule study (V5 with the V3 criteria it needs) | Local | Submitted, or deposited on OSF if the regular route is chosen |
 | M4 Reports | Shared Mustache renderer, view model and privacy filter, inline SVG layouts, aggregated CSV per figure, accessibility | Cloud | Golden reports agree across languages and pass axe-core and HTML validation |
 | M5 Stream A (Gaussian) | Reference evaluator, adapters, objective-match gate, residual and random-effect diagnostics, plan execution, reconciliation with Stream B | Cloud | Conformance corpus passes in CI with current engines, and the check code is frozen at a v0.9 tag |
 | M6 Validation, phase 1 | V1, V2, V3, V5 and V7 on ARC under preregistration | ARC | OSF deposit for V1, V2 and V7 before their runs, in-principle acceptance before the V5 runs, and results archived with a DOI |
-| R1 Release 1.0 | Validated thresholds with provenance in the registry, both packages released, Stage 2 submission | Cloud and local | Every shipped threshold has validation provenance, and every other check is labelled descriptive |
+| R1 Release 1.0 | Validated thresholds with provenance in the registry, both packages released, Stage 2 submission | Cloud and local | Every shipped threshold has validation provenance, every other check is labelled descriptive, and parity tiers have been regenerated with current engines |
 | M7 JOSS paper | Software paper for both packages | Local | More than six months of public history and research use beyond the tool's own papers |
 | M8 GLMMs (1.1) | R first on lme4 ≥ 2.1-0 and glmmTMB, then studies V8 to V10 | Cloud and ARC | The M5 and M6 gates applied to the GLMM checks |
 
@@ -61,7 +61,7 @@ The maintainer settles the choices listed at the end of 02-decisions.md first, b
 
 The skeleton follows the layout in Q7. r/ holds a minimal R package: DESCRIPTION with Depends R ≥ 4.2.0 and Imports Matrix, jsonlite, cli and utf8, the two-line licence stub and testthat. python/ holds a pyproject package with a src layout, requires-python ≥ 3.11, numpy, pandas and scipy as dependencies, and empty extras. spec/, fixtures/, parity/, sim/ and paper/ exist with short README files. A .gitattributes file fixes LF line endings for every shared artefact, and REUSE-style licence files mark any directory whose contents are not MIT.
 
-CI uses GitHub Actions with path filters. The R workflow runs R CMD check on Ubuntu (devel, release, oldrel-1 and 4.2), Windows and macOS (release), plus one job with `_R_CHECK_DEPENDS_ONLY_=true` and one under LC_ALL=C. The Python workflow runs Python 3.11 to 3.15 at both the lowest-direct and the latest resolutions. A parity workflow compares the SHA-256 of every vendored artefact with its source in spec/ or fixtures/ and fails on any mismatch. The artefacts covered are the registry, the schemas, the Mustache templates and CSS, the zoo fixtures and the conformance corpora.
+CI uses GitHub Actions with path filters. The R workflow runs R CMD check on Ubuntu (devel, release, oldrel-1 and 4.2), Windows and macOS (release), plus one job with `_R_CHECK_DEPENDS_ONLY_=true`, one under LC_ALL=C and one with lme4 1.1-35.1. The 4.2 job checks core features without engines, because glmmTMB, pbkrtest and afex currently need R 4.5 to install from source. The Python workflow runs the latest resolution on Python 3.11 to 3.15 and the lowest-direct resolution on 3.11, the only version for which every floor release ships wheels. A parity workflow compares the SHA-256 of every vendored artefact with its source in spec/ or fixtures/ and fails on any mismatch. The artefacts covered are the registry, the schemas, the Mustache templates and CSS, the zoo fixtures and the conformance corpora.
 
 Short CONTRIBUTING, code-of-conduct, governance and succession notes give JOSS the signals of open development it looks for in single-author projects. Each release is archived on Zenodo, with a CITATION file in the repository. An organisation-owned repository would also reduce the risk of depending on one person.
 
@@ -88,6 +88,7 @@ Cross-cutting conventions come first, because every reader and writer in both la
 - the disclosure_unit, event_level, trials and exposure fields
 - the Unicode policy
 - SHA-256 from cli in R
+- RFC 8785 serialisation with ECMAScript number formatting, written in-house and tested against the RFC's vectors
 
 They are recorded in docs/spec/conventions.md.
 
@@ -134,7 +135,7 @@ The T0 audits are:
 - labels that differ only in Unicode form
 - duplicates against the declared observation key
 
-The T1 audits sit behind the outcome-access argument.
+The T1 audits sit behind the outcome-access argument. The separation check runs as an exploratory T2 audit, with lpSolveAPI in Suggests in R and scipy's HiGHS solver in Python, and reports per-coefficient bounds over the optimal face.
 
 The pathology zoo grows from the ten prototypes to the thirty planned fixtures. Each has a clean matched negative and expectations derived from the generating design. Parsing-hazard, C-locale and attribute-consistency fixtures join it. The generators live in sim/ so that the simulation studies reuse them. Disclosure-attack tests on the privacy filter run in CI.
 
@@ -184,7 +185,7 @@ The diagnostics are:
 - cluster influence by one-step approximation, with exact refits as an option
 - the design df everywhere and Satterthwaite df through lmerTest in R only, labelled engine-specific
 
-Stream A executes a Stream B plan in both languages, logs every rung and reports the selected model, the protected rung and the adjacent rung as pre-declared sensitivity analyses. When rung 0 cannot be expressed in statsmodels, Python returns not_available and names the bring-your-own and R routes. When a plan file is supplied, Stream A reconciles the plan with the fitted model by hash.
+Stream A executes a Stream B plan in both languages, including its terminal states (CR2 through clubSandwich for nested designs in R), logs every rung and reports the selected model, the protected rung and the adjacent rung as pre-declared sensitivity analyses. When rung 0 cannot be expressed in statsmodels, Python returns not_available and names the bring-your-own and R routes. When a plan file is supplied, Stream A reconciles the plan with the fitted model by hash.
 
 The benchmark becomes the conformance corpus under fixtures/conformance/engines/. Simulated data are committed, real datasets are generated by Rscript in CI, and reference values come from current CRAN versions. The gate freezes the check code at a v0.9 tag, which is the version the preregistrations describe.
 
@@ -192,19 +193,21 @@ The benchmark becomes the conformance corpus under fixtures/conformance/engines/
 
 All simulation programmes share one codebase in sim/. The zoo generators serve as the data-generating mechanisms, with one SLURM runner, one results schema and one register of studies with memory classes. The SLURM templates, cost model and protocol tables in evidence/decisions/F and F-verify are its starting point.
 
-Studies V1, V2 and V7 are preregistered on OSF and run once the v0.9 code is frozen. V3 and V5 run after in-principle acceptance of the Stage 1 report. V2 starts with the priority modules:
+Studies V1, V2 and V7 are preregistered on OSF and run once the v0.9 code is frozen. V3 and V5 run after in-principle acceptance of the Stage 1 report. V2 starts with the priority modules in the protocol table:
 
-- the omitted slope
-- the omitted randomisation level in cluster-randomised trials
-- reused nested labels
-- small-cluster heteroscedasticity
-- the conflation of within and between effects
-- influence, with exact refits only in its own module at 2,000 replicates
-- residual autocorrelation
+- M06, the omitted random slope
+- M10, the omitted randomisation level in a cluster-randomised trial
+- M05, the omitted contextual effect
+- M01 and M09, heteroscedasticity at level 1 and by arm at level 2
+- M04, AR(1) residuals in growth data
+- M07, outlying clusters, with exact refits only in the influence module at 2,000 replicates
+- M12, ceiling and floor censoring
 
-V7 includes agreement on the rung reached in nested and crossed variance-component designs, and the conformance study of engines runs as a separate memory class, with one large-n timing study on a high-memory node. Thresholds are set on the calibration half, confirmed on the held-out half with the metamodel rule and written into the registry with their provenance. Python takes on the validated thresholds only once V7 shows that both languages compute the same statistics. Python Stream A development continues while the phase 1 jobs run.
+Modules M02, M03, M08, M11 and M13 follow.
 
-Each study is a SLURM job array on the htc short partition. Each task gets one core and 2 GB unless its memory class says otherwise, and tasks run for 2 to 4 hours, with at most 500 tasks per array and a concurrency throttle. Each chunk uses an L'Ecuyer-CMRG stream and each replicate a substream.
+V7 includes agreement on the rung reached in nested and crossed variance-component designs. It also includes the engine conformance study, which covers every benchmark design at 200 to 500 replicates, with preregistered certification of the optimum and the corpus versioned with the registry. The conformance study runs as a separate memory class, with one large-n timing study on a high-memory node, and its results regenerate the parity tiers. Thresholds are set on the calibration half, confirmed on the held-out half with the metamodel rule and written into the registry with their provenance. Python takes on the validated thresholds only once V7 shows that both languages compute the same statistics. Python Stream A development continues while the phase 1 jobs run.
+
+Each study is a SLURM job array on the htc short partition, without the CPU-generation constraint in the draft template, because the image is portable. Each task gets one core and 2 GB unless its memory class says otherwise, and tasks run for 2 to 4 hours, with at most 500 tasks per array and a concurrency throttle. Each chunk uses an L'Ecuyer-CMRG stream and each replicate a substream.
 
 Chunks write to $SCRATCH and are copied to /data/educ-intract/educ1242/<package>-sim/, and completion is checked against that directory. Raw replicate results are mirrored off ARC and archived with a DOI, because ARC keeps no backups.
 
@@ -254,7 +257,7 @@ Registries and current software:
 - `pak::pkg_name_check()` and the R-universe search for the chosen name
 - the live CRAN policy revision
 - the H0 reruns with current engines
-- R 4.2.0, 4.2.3 and 4.3.3 in rocker images, testing whether lme4 2.x installs with the bundled Matrix
+- R 4.2.0, 4.2.2, 4.2.3 and 4.3.3 in rocker images, testing whether lme4 2.x installs with the bundled Matrix
 - optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe
 
 ARC: module and Apptainer availability, array and QoS limits, the credit allocation for the project and the CPU feature names.
@@ -272,18 +275,20 @@ Privacy and reporting standards:
 - the ICO's anonymisation guidance
 - the identifiability provisions of the Data (Use and Access) Act 2025
 - the wording of the CONSORT 2010 cluster extension and whether a cluster extension aligned with CONSORT 2025 exists
+- JARS-Quant Table 1 and the FSF FAQ entries on GPL compatibility (#IfLibraryIsGPL and #Expat)
 - Quarto's alternative-text behaviour for Word and Typst
 - browser support for tagged print-to-PDF
 - screen-reader testing of a prototype report
 
 Data licences: OSF project 4p8hz, LSHTM Data Compass, Many Labs 2, the ERP CORE terms and the openESM datasets.
 
-These papers need reading in full before their content is used. They are in the evidence tables but not yet cited as sources:
+These papers need reading in full before their content is used. Two of them, Barr (2013) and Matuschek et al. (2017), are already cited in 02-decisions.md for points that the full texts must confirm. The others are in the evidence tables but not yet cited:
 
 - Meteyard and Davies (2020), the checklist and survey figures
 - Bono et al. (2021), the GLMM reporting rates
 - Matuschek et al. (2017), the design and the α of .2
-- Barr et al. (2013), the Type I error figures
+- Barr (2013), the Type I error figures for interactions
+- Barr et al. (2013), the Type I error figures for the maximal model
 - Scandola and Tidoni (2024), the procedure and simulation grids
 - Luo and Li (2023)
 - Eager and Roy (2017), the conditions

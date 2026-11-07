@@ -1,0 +1,18 @@
+kind,name,values_or_input,rule,source_keys
+status field,availability,available | not_available:<engine_missing|package_missing|capability_missing|declaration_missing|not_expressible|too_large|privacy_suppressed|planned_<version>>,Replaces E's 'not assessable' for a missing declaration and gives C's suppression a status,E Q4; C Q5; D Q6
+status field,assessability,"adequate | weak | not_assessable (+ reason: prerequisite_unmet, low_detection)",Statistical only (F V2 thresholds; catalogue prerequisite rule),F V2; catalogue L5 handling
+status field,finding,consistent | detectable_inconsequential | consequential,Orthogonal to assessability (catalogue verifier),catalogue verifier on severity
+status field,optimisation,at_optimum | near_optimum | not_converged | not_certified | objective_unavailable | objective_offset_registered | contract_mismatch,"One criterion for A's contract, B's SR-P and F's V3; 'near_optimum' must not reuse the word used for thresholds; SR-P needs an explicit rule for near_optimum and not_certified (large q)",A Q1.contract; B Q3.3; F V3
+status field,threshold_proximity,clear | near_threshold,Also applied to formatted numbers at reporting precision (string parity),proposal; C Q5
+status field,validation,"validated(study, language, engine, version range) | descriptive | outside_validated_range",Python inherits R-validated thresholds only after V7 shows statistic parity,F Q9; parent R1 gate
+hash,registry_sha256,bytes of compiled registry JSON,public,D Q7
+hash,declaration_hash,SHA-256 of RFC 8785 form; forbid 'categories' on ID-role columns so declarations carry no identifiers,public if no identifiers,E Q4
+hash,ir_hash,"canonical IR: terms, coding, centring constants as decimal strings, reference levels",public,A contract; B Step 0
+hash,design_plan_hash,"language-neutral plan: IR rungs, protected set, rule id/version, terminal state, declarations hash",public; must match across languages (M3 gate),B Q3.3; parent M3
+hash,execution_binding_hash,"engine, version, optimiser settings, per-rung encoding and expressibility",public; language/engine specific,B Q3.3
+hash,analysis_table_commitment,HMAC-SHA-256 (key in _INTERNAL sidecar) of canonical analysis table + observation keys,shareable outputs use keyed form; unkeyed form only internal/parity,proposal fingerprint; C results JSON; E-verify parsed-table hash
+hash,data_file_sha256,raw file bytes when a file path exists,internal/provenance; keyed in shareable outputs,E-verify
+hash,outcome_access_commitment,HMAC of outcome column for the access log,never unkeyed in any shareable file (all-but-one attack),B Q3.4
+hash,results_sha256,bytes of the written results JSON,public for shareable results; travels with .qmd export,C Q5
+json profile,hashable,"declarations, plans: strings, integers within +/-2^53, decimals <= 15 significant digits; centring constants as decimal strings; no null/NaN/Inf",E strict rules,E-verify
+json profile,data,"results, contract/BYO: null with status objects, doubles at shortest round-trip (17 sd), explicit non-finite encoding","A contract (glmmTMB NA SEs), C results",A; C

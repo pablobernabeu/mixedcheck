@@ -1,0 +1,7 @@
+tf <- tempfile(fileext = ".csv"); writeBin(charToRaw('id,y\nécole,1\n'), tf)
+d1 <- read.csv(tf); d2 <- read.csv(tf, encoding = "UTF-8")
+j1 <- jsonlite::toJSON(d1$id); j2 <- jsonlite::toJSON(d2$id)
+cat(Sys.getlocale("LC_CTYPE"), "jsonlite", as.character(packageVersion("jsonlite")), "\n")
+cat(" toJSON(unknown-encoded) bytes:", paste(charToRaw(j1), collapse = " "), "| Encoding:", Encoding(j1), "\n")
+cat(" toJSON(marked UTF-8)    bytes:", paste(charToRaw(j2), collapse = " "), "| Encoding:", Encoding(j2), "\n")
+cat(" sha of marked toJSON via cli:", substr(cli::hash_sha256(j2), 1, 12), "\n")

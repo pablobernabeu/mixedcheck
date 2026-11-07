@@ -1,0 +1,13 @@
+R: R version 4.3.3 (2024-02-29) 
+tools sha256-like functions: C_Rmd5, checkMD5sums, md5sum 
+functions matching normali[sz]e / nfc / nfd: normalizePath 
+iconv targets containing 'NFC' or 'MAC':  
+NFD == NFC in base R comparison: FALSE  nchar: 3 2 
+cli       installed=TRUE 3.6.2 MIT + file LICENSE
+openssl   installed=FALSE 
+digest    installed=TRUE 0.6.34 GPL (>= 2)
+utf8      installed=TRUE 1.2.4 Apache License (== 2.0) | file LICENSE
+stringi   installed=TRUE 1.8.3 file LICENSE
+yaml      installed=TRUE 2.3.8 BSD_3_clause + file LICENSE
+whisker   installed=FALSE 
+jsonlite  installed=TRUE 1.8.8 MIT + file LICENSE

@@ -1,0 +1,34 @@
+package,class,entries_mentioning,bugfix_entries_mentioning,all_entries,all_bugfix_entries
+performance,lme4 LMM (lmer/merMod),6,3,351,132
+performance,GLMM generic (glmer/binomial/poisson),33,21,351,132
+performance,glmmTMB (any family),23,11,351,132
+performance,zero-inflation / hurdle,14,7,351,132
+performance,overdispersion / dispersion,20,11,351,132
+performance,negative binomial,7,4,351,132
+performance,beta / ordbeta / beta-binomial,1,0,351,132
+performance,ordinal (clm/clmm/polr),7,7,351,132
+performance,nlme (lme/gls),5,4,351,132
+performance,Bayesian (brms/rstanarm/stan),22,12,351,132
+performance,GAM/GAMM (mgcv/gamm4),5,3,351,132
+insight,lme4 LMM (lmer/merMod),17,10,642,267
+insight,GLMM generic (glmer/binomial/poisson),12,7,642,267
+insight,glmmTMB (any family),18,11,642,267
+insight,zero-inflation / hurdle,12,5,642,267
+insight,overdispersion / dispersion,3,1,642,267
+insight,negative binomial,2,1,642,267
+insight,beta / ordbeta / beta-binomial,5,4,642,267
+insight,ordinal (clm/clmm/polr),11,4,642,267
+insight,nlme (lme/gls),20,15,642,267
+insight,Bayesian (brms/rstanarm/stan),74,43,642,267
+insight,GAM/GAMM (mgcv/gamm4),11,7,642,267
+DHARMa,lme4 LMM (lmer/merMod),2,0,111,28
+DHARMa,GLMM generic (glmer/binomial/poisson),6,3,111,28
+DHARMa,glmmTMB (any family),7,3,111,28
+DHARMa,zero-inflation / hurdle,1,1,111,28
+DHARMa,overdispersion / dispersion,7,0,111,28
+DHARMa,negative binomial,2,1,111,28
+DHARMa,beta / ordbeta / beta-binomial,0,0,111,28
+DHARMa,ordinal (clm/clmm/polr),0,0,111,28
+DHARMa,nlme (lme/gls),0,0,111,28
+DHARMa,Bayesian (brms/rstanarm/stan),3,0,111,28
+DHARMa,GAM/GAMM (mgcv/gamm4),2,0,111,28

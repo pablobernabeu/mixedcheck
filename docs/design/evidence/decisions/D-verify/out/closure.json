@@ -1,0 +1,1102 @@
+{
+ "S0 Matrix+jsonlite": {
+  "roots": [
+   "Matrix",
+   "jsonlite"
+  ],
+  "runtime": 3,
+  "withLinkingTo": 3,
+  "nonrec": 1,
+  "compiled": 3,
+  "compiled_nonrec": [
+   "jsonlite"
+  ],
+  "top_R_floors": [
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.0.0",
+    "lattice"
+   ]
+  ],
+  "members": [
+   "Matrix",
+   "jsonlite",
+   "lattice"
+  ]
+ },
+ "S2 +lme4": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4"
+  ],
+  "runtime": 13,
+  "withLinkingTo": 14,
+  "nonrec": 9,
+  "compiled": 11,
+  "compiled_nonrec": [
+   "Rcpp",
+   "RcppEigen",
+   "jsonlite",
+   "lme4",
+   "minqa",
+   "nloptr",
+   "rbibutils"
+  ],
+  "top_R_floors": [
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.0.0",
+    "lattice"
+   ],
+   [
+    "3.6.0",
+    "nlme"
+   ]
+  ],
+  "members": [
+   "MASS",
+   "Matrix",
+   "Rcpp",
+   "RcppEigen",
+   "Rdpack",
+   "boot",
+   "jsonlite",
+   "lattice",
+   "lme4",
+   "minqa",
+   "nlme",
+   "nloptr",
+   "rbibutils",
+   "reformulas"
+  ]
+ },
+ "S3 +lme4+insight": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "insight"
+  ],
+  "runtime": 14,
+  "withLinkingTo": 15,
+  "nonrec": 10,
+  "compiled": 11,
+  "compiled_nonrec": [
+   "Rcpp",
+   "RcppEigen",
+   "jsonlite",
+   "lme4",
+   "minqa",
+   "nloptr",
+   "rbibutils"
+  ],
+  "top_R_floors": [
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.0.0",
+    "lattice"
+   ],
+   [
+    "3.6.0",
+    "nlme"
+   ]
+  ],
+  "members": [
+   "MASS",
+   "Matrix",
+   "Rcpp",
+   "RcppEigen",
+   "Rdpack",
+   "boot",
+   "insight",
+   "jsonlite",
+   "lattice",
+   "lme4",
+   "minqa",
+   "nlme",
+   "nloptr",
+   "rbibutils",
+   "reformulas"
+  ]
+ },
+ "S4 +lme4+performance": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "performance"
+  ],
+  "runtime": 17,
+  "withLinkingTo": 18,
+  "nonrec": 13,
+  "compiled": 11,
+  "compiled_nonrec": [
+   "Rcpp",
+   "RcppEigen",
+   "jsonlite",
+   "lme4",
+   "minqa",
+   "nloptr",
+   "rbibutils"
+  ],
+  "top_R_floors": [
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.0.0",
+    "lattice"
+   ],
+   [
+    "4.0",
+    "performance"
+   ]
+  ],
+  "members": [
+   "MASS",
+   "Matrix",
+   "Rcpp",
+   "RcppEigen",
+   "Rdpack",
+   "bayestestR",
+   "boot",
+   "datawizard",
+   "insight",
+   "jsonlite",
+   "lattice",
+   "lme4",
+   "minqa",
+   "nlme",
+   "nloptr",
+   "performance",
+   "rbibutils",
+   "reformulas"
+  ]
+ },
+ "S5 +lme4+DHARMa": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "DHARMa"
+  ],
+  "runtime": 92,
+  "withLinkingTo": 94,
+  "nonrec": 87,
+  "compiled": 54,
+  "compiled_nonrec": [
+   "Rcpp",
+   "RcppEigen",
+   "S7",
+   "ape",
+   "askpass",
+   "base64enc",
+   "cachem",
+   "cli",
+   "commonmark",
+   "curl",
+   "data.table",
+   "digest",
+   "dplyr",
+   "farver",
+   "fastmap",
+   "fs",
+   "gap",
+   "glue",
+   "htmltools",
+   "httpuv",
+   "isoband",
+   "jsonlite",
+   "later",
+   "lazyeval",
+   "lme4",
+   "lmtest",
+   "magrittr",
+   "mime",
+   "minqa",
+   "nloptr",
+   "openssl",
+   "plyr",
+   "purrr",
+   "qgam",
+   "rappdirs",
+   "rbibutils",
+   "rlang",
+   "sass",
+   "sourcetools",
+   "stringi",
+   "sys",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "utf8",
+   "vctrs",
+   "xfun",
+   "yaml",
+   "zoo"
+  ],
+  "top_R_floors": [
+   [
+    "4.4.0",
+    "mgcv"
+   ],
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.1.0",
+    "tidyr"
+   ]
+  ],
+  "members": [
+   "DHARMa",
+   "MASS",
+   "Matrix",
+   "R6",
+   "RColorBrewer",
+   "Rcpp",
+   "RcppEigen",
+   "Rdpack",
+   "S7",
+   "ape",
+   "askpass",
+   "base64enc",
+   "boot",
+   "bslib",
+   "cachem",
+   "cli",
+   "codetools",
+   "commonmark",
+   "cpp11",
+   "crosstalk",
+   "curl",
+   "data.table",
+   "digest",
+   "doParallel",
+   "dplyr",
+   "evaluate",
+   "farver",
+   "fastmap",
+   "fontawesome",
+   "foreach",
+   "fs",
+   "gap",
+   "gap.datasets",
+   "generics",
+   "ggplot2",
+   "glue",
+   "gtable",
+   "highr",
+   "htmltools",
+   "htmlwidgets",
+   "httpuv",
+   "httr",
+   "isoband",
+   "iterators",
+   "jquerylib",
+   "jsonlite",
+   "knitr",
+   "labeling",
+   "later",
+   "lattice",
+   "lazyeval",
+   "lifecycle",
+   "lme4",
+   "lmtest",
+   "magrittr",
+   "memoise",
+   "mgcv",
+   "mime",
+   "minqa",
+   "nlme",
+   "nloptr",
+   "openssl",
+   "otel",
+   "pillar",
+   "pkgconfig",
+   "plotly",
+   "plyr",
+   "promises",
+   "purrr",
+   "qgam",
+   "rappdirs",
+   "rbibutils",
+   "reformulas",
+   "rlang",
+   "rmarkdown",
+   "sass",
+   "scales",
+   "shiny",
+   "sourcetools",
+   "stringi",
+   "stringr",
+   "sys",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "tinytex",
+   "utf8",
+   "vctrs",
+   "viridisLite",
+   "withr",
+   "xfun",
+   "xtable",
+   "yaml",
+   "zoo"
+  ]
+ },
+ "S6 +lme4+glmmTMB": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "glmmTMB"
+  ],
+  "runtime": 62,
+  "withLinkingTo": 65,
+  "nonrec": 58,
+  "compiled": 40,
+  "compiled_nonrec": [
+   "Deriv",
+   "RTMB",
+   "Rcpp",
+   "RcppArmadillo",
+   "RcppEigen",
+   "S7",
+   "TMB",
+   "backports",
+   "cli",
+   "colorspace",
+   "dplyr",
+   "farver",
+   "forecast",
+   "fracdiff",
+   "glmmTMB",
+   "glue",
+   "isoband",
+   "jsonlite",
+   "lme4",
+   "lmtest",
+   "magrittr",
+   "minqa",
+   "nloptr",
+   "purrr",
+   "rbibutils",
+   "rlang",
+   "stringi",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "urca",
+   "utf8",
+   "vctrs",
+   "zoo"
+  ],
+  "top_R_floors": [
+   [
+    "4.5",
+    "Deriv"
+   ],
+   [
+    "4.4.0",
+    "mgcv"
+   ],
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ]
+  ],
+  "members": [
+   "Deriv",
+   "MASS",
+   "Matrix",
+   "R6",
+   "RColorBrewer",
+   "RTMB",
+   "Rcpp",
+   "RcppArmadillo",
+   "RcppEigen",
+   "Rdpack",
+   "S7",
+   "TMB",
+   "backports",
+   "boot",
+   "broom",
+   "cli",
+   "colorspace",
+   "cowplot",
+   "cpp11",
+   "doBy",
+   "dplyr",
+   "farver",
+   "forecast",
+   "fracdiff",
+   "generics",
+   "ggplot2",
+   "glmmTMB",
+   "glue",
+   "gtable",
+   "isoband",
+   "jsonlite",
+   "labeling",
+   "lattice",
+   "lifecycle",
+   "lme4",
+   "lmtest",
+   "magrittr",
+   "mgcv",
+   "minqa",
+   "modelr",
+   "nlme",
+   "nloptr",
+   "nnet",
+   "numDeriv",
+   "pbkrtest",
+   "pillar",
+   "pkgconfig",
+   "purrr",
+   "rbibutils",
+   "reformulas",
+   "rlang",
+   "sandwich",
+   "scales",
+   "stringi",
+   "stringr",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "timeDate",
+   "urca",
+   "utf8",
+   "vctrs",
+   "viridisLite",
+   "withr",
+   "zoo"
+  ]
+ },
+ "S7 +lme4+lmerTest+pbkrtest": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "lmerTest",
+   "pbkrtest"
+  ],
+  "runtime": 58,
+  "withLinkingTo": 61,
+  "nonrec": 55,
+  "compiled": 36,
+  "compiled_nonrec": [
+   "Deriv",
+   "Rcpp",
+   "RcppArmadillo",
+   "RcppEigen",
+   "S7",
+   "backports",
+   "cli",
+   "colorspace",
+   "dplyr",
+   "farver",
+   "forecast",
+   "fracdiff",
+   "glue",
+   "isoband",
+   "jsonlite",
+   "lme4",
+   "lmtest",
+   "magrittr",
+   "minqa",
+   "nloptr",
+   "purrr",
+   "rbibutils",
+   "rlang",
+   "stringi",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "urca",
+   "utf8",
+   "vctrs",
+   "zoo"
+  ],
+  "top_R_floors": [
+   [
+    "4.5",
+    "Deriv"
+   ],
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.2.0",
+    "pbkrtest"
+   ]
+  ],
+  "members": [
+   "Deriv",
+   "MASS",
+   "Matrix",
+   "R6",
+   "RColorBrewer",
+   "Rcpp",
+   "RcppArmadillo",
+   "RcppEigen",
+   "Rdpack",
+   "S7",
+   "backports",
+   "boot",
+   "broom",
+   "cli",
+   "colorspace",
+   "cowplot",
+   "cpp11",
+   "doBy",
+   "dplyr",
+   "farver",
+   "forecast",
+   "fracdiff",
+   "generics",
+   "ggplot2",
+   "glue",
+   "gtable",
+   "isoband",
+   "jsonlite",
+   "labeling",
+   "lattice",
+   "lifecycle",
+   "lme4",
+   "lmerTest",
+   "lmtest",
+   "magrittr",
+   "minqa",
+   "modelr",
+   "nlme",
+   "nloptr",
+   "nnet",
+   "numDeriv",
+   "pbkrtest",
+   "pillar",
+   "pkgconfig",
+   "purrr",
+   "rbibutils",
+   "reformulas",
+   "rlang",
+   "scales",
+   "stringi",
+   "stringr",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "timeDate",
+   "urca",
+   "utf8",
+   "vctrs",
+   "viridisLite",
+   "withr",
+   "zoo"
+  ]
+ },
+ "S8 S0+quarto": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "quarto"
+  ],
+  "runtime": 33,
+  "withLinkingTo": 33,
+  "nonrec": 31,
+  "compiled": 20,
+  "compiled_nonrec": [
+   "Rcpp",
+   "base64enc",
+   "cachem",
+   "cli",
+   "digest",
+   "fastmap",
+   "fs",
+   "htmltools",
+   "jsonlite",
+   "later",
+   "mime",
+   "processx",
+   "ps",
+   "rappdirs",
+   "rlang",
+   "sass",
+   "xfun",
+   "yaml"
+  ],
+  "top_R_floors": [
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.1.0",
+    "quarto"
+   ],
+   [
+    "4.1",
+    "rappdirs"
+   ],
+   [
+    "4.1",
+    "fs"
+   ]
+  ],
+  "members": [
+   "Matrix",
+   "R6",
+   "Rcpp",
+   "base64enc",
+   "bslib",
+   "cachem",
+   "cli",
+   "digest",
+   "evaluate",
+   "fastmap",
+   "fontawesome",
+   "fs",
+   "highr",
+   "htmltools",
+   "jquerylib",
+   "jsonlite",
+   "knitr",
+   "later",
+   "lattice",
+   "lifecycle",
+   "memoise",
+   "mime",
+   "processx",
+   "ps",
+   "quarto",
+   "rappdirs",
+   "rlang",
+   "rmarkdown",
+   "rstudioapi",
+   "sass",
+   "tinytex",
+   "xfun",
+   "yaml"
+  ]
+ },
+ "S9 S0+ggplot2": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "ggplot2"
+  ],
+  "runtime": 19,
+  "withLinkingTo": 20,
+  "nonrec": 18,
+  "compiled": 10,
+  "compiled_nonrec": [
+   "S7",
+   "cli",
+   "farver",
+   "glue",
+   "isoband",
+   "jsonlite",
+   "rlang",
+   "vctrs"
+  ],
+  "top_R_floors": [
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.1",
+    "scales"
+   ],
+   [
+    "4.1",
+    "glue"
+   ],
+   [
+    "4.1",
+    "ggplot2"
+   ]
+  ],
+  "members": [
+   "Matrix",
+   "R6",
+   "RColorBrewer",
+   "S7",
+   "cli",
+   "cpp11",
+   "farver",
+   "ggplot2",
+   "glue",
+   "gtable",
+   "isoband",
+   "jsonlite",
+   "labeling",
+   "lattice",
+   "lifecycle",
+   "rlang",
+   "scales",
+   "vctrs",
+   "viridisLite",
+   "withr"
+  ]
+ },
+ "S10 everything": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "performance",
+   "DHARMa",
+   "glmmTMB",
+   "lmerTest",
+   "pbkrtest",
+   "ggplot2"
+  ],
+  "runtime": 115,
+  "withLinkingTo": 118,
+  "nonrec": 110,
+  "compiled": 65,
+  "compiled_nonrec": [
+   "Deriv",
+   "RTMB",
+   "Rcpp",
+   "RcppArmadillo",
+   "RcppEigen",
+   "S7",
+   "TMB",
+   "ape",
+   "askpass",
+   "backports",
+   "base64enc",
+   "cachem",
+   "cli",
+   "colorspace",
+   "commonmark",
+   "curl",
+   "data.table",
+   "digest",
+   "dplyr",
+   "farver",
+   "fastmap",
+   "forecast",
+   "fracdiff",
+   "fs",
+   "gap",
+   "glmmTMB",
+   "glue",
+   "htmltools",
+   "httpuv",
+   "isoband",
+   "jsonlite",
+   "later",
+   "lazyeval",
+   "lme4",
+   "lmtest",
+   "magrittr",
+   "mime",
+   "minqa",
+   "nloptr",
+   "openssl",
+   "plyr",
+   "purrr",
+   "qgam",
+   "rappdirs",
+   "rbibutils",
+   "rlang",
+   "sass",
+   "sourcetools",
+   "stringi",
+   "sys",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "urca",
+   "utf8",
+   "vctrs",
+   "xfun",
+   "yaml",
+   "zoo"
+  ],
+  "top_R_floors": [
+   [
+    "4.5",
+    "Deriv"
+   ],
+   [
+    "4.4.0",
+    "mgcv"
+   ],
+   [
+    "4.4.0",
+    "MASS"
+   ],
+   [
+    "4.4",
+    "Matrix"
+   ]
+  ],
+  "members": [
+   "DHARMa",
+   "Deriv",
+   "MASS",
+   "Matrix",
+   "R6",
+   "RColorBrewer",
+   "RTMB",
+   "Rcpp",
+   "RcppArmadillo",
+   "RcppEigen",
+   "Rdpack",
+   "S7",
+   "TMB",
+   "ape",
+   "askpass",
+   "backports",
+   "base64enc",
+   "bayestestR",
+   "boot",
+   "broom",
+   "bslib",
+   "cachem",
+   "cli",
+   "codetools",
+   "colorspace",
+   "commonmark",
+   "cowplot",
+   "cpp11",
+   "crosstalk",
+   "curl",
+   "data.table",
+   "datawizard",
+   "digest",
+   "doBy",
+   "doParallel",
+   "dplyr",
+   "evaluate",
+   "farver",
+   "fastmap",
+   "fontawesome",
+   "foreach",
+   "forecast",
+   "fracdiff",
+   "fs",
+   "gap",
+   "gap.datasets",
+   "generics",
+   "ggplot2",
+   "glmmTMB",
+   "glue",
+   "gtable",
+   "highr",
+   "htmltools",
+   "htmlwidgets",
+   "httpuv",
+   "httr",
+   "insight",
+   "isoband",
+   "iterators",
+   "jquerylib",
+   "jsonlite",
+   "knitr",
+   "labeling",
+   "later",
+   "lattice",
+   "lazyeval",
+   "lifecycle",
+   "lme4",
+   "lmerTest",
+   "lmtest",
+   "magrittr",
+   "memoise",
+   "mgcv",
+   "mime",
+   "minqa",
+   "modelr",
+   "nlme",
+   "nloptr",
+   "nnet",
+   "numDeriv",
+   "openssl",
+   "otel",
+   "pbkrtest",
+   "performance",
+   "pillar",
+   "pkgconfig",
+   "plotly",
+   "plyr",
+   "promises",
+   "purrr",
+   "qgam",
+   "rappdirs",
+   "rbibutils",
+   "reformulas",
+   "rlang",
+   "rmarkdown",
+   "sandwich",
+   "sass",
+   "scales",
+   "shiny",
+   "sourcetools",
+   "stringi",
+   "stringr",
+   "sys",
+   "tibble",
+   "tidyr",
+   "tidyselect",
+   "timeDate",
+   "tinytex",
+   "urca",
+   "utf8",
+   "vctrs",
+   "viridisLite",
+   "withr",
+   "xfun",
+   "xtable",
+   "yaml",
+   "zoo"
+  ]
+ },
+ "X1 S0+reformulas": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "reformulas"
+  ],
+  "runtime": 6,
+  "withLinkingTo": 6,
+  "nonrec": 4,
+  "compiled": 4,
+  "compiled_nonrec": [
+   "jsonlite",
+   "rbibutils"
+  ],
+  "top_R_floors": [
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.0.0",
+    "lattice"
+   ],
+   [
+    "2.15.0",
+    "Rdpack"
+   ],
+   [
+    "2.10",
+    "rbibutils"
+   ]
+  ],
+  "members": [
+   "Matrix",
+   "Rdpack",
+   "jsonlite",
+   "lattice",
+   "rbibutils",
+   "reformulas"
+  ]
+ },
+ "X2 S0+whisker": {
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "whisker"
+  ],
+  "runtime": 4,
+  "withLinkingTo": 4,
+  "nonrec": 2,
+  "compiled": 3,
+  "compiled_nonrec": [
+   "jsonlite"
+  ],
+  "top_R_floors": [
+   [
+    "4.4",
+    "Matrix"
+   ],
+   [
+    "4.0.0",
+    "lattice"
+   ]
+  ],
+  "members": [
+   "Matrix",
+   "jsonlite",
+   "lattice",
+   "whisker"
+  ]
+ },
+ "X3 performance alone": {
+  "roots": [
+   "performance"
+  ],
+  "runtime": 4,
+  "withLinkingTo": 4,
+  "nonrec": 4,
+  "compiled": 0,
+  "compiled_nonrec": [],
+  "top_R_floors": [
+   [
+    "4.0",
+    "performance"
+   ],
+   [
+    "4.0",
+    "datawizard"
+   ],
+   [
+    "3.6",
+    "insight"
+   ],
+   [
+    "3.6",
+    "bayestestR"
+   ]
+  ],
+  "members": [
+   "bayestestR",
+   "datawizard",
+   "insight",
+   "performance"
+  ]
+ }
+}

@@ -1,0 +1,28 @@
+{
+ "data_sha256": "5072126d792dbb19c5a5d6edc073963f8b09a03c070750130d3fe9718c6b476e",
+ "findings": [
+  {
+   "check": "keys.duplicate_declared_key",
+   "class": "identical values (possible double import)",
+   "duplicated_keys": 5,
+   "key": [
+    "subject",
+    "trial"
+   ],
+   "status": "error"
+  },
+  {
+   "check": "keys.exact_duplicate_rows_without_trial",
+   "note": "structural duplicates without a key are expected in binary trial data",
+   "rows_duplicated_if_trial_column_dropped": 166,
+   "status": "info"
+  }
+ ],
+ "fixture": "Z17_duplicate_keys",
+ "generator": {
+  "duplicated": "s03 trials 1-5",
+  "seed": 20261107,
+  "subjects": 10,
+  "trials": 20
+ }
+}

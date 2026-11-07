@@ -1,0 +1,7 @@
+"model","any_msg_first30","n_first30","any_msg","n","rate","wilson_lo","wilson_hi","singular_lme4","grad_msg","tmb_not_pdHess","median_fit_sec"
+"gauss_lmer",5,30,14,100,0.14,0.085,0.221,14,0,0,0.178
+"gauss_lmer_latent",12,30,52,100,0.52,0.423,0.615,49,3,0,0.174
+"bern_glmer",15,30,59,100,0.59,0.492,0.681,52,7,0,1.943
+"bern_tmb",19,30,67,100,0.67,0.573,0.754,0,0,27,0.613
+"bern_glmer_sd2",8,30,31,100,0.31,0.228,0.406,26,5,0,1.786
+"pois_glmer",0,30,0,100,0,0,0.037,0,0,0,1.453

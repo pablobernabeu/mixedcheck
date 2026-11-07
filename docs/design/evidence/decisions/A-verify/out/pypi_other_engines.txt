@@ -1,0 +1,16 @@
+lme4: not found
+pylme4: not found
+lmer: 0.13.0 | Containerized harness for running Claude Code against external repositories | last upload 2026-11-01
+glmer: not found
+mixedmodels: not found
+pymixedmodels: not found
+pyglmm: not found
+glmmpy: not found
+lmmpy: not found
+fastglmm: 0.1.0 | Fast Generalized Linear Mixed Models in Python | last upload 2025-08-22
+glmmtmb: not found
+pyglmmtmb: not found
+lmm: not found
+mixed-models: not found
+merf: 1.0 | Mixed Effects Random Forest | last upload 2020-05-19
+bambi: 0.21.0 | BAyesian Model Building Interface in Python | last upload 2026-09-10

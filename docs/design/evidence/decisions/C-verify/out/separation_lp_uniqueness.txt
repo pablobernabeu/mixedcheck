@@ -1,0 +1,6 @@
+highs-ds optimum 47.575708 b = [-0.061321  1.        0.669725] support [0, 1, 2]
+highs-ipm optimum 47.575708 b = [-0.061321  1.        0.669725] support [0, 1, 2]
+highs optimum 47.575708 b = [-0.061321  1.        0.669725] support [0, 1, 2]
+b_0: range over optimal face [-0.0613, -0.0613]
+b_1: range over optimal face [1.0000, 1.0000]
+b_2: range over optimal face [0.6697, 0.6697]

@@ -1,0 +1,3 @@
+"mode","jobs","median_job_s","wall_s"
+"serial_1proc",8,1.31,10.709
+"concurrent_4proc",8,1.805,4.13600000000001

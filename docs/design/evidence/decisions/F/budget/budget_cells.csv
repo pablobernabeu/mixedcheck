@@ -1,0 +1,951 @@
+"study","phase","reps","sec_per_rep","n","note","ncell","cpu_s"
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1a",1,2000,0.0702330490870588,12,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,140.466098174118
+"V1a",1,2000,0.0826913506415968,20,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,165.382701283194
+"V1a",1,2000,0.103204413819923,40,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,206.408827639846
+"V1a",1,2000,0.128808720901334,80,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,257.617441802669
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.0941357837924855,30,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,188.271567584971
+"V1a",1,2000,0.110836275763556,50,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,221.672551527112
+"V1a",1,2000,0.138334895299346,100,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,276.669790598691
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.146639244465464,120,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,293.278488930927
+"V1a",1,2000,0.172659431913731,200,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,345.318863827461
+"V1a",1,2000,0.215505102674756,400,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,431.010205349513
+"V1a",1,2000,0.268988332906646,800,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,537.976665813292
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.196563097701198,300,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,393.126195402395
+"V1a",1,2000,0.231446453384537,500,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,462.892906769075
+"V1a",1,2000,0.288887788704027,1000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,577.775577408054
+"V1a",1,2000,0.360592263695279,2000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,721.184527390558
+"V1a",1,2000,0.48340845647475,5000,"focal lmer + ML refit + RI alternative + Satterthwaite + simulate(250) + suite checks; glmmTMB on 20% for parity",1,966.816912949499
+"V1b",1,2000,0.0952871890084545,96,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,190.574378016909
+"V1b",1,2000,0.370179853419961,384,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,740.359706839923
+"V1b",1,2000,1.54582595707105,1536,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,3091.6519141421
+"V1b",1,2000,6.70227898987553,6144,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,13404.5579797511
+"V1b",1,2000,0.0952871890084545,96,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,190.574378016909
+"V1b",1,2000,0.370179853419961,384,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,740.359706839923
+"V1b",1,2000,1.54582595707105,1536,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,3091.6519141421
+"V1b",1,2000,6.70227898987553,6144,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,13404.5579797511
+"V1b",1,2000,0.0952871890084545,96,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,190.574378016909
+"V1b",1,2000,0.370179853419961,384,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,740.359706839923
+"V1b",1,2000,1.54582595707105,1536,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,3091.6519141421
+"V1b",1,2000,6.70227898987553,6144,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,13404.5579797511
+"V1c",1,2000,2.72345,384,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,5446.9
+"V1c",1,2000,14.843,1536,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,29685.9999999999
+"V1c",1,2000,2.72345,384,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,5446.9
+"V1c",1,2000,14.843,1536,"maximal + zcp + RI + Satterthwaite + simulate + suite checks; glmmTMB on 20%",1,29685.9999999999
+"V1d",1,2000,0.0366347651023072,80,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,73.2695302046145
+"V1d",1,2000,0.0625305062185735,200,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,125.061012437147
+"V1d",1,2000,0.0943370547146004,400,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,188.674109429201
+"V1d",1,2000,0.143122815747226,800,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,286.245631494452
+"V1d",1,2000,0.0548444028866512,160,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,109.688805773302
+"V1d",1,2000,0.0943370547146004,400,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,188.674109429201
+"V1d",1,2000,0.143122815747226,800,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,286.245631494452
+"V1d",1,2000,0.218303320876107,1600,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,436.606641752214
+"V1d",1,2000,0.0625305062185735,200,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,125.061012437147
+"V1d",1,2000,0.10781988804525,500,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,215.6397760905
+"V1d",1,2000,0.163865309353306,1000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,327.730618706613
+"V1d",1,2000,0.250357200259154,2000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,500.714400518308
+"V1d",1,2000,0.0943370547146004,400,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,188.674109429201
+"V1d",1,2000,0.163865309353306,1000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,327.730618706613
+"V1d",1,2000,0.250357200259154,2000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,500.714400518308
+"V1d",1,2000,0.38439999999999,4000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,768.799999999979
+"V1d",1,2000,0.0366347651023072,80,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,73.2695302046145
+"V1d",1,2000,0.0625305062185735,200,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,125.061012437147
+"V1d",1,2000,0.0943370547146004,400,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,188.674109429201
+"V1d",1,2000,0.143122815747226,800,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,286.245631494452
+"V1d",1,2000,0.0548444028866512,160,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,109.688805773302
+"V1d",1,2000,0.0943370547146004,400,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,188.674109429201
+"V1d",1,2000,0.143122815747226,800,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,286.245631494452
+"V1d",1,2000,0.218303320876107,1600,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,436.606641752214
+"V1d",1,2000,0.0625305062185735,200,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,125.061012437147
+"V1d",1,2000,0.10781988804525,500,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,215.6397760905
+"V1d",1,2000,0.163865309353306,1000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,327.730618706613
+"V1d",1,2000,0.250357200259154,2000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,500.714400518308
+"V1d",1,2000,0.0943370547146004,400,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,188.674109429201
+"V1d",1,2000,0.163865309353306,1000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,327.730618706613
+"V1d",1,2000,0.250357200259154,2000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,500.714400518308
+"V1d",1,2000,0.38439999999999,4000,"focal 3-level + model omitting a level + Satterthwaite + simulate + suite checks",1,768.799999999979
+"V1e",1,2000,0.235698759236109,150,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,471.397518472218
+"V1e",1,2000,0.490899999999989,600,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,981.799999999978
+"V1e",1,2000,1.02283176152512,2400,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,2045.66352305023
+"V1e",1,2000,0.308850362209769,250,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,617.700724419537
+"V1e",1,2000,0.643353273496294,1000,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,1286.70654699259
+"V1e",1,2000,1.34067389126609,4000,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,2681.34778253218
+"V1e",1,2000,0.396076896975795,400,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,792.153793951589
+"V1e",1,2000,0.82516400373182,1600,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,1650.32800746364
+"V1e",1,2000,1.7197699852611,6400,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,3439.5399705222
+"V1e",1,2000,0.235698759236109,150,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,471.397518472218
+"V1e",1,2000,0.490899999999989,600,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,981.799999999978
+"V1e",1,2000,1.02283176152512,2400,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,2045.66352305023
+"V1e",1,2000,0.308850362209769,250,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,617.700724419537
+"V1e",1,2000,0.643353273496294,1000,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,1286.70654699259
+"V1e",1,2000,1.34067389126609,4000,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,2681.34778253218
+"V1e",1,2000,0.396076896975795,400,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,792.153793951589
+"V1e",1,2000,0.82516400373182,1600,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,1650.32800746364
+"V1e",1,2000,1.7197699852611,6400,"focal (1+time|id) + glmmTMB AR(1) alternative + Satterthwaite + simulate + suite checks",1,3439.5399705222
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.186432732095788,50,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,186.432732095788
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.28767361520278,200,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,287.67361520278
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.443939124396582,800,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,443.939124396582
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,0.486525960423079,384,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,486.525960423079
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,1.61527571766291,1536,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,1615.27571766291
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.218607604663216,400,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,218.607604663216
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2",1,1000,0.643353273496294,1000,"focal fit + registry alternative (glmmTMB variant) + Satterthwaite + simulate + suite checks",1,643.353273496294
+"V2-infl",1,200,0.234733178758719,50,"J deletion refits per replicate",1,46.9466357517437
+"V2-infl",1,200,1.28596749273227,200,"J deletion refits per replicate",1,257.193498546454
+"V2-infl",1,200,0.367419283637791,200,"J deletion refits per replicate",1,73.4838567275582
+"V2-infl",1,200,2.01287801519889,800,"J deletion refits per replicate",1,402.575603039778
+"V2-infl",1,200,0.234733178758719,50,"J deletion refits per replicate",1,46.9466357517437
+"V2-infl",1,200,1.28596749273227,200,"J deletion refits per replicate",1,257.193498546454
+"V2-infl",1,200,0.367419283637791,200,"J deletion refits per replicate",1,73.4838567275582
+"V2-infl",1,200,2.01287801519889,800,"J deletion refits per replicate",1,402.575603039778
+"V2-infl",1,200,0.234733178758719,50,"J deletion refits per replicate",1,46.9466357517437
+"V2-infl",1,200,1.28596749273227,200,"J deletion refits per replicate",1,257.193498546454
+"V2-infl",1,200,0.367419283637791,200,"J deletion refits per replicate",1,73.4838567275582
+"V2-infl",1,200,2.01287801519889,800,"J deletion refits per replicate",1,402.575603039778
+"V2-infl",1,200,0.234733178758719,50,"J deletion refits per replicate",1,46.9466357517437
+"V2-infl",1,200,1.28596749273227,200,"J deletion refits per replicate",1,257.193498546454
+"V2-infl",1,200,0.367419283637791,200,"J deletion refits per replicate",1,73.4838567275582
+"V2-infl",1,200,2.01287801519889,800,"J deletion refits per replicate",1,402.575603039778
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-nested",1,1000,0.503847057282037,30,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,503.847057282037
+"V3-nested",1,1000,0.593303575277567,50,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,593.303575277567
+"V3-nested",1,1000,0.740620449088269,100,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,740.620449088269
+"V3-nested",1,1000,0.785113099546949,120,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,785.113099546949
+"V3-nested",1,1000,0.924533706841618,200,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,924.533706841618
+"V3-nested",1,1000,1.15413885913784,400,"lmer + glmmTMB + allFit (7 optimisers) + boundary probe (2 refits) + suite checks",1,1154.13885913784
+"V3-crossed",1,500,2.0133246607518,384,"as V3-nested on crossed designs",1,1006.6623303759
+"V3-crossed",1,500,8.45696955531863,1536,"as V3-nested on crossed designs",1,4228.48477765932
+"V3-crossed",1,500,2.0133246607518,384,"as V3-nested on crossed designs",1,1006.6623303759
+"V3-crossed",1,500,8.45696955531863,1536,"as V3-nested on crossed designs",1,4228.48477765932
+"V3-crossed",1,500,2.0133246607518,384,"as V3-nested on crossed designs",1,1006.6623303759
+"V3-crossed",1,500,8.45696955531863,1536,"as V3-nested on crossed designs",1,4228.48477765932
+"V3-crossed",1,500,16.7665,384,"as V3-nested on crossed designs",1,8383.25
+"V3-crossed",1,500,92.6674999999998,1536,"as V3-nested on crossed designs",1,46333.7499999999
+"V3-crossed",1,500,16.7665,384,"as V3-nested on crossed designs",1,8383.25
+"V3-crossed",1,500,92.6674999999998,1536,"as V3-nested on crossed designs",1,46333.7499999999
+"V3-crossed",1,500,16.7665,384,"as V3-nested on crossed designs",1,8383.25
+"V3-crossed",1,500,92.6674999999998,1536,"as V3-nested on crossed designs",1,46333.7499999999
+"V4",1,1000,6.25402326197772,25,"null + alternative fits + 199 bootstrap refit pairs",1,6254.02326197772
+"V4",1,1000,7.82443929195729,50,"null + alternative fits + 199 bootstrap refit pairs",1,7824.43929195729
+"V4",1,1000,9.78919451830832,100,"null + alternative fits + 199 bootstrap refit pairs",1,9789.19451830832
+"V4",1,1000,9.78919451830832,100,"null + alternative fits + 199 bootstrap refit pairs",1,9789.19451830832
+"V4",1,1000,12.247309454593,200,"null + alternative fits + 199 bootstrap refit pairs",1,12247.309454593
+"V4",1,1000,15.3226691528125,400,"null + alternative fits + 199 bootstrap refit pairs",1,15322.6691528125
+"V4",1,1000,6.25402326197772,25,"null + alternative fits + 199 bootstrap refit pairs",1,6254.02326197772
+"V4",1,1000,7.82443929195729,50,"null + alternative fits + 199 bootstrap refit pairs",1,7824.43929195729
+"V4",1,1000,9.78919451830832,100,"null + alternative fits + 199 bootstrap refit pairs",1,9789.19451830832
+"V4",1,1000,9.78919451830832,100,"null + alternative fits + 199 bootstrap refit pairs",1,9789.19451830832
+"V4",1,1000,12.247309454593,200,"null + alternative fits + 199 bootstrap refit pairs",1,12247.309454593
+"V4",1,1000,15.3226691528125,400,"null + alternative fits + 199 bootstrap refit pairs",1,15322.6691528125
+"V4",1,1000,6.25402326197772,25,"null + alternative fits + 199 bootstrap refit pairs",1,6254.02326197772
+"V4",1,1000,7.82443929195729,50,"null + alternative fits + 199 bootstrap refit pairs",1,7824.43929195729
+"V4",1,1000,9.78919451830832,100,"null + alternative fits + 199 bootstrap refit pairs",1,9789.19451830832
+"V4",1,1000,9.78919451830832,100,"null + alternative fits + 199 bootstrap refit pairs",1,9789.19451830832
+"V4",1,1000,12.247309454593,200,"null + alternative fits + 199 bootstrap refit pairs",1,12247.309454593
+"V4",1,1000,15.3226691528125,400,"null + alternative fits + 199 bootstrap refit pairs",1,15322.6691528125
+"V5-H1",1,1500,1.48764210098183,NA,"B's H1 grid as specified (2x2 up to 96 x 64)",100,223146.315147274
+"V5-H1",1,1500,18.1963553120989,NA,"B's H1 grid as specified (2x2 up to 96 x 64)",100,2729453.29681484
+"V5-H1-capped",1,1500,1.48764210098183,NA,"same, 2x2 cells capped at 1536 rows (recommended)",100,223146.315147274
+"V5-H1-capped",1,1500,7.6127396006471,NA,"same, 2x2 cells capped at 1536 rows (recommended)",100,1141910.94009706
+"V5-H2H5",1,1500,0.262022670637388,600,"H2: 6 lmer fits; H5: 3 fits + KR + CR2",100,39303.4005956082
+"V5-H2H5",1,1500,0.314149515930712,300,"H2: 6 lmer fits; H5: 3 fits + KR + CR2",96,45237.5302940226
+"V6",1,500,3.91221964597864,50,"200 inner fits per outer replicate",1,1956.10982298932
+"V6",1,500,6.12365472729652,200,"200 inner fits per outer replicate",1,3061.82736364826
+"V6",1,500,7.66133457640624,400,"200 inner fits per outer replicate",1,3830.66728820312
+"V6",1,500,9.58513340570901,800,"200 inner fits per outer replicate",1,4792.5667028545
+"V6",1,500,10.3019573572041,1000,"200 inner fits per outer replicate",1,5150.97867860205
+"V6",1,500,12.8888295666949,2000,"200 inner fits per outer replicate",1,6444.41478334745
+"V6",1,500,6.98110035401583,300,"200 inner fits per outer replicate",1,3490.55017700791
+"V6",1,500,3.91221964597864,50,"200 inner fits per outer replicate",1,1956.10982298932
+"V6",1,500,6.12365472729652,200,"200 inner fits per outer replicate",1,3061.82736364826
+"V6",1,500,7.66133457640624,400,"200 inner fits per outer replicate",1,3830.66728820312
+"V6",1,500,9.58513340570901,800,"200 inner fits per outer replicate",1,4792.5667028545
+"V6",1,500,10.3019573572041,1000,"200 inner fits per outer replicate",1,5150.97867860205
+"V6",1,500,12.8888295666949,2000,"200 inner fits per outer replicate",1,6444.41478334745
+"V6",1,500,6.98110035401583,300,"200 inner fits per outer replicate",1,3490.55017700791
+"V6",1,500,3.62470004961832,96,"200 inner fits per outer replicate",1,1812.35002480916
+"V6",1,500,16.2425393651991,384,"200 inner fits per outer replicate",1,8121.26968259957
+"V6",1,500,72.7839769963375,1536,"200 inner fits per outer replicate",1,36391.9884981688
+"V6",1,500,3.62470004961832,96,"200 inner fits per outer replicate",1,1812.35002480916
+"V6",1,500,16.2425393651991,384,"200 inner fits per outer replicate",1,8121.26968259957
+"V6",1,500,72.7839769963375,1536,"200 inner fits per outer replicate",1,36391.9884981688
+"V7",1,500,0.246544658398136,50,"statsmodels fit + suite checks (Python); R side reused from V1",1,123.272329199068
+"V7",1,500,0.26969677505539,200,"statsmodels fit + suite checks (Python); R side reused from V1",1,134.848387527695
+"V7",1,500,0.304365154247564,800,"statsmodels fit + suite checks (Python); R side reused from V1",1,152.182577123782
+"V7",1,500,0.33628586968945,2000,"statsmodels fit + suite checks (Python); R side reused from V1",1,168.142934844725
+"V7",1,500,0.377969729560797,5000,"statsmodels fit + suite checks (Python); R side reused from V1",1,188.984864780398
+"V7",1,500,0.285287248045728,400,"statsmodels fit + suite checks (Python); R side reused from V1",1,142.643624022864
+"V7",1,500,0.246544658398136,50,"statsmodels fit + suite checks (Python); R side reused from V1",1,123.272329199068
+"V7",1,500,0.26969677505539,200,"statsmodels fit + suite checks (Python); R side reused from V1",1,134.848387527695
+"V7",1,500,0.304365154247564,800,"statsmodels fit + suite checks (Python); R side reused from V1",1,152.182577123782
+"V7",1,500,0.33628586968945,2000,"statsmodels fit + suite checks (Python); R side reused from V1",1,168.142934844725
+"V7",1,500,0.377969729560797,5000,"statsmodels fit + suite checks (Python); R side reused from V1",1,188.984864780398
+"V7",1,500,0.285287248045728,400,"statsmodels fit + suite checks (Python); R side reused from V1",1,142.643624022864
+"V7",1,500,0.242362135726534,96,"statsmodels fit + suite checks (Python); R side reused from V1",1,121.181067863267
+"V7",1,500,0.463191441180849,384,"statsmodels fit + suite checks (Python); R side reused from V1",1,231.595720590425
+"V8-bernoulli",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-bernoulli",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-bernoulli",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8-bernoulli",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-bernoulli",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-bernoulli",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8-bernoulli",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-bernoulli",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-bernoulli",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8-bernoulli",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-bernoulli",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-bernoulli",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-bernoulli",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-bernoulli",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-bernoulli",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-bernoulli",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8x-bernoulli",2,2000,0.932078897932954,384,"crossed one-factor GLMM null bank",1,1864.15779586591
+"V8x-bernoulli",2,2000,0.932078897932954,384,"crossed one-factor GLMM null bank",1,1864.15779586591
+"V8x-bernoulli",2,2000,4.12093513002656,1536,"crossed one-factor GLMM null bank",1,8241.87026005311
+"V8x-bernoulli",2,2000,4.12093513002656,1536,"crossed one-factor GLMM null bank",1,8241.87026005311
+"V8-binomial5",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-binomial5",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-binomial5",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8-binomial5",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-binomial5",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-binomial5",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8-binomial5",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-binomial5",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-binomial5",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8-binomial5",2,2000,0.320548569576828,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,641.097139153656
+"V8-binomial5",2,2000,0.427104353698095,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,854.20870739619
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,0.571538979971197,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1143.07795994239
+"V8-binomial5",2,2000,0.768034915628361,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1536.06983125672
+"V8-binomial5",2,2000,1.03628045137086,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2072.56090274172
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,0.845422355884547,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1690.84471176909
+"V8-binomial5",2,2000,1.14214670631429,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2284.29341262857
+"V8-binomial5",2,2000,1.54893017806128,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3097.86035612256
+"V8-binomial5",2,2000,2.32991488830703,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,4659.82977661405
+"V8x-binomial5",2,2000,0.932078897932954,384,"crossed one-factor GLMM null bank",1,1864.15779586591
+"V8x-binomial5",2,2000,0.932078897932954,384,"crossed one-factor GLMM null bank",1,1864.15779586591
+"V8x-binomial5",2,2000,4.12093513002656,1536,"crossed one-factor GLMM null bank",1,8241.87026005311
+"V8x-binomial5",2,2000,4.12093513002656,1536,"crossed one-factor GLMM null bank",1,8241.87026005311
+"V8-poisson",2,2000,0.281522922240555,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,563.04584448111
+"V8-poisson",2,2000,0.372014344134307,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,744.028688268614
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.658256157875617,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1316.51231575123
+"V8-poisson",2,2000,0.881312802470948,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1762.6256049419
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.968989329467879,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1937.97865893576
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,1.94435982021651,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3888.71964043302
+"V8-poisson",2,2000,0.281522922240555,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,563.04584448111
+"V8-poisson",2,2000,0.372014344134307,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,744.028688268614
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.658256157875617,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1316.51231575123
+"V8-poisson",2,2000,0.881312802470948,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1762.6256049419
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.968989329467879,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1937.97865893576
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,1.94435982021651,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3888.71964043302
+"V8-poisson",2,2000,0.281522922240555,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,563.04584448111
+"V8-poisson",2,2000,0.372014344134307,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,744.028688268614
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.658256157875617,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1316.51231575123
+"V8-poisson",2,2000,0.881312802470948,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1762.6256049419
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.968989329467879,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1937.97865893576
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,1.94435982021651,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3888.71964043302
+"V8-poisson",2,2000,0.281522922240555,50,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,563.04584448111
+"V8-poisson",2,2000,0.372014344134307,100,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,744.028688268614
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.493771938015755,200,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,987.54387603151
+"V8-poisson",2,2000,0.658256157875617,400,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1316.51231575123
+"V8-poisson",2,2000,0.881312802470948,800,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1762.6256049419
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,0.722758032970289,500,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1445.51606594058
+"V8-poisson",2,2000,0.968989329467879,1000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,1937.97865893576
+"V8-poisson",2,2000,1.30449498742083,2000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,2608.98997484165
+"V8-poisson",2,2000,1.94435982021651,5000,"glmer focal + glmmTMB focal + glmer RI + nAGQ=10 RI + simulate(250) + suite checks",1,3888.71964043302
+"V8x-poisson",2,2000,0.932078897932954,384,"crossed one-factor GLMM null bank",1,1864.15779586591
+"V8x-poisson",2,2000,0.932078897932954,384,"crossed one-factor GLMM null bank",1,1864.15779586591
+"V8x-poisson",2,2000,4.12093513002656,1536,"crossed one-factor GLMM null bank",1,8241.87026005311
+"V8x-poisson",2,2000,4.12093513002656,1536,"crossed one-factor GLMM null bank",1,8241.87026005311
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.504219189368353,50,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,504.219189368353
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,0.843380329659294,200,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,843.380329659294
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.09746934989716,400,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1097.46934989716
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.43421936240411,800,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1434.21936240411
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.56470536899228,1000,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1564.70536899228
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V9",2,1000,1.18522200114224,384,"glmer focal + glmmTMB alternative (NB/ZI/OLRE) + simulate + suite checks",1,1185.22200114224
+"V10",2,500,21.0478832555002,50,"GLMM parametric bootstrap LRT, B = 199",1,10523.9416277501
+"V10",2,500,29.7119501914129,100,"GLMM parametric bootstrap LRT, B = 199",1,14855.9750957065
+"V10",2,500,41.9424591756185,200,"GLMM parametric bootstrap LRT, B = 199",1,20971.2295878093
+"V10",2,500,59.2074862257559,400,"GLMM parametric bootstrap LRT, B = 199",1,29603.7431128779
+"V10",2,500,21.0478832555002,50,"GLMM parametric bootstrap LRT, B = 199",1,10523.9416277501
+"V10",2,500,29.7119501914129,100,"GLMM parametric bootstrap LRT, B = 199",1,14855.9750957065

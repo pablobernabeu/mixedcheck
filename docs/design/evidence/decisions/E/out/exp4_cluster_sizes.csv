@@ -1,0 +1,5 @@
+"dataset","factor","J","N","singletons","pairs","median","max"
+"mlmRev::guImmun","mom",1595,2159,1063,500,1,3
+"mlmRev::Exam","school",65,4059,0,1,60,198
+"mlmRev::ScotsSec","primary",148,3435,7,5,20.5,72
+"mlmRev::star (teacher x grade)","tch_year",1387,26796,45,4,21,46

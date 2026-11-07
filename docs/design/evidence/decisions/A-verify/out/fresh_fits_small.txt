@@ -1,0 +1,8 @@
+sleep_REML           best    1743.628272 | gaps: lme4 1.5e-09, glmmTMB 1.6e-10, glmm 1.8e-12, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0009, mixedlm=0.0559 | lme4(A) 0.0129999999999999
+sleep_zcp_ML         best    1752.003255 | gaps: lme4 4.7e-09, glmmTMB 4.5e-10, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0008, mixedlm=0.1431 | lme4(A) 0.0129999999999999
+nearsing_ML          best     136.686508 | gaps: lme4 7.4e-11, glmmTMB 7.4e-07, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0009, mixedlm=0.1070 | lme4(A) 0.0120000000000005
+jq_REML              best     187.345167 | gaps: lme4 1.0e-08, glmmTMB 1.4e-02, glmm 5.7e-14, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0009, mixedlm=0.3426 | lme4(A) 0.0129999999999999
+weighted_REML        best     866.772894 | gaps: lme4 0.0e+00, glmmTMB 7.4e+02, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0008, mixedlm=0.0320 | lme4(A) 0.0120000000000005
+cbpp_laplace         best     184.052564 | gaps: lme4 8.7e-06, glmmTMB 2.3e-12, mixedlm 0.0e+00 | conv mixedlm=True | warm s: mixedlm=0.0887 | lme4(A) 0.0510000000000002
+cbpp_agq25           best     183.966738 | gaps: lme4 3.4e-09, mixedlm 0.0e+00 | conv mixedlm=True | warm s: mixedlm=0.0892 | lme4(A) 0.048
+owls_pois_agq25      best    5202.745210 | gaps: lme4 4.6e-09, glmm 0.0e+00, mixedlm 5.9e-11 | conv glmm=True, mixedlm=True | warm s: glmm=0.0289, mixedlm=0.1478 | lme4(A) 0.110999999999997

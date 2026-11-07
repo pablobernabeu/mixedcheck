@@ -1,0 +1,8 @@
+scenario,change,phase1_central_H1capped,phase1_central_H1uncapped,phase1_high_H1uncapped,phase2_central
+F_as_reported,"F budget.R rerun unchanged (lme4 1.1-35.1 timings, deriv12 on every fit)",1161,1931,3861,269
+S1_lme4_2.1_derivskip_plus_satt22,lme4 >= 1.1-38 default: no deriv12 for 2x2 maximal lmer fits (exp1 ratios .54/.40/.36); Satterthwaite on 2x2 maximal = 3.1 x derivative-free fit (exp2),820,1101,2202,269
+S2_KR_in_V1,"Kenward-Roger added to V1 cells with n <= 400 as F protocol states (6.5x nested fit, 17x crossed fit, 24.7 s per 2x2 fit at 384 rows)",1238,2008,4015,269
+S3_allFit_7_optimisers,allFit with all 7 optimisers (only 5 ran on this VM: optimx and dfoptim missing): R_ALLFIT 20 -> 28,1199,1969,3937,269
+S4_V6_unnested,V6 without nested inner simulation per outer replicate: 500 outer fits + 20 design draws x 200 inner fits x 3 mismatch levels per cell,1097,1867,3734,269
+S5_exact_influence_in_V1,"Exact cluster-deletion refits (catalogue L5-08 default) run on every V1 null-bank replicate, warm start = 0.5 fit",2281,3051,6102,269
+S6_combined_S1_to_S4,S1 + S2 + S3 + S4 (influence validated only in V2-infl),856,1137,2274,269

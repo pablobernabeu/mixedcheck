@@ -1,0 +1,21 @@
+{
+ "data_sha256": "3ac5ab515fff5c7497b70eb345d38cf01eb86c03288742e03d680a896d5d5d2d",
+ "findings": [
+  {
+   "check": "identifiability.aliased_grouping",
+   "note": "identical partitions: only the sum of the two variances is identified",
+   "status": "error",
+   "terms": [
+    "(1 | school)",
+    "(1 | class)"
+   ]
+  }
+ ],
+ "fixture": "Z04_aliased_grouping",
+ "generator": {
+  "J": 12,
+  "K": 1,
+  "n": 10,
+  "seed": 20261107
+ }
+}

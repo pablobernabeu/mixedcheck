@@ -1,0 +1,43 @@
+ref	verdict	fields_confirmed_here	source_checked	note
+Barr (2013) Frontiers in Psychology 4, 328	verified_partly	author, year, title, DOI 10.3389/fpsyg.2013.00328, article number 328	afex 1.5-1 man/mixed.Rd (raw.githubusercontent.com/cran/afex)	afex lists the section 'Frontiers in Quantitative Psychology and Measurement' without volume; volume 4 not confirmed; the Type I numbers (B-E16) not checkable here
+Barr, Levy, Scheepers & Tily (2013) JML 68(3) 255-278	verified	all fields	lme4 2.1-0 inst/REFERENCES.bib; afex mixed.Rd; B. Bolker glmm.bib (bbolker/mixedmodels-misc)	content (abstract wording) not re-read
+Bates, Kliegl, Vasishth & Baayen (2015) arXiv:1506.04967	verified	authors, year, title, identifier	lme4 REFERENCES.bib; afex mixed.Rd; Bolker glmm.bib	proposal cites the DataCite DOI 10.48550/arXiv.1506.04967; report uses the arXiv URL; both fine
+Bradley (1978) BJMSP 31, 144-152	verified_partly	author, year, title, journal, volume, pages	SimDesign man/Bradley1978.Rd and R/Bradley1978.R (liberal bounds 0.5*alpha to 1.5*alpha)	issue and DOI not confirmed
+Chung, Rabe-Hesketh, Dorie, Gelman & Liu (2013) Psychometrika 78(4) 685-709	verified	all fields	lme4 REFERENCES.bib; glmmTMB vignettes/glmmTMB.bib; performance check_singularity.Rd	-
+Coretta et al. (2023) AMPPS 6(3)	unverifiable	none	no reachable record (WebSearch budget exhausted; publisher, Crossref and PubMed hosts blocked)	report already flags full author list and pages as unconfirmed
+Dutilh, Sarafoglou & Wagenmakers (2021) Synthese 198(Suppl 23) 5745-5772	unverifiable	none	no reachable record	-
+Eager & Roy (2017) arXiv:1701.04858	verified	authors, year, title, identifier	Bolker glmm.bib	content (82% etc.) not checkable here
+Elff, Heisig, Schaeffer & Shikano (2021) BJPS 51(1) 412-426	unverifiable	none	no reachable record	-
+Frossard & Renaud (2019) arXiv:1903.10766	unverifiable	none	no reachable record	-
+Greven & Kneib (2010) Biometrika 97(4) 773-789	verified	authors, year, title (cAIC4 wording), journal, volume, issue, pages	cAIC4 man/cAIC.Rd (Greven is a cAIC4 author); Bolker glmm.bib (working-paper title variant)	DOI not confirmed; GLMM FAQ text agrees that mAIC has boundary problems
+Heck & Bockting (2021) CBB	unverifiable	none	no reachable record	print details unknown here; my unverified recollection is that the commentary appeared in the 2023 CBB issue with van Doorn et al.; check year/volume/pages locally
+Heisig & Schaeffer (2019) ESR 35(2) 258-279	unverifiable	none	no reachable record	also cited in the proposal; needs local check
+Heisig, Schaeffer & Giesecke (2017) ASR 82(4) 796-827	verified_partly	authors, year, title, journal, volume, issue, pages	datawizard man/demean.Rd (quotes the paper: lower precision, wide CIs, low power for context effects)	DOI not confirmed
+Huang & Zhang (2025) J Exp Educ	unverifiable	none	no reachable record (CR2 package DESCRIPTION lists other Huang papers only)	-
+Kuznetsova, Brockhoff & Christensen (2017) JSS 82(13) 1-26	verified	all fields	lmerTest inst/CITATION	-
+Lakens (2024) Collabra: Psychology 10(1) 117094	unverifiable	none	no reachable record	-
+Luke (2017) BRM 49(4) 1494-1502	verified_partly	author, year, title, journal, DOI	afex man/mixed.Rd	volume, issue, pages not confirmed
+Luo & Li (2023) Methodology 19(4) 365-386	unverifiable	none	no reachable record	-
+MacCoun & Perlmutter (2015) Nature 526(7572) 187-189	verified	all fields	D. Lakens statistical_inferences include/book.bib	-
+Martinez-Huertas & Olmos (2022) Methodology 18(4) 298-323	unverifiable	none	no reachable record	-
+Matuschek, Kliegl, Vasishth, Baayen & Bates (2017) JML 94 305-315	verified	all fields	lme4 REFERENCES.bib; Bolker glmm.bib; performance check_singularity.Rd	the LRT alpha (.2) still unconfirmed from the full text
+Meteyard & Davies (2020) JML 112 104092	unverifiable	none	no reachable record	-
+Morris, White & Crowther (2019) Stat Med 38(11) 2074-2102	verified	all fields	Lakens book.bib; simhelpers references.bib; rsimsum README	-
+Oberauer (2022) Psych Sci 33(4) 648-665	unverifiable	none	no reachable record	-
+Oberpriller, de Souza Leite & Pichler (2022) Ecol Evol 12(7) e9062	verified_partly	authors, title (bioRxiv 2021 preprint record)	Bolker glmm.bib	journal, volume, issue, article number, DOI of the published version not confirmed
+Park, Cardwell & Yu (2020) Methodology 16(2) 92-111	unverifiable	none	no reachable record	-
+Roettger (2019) Laboratory Phonology 10(1) 1	unverifiable	none	no reachable record	-
+Roettger (2021) Linguistics 59(5) 1227-1249	unverifiable	none	no reachable record	report admits content known only from slides: do not cite for convergence contingencies until read
+Sarafoglou, Hoogeveen & Wagenmakers (2023) AMPPS 6(1)	unverifiable	none	no reachable record	-
+Scandola & Tidoni (2024) AMPPS 7(1) 25152459231214454	verified	authors, year, title, journal, volume, issue, article number, DOI	Bolker glmm.bib	'1-21' is the PDF page range; AMPPS uses e-locators
+Schmidt-Catran & Fairbrother (2016) ESR 32(1) 23-38	unverifiable	none	no reachable record	-
+Seedorff, Oleson & McMurray (2019) PsyArXiv	unverifiable	none	no reachable record	-
+Self & Liang (1987) JASA 82(398) 605-610	verified	all fields	Bolker glmm.bib	-
+Siepe, Bartos, Morris, Boulesteix, Heck & Pawel (2024) Psychological Methods	verified_partly	authors, year, title, journal, DOI	bsiepe/ADEMP-PreReg README (citation block)	volume/issue/pages absent; README BibTeX has a variant title ('Structure' instead of 'Template'); add diacritics (Bartoš)
+Singmann & Kellen (2019) chapter, pp. 4-31	verified_partly	authors, year, title, editors, book, pages, DOI	Bolker glmm.bib	publisher given as Routledge there vs Psychology Press in the report; unresolved here
+Stram & Lee (1994) Biometrics 50(4) 1171-1177	verified_partly	authors, year, journal, volume, issue, pages	Bolker glmm.bib; buildmerControl.Rd (name only)	title conflict: Bolker's record reads 'Longitudinal Fixed Effects Model'; DOI 10.2307/2533455 not confirmed
+van den Akker et al. (2021) Meta-Psychology 5	unverifiable	none	no reachable record	-
+van Doorn, Aust, Haaf, Stefan & Wagenmakers (2023) CBB 6(1) 1-13	unverifiable	none	no reachable record	-
+Verissimo (2023) CBB 6 84-101	unverifiable	none	no reachable record	content (what 'mismatch' means) needs checking before it supports ordering key k3
+Willroth & Atherton (2024) AMPPS 7(1)	unverifiable	none	no reachable record	-
+Zhang & Lai (2024) BRM	unverifiable	none	no reachable record	-

@@ -1,0 +1,63 @@
+{
+ "crossings": [
+  {
+   "units": [
+    "subject",
+    "item"
+   ]
+  }
+ ],
+ "features": [
+  "crossed_experiment"
+ ],
+ "observation": {
+  "key": [
+   "subject",
+   "item"
+  ],
+  "unit": "subject"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "subject",
+    "type": "string"
+   },
+   {
+    "name": "item",
+    "type": "string"
+   },
+   {
+    "categories": [
+     "g1",
+     "g2"
+    ],
+    "name": "group",
+    "type": "string"
+   },
+   {
+    "name": "y",
+    "type": "number"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z13_disconnected_crossed",
+ "units": [
+  {
+   "columns": [
+    "subject"
+   ],
+   "name": "subject"
+  },
+  {
+   "columns": [
+    "item"
+   ],
+   "name": "item"
+  }
+ ]
+}

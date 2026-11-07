@@ -1,0 +1,33 @@
+{
+ "data_sha256": "5e23bb40ece2906e5320c8620fae6c836ef1da3dd1c1f4a78744faa6ed4cf44b",
+ "findings": [
+  {
+   "check": "structure.pair_relation",
+   "inner": "pupil",
+   "outer": "school",
+   "relation_from_labels": "partially crossed",
+   "share_inner_labels_in_multiple_outer": 0.066667,
+   "units_changing_outer": [
+    "P03",
+    "P17",
+    "P31",
+    "P48"
+   ]
+  },
+  {
+   "check": "structure.nested_formula_misspecified_for_movers",
+   "note": "(1|school/pupil) splits each mover into two pupils; crossed (1|school)+(1|pupil) fits occasion-level outcomes",
+   "status": "flag"
+  }
+ ],
+ "fixture": "Z02_mobility",
+ "generator": {
+  "movers": [
+   "P03",
+   "P17",
+   "P31",
+   "P48"
+  ],
+  "seed": 20261107
+ }
+}

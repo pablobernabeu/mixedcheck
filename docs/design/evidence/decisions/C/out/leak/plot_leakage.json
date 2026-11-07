@@ -1,0 +1,136 @@
+{
+  "svg": {
+    "file_bytes": 38522,
+    "points_in_file": 300,
+    "max_abs_error_fitted": 5.684341886080802e-14,
+    "max_abs_error_resid": 4.618527782440651e-14,
+    "note": "markers are written in data order, one <use> element per observation"
+  },
+  "png_100dpi": {
+    "file_bytes": 4309,
+    "blobs_found": 158,
+    "single_marker_blobs": 114,
+    "median_abs_error_fitted": 0.1472580645161301,
+    "median_abs_error_resid": 0.12727922077922438,
+    "p95_abs_error_resid": 0.24918506493506562,
+    "five_most_extreme_resid_true": [
+      -31.868,
+      14.104,
+      13.578,
+      13.374,
+      -12.685
+    ],
+    "five_most_extreme_resid_abs_error": [
+      0.2099220779220765,
+      0.20789610389610402,
+      0.2013766233766212,
+      0.2571168831168844,
+      0.1721428571428536
+    ]
+  },
+  "plotly_html": {
+    "file_bytes": 18631,
+    "external_script_cdn": true,
+    "ids_found_in_plain_text": 300,
+    "x_encoding": "base64 typed array",
+    "x_exact": true,
+    "y_exact": true
+  },
+  "binned_alternative": {
+    "bins": [
+      {
+        "bin": 0,
+        "n": 30,
+        "q10": -6.215099999999999,
+        "q50": -0.5449999999999999,
+        "q90": 4.750600000000001,
+        "mean": -1.1746,
+        "suppressed": false
+      },
+      {
+        "bin": 1,
+        "n": 30,
+        "q10": -6.761699999999999,
+        "q50": -1.07,
+        "q90": 5.238200000000002,
+        "mean": -0.6500666666666665,
+        "suppressed": false
+      },
+      {
+        "bin": 2,
+        "n": 30,
+        "q10": -4.9917,
+        "q50": -0.7144999999999999,
+        "q90": 5.532,
+        "mean": -0.2335666666666666,
+        "suppressed": false
+      },
+      {
+        "bin": 3,
+        "n": 30,
+        "q10": -6.7298,
+        "q50": -0.8115,
+        "q90": 3.1733000000000033,
+        "mean": -1.7618000000000003,
+        "suppressed": false
+      },
+      {
+        "bin": 4,
+        "n": 30,
+        "q10": -5.0142999999999995,
+        "q50": -0.154,
+        "q90": 4.481500000000001,
+        "mean": -0.09890000000000002,
+        "suppressed": false
+      },
+      {
+        "bin": 5,
+        "n": 30,
+        "q10": -4.100499999999999,
+        "q50": -0.198,
+        "q90": 2.8349000000000015,
+        "mean": -0.07966666666666668,
+        "suppressed": false
+      },
+      {
+        "bin": 6,
+        "n": 30,
+        "q10": -4.850899999999999,
+        "q50": -1.464,
+        "q90": 4.3796,
+        "mean": -0.9160666666666667,
+        "suppressed": false
+      },
+      {
+        "bin": 7,
+        "n": 30,
+        "q10": -2.8866999999999985,
+        "q50": 0.9744999999999999,
+        "q90": 6.734400000000004,
+        "mean": 1.236,
+        "suppressed": false
+      },
+      {
+        "bin": 8,
+        "n": 30,
+        "q10": -3.3145,
+        "q50": 0.47500000000000003,
+        "q90": 5.703100000000001,
+        "mean": 0.8209000000000001,
+        "suppressed": false
+      },
+      {
+        "bin": 9,
+        "n": 30,
+        "q10": -5.4373,
+        "q50": 1.379,
+        "q90": 4.8359,
+        "mean": 0.09646666666666662,
+        "suppressed": false
+      }
+    ],
+    "min_bin_n": 30,
+    "count_abs_resid_gt_3sd_reported_as_count_only": 1,
+    "note": "decile bins of fitted values; residual 10/50/90% quantiles per bin; no point positions, no min/max, no IDs. Bin edges are rounded quantiles, so the extreme edges are not the sample min and max only if the outer edges are dropped or replaced by open intervals."
+  }
+}

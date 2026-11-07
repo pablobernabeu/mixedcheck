@@ -1,0 +1,8 @@
+objective coefficients: [ 0. 16.  0.]
+highs-ds None optimum 16.0 b = [-0.5  1.  -1. ] support [0, 1, 2]
+highs-ds {'presolve': False} optimum 16.0 b = [0.5 1.  1. ] support [0, 1, 2]
+highs-ipm None optimum 16.0 b = [-0.5  1.  -1. ] support [0, 1, 2]
+highs-ipm {'presolve': False} optimum 16.0 b = [-0.5  1.   1. ] support [0, 1, 2]
+b_0: range over the optimal face [-0.5000, 0.5000]
+b_1: range over the optimal face [1.0000, 1.0000]
+b_2: range over the optimal face [-1.0000, 1.0000]

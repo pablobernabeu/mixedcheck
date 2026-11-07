@@ -1,0 +1,6 @@
+glmm ranef_blocks postvar per level shape: (2, 2)
+glmm         max rel diff of reported cond. variances vs beta-fixed: 4.9e-15 | vs PEV incl. beta: 2.4e-01
+mixedlm ranef(condVar=True) type: <class 'mixedlm.models.lmer_types.RanefResult'>
+  mixedlm condVar attr: <class 'dict'> {'Subject': ()}
+  mixedlm condVar access failed: TypeError("float() argument must be a string or a real number, not 'dict'")
+statsmodels  max rel diff of reported cond. variances vs beta-fixed: 2.1e-14 | vs PEV incl. beta: 2.4e-01

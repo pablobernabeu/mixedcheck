@@ -1,0 +1,32 @@
+{
+ "data_sha256": "2da8c4ef3cfd8f97a5b37ddcaf677da3671af2e2c8d01ac3418a5116dd5e336a",
+ "findings": [
+  {
+   "check": "structure.pair_relation",
+   "inner": "class",
+   "n_inner_labels": 3,
+   "outer": "school",
+   "relation_from_labels": "fully crossed",
+   "share_inner_labels_in_multiple_outer": 1.0
+  },
+  {
+   "check": "structure.declared_vs_observed",
+   "note": "declared within_parent scope explains the reuse; composite ID school:class gives 30 classes",
+   "status": "consistent"
+  },
+  {
+   "check": "structure.composite_groups",
+   "n_groups": 30,
+   "term": "school:class"
+  }
+ ],
+ "fixture": "Z01_reused_class_labels",
+ "generator": {
+  "J": 10,
+  "K": 3,
+  "n": 8,
+  "sd_class": 0.4,
+  "sd_school": 0.5,
+  "seed": 20261107
+ }
+}

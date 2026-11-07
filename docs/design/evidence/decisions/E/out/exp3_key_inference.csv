@@ -1,0 +1,8 @@
+"dataset","n_rows","exact_duplicate_rows","minimal_key","uses_measured_column"
+"sleepstudy",180,0,"Reaction",TRUE
+"sleepstudy",180,0,"Days+Subject",FALSE
+"fhch2010",13222,0,"id+item",FALSE
+"Exam",4059,0,"school+normexam+student",TRUE
+"Exam",4059,0,"school+standLRT+student",TRUE
+"Exam",4059,0,"normexam+schavg+student",TRUE
+"Exam",4059,0,"schavg+standLRT+student",TRUE

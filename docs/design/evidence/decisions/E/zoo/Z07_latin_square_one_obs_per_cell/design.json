@@ -1,0 +1,70 @@
+{
+ "crossings": [
+  {
+   "list": "list",
+   "units": [
+    "subject",
+    "item"
+   ]
+  }
+ ],
+ "features": [
+  "crossed_experiment",
+  "counterbalanced"
+ ],
+ "observation": {
+  "key": [
+   "subject",
+   "item"
+  ],
+  "unit": "subject"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "subject",
+    "type": "string"
+   },
+   {
+    "name": "item",
+    "type": "string"
+   },
+   {
+    "name": "list",
+    "type": "string"
+   },
+   {
+    "categories": [
+     "A",
+     "B",
+     "C"
+    ],
+    "name": "cond",
+    "type": "string"
+   },
+   {
+    "name": "y",
+    "type": "number"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z07_latin_square_one_obs_per_cell",
+ "units": [
+  {
+   "columns": [
+    "subject"
+   ],
+   "name": "subject"
+  },
+  {
+   "columns": [
+    "item"
+   ],
+   "name": "item"
+  }
+ ]
+}

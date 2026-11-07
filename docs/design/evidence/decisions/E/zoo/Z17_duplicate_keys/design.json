@@ -1,0 +1,52 @@
+{
+ "observation": {
+  "key": [
+   "subject",
+   "trial"
+  ],
+  "unit": "subject"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "subject",
+    "type": "string"
+   },
+   {
+    "name": "trial",
+    "type": "integer"
+   },
+   {
+    "categories": [
+     "A",
+     "B"
+    ],
+    "name": "cond",
+    "type": "string"
+   },
+   {
+    "name": "acc",
+    "type": "integer"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z17_duplicate_keys",
+ "units": [
+  {
+   "columns": [
+    "subject"
+   ],
+   "name": "subject"
+  }
+ ],
+ "variables": {
+  "acc": {
+   "measurement": "binary",
+   "role": "outcome"
+  }
+ }
+}

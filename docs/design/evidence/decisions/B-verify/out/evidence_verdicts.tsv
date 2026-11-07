@@ -1,0 +1,29 @@
+id	verdict	how_checked	correction_or_note
+B-E01	confirmed	Recomputed every small-design cell from the raw replicate CSVs (scripts/v1_recompute_sim1.R); published summary reproduced exactly; original and rerun files agree on all 51,800 shared rows	Rates are as stated. MCSE about .004-.009 per cell
+B-E02	confirmed	Same recomputation plus paired differences on the same data sets (out/v1_paired_differences.csv)	Paired power gaps vs protected: SR-U +4.0 to +4.7 points (MCSE about .8) at tau <= .2; LRT(.2) +7.0/+6.2/+3.7; AIC +7.8/+7.3/+5.5. Gaps are not size-adjusted: SR-P's realised alpha was .018-.040
+B-E03	confirmed	Recomputed large-design cells from raw CSVs	500 replicates only (MCSE about .010 at .05). Cost of protection at tau = .2 is +1.4 (SR-U), +1.8 (LRT .2) and +2.8 (AIC) points, not 'about 1'
+B-E04	corrected	Paired comparison of lrt02_design vs lrt02_data on the same data sets	Differences <= .003 with <= 1% discordant data sets because subject and item slope SDs were equal and the first-tested slope rarely mattered; both slopes are focal, so the recommended ladder would protect them. Non-diagnostic for ordering; needs asymmetric variances and nuisance terms (H2)
+B-E05	confirmed	Recomputed from raw CSVs	Convergence-warning range across all cells 0.8-4.0% (1.1-4.0% in H0 cells)
+B-E06	confirmed	Recomputed Sim 2 from raw CSVs	Only unprotected LRT/AIC and SR-U were simulated; 'rs_always' stands in for SR-P. SR-U (back-off) also stayed at .040-.052
+B-E07	confirmed	Recomputed Sim 3 from raw CSVs; v2 replicates the direction	'mean SE .0741 vs .0795' mixes H0 full (.0741) with H1 drop (.0795); H0: .0741 vs .0797. Dropping a correlated nuisance slope was conservative, never anticonservative, for the focal test
+B-E08	confirmed	Read sim4 output; lme4 getDoublevertDefault.Rd and glmmTMB covstruct.rmd (current master) describe the same factor/'||' behaviour	-
+B-E09	confirmed	Recomputed flags from sim5 CSV (REML singular 799/800, warning 799/800, ML singular 798/800); invariance follows from REML error contrasts and profiled ML	Because the rule's decisions are invariant to the focal fixed effect, masking cannot change the selected rung; it only hides the estimate from the analyst
+B-E10	corrected	Recomputed from sim6 CSV	Median SE and df unchanged and 0/585 decisions differ, but 10/585 fits (1.7%) differed in Satterthwaite df by > 1 (e.g. 13.7 vs 344; p .011 vs .003) because the reduced fit reached a different optimum; 'SE and df unchanged' in the contract is too strong
+B-E11	confirmed	Read current master man/isSingular.Rd	Quotes, five strategies and 1e-4 tolerance confirmed
+B-E12	confirmed	Read current master inst/NEWS.Rd, man/Covariance-class.Rd, man/getDoublevertDefault.Rd	Also: cs() defaults to heterogeneous (hom = FALSE); since 1.1-38 derivative checks are skipped for singular fits, large n and many top-level parameters, so SR-P's 'suite-computed' checks must be implemented by the package
+B-E13	confirmed	Read glmmTMB master vignettes/covstruct.rmd (1.1.15.2)	homcs rho range (-1/(n-1), 1); CRI requires rho >= 0
+B-E14	corrected	Read lmerTest master R/step.R (3.2-1) and buildmer master man/buildmerControl.Rd (2.13)	Defaults confirmed, but buildmer's include= keeps user-named terms 'at all times', i.e. a protected set already exists
+B-E15	confirmed	Read afex master vignette and RePsychLing KB.Rmd	KB vignette uses ML fits and does not state the LRT alpha
+B-E16	unverifiable	Barr (2013) full text not reachable (WebSearch budget exhausted; publisher/PMC hosts blocked)	Bibliographic record partly confirmed via afex
+B-E17	unverifiable	Abstracts not reachable here	-
+B-E18	unverifiable	Not reachable here	-
+B-E19	unverifiable	Luo & Li not reachable; Heisig et al. (2017) half consistent with a quotation in datawizard demean.Rd (precision of context effects)	Heisig et al. 2017 is about precision (wide CIs, low power), not anticonservatism
+B-E20	unverifiable	Record verified (Bolker glmm.bib); content not reachable	-
+B-E21	unverifiable	Eager & Roy record verified (Bolker glmm.bib); numbers not reachable	-
+B-E22	confirmed	B. Bolker's GLMM FAQ (bbolker/mixedmodels-misc glmmFAQ.rmd) states boundary LRTs are conservative citing Self & Liang (1987) and Stram & Lee (1994), and that Greven & Kneib (2010) document mAIC problems	Greven & Kneib wording ('favours models without random effects') not re-read
+B-E23	unverifiable	Not reachable here	Verissimo (2023) content needs checking before it supports ordering key k3
+B-E24	unverifiable	Not reachable here	Oberpriller et al. (2022) as extracted is a published simulation of a singular-fit-triggered switch, which contradicts the report's claim that no such study exists
+B-E25	unverifiable	Not reachable here	-
+B-E26	unverifiable	MacCoun & Perlmutter record verified (Lakens book.bib); Dutilh and Sarafoglou content not reachable	-
+B-E27	unverifiable	Not reachable here	Roettger (2021) content known to the report only from slides
+B-E28	unverifiable	Luke (2017) record partly verified via afex; content not reachable	-

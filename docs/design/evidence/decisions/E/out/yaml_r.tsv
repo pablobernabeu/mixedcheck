@@ -1,0 +1,29 @@
+Warning message:
+In yaml.load(readLines(con, warn = readLines.warn), error.label = error.label,  :
+  NAs introduced by coercion: 1,000 is not an integer
+yaml 2.3.8 
+yes_word	logical	TRUE
+no_word	logical	FALSE
+y_letter	logical	TRUE
+n_letter	logical	FALSE
+on_word	logical	TRUE
+off_word	logical	FALSE
+country_NO	logical	FALSE
+na_token	character	"NA"
+tilde	NULL	NULL
+null_word	NULL	NULL
+empty	NULL	NULL
+zero_padded_id	integer	7L
+leading_zero_08	character	"08"
+version_like	numeric	2026.1
+exp_no_dot	character	"1e3"
+exp_with_dot	character	"1.0e3"
+dot_five	numeric	0.5
+hex	integer	31L
+underscore_int	character	"1_000"
+comma_int	integer	NA_integer_
+sexagesimal	character	"12:30"
+date_like	character	"2026-11-07"
+plus_one	integer	1L
+inf	numeric	Inf
+quoted_no	character	"no"

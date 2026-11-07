@@ -1,0 +1,25 @@
+yes_word: yes
+no_word: no
+y_letter: y
+n_letter: n
+on_word: on
+off_word: off
+country_NO: NO
+na_token: NA
+tilde: ~
+null_word: null
+empty:
+zero_padded_id: 007
+leading_zero_08: 08
+version_like: 2026.10
+exp_no_dot: 1e3
+exp_with_dot: 1.0e3
+dot_five: .5
+hex: 0x1F
+underscore_int: 1_000
+comma_int: 1,000
+sexagesimal: 12:30
+date_like: 2026-11-07
+plus_one: +1
+inf: .inf
+quoted_no: "no"

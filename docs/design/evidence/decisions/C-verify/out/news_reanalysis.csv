@@ -1,0 +1,4 @@
+package,C_glmm_generic,of_which_mention_mixed_or_glmmTMB,of_which_no_mixed_term (plain GLM),C_lme4_pattern,generic_mixed_model_mentions,lme4_pattern_or_generic_mixed
+performance,33,9,24,6,15,20
+insight,12,2,10,17,11,28
+DHARMa,6,4,2,2,0,2

@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use mixedcheck, please cite it as below."
+title: "mixedcheck: Design audits and diagnostics for mixed-effects models"
+abstract: "A pair of packages, one for R and one for Python, that audit study designs before mixed-effects models are fitted and diagnose and report fitted models. Both packages share one registry of checks and one results schema."
+type: software
+authors:
+  - family-names: Bernabeu
+    given-names: Pablo
+    orcid: "https://orcid.org/0000-0003-1083-2460"
+    email: pcbernabeu@gmail.com
+license: MIT
+repository-code: "https://github.com/pablobernabeu/lmecheck"
+keywords:
+  - mixed-effects models
+  - multilevel models
+  - study design
+  - model diagnostics
+# The version, release date and DOI are added at the first release.

@@ -1,0 +1,11 @@
+nearsing_REML    multistart min 140.92061945 | best engine 140.92061945 | min - best -2.84e-14 | share of starts within 1e-4 of best: 1.00
+nearsing_ML      multistart min 136.68650810 | best engine 136.68650810 | min - best -2.84e-14 | share of starts within 1e-4 of best: 1.00
+nearsing_zcp_ML  multistart min 136.82881932 | best engine 136.82881932 | min - best -2.84e-14 | share of starts within 1e-4 of best: 1.00
+jq_REML          multistart min 187.34516677 | best engine 187.34516677 | min - best -5.40e-13 | share of starts within 1e-4 of best: 1.00
+sleep_REML       multistart min 1743.62827196 | best engine 1743.62827196 | min - best -4.55e-13 | share of starts within 1e-4 of best: 1.00
+
+real	12m53.259s
+user	26m44.798s
+sys	0m0.153s
+
+[exited with code 0]

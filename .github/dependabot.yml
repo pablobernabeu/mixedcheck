@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Keep the GitHub Actions used by the workflows up to date. Dependabot does
+  # not track CRAN, and the Python dependencies are floors set by SPEC 0
+  # (02-decisions.md, Q10), which the full matrix of the Python workflow tests.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"

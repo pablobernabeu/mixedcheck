@@ -1,0 +1,5 @@
+pen_ML          exact 332.188349 | default - exact: ['+5.410e-01', '+5.410e-01', '+5.410e-01'] | cholesky - exact: ['+1.1e-12', '+1.1e-12', '+1.1e-12']
+pastes_ML       exact 247.994466 | default - exact: ['+6.863e-01', '+6.863e-01', '+6.863e-01'] | cholesky - exact: ['+2.0e-13', '+2.0e-13', '+2.0e-13']
+sleep_zcp_ML    exact 1752.003255 | default - exact: ['+1.674e-01', '+1.674e-01', '+1.674e-01'] | cholesky - exact: ['-2.3e-13', '-2.3e-13', '-2.3e-13']
+school_zcp_ML   exact 14105.931039 | default - exact: ['-5.922e-01', '-5.922e-01', '-5.922e-01'] | cholesky - exact: ['+1.8e-12', '+1.8e-12', '+1.8e-12']
+crossed_zcp_ML  exact 25844.022577 | default - exact: ['-8.007e-02', '-8.007e-02', '-8.007e-02'] | cholesky - exact: ['+0.0e+00', '+0.0e+00', '+0.0e+00']

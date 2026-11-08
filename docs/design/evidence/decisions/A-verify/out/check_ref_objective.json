@@ -1,0 +1,366 @@
+[
+ {
+  "model": "sleep_REML",
+  "engine": "lme4",
+  "mine": 1743.6282719599517,
+  "A": 1743.6282719599517,
+  "reported": 1743.628271959952
+ },
+ {
+  "model": "sleep_REML",
+  "engine": "glmmTMB",
+  "mine": 1743.6282719586552,
+  "A": 1743.6282719586554,
+  "reported": 1743.628271958656
+ },
+ {
+  "model": "sleep_ML",
+  "engine": "lme4",
+  "mine": 1751.939344488991,
+  "A": 1751.939344488991,
+  "reported": 1751.93934448899
+ },
+ {
+  "model": "sleep_ML",
+  "engine": "glmmTMB",
+  "mine": 1751.9393444637058,
+  "A": 1751.9393444637058,
+  "reported": 1751.939344463706
+ },
+ {
+  "model": "sleep_zcp_ML",
+  "engine": "lme4",
+  "mine": 1752.0032551446009,
+  "A": 1752.003255144601,
+  "reported": 1752.0032551446
+ },
+ {
+  "model": "sleep_zcp_ML",
+  "engine": "glmmTMB",
+  "mine": 1752.003255140331,
+  "A": 1752.003255140331,
+  "reported": 1752.003255140332
+ },
+ {
+  "model": "pen_REML",
+  "engine": "lme4",
+  "mine": 330.8605889996049,
+  "A": 330.86058899960574,
+  "reported": 330.860588999604
+ },
+ {
+  "model": "pen_REML",
+  "engine": "glmmTMB",
+  "mine": 330.86058899110554,
+  "A": 330.8605889911048,
+  "reported": 330.860588991106
+ },
+ {
+  "model": "pen_ML",
+  "engine": "lme4",
+  "mine": 332.18834866851375,
+  "A": 332.1883486685142,
+  "reported": 332.188348668514
+ },
+ {
+  "model": "pen_ML",
+  "engine": "glmmTMB",
+  "mine": 332.1883486685073,
+  "A": 332.18834866850716,
+  "reported": 332.188348668508
+ },
+ {
+  "model": "pastes_REML",
+  "engine": "lme4",
+  "mine": 246.99074585348646,
+  "A": 246.99074585348643,
+  "reported": 246.990745853486
+ },
+ {
+  "model": "pastes_REML",
+  "engine": "glmmTMB",
+  "mine": 246.99074585350508,
+  "A": 246.990745853505,
+  "reported": 246.990745853504
+ },
+ {
+  "model": "pastes_ML",
+  "engine": "lme4",
+  "mine": 247.9944658628967,
+  "A": 247.99446586289665,
+  "reported": 247.994465862896
+ },
+ {
+  "model": "pastes_ML",
+  "engine": "glmmTMB",
+  "mine": 247.99446586242547,
+  "A": 247.99446586242544,
+  "reported": 247.994465862426
+ },
+ {
+  "model": "cbpp_laplace",
+  "engine": "lme4",
+  "mine": 184.05257240347916,
+  "A": 184.0525724034792,
+  "reported": 184.053132779126
+ },
+ {
+  "model": "cbpp_laplace",
+  "engine": "glmmTMB",
+  "mine": 184.0525637295217,
+  "A": 184.0525637295217,
+  "reported": 184.0525637295232
+ },
+ {
+  "model": "cbpp_agq25",
+  "engine": "lme4",
+  "mine": 183.96673807806135,
+  "A": 183.96673807806133,
+  "reported": 100.0100305401902
+ },
+ {
+  "model": "crossed_REML",
+  "engine": "lme4",
+  "mine": 25833.226524850907,
+  "A": 25833.226524850903,
+  "reported": 25833.226524851
+ },
+ {
+  "model": "crossed_REML",
+  "engine": "glmmTMB",
+  "mine": 25833.226523954865,
+  "A": 25833.22652395487,
+  "reported": 25833.226523955
+ },
+ {
+  "model": "crossed_ML",
+  "engine": "lme4",
+  "mine": 25842.38979105762,
+  "A": 25842.389791057623,
+  "reported": 25842.3897910576
+ },
+ {
+  "model": "crossed_ML",
+  "engine": "glmmTMB",
+  "mine": 25849.484599918982,
+  "A": 25849.484599918982,
+  "reported": NaN
+ },
+ {
+  "model": "crossed_zcp_REML",
+  "engine": "lme4",
+  "mine": 25834.84532452237,
+  "A": 25834.845324522368,
+  "reported": 25834.8453245224
+ },
+ {
+  "model": "crossed_zcp_REML",
+  "engine": "glmmTMB",
+  "mine": 25834.845324517737,
+  "A": 25834.845324517737,
+  "reported": 25834.8453245176
+ },
+ {
+  "model": "crossed_zcp_ML",
+  "engine": "lme4",
+  "mine": 25844.0225773219,
+  "A": 25844.022577321903,
+  "reported": 25844.0225773218
+ },
+ {
+  "model": "crossed_zcp_ML",
+  "engine": "glmmTMB",
+  "mine": 25844.02257732184,
+  "A": 25844.022577321844,
+  "reported": 25844.0225773218
+ },
+ {
+  "model": "crossedbig_REML",
+  "engine": "lme4",
+  "mine": 128829.79963704376,
+  "A": 128829.79963704378,
+  "reported": 128829.7996370438
+ },
+ {
+  "model": "crossedbig_REML",
+  "engine": "glmmTMB",
+  "mine": 128829.79963703049,
+  "A": 128829.79963703049,
+  "reported": 128829.7996370306
+ },
+ {
+  "model": "crossedbig_zcp_REML",
+  "engine": "lme4",
+  "mine": 128833.98065880121,
+  "A": 128833.98065880126,
+  "reported": 128833.9806588014
+ },
+ {
+  "model": "crossedbig_zcp_REML",
+  "engine": "glmmTMB",
+  "mine": 128833.98065855214,
+  "A": 128833.98065855213,
+  "reported": 128833.9806585518
+ },
+ {
+  "model": "school_REML",
+  "engine": "lme4",
+  "mine": 14103.66946013678,
+  "A": 14103.669460136778,
+  "reported": 14103.66946013678
+ },
+ {
+  "model": "school_REML",
+  "engine": "glmmTMB",
+  "mine": 14103.669459859086,
+  "A": 14103.669459859084,
+  "reported": 14103.6694598591
+ },
+ {
+  "model": "school_ML",
+  "engine": "lme4",
+  "mine": 14099.816146628327,
+  "A": 14099.816146628327,
+  "reported": 14099.81614662832
+ },
+ {
+  "model": "school_ML",
+  "engine": "glmmTMB",
+  "mine": 14099.816146244826,
+  "A": 14099.816146244826,
+  "reported": 14099.81614624482
+ },
+ {
+  "model": "school_zcp_ML",
+  "engine": "lme4",
+  "mine": 14105.931039438492,
+  "A": 14105.931039438496,
+  "reported": 14105.9310394385
+ },
+ {
+  "model": "school_zcp_ML",
+  "engine": "glmmTMB",
+  "mine": 14105.931039288676,
+  "A": 14105.931039288678,
+  "reported": 14105.93103928866
+ },
+ {
+  "model": "nearsing_REML",
+  "engine": "lme4",
+  "mine": 140.9206194455714,
+  "A": 140.92061944557145,
+  "reported": 140.9206194455714
+ },
+ {
+  "model": "nearsing_REML",
+  "engine": "glmmTMB",
+  "mine": 140.92062001398898,
+  "A": 140.920620013989,
+  "reported": 140.92062001405
+ },
+ {
+  "model": "nearsing_ML",
+  "engine": "lme4",
+  "mine": 136.68650810164843,
+  "A": 136.68650810164843,
+  "reported": 136.6865081016484
+ },
+ {
+  "model": "nearsing_ML",
+  "engine": "glmmTMB",
+  "mine": 136.68650883965125,
+  "A": 136.68650883965125,
+  "reported": 136.6865088396722
+ },
+ {
+  "model": "nearsing_zcp_ML",
+  "engine": "lme4",
+  "mine": 136.82881932425033,
+  "A": 136.82881932425033,
+  "reported": 136.8288193242504
+ },
+ {
+  "model": "nearsing_zcp_ML",
+  "engine": "glmmTMB",
+  "mine": 136.82881933655037,
+  "A": 136.82881933655037,
+  "reported": 136.8288193365504
+ },
+ {
+  "model": "owls_pois",
+  "engine": "lme4",
+  "mine": 5202.775992806406,
+  "A": 5202.775992806406,
+  "reported": 5202.77599572446
+ },
+ {
+  "model": "owls_pois",
+  "engine": "glmmTMB",
+  "mine": 5202.7759927977395,
+  "A": 5202.7759927977395,
+  "reported": 5202.77599279774
+ },
+ {
+  "model": "owls_pois_agq25",
+  "engine": "lme4",
+  "mine": 5202.745210386998,
+  "A": 5202.745210386998,
+  "reported": 3521.92364798782
+ },
+ {
+  "model": "weighted_REML",
+  "engine": "lme4",
+  "mine": 866.7728938800483,
+  "A": 866.7728938800484,
+  "reported": 866.772893880048
+ },
+ {
+  "model": "weighted_REML",
+  "engine": "glmmTMB",
+  "mine": 1602.9947134378629,
+  "A": 1602.9947134378617,
+  "reported": 3737.3554957994
+ },
+ {
+  "model": "weighted_ML",
+  "engine": "lme4",
+  "mine": 862.5424549089807,
+  "A": 862.5424549089807,
+  "reported": 862.542454908982
+ },
+ {
+  "model": "weighted_ML",
+  "engine": "glmmTMB",
+  "mine": 1597.8291293565292,
+  "A": 1597.8291293565287,
+  "reported": 3731.36124612592
+ },
+ {
+  "model": "binxd_laplace",
+  "engine": "lme4",
+  "mine": 1421.6587152078869,
+  "A": 1421.6587152078914,
+  "reported": 1421.660324727396
+ },
+ {
+  "model": "binxd_laplace",
+  "engine": "glmmTMB",
+  "mine": 1421.6586803010757,
+  "A": 1421.6586803010757,
+  "reported": 1421.658680314588
+ },
+ {
+  "model": "jq_REML",
+  "engine": "lme4",
+  "mine": 187.34516678514487,
+  "A": 187.34516678514484,
+  "reported": 187.3451667851448
+ },
+ {
+  "model": "jq_REML",
+  "engine": "glmmTMB",
+  "mine": 187.35897880748536,
+  "A": 187.35897880748539,
+  "reported": NaN
+ }
+]

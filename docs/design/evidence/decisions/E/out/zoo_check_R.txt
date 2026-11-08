@@ -1,0 +1,25 @@
+ fixture                              quantity               R        expected
+     Z01       share inner labels in >1 school               1               1
+     Z01  groups of school:class (tuple-coded)              30              30
+ Z01_neg       share inner labels in >1 school               0               0
+     Z02                pupils changing school P03,P17,P31,P48 P03,P17,P31,P48
+     Z04 school and class partitions identical            TRUE            TRUE
+     Z07              max obs per subject:item               1               1
+     Z07   level order of cond from categories           A,B,C           A,B,C
+     Z09                classes with mixed arm     S01C1,S03C4     S01C1,S03C4
+     Z11                    singleton families              42              42
+     Z13               subject-item components               2               2
+     Z17      duplicated (subject, trial) keys               5               5
+ match
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+  TRUE
+all match: TRUE 

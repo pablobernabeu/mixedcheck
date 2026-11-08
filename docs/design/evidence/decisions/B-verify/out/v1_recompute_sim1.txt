@@ -1,0 +1,140 @@
+strategies in original small files:
+                      
+                         0 0 0 0.25 0.1 0 0.1 0.25 0.2 0 0.2 0.25 0.4 0
+  aic_data              TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  backoff_conv_only     TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  backoff_protected    FALSE  FALSE FALSE    FALSE FALSE    FALSE FALSE
+  backoff_sing_or_conv  TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  lrt02_data            TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  lrt02_design          TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  lrt05_data            TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  maximal               TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+  ri_only               TRUE   TRUE  TRUE     TRUE  TRUE     TRUE  TRUE
+                      
+                       0.4 0.25
+  aic_data                 TRUE
+  backoff_conv_only        TRUE
+  backoff_protected        TRUE
+  backoff_sing_or_conv     TRUE
+  lrt02_data               TRUE
+  lrt02_design             TRUE
+  lrt05_data               TRUE
+  maximal                  TRUE
+  ri_only                  TRUE
+
+strategies in rerun small files:
+[1] "maximal"              "ri_only"              "backoff_sing_or_conv"
+[4] "backoff_conv_only"    "backoff_protected"    "lrt02_data"          
+[7] "lrt02_design"         "lrt05_data"           "aic_data"            
+
+shared rows: 51800 ; identical p: 51800 ; identical rung: 51800 
+
+max |recomputed - published| (small, from rerun files): 0 
+max |recomputed - published| (small, from original files, shared strategies): 0 
+max |recomputed - published| (large): 0 
+ tau1 beta  x.diff x.mcse x.discordant                                      cmp
+  0.0 0.00  0.0110 0.0033       0.0110 backoff_sing_or_conv - backoff_protected
+  0.1 0.00  0.0130 0.0036       0.0130 backoff_sing_or_conv - backoff_protected
+  0.2 0.00  0.0150 0.0038       0.0150 backoff_sing_or_conv - backoff_protected
+  0.4 0.00  0.0130 0.0036       0.0130 backoff_sing_or_conv - backoff_protected
+  0.0 0.25  0.0433 0.0083       0.0433 backoff_sing_or_conv - backoff_protected
+  0.1 0.25  0.0400 0.0080       0.0400 backoff_sing_or_conv - backoff_protected
+  0.2 0.25  0.0467 0.0086       0.0467 backoff_sing_or_conv - backoff_protected
+  0.4 0.25  0.0100 0.0041       0.0100 backoff_sing_or_conv - backoff_protected
+  0.0 0.00  0.0120 0.0037       0.0140           lrt02_data - backoff_protected
+  0.1 0.00  0.0150 0.0038       0.0150           lrt02_data - backoff_protected
+  0.2 0.00  0.0170 0.0041       0.0170           lrt02_data - backoff_protected
+  0.4 0.00  0.0060 0.0024       0.0060           lrt02_data - backoff_protected
+  0.0 0.25  0.0700 0.0117       0.0867           lrt02_data - backoff_protected
+  0.1 0.25  0.0617 0.0109       0.0750           lrt02_data - backoff_protected
+  0.2 0.25  0.0367 0.0104       0.0667           lrt02_data - backoff_protected
+  0.4 0.25  0.0033 0.0047       0.0133           lrt02_data - backoff_protected
+  0.0 0.00  0.0150 0.0041       0.0170             aic_data - backoff_protected
+  0.1 0.00  0.0180 0.0042       0.0180             aic_data - backoff_protected
+  0.2 0.00  0.0190 0.0043       0.0190             aic_data - backoff_protected
+  0.4 0.00  0.0180 0.0042       0.0180             aic_data - backoff_protected
+  0.0 0.25  0.0783 0.0119       0.0917             aic_data - backoff_protected
+  0.1 0.25  0.0733 0.0116       0.0867             aic_data - backoff_protected
+  0.2 0.25  0.0550 0.0112       0.0783             aic_data - backoff_protected
+  0.4 0.25  0.0117 0.0060       0.0217             aic_data - backoff_protected
+  0.0 0.00  0.0070 0.0026       0.0070              backoff_protected - maximal
+  0.1 0.00  0.0020 0.0020       0.0040              backoff_protected - maximal
+  0.2 0.00  0.0030 0.0017       0.0030              backoff_protected - maximal
+  0.4 0.00  0.0000 0.0000       0.0000              backoff_protected - maximal
+  0.0 0.25  0.0117 0.0064       0.0250              backoff_protected - maximal
+  0.1 0.25  0.0150 0.0050       0.0150              backoff_protected - maximal
+  0.2 0.25  0.0200 0.0066       0.0267              backoff_protected - maximal
+  0.4 0.25  0.0050 0.0029       0.0050              backoff_protected - maximal
+  0.0 0.00  0.0010 0.0010       0.0010                lrt02_design - lrt02_data
+  0.1 0.00  0.0000 0.0000       0.0000                lrt02_design - lrt02_data
+  0.2 0.00 -0.0020 0.0014       0.0020                lrt02_design - lrt02_data
+  0.4 0.00  0.0020 0.0020       0.0040                lrt02_design - lrt02_data
+  0.0 0.25  0.0017 0.0029       0.0050                lrt02_design - lrt02_data
+  0.1 0.25 -0.0017 0.0029       0.0050                lrt02_design - lrt02_data
+  0.2 0.25  0.0033 0.0041       0.0100                lrt02_design - lrt02_data
+  0.4 0.25 -0.0017 0.0017       0.0017                lrt02_design - lrt02_data
+  0.2 0.00  0.0080 0.0040       0.0080 backoff_sing_or_conv - backoff_protected
+  0.4 0.00  0.0020 0.0020       0.0020 backoff_sing_or_conv - backoff_protected
+  0.2 0.18  0.0140 0.0053       0.0140 backoff_sing_or_conv - backoff_protected
+  0.4 0.18  0.0000 0.0000       0.0000 backoff_sing_or_conv - backoff_protected
+  0.2 0.00  0.0080 0.0040       0.0080           lrt02_data - backoff_protected
+  0.4 0.00  0.0000 0.0000       0.0000           lrt02_data - backoff_protected
+  0.2 0.18  0.0180 0.0060       0.0180           lrt02_data - backoff_protected
+  0.4 0.18  0.0000 0.0000       0.0000           lrt02_data - backoff_protected
+  0.2 0.00  0.0160 0.0056       0.0160             aic_data - backoff_protected
+  0.4 0.00  0.0000 0.0000       0.0000             aic_data - backoff_protected
+  0.2 0.18  0.0280 0.0074       0.0280             aic_data - backoff_protected
+  0.4 0.18  0.0000 0.0000       0.0000             aic_data - backoff_protected
+ design
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  24x16
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32
+  48x32

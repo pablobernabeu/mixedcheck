@@ -1,0 +1,29 @@
+case	expected	jsonschema_4.26	jsonschema_messages	fastjsonschema_2.22.3
+ex1_minimal_sleepstudy.json	valid	valid		valid
+ex2_crt_education.json	valid	valid		valid
+ex3_crossed_psycholing.json	valid	valid		valid
+ex4_dyadic.json	valid	valid		valid
+ex5_ild_applogs.json	valid	valid		valid
+ex6_eeg_single_trial.json	valid	valid		valid
+bad1_nested_without_scope.json	invalid	invalid	units/1: 'id_scope' is a dependency of 'nested_in'	valid
+bad2_typo_key.json	invalid	invalid	units/0: Additional properties are not allowed ('nestedin' was unexpected)	invalid: data.units[0] must not contain {'nestedin'} properties
+bad3_dyadic_without_dyad.json	invalid	invalid	(root): 'dyad' is a required property	invalid: data must contain ['dyad'] properties
+bad4_confirmatory_without_estimands.json	invalid	invalid	(root): 'estimands' is a required property	invalid: data must contain ['estimands'] properties
+bad5_null_value.json	invalid	invalid	title: None is not of type 'string'	invalid: data.title must be string
+bad6_duplicate_key.json	invalid	invalid	(root): 'units' is a required property; (root): 'observation' is a required property; (root): 'variables' is a required property; (root): 'estimands' is a required property	invalid: data must contain ['estimands', 'observation', 'units', 'variables'] properties
+bad7_longitudinal_without_time.json	invalid	invalid	observation: 'time' is a required property	invalid: data.observation must contain ['time'] properties
+confirmatory_empty_estimands	probe	valid		valid
+confirmatory_empty_variables	probe	valid		valid
+confirmatory_no_outcome_no_assigned_role	probe	valid		valid
+cluster_randomised_empty_assignment	probe	valid		valid
+x_inferred_inside_unit	probe	invalid	units/1: Additional properties are not allowed ('x-inferred' was unexpected)	invalid: data.units[1] must not contain {'x-inferred'} properties
+x_inferred_top_level	probe	valid		valid
+nested_in_misspelt_unit_name	probe	valid		valid
+assignment_unit_misspelt	probe	valid		valid
+nested_in_cycle	probe	valid		valid
+mobility_without_time	probe	valid		valid
+table_field_typo_property	probe	valid		valid
+primaryKey_unknown_column	probe	valid		valid
+schema_version_patch_bump	probe	invalid	schema_version: '0.1.0' was expected	invalid: data.schema_version must be same as const definition: 0.1.0
+observational_multisite_without_assignment	probe	invalid	(root): 'assignment' is a required property	invalid: data must contain ['assignment'] properties
+estimand_term_not_in_data	probe	valid		valid

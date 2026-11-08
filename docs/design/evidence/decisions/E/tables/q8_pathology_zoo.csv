@@ -1,0 +1,31 @@
+id,name,domain,planted_problem,matched_negative,catalogue_items,tier,detected_by,tiny_rows,prototype_status
+Z01,Reused class labels across schools,education,class '1'..'3' in every school,Z01_neg unique labels,"L1-01, L7-01, L2-22",T0,incidence + declaration,240,generated and checked in R
+Z02,Pupil mobility between waves,education,4 of 60 pupils change school,no movers,L7-01,T0,incidence + time,120,generated and checked in R
+Z03,Genuine crossing (peripatetic teachers),education,same label is the same teacher in every school; same incidence as Z01,Z01,L1-01,T0 says ambiguous; T2 discriminates weakly (E1),declaration only,240,spec
+Z04,One class per school (aliased partitions),education,school and class partitions identical,two classes in some schools,L1-02,T0,partition equality,120,generated and checked in R
+Z05,Between-subject predictor with by-subject slope,crossed,group constant within subject,within-subject predictor,"L1-03, L1-04",T0,within/between status,400,spec
+Z06,"J <= q (3 schools, 3 slopes)",education,levels fewer than random-effect dimension,J = 30,L1-07,T0,level count vs dimension,300,spec
+Z07,"Latin square, one observation per subject-item",crossed,subject:item intercept with one obs per level,two obs per pair,"L1-05, L7-14",T0,obs per unit cell,144,generated and checked in R
+Z08,"CRT, randomisation level omitted from model",education,"class-randomised, formula has school only",formula with class,L7-03,T0 (formula vs declaration),declaration,480,generated
+Z09,"CRT, treatment mixed within declared unit",education,2 classes with one pupil in the other arm,Z08,L7-03,T0,declaration,480,generated and checked in R
+Z10,Partially nested design,education,groups only in the treated arm; controls NA or singletons,fully nested,L7-05,T0,declaration + cluster sizes by arm,300,spec
+Z11,Families with singletons,families,55% singleton families,families of 2-4,"L1-09, L7-06",T0,cluster-size table,127,generated and checked in R
+Z12,Distinguishable dyads with negative dependence,dyads,"within-dyad r = -0.4, role variances 1 and 4",r = +0.4,L7-08,T1,declared dyad block,400,spec
+Z13,Disconnected crossed design,crossed,two components aligned with group,connected,"L1-14, L7-18",T0,components,160,generated and checked in R
+Z14,Rank-deficient X (empty cell),any,factor combination with no rows,full cells,"L1-12, L2-05",T0,rank and cell table,200,spec
+Z15,Reference level emptied by listwise deletion,any,all rows of the reference level have missing covariate,missing elsewhere,"L2-04, L1-09",T0 (design sample),raw vs analysis diff,200,spec
+Z16,Average-referenced EEG with channel rows,eeg,channels sum to zero within trial,linked mastoids,L7-17,T1,declared eeg.reference,3200,spec
+Z17,Duplicate keys (double import),trial-level,"5 duplicated (subject, trial) keys",legitimate identical rows without key,"L1-15, L7-19",T0,declared key,205,generated and checked in R
+Z18,Composite-ID collision,education,school '1' + class '12' vs school '11' + class '2'; labels containing ':',safe labels,L2-22,T0,tuple encoding,120,spec
+Z19,Sentinel codes and labelled values,any,"-99 in a score column, SPSS labels",true NA,critic: import artefacts,T0,declared labelled missingValues,200,spec
+Z20,Unicode and whitespace ID variants,any,"'S1' vs ' s1', NFC vs NFD",clean IDs,"L1-20, L6-08",T0,canonical IDs,100,spec
+Z21,Few clusters (4 schools),education,top level with J = 4,J = 40,"L7-02, L1-08",T0,"level counts, design df",480,spec
+Z22,Omitted intermediate level,education,"class variance present, class column not in formula",class in formula,critic: omitted clustering,T0 candidate / T2 ICC,candidate grouping columns,480,spec
+Z23,Post-assignment covariate adjusted for,education,attendance measured after randomisation in the formula,baseline only,critic: declared roles,T0,declared variables,480,spec
+Z24,Separation in binary accuracy,crossed,one condition at 100% accuracy,80% accuracy,"L3-03, L3-04",T2,LP on X,400,spec
+Z25,Irregular timestamps across midnight and DST,ild,sessions crossing midnight; clock change,regular,"L7-11, L7-12",T0,declared time zone,2000,spec
+Z26,"Lagged outcome with person-mean centring, small T",ild,T = 10 per person,T = 100,L7-12,T2,declared outcome_derived,1000,spec
+Z27,Informative cluster size,ild / families,cluster size correlated with random effect,independent,L7-13,T1,size vs cluster mean,1000,spec
+Z28,Ceiling effects in child scores,education,30% at maximum in later wave,no ceiling,"L3-12, L7-20",T1,declared bounds,600,spec
+Z29,Near-singular slope that depends on units,any,slope SD small; covariate in mm vs m,rescaled,"L4-03, L4-04",T2,scale-free criterion,400,spec
+Z30,Multisite trial with single-arm sites,education,2 of 12 sites have one arm only,all sites both arms,L7-04,T0,declared assignment + blocks,600,spec

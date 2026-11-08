@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.1.0",
+  "title": "Priming experiment, Latin-square lists",
+  "features": ["crossed_experiment", "counterbalanced", "trial_level"],
+  "units": [
+    {"name": "subject", "columns": ["subject"], "role": "participant"},
+    {"name": "item", "columns": ["item"], "role": "item"}
+  ],
+  "crossings": [{"units": ["subject", "item"], "list": "list"}],
+  "observation": {"unit": "subject", "key": ["subject", "item"],
+                  "time": {"column": "trial", "kind": "trial_index", "within": "subject"}},
+  "assignment": [{"column": "prime", "unit": "subject", "scheme": "latin_square", "blocks": ["item"], "time_varying": true}],
+  "variables": {
+    "rt": {"role": "outcome", "measurement": "response_time"},
+    "acc": {"role": "outcome", "measurement": "binary"},
+    "log_freq": {"role": "baseline_covariate"},
+    "excluded": {"role": "exclusion_flag"}
+  },
+  "estimands": [{"id": "priming", "term": "prime", "kind": "total_effect", "focal": true},
+                {"id": "freq_x_prime", "term": "prime:log_freq", "kind": "association", "focal": false}]
+}

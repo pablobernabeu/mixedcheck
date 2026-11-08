@@ -1,0 +1,26 @@
+Package: mixedcheck
+Title: Design Audits and Diagnostics for Mixed-Effects Models
+Version: 0.0.0.9000
+Authors@R:
+    person("Pablo", "Bernabeu", role = c("aut", "cre"),
+           email = "pcbernabeu@gmail.com",
+           comment = c(ORCID = "0000-0003-1083-2460"))
+Description: Audits study designs before mixed-effects models are fitted
+    and diagnoses and reports fitted models. The registry of checks, the
+    schemas and the test fixtures are shared with the 'Python' package of
+    the same name.
+License: MIT + file LICENSE
+URL: https://github.com/pablobernabeu/lmecheck
+BugReports: https://github.com/pablobernabeu/lmecheck/issues
+Depends:
+    R (>= 4.2.0)
+Imports:
+    cli (>= 3.2.0),
+    jsonlite
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-GB
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1

@@ -1,0 +1,13 @@
+design,size,n_obs,engine_family,rep,elapsed,converged,n_warn
+nested,J10_m5,50,statsmodels_gauss,1,0.09318018599969946,True,3
+nested,J10_m5,50,statsmodels_gauss,2,0.021526509000068472,True,0
+nested,J30_m20,600,statsmodels_gauss,1,0.06228782099969976,True,0
+nested,J30_m20,600,statsmodels_gauss,2,0.05173320199992304,True,0
+nested,J100_m20,2000,statsmodels_gauss,1,0.15782779899927846,True,0
+nested,J100_m20,2000,statsmodels_gauss,2,0.16069394599981024,True,0
+nested,J100_m50,5000,statsmodels_gauss,1,0.2165283519998411,True,0
+nested,J100_m50,5000,statsmodels_gauss,2,0.1996146609999414,True,0
+crossed_vc,S12_I8,96,statsmodels_gauss,1,0.05354397099927155,True,3
+crossed_vc,S12_I8,96,statsmodels_gauss,2,0.07877852699948562,False,7
+crossed_vc,S24_I16,384,statsmodels_gauss,1,0.09091711399923952,True,1
+crossed_vc,S24_I16,384,statsmodels_gauss,2,0.26359933000003366,True,3

@@ -1,0 +1,48 @@
+# Checks that the shared artefacts vendored into both packages match their
+# sources byte for byte (02-decisions.md, Q7), and tests the vendoring script.
+name: vendoring
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'r/inst/spec/**'
+      - 'r/inst/fixtures/**'
+      - 'python/src/mixedcheck/_spec/**'
+      - 'python/src/mixedcheck/_fixtures/**'
+      - '.github/workflows/vendoring.yaml'
+  pull_request:
+    paths:
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'r/inst/spec/**'
+      - 'r/inst/fixtures/**'
+      - 'python/src/mixedcheck/_spec/**'
+      - 'python/src/mixedcheck/_fixtures/**'
+      - '.github/workflows/vendoring.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Vendored copies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The script and its tests use the standard library only, so the
+      # runner's own Python is enough.
+      - name: Check the vendored copies against their sources
+        run: python3 spec/tools/vendor.py check
+      - name: Test the vendoring script
+        run: python3 -m unittest discover -s spec/tools -v

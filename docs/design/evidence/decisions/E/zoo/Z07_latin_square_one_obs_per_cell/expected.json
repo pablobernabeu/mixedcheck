@@ -1,0 +1,25 @@
+{
+ "data_sha256": "80aa1bff76a32ad233b527839f40865c6796cda8635f4f87fc83d19a11a9b419",
+ "findings": [
+  {
+   "check": "replication.obs_per_unit_cell",
+   "family": "gaussian",
+   "max_obs_per_level": 1,
+   "note": "subject:item intercept confounded with the residual",
+   "status": "error",
+   "term": "(1 | subject:item)"
+  },
+  {
+   "check": "design.counterbalancing",
+   "items_per_condition_per_list": 4,
+   "status": "balanced"
+  }
+ ],
+ "fixture": "Z07_latin_square_one_obs_per_cell",
+ "generator": {
+  "items": 12,
+  "lists": 3,
+  "seed": 20261107,
+  "subjects": 12
+ }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1.0",
+  "title": "Reading app event logs",
+  "features": ["intensive_longitudinal", "trial_level"],
+  "units": [
+    {"name": "child", "columns": ["child"], "role": "participant"},
+    {"name": "session", "columns": ["session"], "nested_in": "child", "id_scope": "within_parent", "role": "session"}
+  ],
+  "observation": {"unit": "child", "key": ["child", "event_id"],
+                  "time": {"column": "ts", "kind": "timestamp", "within": "child", "resolution": "PT1S", "timezone": "Europe/London"}},
+  "variables": {
+    "correct": {"role": "outcome", "measurement": "binary"},
+    "prev_correct": {"role": "outcome_derived", "derived_from": ["correct"]},
+    "age_months": {"role": "baseline_covariate"}
+  }
+}

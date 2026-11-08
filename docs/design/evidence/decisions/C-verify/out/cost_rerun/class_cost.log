@@ -1,0 +1,59 @@
+gauss_lmer  fit   0.17s  sim250   0.04s  singular=FALSE  msgs=0 
+gauss_tmb   fit   0.43s  sim250   0.07s  singular=NA  msgs=0 
+bern_glmer  fit   1.37s  sim250   0.05s  singular=TRUE  msgs=1 boundary (singular) fit: see help('isSingular')
+
+bern_tmb    fit   0.68s  sim250   0.10s  singular=NA  msgs=1 Model convergence problem; singular convergence (7). See vignette('troubleshooting'), help('diagnose
+pois_glmer  fit   1.41s  sim250   0.05s  singular=FALSE  msgs=0 
+nb2_tmb     fit   1.60s  sim250   0.16s  singular=NA  msgs=1 Model convergence problem; singular convergence (7). See vignette('troubleshooting'), help('diagnose
+beta_tmb    fit   1.19s  sim250   0.12s  singular=NA  msgs=0 
+zip_tmb     fit   0.53s  sim250   0.14s  singular=NA  msgs=0 
+ar1_nlme    fit   0.02s  sim250     NAs  singular=NA  msgs=0 
+ar1_tmb     fit   0.32s  sim250   0.06s  singular=NA  msgs=1 Model convergence problem; non-positive-definite Hessian matrix. See vignette('troubleshooting')
+      model fit_sec sim250_sec cpu_h_grid_simresid cpu_h_grid_boot200
+ gauss_lmer   0.173      0.042                 1.4              231.8
+  gauss_tmb   0.427      0.066                 3.3              572.2
+ bern_glmer   1.366      0.047                 9.4             1830.4
+   bern_tmb   0.684      0.095                 5.2              916.6
+ pois_glmer   1.414      0.050                 9.8             1894.8
+    nb2_tmb   1.598      0.161                11.7             2141.3
+   beta_tmb   1.190      0.117                 8.7             1594.6
+    zip_tmb   0.533      0.143                 4.5              714.2
+   ar1_nlme   0.024         NA                  NA               32.2
+    ar1_tmb   0.321      0.057                 2.5              430.1
+ singular_lme4 n_warn_or_msg
+         FALSE             0
+            NA             0
+          TRUE             1
+            NA             1
+         FALSE             0
+            NA             1
+            NA             0
+            NA             0
+            NA             0
+            NA             1
+nrow crossed 1600  nrow longitudinal 800 
+R version 4.3.3 (2024-02-29)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 24.04.5 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.12.0 
+LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.12.0
+
+locale:
+[1] C
+
+time zone: Etc/UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] nlme_3.1-164  glmmTMB_1.1.8 lme4_1.1-35.1 Matrix_1.6-5 
+
+loaded via a namespace (and not attached):
+ [1] minqa_1.2.6         MASS_7.3-60.0.1     compiler_4.3.3     
+ [4] mgcv_1.9-1          TMB_1.9.10          Rcpp_1.0.12        
+ [7] splines_4.3.3       grid_4.3.3          nloptr_2.0.3       
+[10] boot_1.3-30         numDeriv_2016.8-1.1 lattice_0.22-5     

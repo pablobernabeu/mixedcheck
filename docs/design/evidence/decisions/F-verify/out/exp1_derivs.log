@@ -1,0 +1,40 @@
+[    2s] 2x2 lmer 384 rows rep 1
+[    2s] 2x2 lmer 384 rows rep 2
+[    4s] 2x2 lmer 384 rows rep 3
+[    8s] 2x2 lmer 1536 rows rep 1
+[   14s] 2x2 lmer 1536 rows rep 2
+[   46s] 2x2 lmer 6144 rows rep 1
+[   66s] 2x2 glmer 384 rows
+[  147s] 2x2 glmer 1536 rows
+[  147s] 1f done
+       design engine n_obs calc_derivs elapsed
+1  crossed2x2  glmer   384       FALSE  9.4630
+2  crossed2x2   lmer   384       FALSE  0.3920
+3  crossed2x2  glmer  1536       FALSE 36.9800
+4   crossed1f   lmer  1536       FALSE  0.0700
+5  crossed2x2   lmer  1536       FALSE  1.4705
+6  crossed2x2   lmer  6144       FALSE  8.4130
+7  crossed2x2  glmer   384        TRUE 10.5500
+8  crossed2x2   lmer   384        TRUE  0.7250
+9  crossed2x2  glmer  1536        TRUE 44.0690
+10  crossed1f   lmer  1536        TRUE  0.1140
+11 crossed2x2   lmer  1536        TRUE  3.6950
+12 crossed2x2   lmer  6144        TRUE 23.3000
+Max |deviance difference| between paired fits (same data):
+       design engine n_obs rep ddev
+1  crossed2x2   lmer   384   1    0
+3  crossed2x2   lmer   384   2    0
+5  crossed2x2   lmer   384   3    0
+7  crossed2x2   lmer  1536   1    0
+9  crossed2x2   lmer  1536   2    0
+11 crossed2x2   lmer  6144   1    0
+13 crossed2x2  glmer   384   1    0
+15 crossed2x2  glmer  1536   1    0
+17  crossed1f   lmer  1536   1    0
+19  crossed1f   lmer  1536   2    0
+21  crossed1f   lmer  1536   3    0
+Total 147 s
+
+real	2m28.166s
+user	2m27.675s
+sys	0m0.305s

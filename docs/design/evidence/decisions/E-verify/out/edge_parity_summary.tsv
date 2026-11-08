@@ -1,0 +1,20 @@
+layer	case	python_result	r_result	parity	note
+declaration	ex1-ex6 + edge1 (report files)	ok	ok	same hash	reproduces report E-E05
+declaration	e10 number layouts (1e-6, 0.000001, 1.0000000000000002, 1E2, 2.5e1)	ok	ok	same hash	
+declaration	e11 empty containers ({} and [])	ok	ok	same hash	
+declaration	e12 escapes (U+2028, U+001F, e-acute)	ok	ok	same hash	
+declaration	e5 small numbers (1e-7, 1.5e-7, 5e-324)	ok	error (prototype cannot serialise |x| < 1e-6)	DIFF	needs a number-domain rule or full ECMAScript formatter in R
+declaration	e6 integer literal 123456789012345680000	crash (rfc8785 IntegerDomainError, uncaught)	ok	DIFF	reject integers beyond 2^53 in both
+declaration	e7 integer 9007199254740993	crash (IntegerDomainError, uncaught)	ok (silently rounded to 9007199254740992)	DIFF	reject integers beyond 2^53 in both
+declaration	e8 keys U+FF08 and U+1F600	ok	ok	DIFFERENT HASH	R sorts by code point; JCS requires UTF-16 code units
+declaration	e9 lone surrogate \ud800	crash (CanonicalizationError, uncaught)	ok	DIFF	reject lone surrogates in both
+table	T10 clean ASCII control	ok	ok	same hash	
+table	T1 missingValues absent (Frictionless default [""])	'' -> null	'' kept as string	DIFF	R prototype ignores the Frictionless default
+table	T2 integer forms 007, +5, ' 12', 1_000	1_000 -> 1000	1_000 -> NA (warning)	DIFF	needs a strict lexical regex before conversion
+table	T3 integer 0x1A	error (int())	26	DIFF	R as.integer accepts hex
+table	T4 number NaN, INF, -INF (valid Frictionless numbers)	error (JCS cannot represent NaN)	error (non-finite)	both fail	canonical form needs a representation for non-finite values
+table	T5 strings NA, cafe-acute, ' padded ', quoted comma	ok	ok	same hash	
+table	T6 CRLF line endings	ok	ok	same hash	
+table	T7 UTF-8 BOM in CSV	ok	ok	same hash	
+table	T8 numbers 3.2e-06, -1.25e-07 (EEG volts)	ok	error (prototype cannot serialise |x| < 1e-6)	DIFF	
+table	T9 embedded newline in quoted field	ok	ok	same hash	

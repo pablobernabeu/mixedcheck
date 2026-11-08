@@ -1,0 +1,28 @@
+yes_word         | Py: bool       True                         | R:            
+no_word          | Py: bool       False                        | R:            
+y_letter         | Py: str        'y'                          | R:            
+n_letter         | Py: str        'n'                          | R: logical    TRUE
+on_word          | Py: bool       True                         | R: logical    FALSE
+off_word         | Py: bool       False                        | R: logical    TRUE
+country_NO       | Py: bool       False                        | R: logical    FALSE
+na_token         | Py: str        'NA'                         | R: logical    TRUE
+tilde            | Py: NoneType   None                         | R: logical    FALSE
+null_word        | Py: NoneType   None                         | R: logical    FALSE
+empty            | Py: NoneType   None                         | R: character  "NA"
+zero_padded_id   | Py: int        7                            | R: NULL       NULL
+leading_zero_08  | Py: str        '08'                         | R: NULL       NULL
+version_like     | Py: float      2026.1                       | R: NULL       NULL
+exp_no_dot       | Py: str        '1e3'                        | R: integer    7L
+exp_with_dot     | Py: str        '1.0e3'                      | R: character  "08"
+dot_five         | Py: float      0.5                          | R: numeric    2026.1
+hex              | Py: int        31                           | R: character  "1e3"
+underscore_int   | Py: int        1000                         | R: character  "1.0e3"
+comma_int        | Py: str        '1,000'                      | R: numeric    0.5
+sexagesimal      | Py: int        750                          | R: integer    31L
+date_like        | Py: date       datetime.date(2026, 11, 7)   | R: character  "1_000"
+plus_one         | Py: int        1                            | R: integer    NA_integer_
+inf              | Py: float      inf                          | R: character  "12:30"
+quoted_no        | Py: str        'no'                         | R: character  "2026-11-07"
+                 | Py: plus_one   integer                      | R:            
+                 | Py: inf        numeric                      | R:            
+                 | Py: quoted_no  character                    | R:            

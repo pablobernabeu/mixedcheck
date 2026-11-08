@@ -1,0 +1,13 @@
+reference,verdict,fields confirmed here,fields not confirmed here,source checked
+Bates Maechler Bolker Walker 2015 JSS 67(1) 1-48 doi 10.18637/jss.v067.i01,verified,all,none,lme4 inst/CITATION (CRAN GitHub mirror)
+Brooks et al. 2017 R Journal 9(2) 378-400 doi 10.32614/RJ-2017-066,verified,all (9 authors),none,glmmTMB inst/CITATION (CRAN GitHub mirror)
+Seabold & Perktold 2010 SciPy proceedings pp. 92-96 doi 10.25080/Majora-92bf1922-011,unverifiable,authors; title; year; proceedings,pages; DOI,statsmodels docs index.rst and CITATION.cff; scipy_proceedings branch 2010 papers/seabold/my_paper.rst
+Jolly 2018 JOSS 3(31) 862 doi 10.21105/joss.00862,verified,all,none,JOSS Crossref deposit XML (openjournals/joss-papers)
+Sigrist 2022 JMLR 23(232) 1-46,unverifiable,author; title; journal; year; volume 23 (URL v23/20-322),article number 232; pages 1-46,GPBoost README (GitHub)
+Kuznetsova Brockhoff Christensen 2017 JSS 82(13) 1-26 doi 10.18637/jss.v082.i13,verified,all,none,lmerTest inst/CITATION (CRAN GitHub mirror)
+Halekoh & Hojsgaard 2014 JSS 59(9) doi 10.18637/jss.v059.i09,corrected,authors; title; journal; year; volume; issue; DOI (package DESCRIPTION),pages (CITATION says 1-30; report says listing gives 1-32),pbkrtest inst/CITATION and DESCRIPTION (CRAN GitHub mirror)
+Pinheiro & Bates 1995 JCGS 4(1) 12-35 doi 10.1080/10618600.1995.10474663,unverifiable,authors; year; DOI,title; journal; volume; issue; pages (DOI prefix is JCGS),GLMMadaptive DESCRIPTION (CRAN GitHub mirror)
+Harville 1977 JASA 72(358) 320-338 doi 10.1080/01621459.1977.10480998,unverifiable,none independently (DOI prefix is JASA),all,no reachable source (WebSearch budget exhausted; doi.org/Crossref/JSTOR blocked)
+Belenky et al. 2003 J Sleep Res 12(1) 1-12 doi 10.1046/j.1365-2869.2003.00337.x,verified,all (8 authors),none,lme4 inst/REFERENCES.bib (CRAN GitHub mirror)
+Lesnoff et al. 2004 Prev Vet Med 64 27-40 doi 10.1016/j.prevetmed.2004.03.005,corrected,all incl. issue 1 (report omitted),none,lme4 inst/REFERENCES.bib (CRAN GitHub mirror)
+Roulin & Bersier 2007 Anim Behav 74(4) 1099-1106,corrected,authors; year; title; journal; volume; pages; DOI 10.1016/j.anbehav.2007.01.027 (report omitted),issue 4,glmmTMB man/Owls.Rd (CRAN GitHub mirror)

@@ -1,0 +1,10735 @@
+[
+ {
+  "set": "S0 audit core: Matrix+jsonlite",
+  "roots": [
+   "Matrix",
+   "jsonlite"
+  ],
+  "runtime": {
+   "total": 3,
+   "nonrecommended": 1,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 3,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL (>= 2)": [
+     "lattice"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 3,
+   "nonrecommended": 1,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 3,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL (>= 2)": [
+     "lattice"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S0b audit core: jsonlite only",
+  "roots": [
+   "jsonlite"
+  ],
+  "runtime": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 1,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite"
+   ],
+   "Rreqs": []
+  },
+  "source": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 1,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite"
+   ],
+   "Rreqs": []
+  }
+ },
+ {
+  "set": "S1 S0+whisker",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "whisker"
+  ],
+  "runtime": {
+   "total": 4,
+   "nonrecommended": 2,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 3,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL (>= 2)": [
+     "lattice"
+    ],
+    "GPL-3": [
+     "whisker"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite",
+    "whisker"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 4,
+   "nonrecommended": 2,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 3,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL (>= 2)": [
+     "lattice"
+    ],
+    "GPL-3": [
+     "whisker"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite",
+    "whisker"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S2 S0+lme4",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4"
+  ],
+  "runtime": {
+   "total": 13,
+   "nonrecommended": 8,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 10,
+   "compiled_nonrec": [
+    "Rcpp",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL-2": [
+     "minqa",
+     "rbibutils"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "Rdpack",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 14,
+   "nonrecommended": 9,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 11,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL-2": [
+     "minqa",
+     "rbibutils"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S3 S2+insight",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "insight"
+  ],
+  "runtime": {
+   "total": 14,
+   "nonrecommended": 9,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 10,
+   "compiled_nonrec": [
+    "Rcpp",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL-3": [
+     "insight",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL-2": [
+     "minqa",
+     "rbibutils"
+    ],
+    "Unlimited": [
+     "boot"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "Rdpack",
+    "insight",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 15,
+   "nonrecommended": 10,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 11,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL-3": [
+     "insight",
+     "reformulas"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ],
+    "GPL-2": [
+     "minqa",
+     "rbibutils"
+    ],
+    "Unlimited": [
+     "boot"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "insight",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S4 S2+performance",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "performance"
+  ],
+  "runtime": {
+   "total": 17,
+   "nonrecommended": 12,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 10,
+   "compiled_nonrec": [
+    "Rcpp",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL-3": [
+     "insight",
+     "bayestestR",
+     "reformulas",
+     "performance"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "minqa"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite",
+     "datawizard"
+    ],
+    "Unlimited": [
+     "boot"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "Rdpack",
+    "bayestestR",
+    "datawizard",
+    "insight",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "performance",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 3.6",
+     "bayestestR"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 4.0",
+     "datawizard"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 4.0",
+     "performance"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 18,
+   "nonrecommended": 13,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 11,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL-3": [
+     "insight",
+     "bayestestR",
+     "reformulas",
+     "performance"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "minqa"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "MIT + file LICENSE": [
+     "jsonlite",
+     "datawizard"
+    ],
+    "Unlimited": [
+     "boot"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "bayestestR",
+    "datawizard",
+    "insight",
+    "jsonlite",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "performance",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 3.6",
+     "bayestestR"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 4.0",
+     "datawizard"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 4.0",
+     "performance"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S5 S2+DHARMa",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "DHARMa"
+  ],
+  "runtime": {
+   "total": 92,
+   "nonrecommended": 85,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "codetools",
+    "lattice",
+    "mgcv",
+    "nlme"
+   ],
+   "compiled": 53,
+   "compiled_nonrec": [
+    "Rcpp",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "cachem",
+    "cli",
+    "commonmark",
+    "curl",
+    "data.table",
+    "digest",
+    "dplyr",
+    "farver",
+    "fastmap",
+    "fs",
+    "gap",
+    "glue",
+    "htmltools",
+    "httpuv",
+    "isoband",
+    "jsonlite",
+    "later",
+    "lazyeval",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "plyr",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "rlang",
+    "sass",
+    "sourcetools",
+    "stringi",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "utf8",
+    "vctrs",
+    "xfun",
+    "yaml",
+    "zoo"
+   ],
+   "sysreq": {
+    "httpuv": "GNU make, zlib",
+    "sass": "GNU make",
+    "curl": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make.",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "openssl": "OpenSSL >= 1.0.2",
+    "stringi": "ICU4C (>= 61, optional)",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "glue",
+     "xfun",
+     "sass",
+     "rlang",
+     "rappdirs",
+     "generics",
+     "curl",
+     "ggplot2",
+     "viridisLite",
+     "tinytex",
+     "withr",
+     "crosstalk",
+     "pillar",
+     "magrittr",
+     "gtable",
+     "vctrs",
+     "tidyr",
+     "lifecycle",
+     "sourcetools",
+     "jquerylib",
+     "S7",
+     "memoise",
+     "fs",
+     "askpass",
+     "R6",
+     "fastmap",
+     "bslib",
+     "cli",
+     "evaluate",
+     "pkgconfig",
+     "scales",
+     "plotly",
+     "dplyr",
+     "sys",
+     "openssl",
+     "later",
+     "plyr",
+     "shiny",
+     "farver",
+     "isoband",
+     "cachem",
+     "otel",
+     "jsonlite",
+     "htmlwidgets",
+     "promises",
+     "tibble",
+     "httr",
+     "tidyselect",
+     "rmarkdown",
+     "stringr",
+     "fontawesome"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "httpuv"
+    ],
+    "GPL": [
+     "codetools",
+     "mime",
+     "knitr",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "gap",
+     "gap.datasets",
+     "Rcpp",
+     "digest",
+     "qgam",
+     "mgcv",
+     "xtable",
+     "htmltools",
+     "nlme",
+     "lme4",
+     "lattice",
+     "Rdpack"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL-2 | GPL-3": [
+     "ape",
+     "MASS",
+     "base64enc",
+     "lmtest",
+     "zoo"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL-3": [
+     "lazyeval",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0)": [
+     "iterators",
+     "foreach"
+    ],
+    "MPL-2.0 | file LICENSE": [
+     "data.table"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL (>= 3)": [
+     "DHARMa"
+    ],
+    "GPL-2": [
+     "doParallel",
+     "rbibutils",
+     "minqa"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "BSD_2_clause + file LICENSE": [
+     "commonmark"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "DHARMa",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "commonmark",
+    "crosstalk",
+    "curl",
+    "data.table",
+    "digest",
+    "doParallel",
+    "dplyr",
+    "evaluate",
+    "farver",
+    "fastmap",
+    "fontawesome",
+    "foreach",
+    "fs",
+    "gap",
+    "gap.datasets",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "highr",
+    "htmltools",
+    "htmlwidgets",
+    "httpuv",
+    "httr",
+    "isoband",
+    "iterators",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "labeling",
+    "later",
+    "lazyeval",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "memoise",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "otel",
+    "pillar",
+    "pkgconfig",
+    "plotly",
+    "plyr",
+    "promises",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "rmarkdown",
+    "sass",
+    "scales",
+    "shiny",
+    "sourcetools",
+    "stringi",
+    "stringr",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "tinytex",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "xfun",
+    "xtable",
+    "yaml",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 2.15.1",
+     "httpuv"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 2.1",
+     "codetools"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 2.10",
+     "gap"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2.0",
+     "ape"
+    ],
+    [
+     ">= 3.0.0",
+     "curl"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 2.10",
+     "gap.datasets"
+    ],
+    [
+     ">= 3.1.0",
+     "lazyeval"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 2.5.0",
+     "iterators"
+    ],
+    [
+     ">= 3.4.0",
+     "data.table"
+    ],
+    [
+     ">= 4.0",
+     "qgam"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 2.10.0",
+     "xtable"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.0.2",
+     "sourcetools"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 2.5.0",
+     "foreach"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 3.5.0",
+     "plotly"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.5.0",
+     "DHARMa"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.14.0",
+     "doParallel"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 3.1.2",
+     "shiny"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 3.6.0",
+     "otel"
+    ],
+    [
+     ">= 4.1.0",
+     "promises"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 3.6",
+     "httr"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ]
+   ]
+  },
+  "source": {
+   "total": 94,
+   "nonrecommended": 87,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "codetools",
+    "lattice",
+    "mgcv",
+    "nlme"
+   ],
+   "compiled": 54,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "cachem",
+    "cli",
+    "commonmark",
+    "curl",
+    "data.table",
+    "digest",
+    "dplyr",
+    "farver",
+    "fastmap",
+    "fs",
+    "gap",
+    "glue",
+    "htmltools",
+    "httpuv",
+    "isoband",
+    "jsonlite",
+    "later",
+    "lazyeval",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "plyr",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "rlang",
+    "sass",
+    "sourcetools",
+    "stringi",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "utf8",
+    "vctrs",
+    "xfun",
+    "yaml",
+    "zoo"
+   ],
+   "sysreq": {
+    "httpuv": "GNU make, zlib",
+    "sass": "GNU make",
+    "curl": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make.",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "openssl": "OpenSSL >= 1.0.2",
+    "stringi": "ICU4C (>= 61, optional)",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "glue",
+     "xfun",
+     "sass",
+     "rlang",
+     "rappdirs",
+     "generics",
+     "curl",
+     "ggplot2",
+     "viridisLite",
+     "tinytex",
+     "withr",
+     "crosstalk",
+     "pillar",
+     "magrittr",
+     "gtable",
+     "vctrs",
+     "tidyr",
+     "lifecycle",
+     "sourcetools",
+     "jquerylib",
+     "S7",
+     "memoise",
+     "fs",
+     "askpass",
+     "R6",
+     "fastmap",
+     "bslib",
+     "cli",
+     "evaluate",
+     "pkgconfig",
+     "scales",
+     "plotly",
+     "dplyr",
+     "sys",
+     "openssl",
+     "later",
+     "plyr",
+     "shiny",
+     "farver",
+     "isoband",
+     "cachem",
+     "cpp11",
+     "otel",
+     "jsonlite",
+     "htmlwidgets",
+     "promises",
+     "tibble",
+     "httr",
+     "tidyselect",
+     "rmarkdown",
+     "stringr",
+     "fontawesome"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "httpuv",
+     "RcppEigen"
+    ],
+    "GPL": [
+     "codetools",
+     "mime",
+     "knitr",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "gap",
+     "gap.datasets",
+     "Rcpp",
+     "digest",
+     "qgam",
+     "mgcv",
+     "xtable",
+     "htmltools",
+     "nlme",
+     "lme4",
+     "lattice",
+     "Rdpack"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL-2 | GPL-3": [
+     "ape",
+     "MASS",
+     "base64enc",
+     "lmtest",
+     "zoo"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL-3": [
+     "lazyeval",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0)": [
+     "iterators",
+     "foreach"
+    ],
+    "MPL-2.0 | file LICENSE": [
+     "data.table"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL (>= 3)": [
+     "DHARMa"
+    ],
+    "GPL-2": [
+     "doParallel",
+     "rbibutils",
+     "minqa"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "BSD_2_clause + file LICENSE": [
+     "commonmark"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "DHARMa",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "commonmark",
+    "cpp11",
+    "crosstalk",
+    "curl",
+    "data.table",
+    "digest",
+    "doParallel",
+    "dplyr",
+    "evaluate",
+    "farver",
+    "fastmap",
+    "fontawesome",
+    "foreach",
+    "fs",
+    "gap",
+    "gap.datasets",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "highr",
+    "htmltools",
+    "htmlwidgets",
+    "httpuv",
+    "httr",
+    "isoband",
+    "iterators",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "labeling",
+    "later",
+    "lazyeval",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "memoise",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "otel",
+    "pillar",
+    "pkgconfig",
+    "plotly",
+    "plyr",
+    "promises",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "rmarkdown",
+    "sass",
+    "scales",
+    "shiny",
+    "sourcetools",
+    "stringi",
+    "stringr",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "tinytex",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "xfun",
+    "xtable",
+    "yaml",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 2.15.1",
+     "httpuv"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 2.1",
+     "codetools"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 2.10",
+     "gap"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2.0",
+     "ape"
+    ],
+    [
+     ">= 3.0.0",
+     "curl"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 2.10",
+     "gap.datasets"
+    ],
+    [
+     ">= 3.1.0",
+     "lazyeval"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 2.5.0",
+     "iterators"
+    ],
+    [
+     ">= 3.4.0",
+     "data.table"
+    ],
+    [
+     ">= 4.0",
+     "qgam"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 2.10.0",
+     "xtable"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 3.0.2",
+     "sourcetools"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 2.5.0",
+     "foreach"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 3.5.0",
+     "plotly"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.5.0",
+     "DHARMa"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.14.0",
+     "doParallel"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 3.1.2",
+     "shiny"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6.0",
+     "otel"
+    ],
+    [
+     ">= 4.1.0",
+     "promises"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 3.6",
+     "httr"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S6 S2+glmmTMB",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "glmmTMB"
+  ],
+  "runtime": {
+   "total": 62,
+   "nonrecommended": 55,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "mgcv",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 38,
+   "compiled_nonrec": [
+    "Deriv",
+    "RTMB",
+    "Rcpp",
+    "S7",
+    "TMB",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glmmTMB",
+    "glue",
+    "isoband",
+    "jsonlite",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "glmmTMB": "GNU make",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "generics",
+     "jsonlite",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "sandwich",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lme4",
+     "RTMB",
+     "mgcv",
+     "urca",
+     "lattice",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "AGPL-3": [
+     "glmmTMB"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "TMB",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "RTMB",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "TMB",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glmmTMB",
+    "glue",
+    "gtable",
+    "isoband",
+    "jsonlite",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "sandwich",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 3.6.0",
+     "glmmTMB"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0.0",
+     "TMB"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.0.0",
+     "sandwich"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  },
+  "source": {
+   "total": 65,
+   "nonrecommended": 58,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "mgcv",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 40,
+   "compiled_nonrec": [
+    "Deriv",
+    "RTMB",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "S7",
+    "TMB",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glmmTMB",
+    "glue",
+    "isoband",
+    "jsonlite",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "glmmTMB": "GNU make",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "generics",
+     "jsonlite",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "sandwich",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lme4",
+     "RTMB",
+     "mgcv",
+     "urca",
+     "lattice",
+     "RcppArmadillo",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "AGPL-3": [
+     "glmmTMB"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "TMB",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "RTMB",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "TMB",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "cpp11",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glmmTMB",
+    "glue",
+    "gtable",
+    "isoband",
+    "jsonlite",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "sandwich",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 3.6.0",
+     "glmmTMB"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.3.0",
+     "RcppArmadillo"
+    ],
+    [
+     ">= 3.0.0",
+     "TMB"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.0.0",
+     "sandwich"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S7 S2+lmerTest+pbkrtest",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "lmerTest",
+   "pbkrtest"
+  ],
+  "runtime": {
+   "total": 58,
+   "nonrecommended": 52,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 34,
+   "compiled_nonrec": [
+    "Deriv",
+    "Rcpp",
+    "S7",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glue",
+    "isoband",
+    "jsonlite",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "generics",
+     "jsonlite",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lmerTest",
+     "lme4",
+     "urca",
+     "lattice",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "jsonlite",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmerTest",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 3.2.5",
+     "lmerTest"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  },
+  "source": {
+   "total": 61,
+   "nonrecommended": 55,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 36,
+   "compiled_nonrec": [
+    "Deriv",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "S7",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glue",
+    "isoband",
+    "jsonlite",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "generics",
+     "jsonlite",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lmerTest",
+     "lme4",
+     "urca",
+     "lattice",
+     "RcppArmadillo",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "cpp11",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "jsonlite",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmerTest",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 3.2.5",
+     "lmerTest"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.3.0",
+     "RcppArmadillo"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S8 S0+quarto",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "quarto"
+  ],
+  "runtime": {
+   "total": 33,
+   "nonrecommended": 31,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 20,
+   "compiled_nonrec": [
+    "Rcpp",
+    "base64enc",
+    "cachem",
+    "cli",
+    "digest",
+    "fastmap",
+    "fs",
+    "htmltools",
+    "jsonlite",
+    "later",
+    "mime",
+    "processx",
+    "ps",
+    "rappdirs",
+    "rlang",
+    "sass",
+    "xfun",
+    "yaml"
+   ],
+   "sysreq": {
+    "sass": "GNU make",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "quarto": "Quarto command line tool (<https://github.com/quarto-dev/quarto-cli>).",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make."
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "ps",
+     "cli",
+     "evaluate",
+     "xfun",
+     "lifecycle",
+     "sass",
+     "cachem",
+     "rlang",
+     "rappdirs",
+     "quarto",
+     "jsonlite",
+     "rstudioapi",
+     "processx",
+     "tinytex",
+     "jquerylib",
+     "memoise",
+     "rmarkdown",
+     "fs",
+     "fontawesome",
+     "later",
+     "R6",
+     "fastmap",
+     "bslib"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL": [
+     "knitr",
+     "mime",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "htmltools",
+     "lattice",
+     "digest",
+     "Rcpp"
+    ],
+    "GPL-2 | GPL-3": [
+     "base64enc"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "Rcpp",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "digest",
+    "evaluate",
+    "fastmap",
+    "fontawesome",
+    "fs",
+    "highr",
+    "htmltools",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "later",
+    "lifecycle",
+    "memoise",
+    "mime",
+    "processx",
+    "ps",
+    "quarto",
+    "rappdirs",
+    "rlang",
+    "rmarkdown",
+    "rstudioapi",
+    "sass",
+    "tinytex",
+    "xfun",
+    "yaml"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.4",
+     "ps"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 4.1.0",
+     "quarto"
+    ],
+    [
+     ">= 3.4.0",
+     "processx"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ]
+   ]
+  },
+  "source": {
+   "total": 33,
+   "nonrecommended": 31,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 20,
+   "compiled_nonrec": [
+    "Rcpp",
+    "base64enc",
+    "cachem",
+    "cli",
+    "digest",
+    "fastmap",
+    "fs",
+    "htmltools",
+    "jsonlite",
+    "later",
+    "mime",
+    "processx",
+    "ps",
+    "rappdirs",
+    "rlang",
+    "sass",
+    "xfun",
+    "yaml"
+   ],
+   "sysreq": {
+    "sass": "GNU make",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "quarto": "Quarto command line tool (<https://github.com/quarto-dev/quarto-cli>).",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make."
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "ps",
+     "cli",
+     "evaluate",
+     "xfun",
+     "lifecycle",
+     "sass",
+     "cachem",
+     "rlang",
+     "rappdirs",
+     "quarto",
+     "jsonlite",
+     "rstudioapi",
+     "processx",
+     "tinytex",
+     "jquerylib",
+     "memoise",
+     "rmarkdown",
+     "fs",
+     "fontawesome",
+     "later",
+     "R6",
+     "fastmap",
+     "bslib"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL": [
+     "knitr",
+     "mime",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "htmltools",
+     "lattice",
+     "digest",
+     "Rcpp"
+    ],
+    "GPL-2 | GPL-3": [
+     "base64enc"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "Rcpp",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "digest",
+    "evaluate",
+    "fastmap",
+    "fontawesome",
+    "fs",
+    "highr",
+    "htmltools",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "later",
+    "lifecycle",
+    "memoise",
+    "mime",
+    "processx",
+    "ps",
+    "quarto",
+    "rappdirs",
+    "rlang",
+    "rmarkdown",
+    "rstudioapi",
+    "sass",
+    "tinytex",
+    "xfun",
+    "yaml"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.4",
+     "ps"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 4.1.0",
+     "quarto"
+    ],
+    [
+     ">= 3.4.0",
+     "processx"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S9 S0+ggplot2",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "ggplot2"
+  ],
+  "runtime": {
+   "total": 19,
+   "nonrecommended": 17,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 10,
+   "compiled_nonrec": [
+    "S7",
+    "cli",
+    "farver",
+    "glue",
+    "isoband",
+    "jsonlite",
+    "rlang",
+    "vctrs"
+   ],
+   "sysreq": {},
+   "licences": {
+    "MIT + file LICENSE": [
+     "cli",
+     "gtable",
+     "glue",
+     "farver",
+     "vctrs",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "jsonlite",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "S7",
+     "R6"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 2)": [
+     "lattice"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "RColorBrewer",
+    "S7",
+    "cli",
+    "farver",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "jsonlite",
+    "labeling",
+    "lifecycle",
+    "rlang",
+    "scales",
+    "vctrs",
+    "viridisLite",
+    "withr"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ]
+   ]
+  },
+  "source": {
+   "total": 20,
+   "nonrecommended": 18,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 10,
+   "compiled_nonrec": [
+    "S7",
+    "cli",
+    "farver",
+    "glue",
+    "isoband",
+    "jsonlite",
+    "rlang",
+    "vctrs"
+   ],
+   "sysreq": {},
+   "licences": {
+    "MIT + file LICENSE": [
+     "cli",
+     "gtable",
+     "glue",
+     "farver",
+     "vctrs",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "jsonlite",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "S7",
+     "R6"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 2)": [
+     "lattice"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "RColorBrewer",
+    "S7",
+    "cli",
+    "cpp11",
+    "farver",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "jsonlite",
+    "labeling",
+    "lifecycle",
+    "rlang",
+    "scales",
+    "vctrs",
+    "viridisLite",
+    "withr"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "S10 everything (S2+perf+DHARMa+glmmTMB+lmerTest+pbkrtest+ggplot2)",
+  "roots": [
+   "Matrix",
+   "jsonlite",
+   "lme4",
+   "performance",
+   "DHARMa",
+   "glmmTMB",
+   "lmerTest",
+   "pbkrtest",
+   "ggplot2"
+  ],
+  "runtime": {
+   "total": 115,
+   "nonrecommended": 107,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "codetools",
+    "lattice",
+    "mgcv",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 63,
+   "compiled_nonrec": [
+    "Deriv",
+    "RTMB",
+    "Rcpp",
+    "S7",
+    "TMB",
+    "ape",
+    "askpass",
+    "backports",
+    "base64enc",
+    "cachem",
+    "cli",
+    "colorspace",
+    "commonmark",
+    "curl",
+    "data.table",
+    "digest",
+    "dplyr",
+    "farver",
+    "fastmap",
+    "forecast",
+    "fracdiff",
+    "fs",
+    "gap",
+    "glmmTMB",
+    "glue",
+    "htmltools",
+    "httpuv",
+    "isoband",
+    "jsonlite",
+    "later",
+    "lazyeval",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "plyr",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "rlang",
+    "sass",
+    "sourcetools",
+    "stringi",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "xfun",
+    "yaml",
+    "zoo"
+   ],
+   "sysreq": {
+    "httpuv": "GNU make, zlib",
+    "sass": "GNU make",
+    "curl": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make.",
+    "glmmTMB": "GNU make",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "openssl": "OpenSSL >= 1.0.2",
+    "stringi": "ICU4C (>= 61, optional)",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "glue",
+     "xfun",
+     "sass",
+     "rlang",
+     "rappdirs",
+     "generics",
+     "ggplot2",
+     "curl",
+     "viridisLite",
+     "tinytex",
+     "withr",
+     "crosstalk",
+     "pillar",
+     "magrittr",
+     "gtable",
+     "broom",
+     "datawizard",
+     "vctrs",
+     "tidyr",
+     "lifecycle",
+     "sourcetools",
+     "jquerylib",
+     "S7",
+     "memoise",
+     "fs",
+     "askpass",
+     "R6",
+     "fastmap",
+     "bslib",
+     "cli",
+     "evaluate",
+     "pkgconfig",
+     "scales",
+     "plotly",
+     "dplyr",
+     "sys",
+     "openssl",
+     "later",
+     "plyr",
+     "shiny",
+     "farver",
+     "isoband",
+     "cachem",
+     "otel",
+     "jsonlite",
+     "htmlwidgets",
+     "promises",
+     "tibble",
+     "httr",
+     "tidyselect",
+     "rmarkdown",
+     "stringr",
+     "fontawesome"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "httpuv"
+    ],
+    "GPL": [
+     "codetools",
+     "mime",
+     "knitr",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "RTMB",
+     "gap",
+     "gap.datasets",
+     "Rcpp",
+     "digest",
+     "qgam",
+     "fracdiff",
+     "mgcv",
+     "xtable",
+     "htmltools",
+     "urca",
+     "nlme",
+     "timeDate",
+     "lmerTest",
+     "lme4",
+     "lattice",
+     "doBy",
+     "pbkrtest",
+     "Rdpack"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL-2 | GPL-3": [
+     "ape",
+     "MASS",
+     "nnet",
+     "backports",
+     "base64enc",
+     "lmtest",
+     "sandwich",
+     "zoo"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL-3": [
+     "lazyeval",
+     "forecast",
+     "performance",
+     "bayestestR",
+     "modelr",
+     "insight",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0)": [
+     "iterators",
+     "foreach"
+    ],
+    "MPL-2.0 | file LICENSE": [
+     "data.table"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 3)": [
+     "Deriv",
+     "DHARMa"
+    ],
+    "GPL-2": [
+     "TMB",
+     "doParallel",
+     "numDeriv",
+     "rbibutils",
+     "minqa",
+     "cowplot"
+    ],
+    "AGPL-3": [
+     "glmmTMB"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml",
+     "colorspace"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "BSD_2_clause + file LICENSE": [
+     "commonmark"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "DHARMa",
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "RTMB",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "TMB",
+    "ape",
+    "askpass",
+    "backports",
+    "base64enc",
+    "bayestestR",
+    "broom",
+    "bslib",
+    "cachem",
+    "cli",
+    "colorspace",
+    "commonmark",
+    "cowplot",
+    "crosstalk",
+    "curl",
+    "data.table",
+    "datawizard",
+    "digest",
+    "doBy",
+    "doParallel",
+    "dplyr",
+    "evaluate",
+    "farver",
+    "fastmap",
+    "fontawesome",
+    "foreach",
+    "forecast",
+    "fracdiff",
+    "fs",
+    "gap",
+    "gap.datasets",
+    "generics",
+    "ggplot2",
+    "glmmTMB",
+    "glue",
+    "gtable",
+    "highr",
+    "htmltools",
+    "htmlwidgets",
+    "httpuv",
+    "httr",
+    "insight",
+    "isoband",
+    "iterators",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "labeling",
+    "later",
+    "lazyeval",
+    "lifecycle",
+    "lme4",
+    "lmerTest",
+    "lmtest",
+    "magrittr",
+    "memoise",
+    "mime",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "openssl",
+    "otel",
+    "pbkrtest",
+    "performance",
+    "pillar",
+    "pkgconfig",
+    "plotly",
+    "plyr",
+    "promises",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "rmarkdown",
+    "sandwich",
+    "sass",
+    "scales",
+    "shiny",
+    "sourcetools",
+    "stringi",
+    "stringr",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "tinytex",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "xfun",
+    "xtable",
+    "yaml",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 2.15.1",
+     "httpuv"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 2.1",
+     "codetools"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 2.10",
+     "gap"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.2.0",
+     "ape"
+    ],
+    [
+     ">= 3.0.0",
+     "curl"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 2.10",
+     "gap.datasets"
+    ],
+    [
+     ">= 3.1.0",
+     "lazyeval"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 2.5.0",
+     "iterators"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.0",
+     "qgam"
+    ],
+    [
+     ">= 3.4.0",
+     "data.table"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0",
+     "datawizard"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0",
+     "performance"
+    ],
+    [
+     ">= 2.10.0",
+     "xtable"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.6",
+     "bayestestR"
+    ],
+    [
+     ">= 3.0.2",
+     "sourcetools"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 3.0.0",
+     "TMB"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 2.5.0",
+     "foreach"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 3.2.5",
+     "lmerTest"
+    ],
+    [
+     ">= 3.6.0",
+     "glmmTMB"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 3.5.0",
+     "plotly"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "DHARMa"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.14.0",
+     "doParallel"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.1.2",
+     "shiny"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 3.6.0",
+     "otel"
+    ],
+    [
+     ">= 4.1.0",
+     "promises"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 3.6",
+     "httr"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "sandwich"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ]
+   ]
+  },
+  "source": {
+   "total": 118,
+   "nonrecommended": 110,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "codetools",
+    "lattice",
+    "mgcv",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 65,
+   "compiled_nonrec": [
+    "Deriv",
+    "RTMB",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "S7",
+    "TMB",
+    "ape",
+    "askpass",
+    "backports",
+    "base64enc",
+    "cachem",
+    "cli",
+    "colorspace",
+    "commonmark",
+    "curl",
+    "data.table",
+    "digest",
+    "dplyr",
+    "farver",
+    "fastmap",
+    "forecast",
+    "fracdiff",
+    "fs",
+    "gap",
+    "glmmTMB",
+    "glue",
+    "htmltools",
+    "httpuv",
+    "isoband",
+    "jsonlite",
+    "later",
+    "lazyeval",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "plyr",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "rlang",
+    "sass",
+    "sourcetools",
+    "stringi",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "xfun",
+    "yaml",
+    "zoo"
+   ],
+   "sysreq": {
+    "httpuv": "GNU make, zlib",
+    "sass": "GNU make",
+    "curl": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make.",
+    "glmmTMB": "GNU make",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "openssl": "OpenSSL >= 1.0.2",
+    "stringi": "ICU4C (>= 61, optional)",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "glue",
+     "xfun",
+     "sass",
+     "rlang",
+     "rappdirs",
+     "generics",
+     "ggplot2",
+     "curl",
+     "viridisLite",
+     "tinytex",
+     "withr",
+     "crosstalk",
+     "pillar",
+     "magrittr",
+     "gtable",
+     "broom",
+     "datawizard",
+     "vctrs",
+     "tidyr",
+     "lifecycle",
+     "sourcetools",
+     "jquerylib",
+     "S7",
+     "memoise",
+     "fs",
+     "askpass",
+     "R6",
+     "fastmap",
+     "bslib",
+     "cli",
+     "evaluate",
+     "pkgconfig",
+     "scales",
+     "plotly",
+     "dplyr",
+     "sys",
+     "openssl",
+     "later",
+     "plyr",
+     "shiny",
+     "farver",
+     "isoband",
+     "cachem",
+     "cpp11",
+     "otel",
+     "jsonlite",
+     "htmlwidgets",
+     "promises",
+     "tibble",
+     "httr",
+     "tidyselect",
+     "rmarkdown",
+     "stringr",
+     "fontawesome"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "httpuv",
+     "RcppEigen"
+    ],
+    "GPL": [
+     "codetools",
+     "mime",
+     "knitr",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "RTMB",
+     "gap",
+     "gap.datasets",
+     "Rcpp",
+     "digest",
+     "qgam",
+     "fracdiff",
+     "mgcv",
+     "xtable",
+     "htmltools",
+     "urca",
+     "nlme",
+     "timeDate",
+     "lmerTest",
+     "lme4",
+     "lattice",
+     "doBy",
+     "pbkrtest",
+     "RcppArmadillo",
+     "Rdpack"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL-2 | GPL-3": [
+     "ape",
+     "MASS",
+     "nnet",
+     "backports",
+     "base64enc",
+     "lmtest",
+     "sandwich",
+     "zoo"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL-3": [
+     "lazyeval",
+     "forecast",
+     "performance",
+     "bayestestR",
+     "modelr",
+     "insight",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0)": [
+     "iterators",
+     "foreach"
+    ],
+    "MPL-2.0 | file LICENSE": [
+     "data.table"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 3)": [
+     "Deriv",
+     "DHARMa"
+    ],
+    "GPL-2": [
+     "TMB",
+     "doParallel",
+     "numDeriv",
+     "rbibutils",
+     "minqa",
+     "cowplot"
+    ],
+    "AGPL-3": [
+     "glmmTMB"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml",
+     "colorspace"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "BSD_2_clause + file LICENSE": [
+     "commonmark"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "DHARMa",
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "RTMB",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "TMB",
+    "ape",
+    "askpass",
+    "backports",
+    "base64enc",
+    "bayestestR",
+    "broom",
+    "bslib",
+    "cachem",
+    "cli",
+    "colorspace",
+    "commonmark",
+    "cowplot",
+    "cpp11",
+    "crosstalk",
+    "curl",
+    "data.table",
+    "datawizard",
+    "digest",
+    "doBy",
+    "doParallel",
+    "dplyr",
+    "evaluate",
+    "farver",
+    "fastmap",
+    "fontawesome",
+    "foreach",
+    "forecast",
+    "fracdiff",
+    "fs",
+    "gap",
+    "gap.datasets",
+    "generics",
+    "ggplot2",
+    "glmmTMB",
+    "glue",
+    "gtable",
+    "highr",
+    "htmltools",
+    "htmlwidgets",
+    "httpuv",
+    "httr",
+    "insight",
+    "isoband",
+    "iterators",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "labeling",
+    "later",
+    "lazyeval",
+    "lifecycle",
+    "lme4",
+    "lmerTest",
+    "lmtest",
+    "magrittr",
+    "memoise",
+    "mime",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "openssl",
+    "otel",
+    "pbkrtest",
+    "performance",
+    "pillar",
+    "pkgconfig",
+    "plotly",
+    "plyr",
+    "promises",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "rmarkdown",
+    "sandwich",
+    "sass",
+    "scales",
+    "shiny",
+    "sourcetools",
+    "stringi",
+    "stringr",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "tinytex",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "xfun",
+    "xtable",
+    "yaml",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 2.15.1",
+     "httpuv"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 2.1",
+     "codetools"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 2.10",
+     "gap"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.2.0",
+     "ape"
+    ],
+    [
+     ">= 3.0.0",
+     "curl"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 2.10",
+     "gap.datasets"
+    ],
+    [
+     ">= 3.1.0",
+     "lazyeval"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 2.5.0",
+     "iterators"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.0",
+     "qgam"
+    ],
+    [
+     ">= 3.4.0",
+     "data.table"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0",
+     "datawizard"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0",
+     "performance"
+    ],
+    [
+     ">= 2.10.0",
+     "xtable"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 3.6",
+     "bayestestR"
+    ],
+    [
+     ">= 3.0.2",
+     "sourcetools"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 3.0.0",
+     "TMB"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 2.5.0",
+     "foreach"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 3.2.5",
+     "lmerTest"
+    ],
+    [
+     ">= 3.6.0",
+     "glmmTMB"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 3.5.0",
+     "plotly"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "DHARMa"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.14.0",
+     "doParallel"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.1.2",
+     "shiny"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6.0",
+     "otel"
+    ],
+    [
+     ">= 4.1.0",
+     "promises"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 3.6",
+     "httr"
+    ],
+    [
+     ">= 3.3.0",
+     "RcppArmadillo"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "sandwich"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "lme4 alone",
+  "roots": [
+   "lme4"
+  ],
+  "runtime": {
+   "total": 12,
+   "nonrecommended": 7,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 9,
+   "compiled_nonrec": [
+    "Rcpp",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "GPL-2": [
+     "minqa",
+     "rbibutils"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "Rdpack",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 13,
+   "nonrecommended": 8,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 10,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "lme4",
+     "Rcpp",
+     "nlme",
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "GPL-2": [
+     "minqa",
+     "rbibutils"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ]
+   },
+   "nonrec_list": [
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "glmmTMB alone",
+  "roots": [
+   "glmmTMB"
+  ],
+  "runtime": {
+   "total": 61,
+   "nonrecommended": 54,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "mgcv",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 37,
+   "compiled_nonrec": [
+    "Deriv",
+    "RTMB",
+    "Rcpp",
+    "S7",
+    "TMB",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glmmTMB",
+    "glue",
+    "isoband",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "glmmTMB": "GNU make",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "generics",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "sandwich",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lme4",
+     "RTMB",
+     "mgcv",
+     "urca",
+     "lattice",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "AGPL-3": [
+     "glmmTMB"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "TMB",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "RTMB",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "TMB",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glmmTMB",
+    "glue",
+    "gtable",
+    "isoband",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "sandwich",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 3.6.0",
+     "glmmTMB"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0.0",
+     "TMB"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.0.0",
+     "sandwich"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  },
+  "source": {
+   "total": 64,
+   "nonrecommended": 57,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "mgcv",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 39,
+   "compiled_nonrec": [
+    "Deriv",
+    "RTMB",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "S7",
+    "TMB",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glmmTMB",
+    "glue",
+    "isoband",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "glmmTMB": "GNU make",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "generics",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "sandwich",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lme4",
+     "RTMB",
+     "mgcv",
+     "urca",
+     "lattice",
+     "RcppArmadillo",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "AGPL-3": [
+     "glmmTMB"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "TMB",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "RTMB",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "TMB",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "cpp11",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glmmTMB",
+    "glue",
+    "gtable",
+    "isoband",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "sandwich",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 3.6.0",
+     "glmmTMB"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.3.0",
+     "RcppArmadillo"
+    ],
+    [
+     ">= 3.0.0",
+     "TMB"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.0.0",
+     "sandwich"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "performance alone",
+  "roots": [
+   "performance"
+  ],
+  "runtime": {
+   "total": 4,
+   "nonrecommended": 4,
+   "recommended": [],
+   "compiled": 0,
+   "compiled_nonrec": [],
+   "sysreq": {},
+   "licences": {
+    "GPL-3": [
+     "insight",
+     "performance",
+     "bayestestR"
+    ],
+    "MIT + file LICENSE": [
+     "datawizard"
+    ]
+   },
+   "nonrec_list": [
+    "bayestestR",
+    "datawizard",
+    "insight",
+    "performance"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 4.0",
+     "performance"
+    ],
+    [
+     ">= 4.0",
+     "datawizard"
+    ],
+    [
+     ">= 3.6",
+     "bayestestR"
+    ]
+   ]
+  },
+  "source": {
+   "total": 4,
+   "nonrecommended": 4,
+   "recommended": [],
+   "compiled": 0,
+   "compiled_nonrec": [],
+   "sysreq": {},
+   "licences": {
+    "GPL-3": [
+     "insight",
+     "performance",
+     "bayestestR"
+    ],
+    "MIT + file LICENSE": [
+     "datawizard"
+    ]
+   },
+   "nonrec_list": [
+    "bayestestR",
+    "datawizard",
+    "insight",
+    "performance"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.6",
+     "insight"
+    ],
+    [
+     ">= 4.0",
+     "performance"
+    ],
+    [
+     ">= 4.0",
+     "datawizard"
+    ],
+    [
+     ">= 3.6",
+     "bayestestR"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "insight alone",
+  "roots": [
+   "insight"
+  ],
+  "runtime": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 0,
+   "compiled_nonrec": [],
+   "sysreq": {},
+   "licences": {
+    "GPL-3": [
+     "insight"
+    ]
+   },
+   "nonrec_list": [
+    "insight"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.6",
+     "insight"
+    ]
+   ]
+  },
+  "source": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 0,
+   "compiled_nonrec": [],
+   "sysreq": {},
+   "licences": {
+    "GPL-3": [
+     "insight"
+    ]
+   },
+   "nonrec_list": [
+    "insight"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.6",
+     "insight"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "DHARMa alone",
+  "roots": [
+   "DHARMa"
+  ],
+  "runtime": {
+   "total": 92,
+   "nonrecommended": 85,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "codetools",
+    "lattice",
+    "mgcv",
+    "nlme"
+   ],
+   "compiled": 53,
+   "compiled_nonrec": [
+    "Rcpp",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "cachem",
+    "cli",
+    "commonmark",
+    "curl",
+    "data.table",
+    "digest",
+    "dplyr",
+    "farver",
+    "fastmap",
+    "fs",
+    "gap",
+    "glue",
+    "htmltools",
+    "httpuv",
+    "isoband",
+    "jsonlite",
+    "later",
+    "lazyeval",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "plyr",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "rlang",
+    "sass",
+    "sourcetools",
+    "stringi",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "utf8",
+    "vctrs",
+    "xfun",
+    "yaml",
+    "zoo"
+   ],
+   "sysreq": {
+    "httpuv": "GNU make, zlib",
+    "sass": "GNU make",
+    "curl": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make.",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "openssl": "OpenSSL >= 1.0.2",
+    "stringi": "ICU4C (>= 61, optional)",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "glue",
+     "xfun",
+     "sass",
+     "rlang",
+     "rappdirs",
+     "generics",
+     "curl",
+     "ggplot2",
+     "viridisLite",
+     "tinytex",
+     "withr",
+     "crosstalk",
+     "pillar",
+     "magrittr",
+     "gtable",
+     "vctrs",
+     "tidyr",
+     "lifecycle",
+     "sourcetools",
+     "jquerylib",
+     "S7",
+     "memoise",
+     "fs",
+     "askpass",
+     "R6",
+     "fastmap",
+     "bslib",
+     "cli",
+     "evaluate",
+     "pkgconfig",
+     "scales",
+     "plotly",
+     "dplyr",
+     "sys",
+     "openssl",
+     "later",
+     "plyr",
+     "shiny",
+     "farver",
+     "isoband",
+     "cachem",
+     "otel",
+     "jsonlite",
+     "htmlwidgets",
+     "promises",
+     "tibble",
+     "httr",
+     "tidyselect",
+     "rmarkdown",
+     "stringr",
+     "fontawesome"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "httpuv"
+    ],
+    "GPL": [
+     "codetools",
+     "mime",
+     "knitr",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "gap",
+     "gap.datasets",
+     "Rcpp",
+     "digest",
+     "qgam",
+     "mgcv",
+     "xtable",
+     "htmltools",
+     "nlme",
+     "lme4",
+     "lattice",
+     "Rdpack"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL-2 | GPL-3": [
+     "ape",
+     "MASS",
+     "base64enc",
+     "lmtest",
+     "zoo"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL-3": [
+     "lazyeval",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0)": [
+     "iterators",
+     "foreach"
+    ],
+    "MPL-2.0 | file LICENSE": [
+     "data.table"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL (>= 3)": [
+     "DHARMa"
+    ],
+    "GPL-2": [
+     "doParallel",
+     "rbibutils",
+     "minqa"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "BSD_2_clause + file LICENSE": [
+     "commonmark"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "DHARMa",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "commonmark",
+    "crosstalk",
+    "curl",
+    "data.table",
+    "digest",
+    "doParallel",
+    "dplyr",
+    "evaluate",
+    "farver",
+    "fastmap",
+    "fontawesome",
+    "foreach",
+    "fs",
+    "gap",
+    "gap.datasets",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "highr",
+    "htmltools",
+    "htmlwidgets",
+    "httpuv",
+    "httr",
+    "isoband",
+    "iterators",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "labeling",
+    "later",
+    "lazyeval",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "memoise",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "otel",
+    "pillar",
+    "pkgconfig",
+    "plotly",
+    "plyr",
+    "promises",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "rmarkdown",
+    "sass",
+    "scales",
+    "shiny",
+    "sourcetools",
+    "stringi",
+    "stringr",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "tinytex",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "xfun",
+    "xtable",
+    "yaml",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 2.15.1",
+     "httpuv"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 2.1",
+     "codetools"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 2.10",
+     "gap"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2.0",
+     "ape"
+    ],
+    [
+     ">= 3.0.0",
+     "curl"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 2.10",
+     "gap.datasets"
+    ],
+    [
+     ">= 3.1.0",
+     "lazyeval"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 2.5.0",
+     "iterators"
+    ],
+    [
+     ">= 3.4.0",
+     "data.table"
+    ],
+    [
+     ">= 4.0",
+     "qgam"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 2.10.0",
+     "xtable"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.0.2",
+     "sourcetools"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 2.5.0",
+     "foreach"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 3.5.0",
+     "plotly"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.5.0",
+     "DHARMa"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.14.0",
+     "doParallel"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 3.1.2",
+     "shiny"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 3.6.0",
+     "otel"
+    ],
+    [
+     ">= 4.1.0",
+     "promises"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 3.6",
+     "httr"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ]
+   ]
+  },
+  "source": {
+   "total": 94,
+   "nonrecommended": 87,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "codetools",
+    "lattice",
+    "mgcv",
+    "nlme"
+   ],
+   "compiled": 54,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "cachem",
+    "cli",
+    "commonmark",
+    "curl",
+    "data.table",
+    "digest",
+    "dplyr",
+    "farver",
+    "fastmap",
+    "fs",
+    "gap",
+    "glue",
+    "htmltools",
+    "httpuv",
+    "isoband",
+    "jsonlite",
+    "later",
+    "lazyeval",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "plyr",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "rlang",
+    "sass",
+    "sourcetools",
+    "stringi",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "utf8",
+    "vctrs",
+    "xfun",
+    "yaml",
+    "zoo"
+   ],
+   "sysreq": {
+    "httpuv": "GNU make, zlib",
+    "sass": "GNU make",
+    "curl": "libcurl (>= 7.73): libcurl-devel (rpm) or libcurl4-openssl-dev (deb)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make.",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "openssl": "OpenSSL >= 1.0.2",
+    "stringi": "ICU4C (>= 61, optional)",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "glue",
+     "xfun",
+     "sass",
+     "rlang",
+     "rappdirs",
+     "generics",
+     "curl",
+     "ggplot2",
+     "viridisLite",
+     "tinytex",
+     "withr",
+     "crosstalk",
+     "pillar",
+     "magrittr",
+     "gtable",
+     "vctrs",
+     "tidyr",
+     "lifecycle",
+     "sourcetools",
+     "jquerylib",
+     "S7",
+     "memoise",
+     "fs",
+     "askpass",
+     "R6",
+     "fastmap",
+     "bslib",
+     "cli",
+     "evaluate",
+     "pkgconfig",
+     "scales",
+     "plotly",
+     "dplyr",
+     "sys",
+     "openssl",
+     "later",
+     "plyr",
+     "shiny",
+     "farver",
+     "isoband",
+     "cachem",
+     "cpp11",
+     "otel",
+     "jsonlite",
+     "htmlwidgets",
+     "promises",
+     "tibble",
+     "httr",
+     "tidyselect",
+     "rmarkdown",
+     "stringr",
+     "fontawesome"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "httpuv",
+     "RcppEigen"
+    ],
+    "GPL": [
+     "codetools",
+     "mime",
+     "knitr",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "gap",
+     "gap.datasets",
+     "Rcpp",
+     "digest",
+     "qgam",
+     "mgcv",
+     "xtable",
+     "htmltools",
+     "nlme",
+     "lme4",
+     "lattice",
+     "Rdpack"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL-2 | GPL-3": [
+     "ape",
+     "MASS",
+     "base64enc",
+     "lmtest",
+     "zoo"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL-3": [
+     "lazyeval",
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0)": [
+     "iterators",
+     "foreach"
+    ],
+    "MPL-2.0 | file LICENSE": [
+     "data.table"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL (>= 3)": [
+     "DHARMa"
+    ],
+    "GPL-2": [
+     "doParallel",
+     "rbibutils",
+     "minqa"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "BSD_2_clause + file LICENSE": [
+     "commonmark"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "DHARMa",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "ape",
+    "askpass",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "commonmark",
+    "cpp11",
+    "crosstalk",
+    "curl",
+    "data.table",
+    "digest",
+    "doParallel",
+    "dplyr",
+    "evaluate",
+    "farver",
+    "fastmap",
+    "fontawesome",
+    "foreach",
+    "fs",
+    "gap",
+    "gap.datasets",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "highr",
+    "htmltools",
+    "htmlwidgets",
+    "httpuv",
+    "httr",
+    "isoband",
+    "iterators",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "labeling",
+    "later",
+    "lazyeval",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "memoise",
+    "mime",
+    "minqa",
+    "nloptr",
+    "openssl",
+    "otel",
+    "pillar",
+    "pkgconfig",
+    "plotly",
+    "plyr",
+    "promises",
+    "purrr",
+    "qgam",
+    "rappdirs",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "rmarkdown",
+    "sass",
+    "scales",
+    "shiny",
+    "sourcetools",
+    "stringi",
+    "stringr",
+    "sys",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "tinytex",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "xfun",
+    "xtable",
+    "yaml",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 2.15.1",
+     "httpuv"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 2.1",
+     "codetools"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 2.10",
+     "gap"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2.0",
+     "ape"
+    ],
+    [
+     ">= 3.0.0",
+     "curl"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 2.10",
+     "gap.datasets"
+    ],
+    [
+     ">= 3.1.0",
+     "lazyeval"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 2.5.0",
+     "iterators"
+    ],
+    [
+     ">= 3.4.0",
+     "data.table"
+    ],
+    [
+     ">= 4.0",
+     "qgam"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 2.10.0",
+     "xtable"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 3.0.2",
+     "sourcetools"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 2.5.0",
+     "foreach"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 3.5.0",
+     "plotly"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.5.0",
+     "DHARMa"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 2.14.0",
+     "doParallel"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 3.1.2",
+     "shiny"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6.0",
+     "otel"
+    ],
+    [
+     ">= 4.1.0",
+     "promises"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 3.6",
+     "httr"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "HLMdiag alone",
+  "roots": [
+   "HLMdiag"
+  ],
+  "runtime": {
+   "total": 44,
+   "nonrecommended": 39,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "lattice",
+    "mgcv",
+    "nlme"
+   ],
+   "compiled": 27,
+   "compiled_nonrec": [
+    "HLMdiag",
+    "Rcpp",
+    "S7",
+    "cli",
+    "dplyr",
+    "farver",
+    "ggrepel",
+    "glue",
+    "isoband",
+    "lubridate",
+    "magrittr",
+    "plyr",
+    "purrr",
+    "reshape2",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timechange",
+    "utf8",
+    "vctrs"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "timechange": "A system with zoneinfo data (e.g. /usr/share/zoneinfo). On Windows the zoneinfo included with R is used.",
+    "lubridate": "A system with zoneinfo data (e.g. /usr/share/zoneinfo). On Windows the zoneinfo included with R is used."
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "farver",
+     "pkgconfig",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "hms",
+     "generics",
+     "ggplot2",
+     "viridisLite",
+     "reshape2",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "lubridate",
+     "tidyselect",
+     "janitor",
+     "stringr",
+     "R6",
+     "plyr",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "mgcv",
+     "lattice",
+     "Rcpp",
+     "nlme"
+    ],
+    "GPL-3 | file LICENSE": [
+     "ggrepel"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "timechange"
+    ],
+    "GPL-2": [
+     "HLMdiag"
+    ],
+    "GPL-3": [
+     "snakecase",
+     "diagonals"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "HLMdiag",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "S7",
+    "cli",
+    "diagonals",
+    "dplyr",
+    "farver",
+    "generics",
+    "ggplot2",
+    "ggrepel",
+    "glue",
+    "gtable",
+    "hms",
+    "isoband",
+    "janitor",
+    "labeling",
+    "lifecycle",
+    "lubridate",
+    "magrittr",
+    "pillar",
+    "pkgconfig",
+    "plyr",
+    "purrr",
+    "reshape2",
+    "rlang",
+    "scales",
+    "snakecase",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timechange",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 4.1.0",
+     "ggrepel"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.1",
+     "reshape2"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.3",
+     "timechange"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 3.5.0",
+     "HLMdiag"
+    ],
+    [
+     ">= 3.2",
+     "lubridate"
+    ],
+    [
+     ">= 3.2",
+     "snakecase"
+    ],
+    [
+     ">= 2.10",
+     "diagonals"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.1.2",
+     "janitor"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  },
+  "source": {
+   "total": 46,
+   "nonrecommended": 41,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "lattice",
+    "mgcv",
+    "nlme"
+   ],
+   "compiled": 28,
+   "compiled_nonrec": [
+    "HLMdiag",
+    "Rcpp",
+    "RcppArmadillo",
+    "S7",
+    "cli",
+    "dplyr",
+    "farver",
+    "ggrepel",
+    "glue",
+    "isoband",
+    "lubridate",
+    "magrittr",
+    "plyr",
+    "purrr",
+    "reshape2",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timechange",
+    "utf8",
+    "vctrs"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "timechange": "A system with zoneinfo data (e.g. /usr/share/zoneinfo). On Windows the zoneinfo included with R is used.",
+    "lubridate": "A system with zoneinfo data (e.g. /usr/share/zoneinfo). On Windows the zoneinfo included with R is used."
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "farver",
+     "pkgconfig",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "hms",
+     "generics",
+     "ggplot2",
+     "viridisLite",
+     "reshape2",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "lubridate",
+     "tidyselect",
+     "janitor",
+     "stringr",
+     "R6",
+     "plyr",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "mgcv",
+     "lattice",
+     "RcppArmadillo",
+     "Rcpp",
+     "nlme"
+    ],
+    "GPL-3 | file LICENSE": [
+     "ggrepel"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "timechange"
+    ],
+    "GPL-2": [
+     "HLMdiag"
+    ],
+    "GPL-3": [
+     "snakecase",
+     "diagonals"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "HLMdiag",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "RcppArmadillo",
+    "S7",
+    "cli",
+    "cpp11",
+    "diagonals",
+    "dplyr",
+    "farver",
+    "generics",
+    "ggplot2",
+    "ggrepel",
+    "glue",
+    "gtable",
+    "hms",
+    "isoband",
+    "janitor",
+    "labeling",
+    "lifecycle",
+    "lubridate",
+    "magrittr",
+    "pillar",
+    "pkgconfig",
+    "plyr",
+    "purrr",
+    "reshape2",
+    "rlang",
+    "scales",
+    "snakecase",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timechange",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.4.0",
+     "mgcv"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 4.1.0",
+     "ggrepel"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.1",
+     "reshape2"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.3",
+     "timechange"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 3.5.0",
+     "HLMdiag"
+    ],
+    [
+     ">= 3.2",
+     "lubridate"
+    ],
+    [
+     ">= 3.2",
+     "snakecase"
+    ],
+    [
+     ">= 2.10",
+     "diagonals"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.3.0",
+     "RcppArmadillo"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.1.2",
+     "janitor"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 3.1.0",
+     "plyr"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "lmerTest alone",
+  "roots": [
+   "lmerTest"
+  ],
+  "runtime": {
+   "total": 30,
+   "nonrecommended": 25,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 16,
+   "compiled_nonrec": [
+    "Rcpp",
+    "S7",
+    "cli",
+    "farver",
+    "glue",
+    "isoband",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "rlang",
+    "vctrs"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "MIT + file LICENSE": [
+     "cli",
+     "gtable",
+     "glue",
+     "farver",
+     "vctrs",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "S7",
+     "R6"
+    ],
+    "GPL (>= 2)": [
+     "lmerTest",
+     "lme4",
+     "lattice",
+     "Rcpp",
+     "nlme",
+     "Rdpack"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "numDeriv",
+     "minqa"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "cli",
+    "farver",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmerTest",
+    "minqa",
+    "nloptr",
+    "numDeriv",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "scales",
+    "vctrs",
+    "viridisLite",
+    "withr"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 3.2.5",
+     "lmerTest"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ]
+   ]
+  },
+  "source": {
+   "total": 32,
+   "nonrecommended": 27,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme"
+   ],
+   "compiled": 17,
+   "compiled_nonrec": [
+    "Rcpp",
+    "RcppEigen",
+    "S7",
+    "cli",
+    "farver",
+    "glue",
+    "isoband",
+    "lme4",
+    "minqa",
+    "nloptr",
+    "rbibutils",
+    "rlang",
+    "vctrs"
+   ],
+   "sysreq": {
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "GPL-2 | GPL-3": [
+     "MASS"
+    ],
+    "MIT + file LICENSE": [
+     "cli",
+     "gtable",
+     "glue",
+     "farver",
+     "vctrs",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "S7",
+     "R6"
+    ],
+    "GPL (>= 2)": [
+     "lmerTest",
+     "lme4",
+     "lattice",
+     "Rcpp",
+     "nlme",
+     "Rdpack"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "numDeriv",
+     "minqa"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "cli",
+    "cpp11",
+    "farver",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmerTest",
+    "minqa",
+    "nloptr",
+    "numDeriv",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "scales",
+    "vctrs",
+    "viridisLite",
+    "withr"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 3.2.5",
+     "lmerTest"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "pbkrtest alone",
+  "roots": [
+   "pbkrtest"
+  ],
+  "runtime": {
+   "total": 56,
+   "nonrecommended": 50,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 33,
+   "compiled_nonrec": [
+    "Deriv",
+    "Rcpp",
+    "S7",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glue",
+    "isoband",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "generics",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lme4",
+     "urca",
+     "lattice",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "Rdpack",
+    "S7",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  },
+  "source": {
+   "total": 59,
+   "nonrecommended": 53,
+   "recommended": [
+    "MASS",
+    "Matrix",
+    "boot",
+    "lattice",
+    "nlme",
+    "nnet"
+   ],
+   "compiled": 35,
+   "compiled_nonrec": [
+    "Deriv",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "S7",
+    "backports",
+    "cli",
+    "colorspace",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "glue",
+    "isoband",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "nloptr",
+    "purrr",
+    "rbibutils",
+    "rlang",
+    "stringi",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "urca",
+    "utf8",
+    "vctrs",
+    "zoo"
+   ],
+   "sysreq": {
+    "stringi": "ICU4C (>= 61, optional)",
+    "nloptr": "cmake (>= 3.2.0) which is used only on Linux or macOS systems when no system build of nlopt (>= 2.7.0) can be found.",
+    "minqa": "GNU make"
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "purrr",
+     "cli",
+     "gtable",
+     "glue",
+     "broom",
+     "pkgconfig",
+     "farver",
+     "vctrs",
+     "tidyr",
+     "scales",
+     "isoband",
+     "lifecycle",
+     "rlang",
+     "cpp11",
+     "generics",
+     "ggplot2",
+     "viridisLite",
+     "withr",
+     "tibble",
+     "dplyr",
+     "S7",
+     "tidyselect",
+     "stringr",
+     "R6",
+     "pillar",
+     "magrittr"
+    ],
+    "GPL-2 | GPL-3": [
+     "MASS",
+     "lmtest",
+     "nnet",
+     "backports",
+     "zoo"
+    ],
+    "GPL (>= 2)": [
+     "timeDate",
+     "fracdiff",
+     "lme4",
+     "urca",
+     "lattice",
+     "RcppArmadillo",
+     "Rcpp",
+     "doBy",
+     "nlme",
+     "Rdpack",
+     "pbkrtest"
+    ],
+    "file LICENSE": [
+     "stringi"
+    ],
+    "GPL-2": [
+     "rbibutils",
+     "numDeriv",
+     "minqa",
+     "cowplot"
+    ],
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL-3": [
+     "forecast",
+     "modelr",
+     "reformulas"
+    ],
+    "MIT + file LICENSE | Unlimited": [
+     "labeling"
+    ],
+    "GPL (>= 2) | file LICENSE": [
+     "RcppEigen"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "colorspace"
+    ],
+    "Apache License 2.0": [
+     "RColorBrewer"
+    ],
+    "GPL (>= 3)": [
+     "Deriv"
+    ],
+    "Unlimited": [
+     "boot"
+    ],
+    "LGPL (>= 3)": [
+     "nloptr"
+    ],
+    "Apache License (== 2.0) | file LICENSE": [
+     "utf8"
+    ]
+   },
+   "nonrec_list": [
+    "Deriv",
+    "R6",
+    "RColorBrewer",
+    "Rcpp",
+    "RcppArmadillo",
+    "RcppEigen",
+    "Rdpack",
+    "S7",
+    "backports",
+    "broom",
+    "cli",
+    "colorspace",
+    "cowplot",
+    "cpp11",
+    "doBy",
+    "dplyr",
+    "farver",
+    "forecast",
+    "fracdiff",
+    "generics",
+    "ggplot2",
+    "glue",
+    "gtable",
+    "isoband",
+    "labeling",
+    "lifecycle",
+    "lme4",
+    "lmtest",
+    "magrittr",
+    "minqa",
+    "modelr",
+    "nloptr",
+    "numDeriv",
+    "pbkrtest",
+    "pillar",
+    "pkgconfig",
+    "purrr",
+    "rbibutils",
+    "reformulas",
+    "rlang",
+    "scales",
+    "stringi",
+    "stringr",
+    "tibble",
+    "tidyr",
+    "tidyselect",
+    "timeDate",
+    "urca",
+    "utf8",
+    "vctrs",
+    "viridisLite",
+    "withr",
+    "zoo"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.1",
+     "purrr"
+    ],
+    [
+     ">= 4.4.0",
+     "MASS"
+    ],
+    [
+     ">= 3.6.0",
+     "timeDate"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 4.0",
+     "gtable"
+    ],
+    [
+     ">= 4.1",
+     "glue"
+    ],
+    [
+     ">= 4.1",
+     "broom"
+    ],
+    [
+     ">= 4.0.0",
+     "vctrs"
+    ],
+    [
+     ">= 3.4",
+     "stringi"
+    ],
+    [
+     ">= 4.1.0",
+     "tidyr"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.1",
+     "scales"
+    ],
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 3.6",
+     "lme4"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.1.0",
+     "forecast"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.0.0",
+     "cpp11"
+    ],
+    [
+     ">= 3.6",
+     "generics"
+    ],
+    [
+     ">= 3.2",
+     "modelr"
+    ],
+    [
+     ">= 4.1",
+     "ggplot2"
+    ],
+    [
+     ">= 3.6.0",
+     "RcppEigen"
+    ],
+    [
+     ">= 2.10",
+     "viridisLite"
+    ],
+    [
+     ">= 3.0.0",
+     "lmtest"
+    ],
+    [
+     ">= 3.0.0",
+     "colorspace"
+    ],
+    [
+     ">= 2.0.0",
+     "RColorBrewer"
+    ],
+    [
+     ">= 3.6.0",
+     "withr"
+    ],
+    [
+     ">= 3.4.0",
+     "tibble"
+    ],
+    [
+     ">= 4.1.0",
+     "dplyr"
+    ],
+    [
+     ">= 3.0.0",
+     "nnet"
+    ],
+    [
+     ">= 4.5",
+     "Deriv"
+    ],
+    [
+     ">= 2.0.0",
+     "urca"
+    ],
+    [
+     ">= 3.0.0",
+     "boot"
+    ],
+    [
+     ">= 3.0.0",
+     "backports"
+    ],
+    [
+     ">= 3.5.0",
+     "S7"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ],
+    [
+     ">= 3.3.0",
+     "RcppArmadillo"
+    ],
+    [
+     ">= 3.4",
+     "tidyselect"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 4.2.0",
+     "doBy"
+    ],
+    [
+     ">= 4.1.0",
+     "stringr"
+    ],
+    [
+     ">= 2.11.1",
+     "numDeriv"
+    ],
+    [
+     ">= 3.6.0",
+     "nlme"
+    ],
+    [
+     ">= 2.10",
+     "utf8"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 3.5.0",
+     "cowplot"
+    ],
+    [
+     ">= 3.1.0",
+     "zoo"
+    ],
+    [
+     ">= 4.2.0",
+     "pbkrtest"
+    ],
+    [
+     ">= 3.4.0",
+     "magrittr"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "quarto alone",
+  "roots": [
+   "quarto"
+  ],
+  "runtime": {
+   "total": 31,
+   "nonrecommended": 31,
+   "recommended": [],
+   "compiled": 18,
+   "compiled_nonrec": [
+    "Rcpp",
+    "base64enc",
+    "cachem",
+    "cli",
+    "digest",
+    "fastmap",
+    "fs",
+    "htmltools",
+    "jsonlite",
+    "later",
+    "mime",
+    "processx",
+    "ps",
+    "rappdirs",
+    "rlang",
+    "sass",
+    "xfun",
+    "yaml"
+   ],
+   "sysreq": {
+    "sass": "GNU make",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "quarto": "Quarto command line tool (<https://github.com/quarto-dev/quarto-cli>).",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make."
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "ps",
+     "cli",
+     "evaluate",
+     "xfun",
+     "lifecycle",
+     "sass",
+     "cachem",
+     "rlang",
+     "rappdirs",
+     "quarto",
+     "jsonlite",
+     "rstudioapi",
+     "processx",
+     "tinytex",
+     "jquerylib",
+     "memoise",
+     "rmarkdown",
+     "fs",
+     "fontawesome",
+     "later",
+     "R6",
+     "fastmap",
+     "bslib"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "GPL": [
+     "knitr",
+     "mime",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "htmltools",
+     "digest",
+     "Rcpp"
+    ],
+    "GPL-2 | GPL-3": [
+     "base64enc"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "Rcpp",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "digest",
+    "evaluate",
+    "fastmap",
+    "fontawesome",
+    "fs",
+    "highr",
+    "htmltools",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "later",
+    "lifecycle",
+    "memoise",
+    "mime",
+    "processx",
+    "ps",
+    "quarto",
+    "rappdirs",
+    "rlang",
+    "rmarkdown",
+    "rstudioapi",
+    "sass",
+    "tinytex",
+    "xfun",
+    "yaml"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.4",
+     "ps"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 4.1.0",
+     "quarto"
+    ],
+    [
+     ">= 3.4.0",
+     "processx"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ]
+   ]
+  },
+  "source": {
+   "total": 31,
+   "nonrecommended": 31,
+   "recommended": [],
+   "compiled": 18,
+   "compiled_nonrec": [
+    "Rcpp",
+    "base64enc",
+    "cachem",
+    "cli",
+    "digest",
+    "fastmap",
+    "fs",
+    "htmltools",
+    "jsonlite",
+    "later",
+    "mime",
+    "processx",
+    "ps",
+    "rappdirs",
+    "rlang",
+    "sass",
+    "xfun",
+    "yaml"
+   ],
+   "sysreq": {
+    "sass": "GNU make",
+    "knitr": "Package vignettes based on R Markdown v2 or reStructuredText require Pandoc (http://pandoc.org). The function rst2pdf() requires rst2pdf (https://github.com/rst2pdf/rst2pdf).",
+    "quarto": "Quarto command line tool (<https://github.com/quarto-dev/quarto-cli>).",
+    "rmarkdown": "pandoc (>= 2.8) - http://pandoc.org",
+    "fs": "libuv: libuv-devel (rpm) or libuv1-dev (deb). Alternatively to build the vendored libuv 'cmake' is required. GNU make."
+   },
+   "licences": {
+    "MIT + file LICENSE": [
+     "ps",
+     "cli",
+     "evaluate",
+     "xfun",
+     "lifecycle",
+     "sass",
+     "cachem",
+     "rlang",
+     "rappdirs",
+     "quarto",
+     "jsonlite",
+     "rstudioapi",
+     "processx",
+     "tinytex",
+     "jquerylib",
+     "memoise",
+     "rmarkdown",
+     "fs",
+     "fontawesome",
+     "later",
+     "R6",
+     "fastmap",
+     "bslib"
+    ],
+    "BSD_3_clause + file LICENSE": [
+     "yaml"
+    ],
+    "GPL": [
+     "knitr",
+     "mime",
+     "highr"
+    ],
+    "GPL (>= 2)": [
+     "htmltools",
+     "digest",
+     "Rcpp"
+    ],
+    "GPL-2 | GPL-3": [
+     "base64enc"
+    ]
+   },
+   "nonrec_list": [
+    "R6",
+    "Rcpp",
+    "base64enc",
+    "bslib",
+    "cachem",
+    "cli",
+    "digest",
+    "evaluate",
+    "fastmap",
+    "fontawesome",
+    "fs",
+    "highr",
+    "htmltools",
+    "jquerylib",
+    "jsonlite",
+    "knitr",
+    "later",
+    "lifecycle",
+    "memoise",
+    "mime",
+    "processx",
+    "ps",
+    "quarto",
+    "rappdirs",
+    "rlang",
+    "rmarkdown",
+    "rstudioapi",
+    "sass",
+    "tinytex",
+    "xfun",
+    "yaml"
+   ],
+   "Rreqs": [
+    [
+     ">= 3.4",
+     "ps"
+    ],
+    [
+     ">= 3.4",
+     "cli"
+    ],
+    [
+     ">= 3.6.0",
+     "evaluate"
+    ],
+    [
+     ">= 3.2.0",
+     "xfun"
+    ],
+    [
+     ">= 3.6",
+     "lifecycle"
+    ],
+    [
+     ">= 4.0.0",
+     "rlang"
+    ],
+    [
+     ">= 4.1",
+     "rappdirs"
+    ],
+    [
+     ">= 3.6.0",
+     "knitr"
+    ],
+    [
+     ">= 4.1.0",
+     "quarto"
+    ],
+    [
+     ">= 3.4.0",
+     "processx"
+    ],
+    [
+     ">= 2.14.1",
+     "htmltools"
+    ],
+    [
+     ">= 3.3.0",
+     "highr"
+    ],
+    [
+     ">= 2.9.0",
+     "base64enc"
+    ],
+    [
+     ">= 3.0",
+     "rmarkdown"
+    ],
+    [
+     ">= 4.1",
+     "fs"
+    ],
+    [
+     ">= 3.3.0",
+     "fontawesome"
+    ],
+    [
+     ">= 3.3.0",
+     "digest"
+    ],
+    [
+     ">= 3.5.0",
+     "Rcpp"
+    ],
+    [
+     ">= 3.5",
+     "later"
+    ],
+    [
+     ">= 3.6",
+     "R6"
+    ],
+    [
+     ">= 2.10",
+     "bslib"
+    ]
+   ]
+  }
+ },
+ {
+  "set": "whisker alone",
+  "roots": [
+   "whisker"
+  ],
+  "runtime": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 0,
+   "compiled_nonrec": [],
+   "sysreq": {},
+   "licences": {
+    "GPL-3": [
+     "whisker"
+    ]
+   },
+   "nonrec_list": [
+    "whisker"
+   ],
+   "Rreqs": []
+  },
+  "source": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 0,
+   "compiled_nonrec": [],
+   "sysreq": {},
+   "licences": {
+    "GPL-3": [
+     "whisker"
+    ]
+   },
+   "nonrec_list": [
+    "whisker"
+   ],
+   "Rreqs": []
+  }
+ },
+ {
+  "set": "jsonlite alone",
+  "roots": [
+   "jsonlite"
+  ],
+  "runtime": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 1,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite"
+   ],
+   "Rreqs": []
+  },
+  "source": {
+   "total": 1,
+   "nonrecommended": 1,
+   "recommended": [],
+   "compiled": 1,
+   "compiled_nonrec": [
+    "jsonlite"
+   ],
+   "sysreq": {},
+   "licences": {
+    "MIT + file LICENSE": [
+     "jsonlite"
+    ]
+   },
+   "nonrec_list": [
+    "jsonlite"
+   ],
+   "Rreqs": []
+  }
+ },
+ {
+  "set": "reformulas alone",
+  "roots": [
+   "reformulas"
+  ],
+  "runtime": {
+   "total": 5,
+   "nonrecommended": 3,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 3,
+   "compiled_nonrec": [
+    "rbibutils"
+   ],
+   "sysreq": {},
+   "licences": {
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ],
+    "GPL-2": [
+     "rbibutils"
+    ]
+   },
+   "nonrec_list": [
+    "Rdpack",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  },
+  "source": {
+   "total": 5,
+   "nonrecommended": 3,
+   "recommended": [
+    "Matrix",
+    "lattice"
+   ],
+   "compiled": 3,
+   "compiled_nonrec": [
+    "rbibutils"
+   ],
+   "sysreq": {},
+   "licences": {
+    "GPL (>= 2) | file LICENCE": [
+     "Matrix"
+    ],
+    "GPL (>= 2)": [
+     "Rdpack",
+     "lattice"
+    ],
+    "GPL-3": [
+     "reformulas"
+    ],
+    "GPL-2": [
+     "rbibutils"
+    ]
+   },
+   "nonrec_list": [
+    "Rdpack",
+    "rbibutils",
+    "reformulas"
+   ],
+   "Rreqs": [
+    [
+     ">= 4.4",
+     "Matrix"
+    ],
+    [
+     ">= 2.15.0",
+     "Rdpack"
+    ],
+    [
+     ">= 2.10",
+     "rbibutils"
+    ],
+    [
+     ">= 4.0.0",
+     "lattice"
+    ]
+   ]
+  }
+ }
+]

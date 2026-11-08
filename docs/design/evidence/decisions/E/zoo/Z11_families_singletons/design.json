@@ -1,0 +1,45 @@
+{
+ "features": [
+  "family"
+ ],
+ "observation": {
+  "key": [
+   "child"
+  ],
+  "unit": "family"
+ },
+ "schema_version": "0.1.0",
+ "table": {
+  "fields": [
+   {
+    "name": "family",
+    "type": "string"
+   },
+   {
+    "name": "child",
+    "type": "string"
+   },
+   {
+    "name": "x",
+    "type": "number"
+   },
+   {
+    "name": "y",
+    "type": "number"
+   }
+  ],
+  "missingValues": [
+   ""
+  ]
+ },
+ "title": "Z11_families_singletons",
+ "units": [
+  {
+   "columns": [
+    "family"
+   ],
+   "name": "family",
+   "role": "family"
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+export(diagnose, audit)
+S3method(diagnose, default)
+S3method(diagnose, merMod)
+S3method(diagnose, glmmTMB)
+S3method(diagnose, afex_aov)
+S3method(diagnose, mixed)
+importFrom(Matrix, sparse.model.matrix, rankMatrix)
+importFrom(lme4, getME, isSingular)

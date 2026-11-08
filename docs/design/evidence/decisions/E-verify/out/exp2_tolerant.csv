@@ -1,0 +1,10 @@
+scenario,parameter,p_R1_true_unit,p_R2_or_R3_true_unit,n_rep
+"S1 school CRT, per-row miscoding probability",0.0,1.0,1.0,2000
+"S1 school CRT, per-row miscoding probability",0.0005,0.547,1.0,2000
+"S1 school CRT, per-row miscoding probability",0.001,0.271,1.0,2000
+"S1 school CRT, per-row miscoding probability",0.005,0.002,0.993,2000
+"S1 school CRT, per-row miscoding probability",0.02,0.0,0.0075,2000
+"S2 individual randomisation in families, n families",10,0.9155,0.9155,2000
+"S2 individual randomisation in families, n families",20,0.9935,0.9935,2000
+"S2 individual randomisation in families, n families",50,1.0,1.0,2000
+S4 stepped wedge detected as monotone switch pattern (R3),0,nan,1.0,2000

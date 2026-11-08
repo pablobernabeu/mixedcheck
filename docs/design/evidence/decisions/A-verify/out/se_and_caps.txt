@@ -1,0 +1,6 @@
+statsmodels bse_fe: [0.29767 0.11485 0.30424] | conditional-on-theta SE at sm estimates: [0.29739 0.11452 0.29709] | ratio: [1.001  1.0029 1.0241]
+lme4 SE: {'(Intercept)': 0.29741, 'x': 0.11452, 'w': 0.29711} | glmmTMB SE: {'(Intercept)': 0.2977, 'x': 0.11485, 'w': 0.30426}
+mixedlm as_function(theta) - REMLcrit: 0.0 | Z shape: (180, 36)
+mixedlm df-related attributes: ['df_residual']
+glmm df_method: satterthwaite | df: [17. 17.]
+glmm.model_matrix with random terms: ValueError a design formula takes no random-effect terms; give the fixed part only

@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "title": "N400 single-trial mean amplitudes",
+  "features": ["eeg", "trial_level", "crossed_experiment"],
+  "units": [
+    {"name": "subject", "columns": ["subject"], "role": "participant"},
+    {"name": "item", "columns": ["item"], "role": "item"},
+    {"name": "trial", "columns": ["trial"], "nested_in": "subject", "id_scope": "within_parent", "role": "trial"},
+    {"name": "channel", "columns": ["chan"], "role": "channel"}
+  ],
+  "crossings": [{"units": ["subject", "item"]}, {"units": ["trial", "channel"]}],
+  "eeg": {"channel_column": "chan", "reference": "average", "baseline_column": "baseline_amp"},
+  "observation": {"unit": "trial", "key": ["subject", "trial", "chan"]},
+  "variables": {"amp": {"role": "outcome"}, "baseline_amp": {"role": "baseline_covariate"}}
+}

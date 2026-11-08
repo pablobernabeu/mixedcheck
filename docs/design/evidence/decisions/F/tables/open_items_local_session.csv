@@ -1,0 +1,33 @@
+kind,item,why
+hpc_run,"HPC-0 set-up and calibration on htc: module spider R; build the R library on an interactive Cascade Lake node; check MaxArraySize/MaxJobCount (scontrol show config), QoS and limits (sacctmgr), credit (mybalance) and CPU feature names (sinfo -o '%f'); run slurm/pilot_V1a as a 6-task array and compare per-fit times with this VM",Calibrates the speed multiplier (assumed 1.0) and confirms limits the public guide does not state; about 1 CPU-h
+hpc_run,"HPC-1 V1 Gaussian null bank (V1a 12 tasks, V1b 15, V1c 10, V1d 2, V1e 4; 2,000 reps per cell; short partition, 5-9 h requests)",FFR of every Gaussian check and family-wise flag rates for v1.0; central 125 CPU-h (75-250)
+hpc_run,"HPC-2 V2 Gaussian misspecification modules M01-M13 (14 tasks) plus influence sub-study (1 task); after a pilot that fixes the middle magnitudes, then preregistration","Detection rates, consequence and cross-talk for v1.0; central 56 CPU-h (34-112)"
+hpc_run,HPC-3 V3 singularity/convergence/boundary criteria (7 + 30 tasks),Registry singularity criterion and convergence triage; central 115 CPU-h (69-229)
+hpc_run,"HPC-4 V4 variance-component tests with parametric bootstrap, B = 199 (30 tasks)",Default boundary test; central 89 CPU-h (53-178)
+hpc_run,"HPC-5 V5 reduction ladder (key B's H1 with 2x2 cells capped at 1,536 rows: 300 tasks, throttle %200; H2 + H5: 11 tasks); H7 and H9 reuse outputs","Ladder stopping-rule defaults; central 703 CPU-h (420-1,400); uncapped H1 would be 1,473 CPU-h"
+hpc_run,HPC-6 V6 calibration of outcome-blind design analysis (28 tasks),Whether pre-fit probabilities can be shown; central 73 CPU-h
+hpc_run,HPC-7 V7 Python parity (1 task; needs a Python venv with statsmodels on $DATA),Parity claims for v1.0; about 1 CPU-h
+hpc_run,HPC-8 V8 GLMM null bank (3 families; 43 tasks),v1.1 FFRs; central 161 CPU-h (97-323)
+hpc_run,HPC-9 V9 GLMM misspecification modules G01-G06 (15 tasks),v1.1 detection and consequence; central 58 CPU-h
+hpc_run,HPC-10 V10 GLMM parametric bootstrap boundary tests (15 tasks),v1.1 boundary tests; central 49 CPU-h
+hpc_run,"Optional: key B's H4 (GLMM non-convergence, about 400 CPU-h by B's estimate), H8 (engine dependence, about 100) and H10 (Bayesian alternatives, about 200, MCMC)",Not needed for v1.0/v1.1 defaults; schedule only if the methods paper needs them
+paywalled_paper,"Pawel, Bartos, Siepe & Lohmann (2026), The American Statistician 80(1), 31-48, doi:10.1080/00031305.2025.2540002 (final version; arXiv:2409.18527 v3 is open)",Final recommendations on non-convergence and failures; the protocol's missingness rules should follow the published wording
+paywalled_paper,"Skrondal (2000), Multivariate Behavioral Research 35(2), 137-167, doi:10.1207/S15327906MBR3502_1","Metamodel analysis of fractional or Latin-hypercube grids (V1, V5)"
+paywalled_paper,"Boos & Zhang (2000), JASA 95(450), 486-492",Extrapolation that shrinks the bootstrap inner loop; could cut V4/V10 cost several-fold
+paywalled_paper,"Self & Liang (1987), JASA 82(398), 605-610 [metadata from memory, unverified]",Asymptotics of boundary LRTs (V4 comparator rationale)
+paywalled_paper,"Crainiceanu & Ruppert (2004), JRSS-B 66(1), 165-185 [metadata from memory, unverified]",Exact (R)LRT null distribution; RLRsim comparator in V4
+paywalled_paper,"Scheipl, Greven & Kuechenhoff (2008), Computational Statistics & Data Analysis 52(7), 3283-3299 [DOI not checked]",Size and power of zero-variance tests; V4 design precedents
+paywalled_paper,"Santos Nobre & da Motta Singer (2007), Biometrical Journal 49(6), 863-875 [metadata from memory, unverified]",Standardised LMM residuals; V2 modules M01-M03
+paywalled_paper,"Houseman, Ryan & Coull (2004), JASA 99(466), 383-394 [DOI not checked]",Cholesky residuals; residual checks in V1/V2
+paywalled_paper,"Verbeke & Lesaffre (1996), JASA 91(433), 217-221 [metadata from memory, unverified]",Detecting non-normal random effects; V2 module M02
+paywalled_paper,"Loy, Hofmann & Cook (2017), Journal of Computational and Graphical Statistics 26(3), 478-492 [metadata from memory, unverified]",Lineup protocol for LMM diagnostics (catalogue L5-14)
+paywalled_paper,"Dunn & Smyth (1996), Journal of Computational and Graphical Statistics 5(3), 236-244 [metadata from memory, unverified]",Randomised quantile residuals; V8/V9
+paywalled_paper,"Joe (2008), Computational Statistics & Data Analysis 52(12), 5066-5074 [metadata from memory, unverified]",Laplace accuracy for discrete mixed models; V9 module G06
+paywalled_paper,"Kenward & Roger (1997), Biometrics 53(3), 983-997 [metadata from memory, unverified]",Denominator df comparator in V1
+paywalled_paper,"Burton, Altman, Royston & Holder (2006), Statistics in Medicine 25(24), 4279-4292 [metadata from memory, unverified]",Design of simulation studies; complements ADEMP
+paywalled_paper,"Siepe et al. (2024), Psychological Methods, doi:10.1037/met0000695: final volume, issue and pages (an author manuscript is open at UCL Discovery)",Complete the reference; the template itself is open
+other,"Confirm with the Bodleian open-access team whether Oxford participates in the Springer Nature-Jisc 2026-2028 agreement (BRM), the APA-Jisc arrangement after July 2026 (Psychological Methods) and any route for the AMPPS APC; resolve the AMPPS APC conflict (USD 1,000 vs 1,500) and the JORS APC",Venue costs; publisher sites were blocked here
+other,"Read jstatsoft.org author pages directly: fee statement, scope wording, and any rule on software already described in JOSS",JSS pages were seen only through search summaries; double publication risk if both JOSS and JSS are used
+other,Read APA journal operations data for Psychological Methods (time to first decision) and the journal's TOP level and code requirements,Not retrievable here
+other,"Confirm ARC accounting for project educ-intract: SSD projects get standard credits under the free service; new projects reportedly receive 25,000 free core-hours; cost at full economic cost GBP 0.01 per core-hour",Seen only in search summaries of arc.ox.ac.uk pages
+other,Re-time a 20-fit subset with current CRAN lme4 (2.1-0) and glmmTMB (1.1.15.x) on ARC,"Timings here used lme4 1.1-35.1 and glmmTMB 1.1.8; lme4 2.x skips derivative checks for >= 10 covariance parameters in lmer, which may shorten maximal fits"

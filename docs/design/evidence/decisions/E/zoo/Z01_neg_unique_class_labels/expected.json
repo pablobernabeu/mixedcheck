@@ -1,0 +1,32 @@
+{
+ "data_sha256": "87a62424ec286b417b89af311d7be5fcaa89a9a65b9ce337c3382c4ac9a89a74",
+ "findings": [
+  {
+   "check": "structure.pair_relation",
+   "inner": "class",
+   "n_inner_labels": 30,
+   "outer": "school",
+   "relation_from_labels": "nested",
+   "share_inner_labels_in_multiple_outer": 0.0
+  },
+  {
+   "check": "structure.declared_vs_observed",
+   "note": "global IDs, nested as declared",
+   "status": "consistent"
+  },
+  {
+   "check": "structure.composite_groups",
+   "n_groups": 30,
+   "term": "school:class"
+  }
+ ],
+ "fixture": "Z01_neg_unique_class_labels",
+ "generator": {
+  "J": 10,
+  "K": 3,
+  "n": 8,
+  "sd_class": 0.4,
+  "sd_school": 0.5,
+  "seed": 20261107
+ }
+}

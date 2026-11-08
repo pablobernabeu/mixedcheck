@@ -1,0 +1,24 @@
+reference,verdict,fields_confirmed,source_checked,note
+"Appelbaum et al. (2018) Am Psychol 73(1) 3-25",verified,"authors (6), year, title, journal, volume 73, issue 1, first page 3, DOI 10.1037/amp0000191","Lakens/statistical_inferences include/book.bib (raw.githubusercontent.com)","End page 25 not present in the source; content (JARS-Quant Table 1 items) not checked"
+"Bolker et al. (2009) TREE 24(3) 127-135",verified,"authors (7), year, title, journal, volume 24, pages 127-135, DOI 10.1016/j.tree.2008.10.008","glmmTMB vignettes/glmmTMB.bib; bbolker/mixedmodels-misc glmm.bib","Issue 3 not present in either source. Not cited for any specific claim in the recommendations"
+"Bono, Alarcon & Blanca (2021) Front Psychol 12 666182",unverifiable,none,"WebSearch budget exhausted this turn; frontiersin.org, PubMed, Europe PMC, DOAJ and doi.org blocked","Central to Q2 (family shares, 9.3% overdispersion, 13.9% covariance). Re-read results tables in the local session"
+"Bosnjak et al. (2022) Am Psychol 77(4) 602-615",unverifiable,none,"preregr man/form_prpQuant_v1.Rd (CRAN mirror) cites the PRP-QUANT template at doi 10.23668/psycharchives.4584, not the article","Consider citing the PsychArchives template as well; PRP-QUANT field mapping still unread"
+"Brooks et al. (2017) R Journal 9(2) 378-400",verified,"all fields incl. DOI 10.32614/RJ-2017-066","glmmTMB inst/CITATION; Bolker glmm.bib",-
+"Campbell et al. (2012) BMJ 345 e5661",unverifiable,none,"BMJ, PubMed and doi.org blocked; WebSearch exhausted","Agent E verified authors, year, title, journal, volume, article number, DOI and PMID 22951546 earlier in this session (not independent of this workflow)"
+"Casals et al. (2014) PLoS ONE 9(11) e112653",unverifiable,none,"PLoS, PMC and DOAJ blocked",-
+"Dedrick et al. (2009) RER 79(1) 69-102",unverifiable,none,"SAGE and indexes blocked","C already flags conflicting author order; also check whether its outcome-type table supports 'Gaussian dominate'"
+"Jaeger (2008) JML 59(4) 434-446",unverifiable,none,"not found in lme4, glmmTMB, afex, brms, Bolker or Lakens bibliographies on GitHub",-
+"Liddell & Kruschke (2018) JESP 79 328-348",unverifiable,none,"not found in reachable bibliographies (Lakens bib has only Kruschke & Liddell 2017)","'100% of articles' claim rests on the abstract"
+"Linck & Cunnings (2015) Language Learning 65(S1) 185-207",unverifiable,none,"no reachable source",-
+"Luo et al. (2021) RER (vol/issue/pages missing)",unverifiable,none,"no reachable source","Reference is incomplete as given (volume, issue, pages absent)"
+"Meteyard & Davies (2020) JML 112 104092",unverifiable,none,"no reachable source in this turn","Agents B and E verified all bibliographic fields earlier in this session; B's abstract extraction reports survey n=163 and review n=400 with no Gaussian-vs-GLMM breakdown, so citing it for 'Gaussian LMMs dominate' is unsupported at abstract level (possible misuse)"
+"Monsalves et al. (2020) BMC Med Res Methodol 20 3",unverifiable,none,"BMC and PMC blocked","Checklist items not read by C either"
+"van de Schoot et al. (2017) Psychol Methods 22(2) 217-239",verified,"all fields incl. DOI 10.1037/met0000100","Lakens book.bib",-
+"Ritchie et al. (2023) SACRO guide (Zenodo 10.5281/zenodo.10054629)",unverifiable,none,"zenodo.org and DataCite blocked",-
+"Griffiths et al. (2019) SDC Handbook v1.0",unverifiable,none,"securedatagroup.org and ukdataservice.ac.uk blocked","Author list incomplete as given; C cites v2.0 content but v1.0 bibliographic details"
+"ONS (2025) SRS output checking guidance",unverifiable,none,"ons.gov.uk blocked",-
+"Bond, Brandt & de Wolf (2015) Guidelines for output checking",unverifiable,none,"cros.ec.europa.eu blocked","Year conflict (2010 vs 2015) unresolved"
+"ICO (2025) Anonymisation and pseudonymisation",unverifiable,none,"ico.org.uk blocked","URL given is the ICO home page, not the guidance"
+"Regulation (EU) 2016/679 Recitals 26 and 38",unverifiable,none,"eur-lex.europa.eu and gdpr-info.eu blocked","For an Oxford-based project the operative law is the UK GDPR and DPA 2018 as amended by the Data (Use and Access) Act 2025; cite those too (not verified here)"
+"W3C (2023) WCAG 2.2",verified,"title, short name WCAG22, original Recommendation 5 Oct 2023, republished 12 Dec 2024 with errata","w3c/wcag guidelines/index.html and respec-config.js","Cite the 12 Dec 2024 republication (current TR version) or both dates"
+"Allaire et al. (2026) Quarto 1.11.9",verified,"authors (6), title, DOI 10.5281/zenodo.5960048 from CITATION.cff at tag v1.11.9; version 1.11.9 uploaded 2026-11-02 (PyPI)","quarto-cli CITATION.cff (raw.githubusercontent.com); PyPI JSON","CFF at that tag still says version 1.10, released 2026-07-24; DOI not resolved (doi.org blocked)"

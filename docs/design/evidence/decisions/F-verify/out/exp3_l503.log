@@ -1,0 +1,34 @@
+F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15 0.04 0.068 0.058 
+J40 sizes 2/5/20/50 icc.3 RI 0.032 0.092 0.056 
+J40 sizes 2/5/20/50 icc.5 RI 0.054 0.146 0.08 
+J100 sizes 2/5/20/50 icc.3 RI 0.034 0.182 0.054 
+                                         cell reps
+1  F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15  500
+2  F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15  500
+3  F-pilot cell 4: J40 m5 cv.5 icc.3 slope.15  500
+4                J40 sizes 2/5/20/50 icc.3 RI  500
+5                J40 sizes 2/5/20/50 icc.3 RI  500
+6                J40 sizes 2/5/20/50 icc.3 RI  500
+7                J40 sizes 2/5/20/50 icc.5 RI  500
+8                J40 sizes 2/5/20/50 icc.5 RI  500
+9                J40 sizes 2/5/20/50 icc.5 RI  500
+10              J100 sizes 2/5/20/50 icc.3 RI  500
+11              J100 sizes 2/5/20/50 icc.3 RI  500
+12              J100 sizes 2/5/20/50 icc.3 RI  500
+                                             test false_flag_rate    mcse
+1           T1 Bartlett by cluster, raw (F pilot)           0.040 0.00876
+2          T2 Brown-Forsythe by size stratum, raw           0.068 0.01126
+3  T3 Brown-Forsythe by size stratum, studentised           0.058 0.01045
+4           T1 Bartlett by cluster, raw (F pilot)           0.032 0.00787
+5          T2 Brown-Forsythe by size stratum, raw           0.092 0.01293
+6  T3 Brown-Forsythe by size stratum, studentised           0.056 0.01028
+7           T1 Bartlett by cluster, raw (F pilot)           0.054 0.01011
+8          T2 Brown-Forsythe by size stratum, raw           0.146 0.01579
+9  T3 Brown-Forsythe by size stratum, studentised           0.080 0.01213
+10          T1 Bartlett by cluster, raw (F pilot)           0.034 0.00810
+11         T2 Brown-Forsythe by size stratum, raw           0.182 0.01726
+12 T3 Brown-Forsythe by size stratum, studentised           0.054 0.01011
+
+real	0m39.091s
+user	0m38.935s
+sys	0m0.109s

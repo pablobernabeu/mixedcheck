@@ -44,6 +44,7 @@ jobs:
       - name: Registries
         shell: Rscript {0}
         run: |
+          options(timeout = 300)
           pkg <- Sys.getenv("PKG")
           low <- tolower(pkg)
           status <- function(url) {
@@ -53,8 +54,10 @@ jobs:
           taken <- character()
           ap <- rownames(available.packages(repos = "https://cloud.r-project.org"))
           if (low %in% tolower(ap)) taken <- c(taken, "CRAN (current)")
-          arch <- readLines("https://cloud.r-project.org/src/contrib/Archive/", warn = FALSE)
-          if (any(grepl(paste0('href="', low, '/"'), tolower(arch), fixed = TRUE)))
+          # The full Archive listing is too large to download within the
+          # timeout, so the archive is queried for the name itself. pak's
+          # report above covers other letter cases.
+          if (status(paste0("https://cloud.r-project.org/src/contrib/Archive/", pkg, "/")) != 404)
             taken <- c(taken, "CRAN (archived)")
           bioc <- rownames(available.packages(repos = c(
             "https://bioconductor.org/packages/release/bioc",

@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "y", "type": "number"}]},
+  "estimands": [{"id": "e", "term": "x:y:x"}]
+}

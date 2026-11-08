@@ -1,0 +1,76 @@
+# Runs the parity harness (parity/README.md): both packages run every case of
+# the conformance corpora, and their outcomes are compared with each other and
+# with the expected outcomes. It runs on every push to main and every pull
+# request that touches either package, the shared artefacts or the harness,
+# and when started by hand.
+name: parity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'r/**'
+      - 'python/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'parity/**'
+      - '.github/workflows/parity.yaml'
+  pull_request:
+    paths:
+      - 'r/**'
+      - 'python/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'parity/**'
+      - '.github/workflows/parity.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # uv provides the interpreter. Dependabot does not update this pin.
+  UV_VERSION: '0.13.7'
+
+jobs:
+  parity:
+    name: R and Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Lint the harness
+        run: pipx run ruff check parity
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+      # The harness needs the package's Imports and the suggested package yaml,
+      # which reads the cases of fixtures/conformance/yaml/.
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          dependencies: '"hard"'
+          extra-packages: any::yaml
+          working-directory: r
+      - name: Install the R package
+        run: |
+          mkdir -p "$RUNNER_TEMP/rlib"
+          R CMD INSTALL --library="$RUNNER_TEMP/rlib" r
+      - name: Install uv
+        run: pipx install "uv==$UV_VERSION"
+      # Python 3.11 is the declared floor, and its unicodedata implements
+      # Unicode 14.0, as utf8 does in R.
+      - name: Install the Python package with PyYAML
+        run: |
+          uv venv --python 3.11 "$RUNNER_TEMP/venv"
+          uv pip install --python "$RUNNER_TEMP/venv" './python[yaml]'
+          uv pip list --python "$RUNNER_TEMP/venv"
+      # R runs once in C.UTF-8 and once in the C locale.
+      - name: Run the harness
+        run: python3 parity/parity.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib"

@@ -1,0 +1,4 @@
+{
+  "vocabulary": "0.1.0",
+  "variables": {"y": {"role": "outcome", "measurement": "continuous", "bounds": [0, 1]}}
+}

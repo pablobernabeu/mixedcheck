@@ -1,0 +1,190 @@
+id: structure.id_scope_evidence
+version: 1
+title: Evidence on the scope of repeated labels
+tier: T0
+summary: >-
+  When labels of one grouping column occur with several labels of another and
+  the declaration states no relation between the two units, the check reports
+  outcome-free evidence on whether a repeated label denotes one unit or
+  several: whether attributes that are fixed for a unit keep their value across
+  the levels of the other column. In mlmRev's Exam data, 269 of 322 shared
+  student labels change sex across schools, whereas in a crossed
+  psycholinguistic dataset none of 600 items changes its frequency or length
+  (02-decisions.md, Q4). The evidence informs a declaration and never decides
+  the coding.
+reads: [declaration, formula, grouping_factors, other_columns, predictors]
+fitted_model: false
+sample: design
+scope: grouping_column_pair
+applies_when: >-
+  For the pair, the statistic declared of structure.label_incidence is none,
+  its statistic composite is false and its relation is crossed or
+  partially_crossed.
+availability: []
+statistics:
+  labels_column:
+    kind: names
+    definition: >-
+      The column whose repeated labels the evidence concerns. The statistics
+      below are computed for each direction in which labels of one column, the
+      labels column, occur with more than one label of the other, the context
+      column. The direction with the larger changing_share is reported, and on
+      a tie the direction whose labels column is the first column.
+  context_column:
+    kind: names
+    definition: The other column of the pair in the reported direction.
+  shared_labels:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of labels of the labels column that occur with more than one
+      label of the context column.
+  attributes:
+    kind: names
+    definition: >-
+      The candidate attributes, in code-point order of their names. They are
+      the columns of the design sample that the IR reads, other than the
+      response, its trials column and the two columns of the pair, and the
+      columns that the declaration gives a role
+      other than outcome or outcome_derived, that are constant within every
+      combination of a label of the labels column and a label of the context
+      column but not within every label of the context column. Constancy
+      compares the values as the table reader returns them, with missing
+      values equal to each other.
+  changing_labels:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The largest number, over the candidate attributes, of shared labels for
+      which the attribute takes more than one value across the labels of the
+      context column with which they occur.
+  changing_share:
+    kind: ratio
+    count_class: by_unit
+    numerator: changing_labels
+    denominator: shared_labels
+    definition: changing_labels divided by shared_labels.
+  changing_attribute:
+    kind: names
+    definition: >-
+      The candidate attribute that gives changing_labels, the first in
+      code-point order of their names on a tie, and no column when there is no
+      candidate attribute.
+thresholds:
+  most_change:
+    statistic: changing_share
+    comparator: '>='
+    value: 0.5
+    validation: {value: descriptive}
+    rationale: >-
+      When at least half of the shared labels change an attribute that is
+      fixed for a unit, the labels most probably denote different units in
+      different contexts, as in the Exam data.
+    sources:
+      - kind: convention
+        citation: Set by this project for registry 0.1.0, to be replaced by a validated rule.
+      - kind: decision
+        citation: 02-decisions.md, Q4
+  any_change:
+    statistic: changing_labels
+    comparator: '>='
+    value: 1
+    validation: {value: descriptive}
+    rationale: >-
+      One shared label whose fixed attribute changes shows that at least one
+      repeated label does not denote a single unit with consistent data.
+    sources:
+      - kind: convention
+        citation: Set by this project for registry 0.1.0.
+parameters: {}
+decision:
+  rules:
+    - finding: consistent
+      condition: attributes is empty.
+      thresholds: []
+      message: no_attribute
+    - finding: detectable_inconsequential
+      condition: changing_share reaches most_change.
+      thresholds: [most_change]
+      message: reuse_likely
+    - finding: detectable_inconsequential
+      condition: changing_labels reaches any_change.
+      thresholds: [any_change]
+      message: some_change
+  otherwise:
+    finding: consistent
+    message: no_change
+assessability:
+  - value: not_assessable
+    reason: prerequisite_unmet
+    prerequisite: unit_attribute
+    condition: attributes is empty.
+messages:
+  no_attribute:
+    template: >-
+      No column is constant within the units that the repeated labels of
+      {labels_column} denote, so the data give no evidence on whether a label
+      denotes one unit across the levels of {context_column}. Declare the scope
+      of the labels.
+    args:
+      labels_column: {source: statistic, name: labels_column}
+      context_column: {source: statistic, name: context_column}
+  reuse_likely:
+    template: >-
+      For {share} of the {shared} labels of {labels_column} that occur with
+      several levels of {context_column}, the attribute {attribute} changes
+      between those levels, so these labels probably denote different units.
+      The model treats each label as one unit. Declare the scope of the labels,
+      and nest {labels_column} in {context_column} if the labels are reused.
+    args:
+      share: {source: statistic, name: changing_share, digits: 0}
+      shared: {source: statistic, name: shared_labels}
+      labels_column: {source: statistic, name: labels_column}
+      context_column: {source: statistic, name: context_column}
+      attribute: {source: statistic, name: changing_attribute}
+  some_change:
+    template: >-
+      For {changing} of the {shared} labels of {labels_column} that occur with
+      several levels of {context_column}, the attribute {attribute} changes
+      between those levels. Check these units and declare the scope of the
+      labels.
+    args:
+      changing: {source: statistic, name: changing_labels}
+      shared: {source: statistic, name: shared_labels}
+      labels_column: {source: statistic, name: labels_column}
+      context_column: {source: statistic, name: context_column}
+      attribute: {source: statistic, name: changing_attribute}
+  no_change:
+    template: >-
+      None of the {shared} labels of {labels_column} that occur with several
+      levels of {context_column} changes any of the attributes {attributes},
+      which is consistent with labels that each denote one unit. Declare the
+      scope of the labels to confirm it.
+    args:
+      shared: {source: statistic, name: shared_labels}
+      labels_column: {source: statistic, name: labels_column}
+      context_column: {source: statistic, name: context_column}
+      attributes: {source: statistic, name: attributes}
+remedies:
+  - id: declare_scope
+    description: >-
+      Declare the two units with nested_in and id_scope, or as a crossing, so
+      that the relation no longer rests on the labels alone.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+  - id: nest_in_formula
+    description: >-
+      If the labels are reused within each level of the context column, write
+      the random term with '/' so that the IR builds a grouping factor whose
+      levels are unique across the data.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: [structure.label_incidence]
+  explained_by: []
+references:
+  - kind: decision
+    citation: 02-decisions.md, Q4
+catalogue: [L1-01, L7-01]

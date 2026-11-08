@@ -1,0 +1,67 @@
+id: outcome.zero_shares
+version: 1
+title: Zeros of a count outcome
+tier: T1
+summary: >-
+  Reports the share of zeros of a count outcome in the analysis sample and the
+  levels of each grouping factor in which every count is 0. Many zeros do not
+  by themselves indicate zero inflation, because random intercepts already
+  make counts zero-heavy, and a comparison with a marginal Poisson
+  distribution is invalid with clustering, so the check grades no finding.
+reads: [declaration, formula, grouping_factors, outcome]
+fitted_model: false
+sample: analysis
+families: [poisson]
+scope: grouping_factor
+availability: []
+statistics:
+  rows:
+    kind: count
+    count_class: person
+    definition: The number of rows of the analysis sample.
+  zeros:
+    kind: count
+    count_class: person
+    definition: The number of rows whose outcome is 0.
+  zero_share:
+    kind: ratio
+    count_class: person
+    numerator: zeros
+    denominator: rows
+    definition: zeros divided by rows.
+  levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the factor in the analysis sample.
+  all_zero_levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels in which every count is 0.
+thresholds: {}
+parameters: {}
+decision:
+  rules: []
+  otherwise:
+    finding: consistent
+    message: zeros
+assessability: []
+messages:
+  zeros:
+    template: >-
+      {share} of the {rows} counts are 0, and every count is 0 in {all_zero} of
+      the {levels} levels of '{factor}'. Many zeros alone do not indicate zero
+      inflation in a model with random effects.
+    args:
+      share: {source: statistic, name: zero_share, digits: 1}
+      rows: {source: statistic, name: rows}
+      all_zero: {source: statistic, name: all_zero_levels}
+      levels: {source: statistic, name: levels}
+      factor: {source: scope, name: factor}
+remedies: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L3-09 and L3-21.
+catalogue: [L3-09, L3-21]

@@ -1,0 +1,7 @@
+vocabulary: 0.1.0
+table:
+  fields:
+    - name: score
+      type: integer
+      categories: [1, 2]
+      categoriesOrdered:

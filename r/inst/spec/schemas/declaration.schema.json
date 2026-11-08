@@ -1,0 +1,457 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:declaration",
+  "title": "mixedcheck design declaration, vocabulary 0.1",
+  "description": "A declaration of a study design in vocabulary 0.1, normative together with docs/spec/declarations.md. It is a document in the hashable profile, and its hash is the SHA-256 of its canonical bytes. Only 'vocabulary' is required. A block that is present is checked against the data, and a check whose input only a declaration can give reports not_available with the reason declaration_missing when the field is absent. Unknown keys are errors everywhere, including in table field descriptors and for the dyad, EEG and imputation blocks, which follow in a later vocabulary. The validators first check the vocabulary version (E1441), then this schema, then the rules in code that declarations.md lists with codes E2001 to E2032, among them unique names, references to declared units and table fields, the absence of cycles, roles across blocks, the requirements of goals and features and the minimal declaration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["vocabulary"],
+  "properties": {
+    "vocabulary": {
+      "title": "vocabulary version 0.1",
+      "description": "The version of the declaration vocabulary. This release reads every 0.1.x version. A version outside that line is reported with E1441 alone, before any other check.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/semver",
+      "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$"
+    },
+    "title": {
+      "description": "A short title of the study or dataset.",
+      "$ref": "#/$defs/line"
+    },
+    "goal": {
+      "description": "The goal of the analysis. Absent: 'exploratory'. 'confirmatory' requires a minimal declaration (declarations.md), as do the features cluster_randomised, stepped_wedge and partially_nested. The prediction goal follows after 1.0.",
+      "enum": ["confirmatory", "exploratory"]
+    },
+    "features": {
+      "description": "Design features, which select domain checks and wording and never change data. cluster_randomised, stepped_wedge and partially_nested require the assignment block (E2025) and a minimal declaration (E2028 to E2032), and longitudinal, intensive_longitudinal and stepped_wedge require observation.time (E2025). observational states that no variable was assigned, and contradicts the assignment block, the role 'assigned' and the three trial features (E2027).",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "cluster_randomised",
+          "multisite",
+          "stepped_wedge",
+          "partially_nested",
+          "longitudinal",
+          "intensive_longitudinal",
+          "family",
+          "crossed_experiment",
+          "counterbalanced",
+          "trial_level",
+          "corpus",
+          "observational"
+        ]
+      }
+    },
+    "disclosure_unit": {
+      "description": "The declared unit whose distinct members the privacy rules count. It must name a unit in the units block (E2006).",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/disclosure_unit"
+    },
+    "table": {"$ref": "#/$defs/table"},
+    "units": {
+      "description": "The grouping units of the design. Unit names must be unique (E2001), and every name that refers to a unit must name one of them (E2006). No unit may be nested in itself, directly or through other units (E2010).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/unit"}
+    },
+    "crossings": {
+      "description": "Pairs of declared units whose members are crossed, so that a label shared across members of the other unit denotes the same member. A pair may appear once (E2005) and may not include a unit and a unit it is nested in (E2011).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/crossing"}
+    },
+    "observation": {"$ref": "#/$defs/observation"},
+    "assignment": {
+      "description": "The assigned variables, one entry for each assigned column (E2004). A variables entry for an assigned column must have the role 'assigned' (E2018).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/assignment"}
+    },
+    "variables": {
+      "description": "The roles and measurement of columns, keyed by column name. With a table block, every key must be a field of it (E2007).",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+      "additionalProperties": {"$ref": "#/$defs/variable"}
+    },
+    "estimands": {
+      "description": "The estimands of the analysis. IDs must be unique (E2003).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/estimand"}
+    },
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "allOf": [
+    {"$ref": "urn:mixedcheck:schema:defs#/$defs/hashable_value"}
+  ],
+  "$defs": {
+    "line": {
+      "title": "single-line text",
+      "description": "Text of 1 to 200 characters without control characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*$"
+    },
+    "column_list": {
+      "description": "One or more distinct column names. With a table block, each must be a field of it (E2007).",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+    },
+    "unit_list": {
+      "description": "One or more distinct names of declared units (E2006).",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"}
+    },
+    "table": {
+      "description": "A subset of the Frictionless Table Schema v2: fields with their type, categories, category order and missing values, the table's missing values, its primary key and its unique keys. As in Frictionless, the fields describe every column of the data in order (the default fieldsMatch 'exact'), a field without a type has the type 'any' and is read as text, and the default missing values are [''], applied explicitly. docs/spec/tables.md states the lexical form of each type and how the table reader applies the block. Field names must be unique (E2002). No other Frictionless property is allowed.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields"],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/field"}
+        },
+        "missingValues": {"$ref": "#/$defs/missing_values"},
+        "primaryKey": {"$ref": "#/$defs/column_list"},
+        "uniqueKeys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/column_list"}
+        }
+      }
+    },
+    "field": {
+      "description": "A Frictionless field descriptor restricted to name, type, categories, categoriesOrdered and missingValues. Categories require a type of 'string' or 'integer', their values must have that type (E2013), may not repeat (E2015) and are not allowed on identifier columns (E2016). Field-level missingValues replace the table's.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+        "type": {
+          "description": "The Frictionless type of the field. Absent: 'any', read as text.",
+          "enum": ["string", "integer", "number", "boolean", "date", "datetime"]
+        },
+        "categories": {
+          "description": "The values the field may take, as plain values or as objects with a value and a label, not both in one list (E2014). The first value is the first level.",
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/category"}
+        },
+        "categoriesOrdered": {
+          "description": "true when the categories are ordered, as for an ordinal item. Absent: false.",
+          "type": "boolean"
+        },
+        "missingValues": {"$ref": "#/$defs/missing_values"}
+      },
+      "dependentRequired": {
+        "categories": ["type"],
+        "categoriesOrdered": ["categories"]
+      },
+      "if": {"properties": {"type": {"enum": ["string", "integer"]}}},
+      "else": {"properties": {"categories": false}}
+    },
+    "category": {
+      "description": "A category value, or an object with the value and a label.",
+      "type": ["string", "integer", "object"],
+      "if": {"type": "object"},
+      "then": {
+        "additionalProperties": false,
+        "required": ["value"],
+        "properties": {
+          "value": {"$ref": "urn:mixedcheck:schema:defs#/$defs/category_value"},
+          "label": {"$ref": "#/$defs/line"}
+        }
+      }
+    },
+    "missing_values": {
+      "description": "Strings that stand for a missing value, as plain strings or as objects with the string and a label, not both in one list (E2014). Values may not repeat (E2015). An empty list declares that no value is missing.",
+      "type": "array",
+      "items": {
+        "type": ["string", "object"],
+        "if": {"type": "object"},
+        "then": {
+          "additionalProperties": false,
+          "required": ["value"],
+          "properties": {
+            "value": {"$ref": "urn:mixedcheck:schema:defs#/$defs/profile_string"},
+            "label": {"$ref": "#/$defs/line"}
+          }
+        }
+      }
+    },
+    "unit": {
+      "description": "A grouping unit, labelled by the values of its columns. id_scope and nested_in go together, and membership needs nested_in. Absent membership with nested_in: 'fixed'. A unit whose membership may change over time requires observation.time (E2026).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "columns"],
+      "properties": {
+        "name": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+        "columns": {"$ref": "#/$defs/column_list"},
+        "nested_in": {
+          "description": "The declared unit whose members contain the members of this unit (E2006).",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/name"
+        },
+        "id_scope": {
+          "description": "global: a label denotes the same member wherever it appears. within_parent: labels are unique only within a member of the parent unit, so a member is identified by its parent and its label.",
+          "enum": ["global", "within_parent"]
+        },
+        "membership": {
+          "description": "fixed: each member stays in one member of the parent unit. may_change_over_time: a member may move between parent members over time. multiple: a member belongs to several parent members at once.",
+          "enum": ["fixed", "may_change_over_time", "multiple"]
+        },
+        "role": {
+          "description": "What the members of the unit are. Without disclosure_unit, the one unit with role 'participant' is the disclosure unit.",
+          "enum": [
+            "participant",
+            "item",
+            "cluster",
+            "site",
+            "family",
+            "dyad",
+            "rater",
+            "session",
+            "trial",
+            "channel",
+            "other"
+          ]
+        }
+      },
+      "dependentRequired": {
+        "nested_in": ["id_scope"],
+        "id_scope": ["nested_in"],
+        "membership": ["nested_in"]
+      }
+    },
+    "crossing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["units"],
+      "properties": {
+        "units": {
+          "description": "The two crossed units (E2006).",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"}
+        },
+        "list": {
+          "description": "The column that holds the counterbalancing list, if any.",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"
+        }
+      }
+    },
+    "observation": {
+      "description": "What one row of the data is: the unit of which each row is one member, the columns that identify a row and the time of the row.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "unit": {
+          "description": "The declared unit of which each row is one member (E2006). Absent when a row is not a member of a declared unit, such as a trial of a subject on an item.",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/name"
+        },
+        "key": {
+          "description": "The columns whose values together identify a row.",
+          "$ref": "#/$defs/column_list"
+        },
+        "time": {"$ref": "#/$defs/time"}
+      }
+    },
+    "time": {
+      "description": "The column that places a row in time. Time zones and clock resolution follow in a later vocabulary.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["column", "kind"],
+      "properties": {
+        "column": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+        "kind": {
+          "description": "occasion: an ordered measurement occasion, such as a wave. timestamp: a date or a date and time, compared as written. trial_index: the position of a trial within a member of the 'within' unit. duration_since_start: the time elapsed since a start, as a number.",
+          "enum": ["occasion", "timestamp", "trial_index", "duration_since_start"]
+        },
+        "within": {
+          "description": "The declared unit within whose members time runs (E2006). Absent: time is common to all rows.",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/name"
+        }
+      }
+    },
+    "assignment": {
+      "description": "An assigned variable: its column, the unit whose members were assigned, whether the assignment was randomised, the level at which the column varies and the blocks within which assignment was made.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["column", "unit", "randomised"],
+      "properties": {
+        "column": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+        "unit": {
+          "description": "The declared unit whose members were assigned, the randomisation unit when 'randomised' is true (E2006).",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/name"
+        },
+        "randomised": {
+          "description": "true when the values, or the sequences of values, were assigned to the members of the unit at random.",
+          "type": "boolean"
+        },
+        "level": {
+          "description": "between_unit: the column is constant within each member of the unit. within_unit: it varies within each member, as in crossover, stepped-wedge and counterbalanced designs. Absent: the level is inferred from the data and reported with 'inferred' wording.",
+          "enum": ["between_unit", "within_unit"]
+        },
+        "blocks": {
+          "description": "The declared units within whose members assignment was made (E2006).",
+          "$ref": "#/$defs/unit_list"
+        }
+      }
+    },
+    "variable": {
+      "description": "The role and measurement of a column. event_level is allowed only for an outcome measured as binary, trials only for an outcome measured as binomial, which requires it, exposure only for an outcome measured as count and bounds only for a bounded_score, which requires them. Roles are checked across blocks in code (E2018 to E2020).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role"],
+      "properties": {
+        "role": {
+          "enum": [
+            "outcome",
+            "assigned",
+            "baseline_covariate",
+            "time_varying_covariate",
+            "post_assignment_covariate",
+            "mediator",
+            "outcome_derived",
+            "time",
+            "block",
+            "weight",
+            "offset",
+            "exclusion_flag",
+            "id",
+            "auxiliary"
+          ]
+        },
+        "measurement": {
+          "description": "The measurement level, one of the outcome types of 02-decisions.md (Q2).",
+          "enum": [
+            "continuous",
+            "binary",
+            "binomial",
+            "count",
+            "bounded_score",
+            "ordinal",
+            "positive_duration"
+          ]
+        },
+        "derived_from": {
+          "description": "The columns this column was computed from. A column derived from an outcome or an outcome-derived column has the role 'outcome' or 'outcome_derived' (E2020), and no column is derived from itself (E2012).",
+          "$ref": "#/$defs/column_list"
+        },
+        "bounds": {
+          "description": "The lowest and highest possible values of a bounded score. The first must be less than the second (E2017).",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"type": "number"}
+        },
+        "event_level": {
+          "description": "With a typed table field, the event level must have a type that can match it (E2023) and, when the field lists categories, be one of them (E2024).",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/event_level"
+        },
+        "trials": {"$ref": "urn:mixedcheck:schema:defs#/$defs/trials_column"},
+        "exposure": {"$ref": "urn:mixedcheck:schema:defs#/$defs/exposure"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["role", "measurement"],
+            "properties": {"role": {"const": "outcome"}, "measurement": {"const": "binary"}}
+          },
+          "else": {"properties": {"event_level": false}}
+        },
+        {
+          "if": {
+            "required": ["role", "measurement"],
+            "properties": {"role": {"const": "outcome"}, "measurement": {"const": "binomial"}}
+          },
+          "then": {"required": ["trials"]},
+          "else": {"properties": {"trials": false}}
+        },
+        {
+          "if": {
+            "required": ["role", "measurement"],
+            "properties": {"role": {"const": "outcome"}, "measurement": {"const": "count"}}
+          },
+          "else": {"properties": {"exposure": false}}
+        },
+        {
+          "if": {
+            "required": ["measurement"],
+            "properties": {"measurement": {"const": "bounded_score"}}
+          },
+          "then": {"required": ["bounds"]},
+          "else": {"properties": {"bounds": false}}
+        }
+      ]
+    },
+    "estimand": {
+      "description": "An estimand: a fixed-effect term of the model of an outcome. focal estimands enter the protected set (02-decisions.md, Q3).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "term"],
+      "properties": {
+        "id": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+        "term": {"$ref": "#/$defs/term"},
+        "kind": {
+          "description": "total_effect: the effect of an assigned variable through all paths. direct_effect: the effect not through declared mediators. association: a difference between groups or along a predictor with no causal claim.",
+          "enum": ["total_effect", "direct_effect", "association"]
+        },
+        "focal": {
+          "description": "Absent: true.",
+          "type": "boolean"
+        },
+        "outcome": {
+          "description": "The outcome column of the estimand, which must have the role 'outcome' (E2021). Required when the declaration has more than one outcome (E2022).",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"
+        }
+      }
+    },
+    "term": {
+      "title": "estimand term",
+      "description": "One variable or an interaction of distinct variables joined by ':', each a name of an ASCII letter followed by ASCII letters, digits, '.' or '_', or a column name between backquotes without a backquote, a backslash or a control character. A variable names a column of the data, with no character outside the Basic Multilingual Plane (E1207), no repeat (E2008) and, with a table block, a field of it (E2007).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^([A-Za-z][A-Za-z0-9._]*|`[^`\\u005C\\u0000-\\u001F\\u007F-\\u009F]+`)(:([A-Za-z][A-Za-z0-9._]*|`[^`\\u005C\\u0000-\\u001F\\u007F-\\u009F]+`))*$"
+    },
+    "provenance": {
+      "description": "Where the declaration comes from. outcome_seen is an attestation, not an enforced guarantee. 'inferred' lists the JSON Pointers of entries that draft_design() inferred and the user has not yet accepted, and a declaration with it is a draft (E2009, E2032). Until accepted, an inferred entry counts as absent for every check.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "created": {"$ref": "urn:mixedcheck:schema:defs#/$defs/utc_timestamp"},
+        "author": {"$ref": "#/$defs/line"},
+        "outcome_seen": {
+          "description": "true when the outcome had been seen when the declaration was written, as for secondary data.",
+          "type": "boolean"
+        },
+        "data_commitment": {
+          "description": "A keyed commitment to the data the declaration describes, to a raw data file or to the canonical analysis table.",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/keyed_commitment",
+          "properties": {
+            "covers": {"enum": ["data_file", "analysis_table"]}
+          }
+        },
+        "inferred": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/json_pointer"}
+        }
+      }
+    }
+  }
+}

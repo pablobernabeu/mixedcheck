@@ -1,0 +1,13 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {
+        "name": "acc",
+        "type": "string",
+        "categories": [{"value": "c", "label": "Correct"}, {"value": "w", "label": "Wrong"}]
+      }
+    ]
+  },
+  "variables": {"acc": {"role": "outcome", "measurement": "binary", "event_level": "Correct"}}
+}

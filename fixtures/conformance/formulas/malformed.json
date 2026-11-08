@@ -1,0 +1,605 @@
+{
+  "description": "Lexical, syntactic, structural and expansion errors that the formula alone shows, with their codes and byte offsets.",
+  "cases": [
+    {
+      "id": "malformed-01",
+      "description": "An empty formula has no '~'.",
+      "formula": "",
+      "expected": {"issue": {"code": "E6008", "message": "The formula has no '~'."}}
+    },
+    {
+      "id": "malformed-02",
+      "description": "A formula without '~'.",
+      "formula": "y x",
+      "expected": {"issue": {"code": "E6008", "message": "The formula has no '~'."}}
+    },
+    {
+      "id": "malformed-03",
+      "description": "The formula ends after '~'.",
+      "formula": "y ~",
+      "expected": {
+        "issue": {
+          "code": "E6010",
+          "message": "The formula ends at byte 3, where more is expected.",
+          "offset": 3
+        }
+      }
+    },
+    {
+      "id": "malformed-04",
+      "description": "The formula ends after '+'.",
+      "formula": "y ~ x +",
+      "expected": {
+        "issue": {
+          "code": "E6010",
+          "message": "The formula ends at byte 7, where more is expected.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "malformed-05",
+      "description": "'~' alone.",
+      "formula": "~",
+      "expected": {
+        "issue": {
+          "code": "E6010",
+          "message": "The formula ends at byte 1, where more is expected.",
+          "offset": 1
+        }
+      }
+    },
+    {
+      "id": "malformed-06",
+      "description": "A character that no token can start.",
+      "formula": "y ~ x $ z",
+      "expected": {
+        "issue": {
+          "code": "E6002",
+          "message": "The character U+0024 at byte 6 cannot appear in a formula outside a quoted name.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-07",
+      "description": "Offsets count bytes of UTF-8: the quoted name before '$' takes 4 bytes.",
+      "formula": "y ~ `éé` + $",
+      "expected": {
+        "issue": {
+          "code": "E6002",
+          "message": "The character U+0024 at byte 13 cannot appear in a formula outside a quoted name.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "malformed-08",
+      "description": "A no-break space is not white space.",
+      "formula": "y ~ x + z",
+      "expected": {
+        "issue": {
+          "code": "E6002",
+          "message": "The character U+00A0 at byte 5 cannot appear in a formula outside a quoted name.",
+          "offset": 5
+        }
+      }
+    },
+    {
+      "id": "malformed-09",
+      "description": "A quoted name without its closing backquote.",
+      "formula": "y ~ x + `word frequency",
+      "expected": {
+        "issue": {
+          "code": "E6003",
+          "message": "The quoted name that starts at byte 8 has no closing backquote.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "malformed-10",
+      "description": "An empty quoted name.",
+      "formula": "y ~ ``",
+      "expected": {
+        "issue": {
+          "code": "E6004",
+          "message": "The quoted name at byte 4 is empty or contains a backslash or a control character.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-11",
+      "description": "A backslash in a quoted name.",
+      "formula": "y ~ `a\\b`",
+      "expected": {
+        "issue": {
+          "code": "E6004",
+          "message": "The quoted name at byte 4 is empty or contains a backslash or a control character.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-12",
+      "description": "A reserved word of R cannot be a bare name.",
+      "formula": "y ~ TRUE",
+      "expected": {
+        "issue": {
+          "code": "E6005",
+          "message": "'TRUE' at byte 4 is a reserved word of R. Write it between backquotes to name a column.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-13",
+      "description": "A number other than 0 or 1 cannot be a term.",
+      "formula": "y ~ 2",
+      "expected": {
+        "issue": {
+          "code": "E6006",
+          "message": "'2' at byte 4 is not a valid number there. Only 0 and 1 can stand as terms, and an exponent is an integer from 2 to 1000.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-14",
+      "description": "A decimal number.",
+      "formula": "y ~ 1.5 + x",
+      "expected": {
+        "issue": {
+          "code": "E6006",
+          "message": "'1.5' at byte 4 is not a valid number there. Only 0 and 1 can stand as terms, and an exponent is an integer from 2 to 1000.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-15",
+      "description": "An exponent of 1.",
+      "formula": "y ~ (a + b)^1",
+      "expected": {
+        "issue": {
+          "code": "E6006",
+          "message": "'1' at byte 12 is not a valid number there. Only 0 and 1 can stand as terms, and an exponent is an integer from 2 to 1000.",
+          "offset": 12
+        }
+      }
+    },
+    {
+      "id": "malformed-16",
+      "description": "An exponent with a leading zero.",
+      "formula": "y ~ (a + b)^02",
+      "expected": {
+        "issue": {
+          "code": "E6006",
+          "message": "'02' at byte 12 is not a valid number there. Only 0 and 1 can stand as terms, and an exponent is an integer from 2 to 1000.",
+          "offset": 12
+        }
+      }
+    },
+    {
+      "id": "malformed-17",
+      "description": "An exponent that is not a number.",
+      "formula": "y ~ (a + b)^k",
+      "expected": {
+        "issue": {
+          "code": "E6006",
+          "message": "'k' at byte 12 is not a valid number there. Only 0 and 1 can stand as terms, and an exponent is an integer from 2 to 1000.",
+          "offset": 12
+        }
+      }
+    },
+    {
+      "id": "malformed-18",
+      "description": "'.' for all other columns is not supported.",
+      "formula": "y ~ .",
+      "expected": {
+        "issue": {
+          "code": "E6007",
+          "message": "The operator '.' at byte 4 is not supported. Name the columns and use '+', '-', '*', '/', ':' or '^'.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-19",
+      "description": "%in% is not supported.",
+      "formula": "y ~ a %in% b",
+      "expected": {
+        "issue": {
+          "code": "E6007",
+          "message": "The operator '%in%' at byte 6 is not supported. Name the columns and use '+', '-', '*', '/', ':' or '^'.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-20",
+      "description": "A second '~'.",
+      "formula": "y ~ x ~ z",
+      "expected": {"issue": {"code": "E6011", "message": "'~' at byte 6 is not expected there.", "offset": 6}}
+    },
+    {
+      "id": "malformed-21",
+      "description": "An unmatched closing parenthesis.",
+      "formula": "y ~ x)",
+      "expected": {"issue": {"code": "E6011", "message": "')' at byte 5 is not expected there.", "offset": 5}}
+    },
+    {
+      "id": "malformed-22",
+      "description": "An unclosed parenthesis.",
+      "formula": "y ~ (x + z",
+      "expected": {
+        "issue": {
+          "code": "E6010",
+          "message": "The formula ends at byte 10, where more is expected.",
+          "offset": 10
+        }
+      }
+    },
+    {
+      "id": "malformed-23",
+      "description": "A sign after '+'.",
+      "formula": "y ~ x + -z",
+      "expected": {"issue": {"code": "E6011", "message": "'-' at byte 8 is not expected there.", "offset": 8}}
+    },
+    {
+      "id": "malformed-24",
+      "description": "Two variables without an operator.",
+      "formula": "y ~ x z",
+      "expected": {"issue": {"code": "E6011", "message": "'z' at byte 6 is not expected there.", "offset": 6}}
+    },
+    {
+      "id": "malformed-25",
+      "description": "cbind() is not a valid response.",
+      "formula": "cbind(k, n - k) ~ x",
+      "expected": {
+        "issue": {
+          "code": "E6012",
+          "message": "The response at byte 0 must be one column or log() of one column.",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "malformed-26",
+      "description": "A sum is not a valid response.",
+      "formula": "y + z ~ x",
+      "expected": {
+        "issue": {
+          "code": "E6012",
+          "message": "The response at byte 0 must be one column or log() of one column.",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "malformed-27",
+      "description": "'|' outside parentheses.",
+      "formula": "y ~ x | g",
+      "expected": {
+        "issue": {
+          "code": "E6013",
+          "message": "'|' at byte 6 must separate the two parts of a random term in parentheses, as in (1 | g).",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-28",
+      "description": "'||' outside parentheses.",
+      "formula": "y ~ x || g",
+      "expected": {
+        "issue": {
+          "code": "E6013",
+          "message": "'||' at byte 6 must separate the two parts of a random term in parentheses, as in (1 | g).",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-29",
+      "description": "A random term inside an interaction.",
+      "formula": "y ~ x:(1 | g)",
+      "expected": {
+        "issue": {
+          "code": "E6014",
+          "message": "The random term at byte 6 must be a summand of the formula, not part of another term.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-30",
+      "description": "A random term inside another random term.",
+      "formula": "y ~ (1 + (1 | g) | h)",
+      "expected": {
+        "issue": {
+          "code": "E6014",
+          "message": "The random term at byte 9 must be a summand of the formula, not part of another term.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "malformed-31",
+      "description": "An intercept term inside an interaction.",
+      "formula": "y ~ x:1",
+      "expected": {
+        "issue": {
+          "code": "E6015",
+          "message": "The intercept term '1' at byte 6 is not allowed there. 0 and 1 can only be summands of the fixed part or of a random term, and '- 0' is not allowed.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-32",
+      "description": "'- 0' is not allowed.",
+      "formula": "y ~ x - 0",
+      "expected": {
+        "issue": {
+          "code": "E6015",
+          "message": "The intercept term '- 0' at byte 6 is not allowed there. 0 and 1 can only be summands of the fixed part or of a random term, and '- 0' is not allowed.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-33",
+      "description": "An intercept term inside parentheses.",
+      "formula": "y ~ (1 + x):z",
+      "expected": {
+        "issue": {
+          "code": "E6015",
+          "message": "The intercept term '1' at byte 5 is not allowed there. 0 and 1 can only be summands of the fixed part or of a random term, and '- 0' is not allowed.",
+          "offset": 5
+        }
+      }
+    },
+    {
+      "id": "malformed-34",
+      "description": "A sum as a grouping factor.",
+      "formula": "y ~ (1 | g + h)",
+      "expected": {
+        "issue": {
+          "code": "E6016",
+          "message": "The grouping factor of a random term must be columns joined by ':' or '/', which the token at byte 11 is not.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "malformed-35",
+      "description": "'*' in a grouping factor.",
+      "formula": "y ~ (1 | g * h)",
+      "expected": {
+        "issue": {
+          "code": "E6016",
+          "message": "The grouping factor of a random term must be columns joined by ':' or '/', which the token at byte 11 is not.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "malformed-36",
+      "description": "A number as a grouping factor.",
+      "formula": "y ~ (1 | 1)",
+      "expected": {
+        "issue": {
+          "code": "E6016",
+          "message": "The grouping factor of a random term must be columns joined by ':' or '/', which the token at byte 9 is not.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "malformed-37",
+      "description": "An empty grouping factor.",
+      "formula": "y ~ (1 | )",
+      "expected": {"issue": {"code": "E6011", "message": "')' at byte 9 is not expected there.", "offset": 9}}
+    },
+    {
+      "id": "malformed-38",
+      "description": "A function that is not supported.",
+      "formula": "y ~ poly(x, 2)",
+      "expected": {
+        "issue": {
+          "code": "E6017",
+          "message": "The function 'poly' at byte 4 is not supported. Add the transformed column to the data instead.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-39",
+      "description": "I() is not supported.",
+      "formula": "y ~ I(x^2)",
+      "expected": {
+        "issue": {
+          "code": "E6017",
+          "message": "The function 'I' at byte 4 is not supported. Add the transformed column to the data instead.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-40",
+      "description": "A structured covariance term of lme4 2.x.",
+      "formula": "y ~ x + diag(1 + x | g)",
+      "expected": {
+        "issue": {
+          "code": "E6018",
+          "message": "The covariance structure 'diag' at byte 8 is planned for version 1.3 and not yet supported.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "malformed-41",
+      "description": "Compound symmetry, also planned for 1.3.",
+      "formula": "y ~ cs(0 + cond | g)",
+      "expected": {
+        "issue": {
+          "code": "E6018",
+          "message": "The covariance structure 'cs' at byte 4 is planned for version 1.3 and not yet supported.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-42",
+      "description": "Removing a term that is not there.",
+      "formula": "y ~ x - z",
+      "expected": {
+        "issue": {
+          "code": "E6031",
+          "message": "The term 'z' removed at byte 6 is not in the formula at that point.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "malformed-43",
+      "description": "Removing a term before it is added.",
+      "formula": "y ~ -x + x",
+      "expected": {
+        "issue": {
+          "code": "E6031",
+          "message": "The term 'x' removed at byte 4 is not in the formula at that point.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-44",
+      "description": "The response on the right-hand side.",
+      "formula": "y ~ x + y",
+      "expected": {
+        "issue": {
+          "code": "E6032",
+          "message": "The response 'y' appears again at byte 8 on the right-hand side.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "malformed-45",
+      "description": "The response as a grouping factor.",
+      "formula": "y ~ x + (1 | y)",
+      "expected": {
+        "issue": {
+          "code": "E6032",
+          "message": "The response 'y' appears again at byte 13 on the right-hand side.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "malformed-46",
+      "description": "Parentheses whose terms are all removed.",
+      "formula": "y ~ x + (a - a)",
+      "expected": {
+        "issue": {
+          "code": "E6037",
+          "message": "The expression in parentheses at byte 8 has no terms left.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "malformed-47",
+      "description": "Parentheses nested 65 deep.",
+      "formula": "y ~ (((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((x)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))",
+      "expected": {
+        "issue": {
+          "code": "E6021",
+          "message": "The parenthesis at byte 68 opens a 65th level of nesting, and at most 64 are allowed.",
+          "offset": 68
+        }
+      }
+    },
+    {
+      "id": "malformed-48",
+      "description": "Parentheses nested 64 deep are allowed, but here 'y' repeats the response.",
+      "formula": "y ~ ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((y))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))",
+      "expected": {
+        "issue": {
+          "code": "E6032",
+          "message": "The response 'y' appears again at byte 68 on the right-hand side.",
+          "offset": 68
+        }
+      }
+    },
+    {
+      "id": "malformed-49",
+      "description": "A formula of more than 10000 characters.",
+      "formula": "y ~ x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x",
+      "expected": {"issue": {"code": "E6001", "message": "The formula has more than 10000 characters."}}
+    },
+    {
+      "id": "malformed-50",
+      "description": "The first issue by offset is reported among the structure rules: the function at byte 4 comes before the intercept term at byte 16.",
+      "formula": "y ~ sqrt(x) + z:1",
+      "expected": {
+        "issue": {
+          "code": "E6017",
+          "message": "The function 'sqrt' at byte 4 is not supported. Add the transformed column to the data instead.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "malformed-51",
+      "description": "Lexical issues come before syntax issues, wherever they are.",
+      "formula": "y ~ ) + x $",
+      "expected": {
+        "issue": {
+          "code": "E6002",
+          "message": "The character U+0024 at byte 10 cannot appear in a formula outside a quoted name.",
+          "offset": 10
+        }
+      }
+    },
+    {
+      "id": "malformed-52",
+      "description": "The duplicate random term is reported at its own parenthesis.",
+      "formula": "y ~ x + (1 | g) + (1 | g)",
+      "expected": {
+        "issue": {
+          "code": "E6035",
+          "message": "The random term at byte 18 repeats the earlier random term '1 | g'.",
+          "offset": 18
+        }
+      }
+    },
+    {
+      "id": "malformed-53",
+      "description": "A number in the grouping of a random term is reported as a grouping error, at the number.",
+      "formula": "y ~ (1 | g:0)",
+      "expected": {
+        "issue": {
+          "code": "E6016",
+          "message": "The grouping factor of a random term must be columns joined by ':' or '/', which the token at byte 11 is not.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "malformed-54",
+      "description": "White space between 'log' and '(' still makes a call, which is misplaced here.",
+      "formula": "y ~ log (x)",
+      "expected": {
+        "issue": {
+          "code": "E6020",
+          "message": "The call log() at byte 4 is allowed only around the response or around the column of an offset.",
+          "offset": 4
+        }
+      }
+    }
+  ]
+}

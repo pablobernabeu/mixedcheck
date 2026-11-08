@@ -1,0 +1,8 @@
+vocabulary: 0.1.0
+title: '<<'
+table:
+  missingValues: [.na, .na.real, .na.integer, .na.character, NA, .NaN, 1.0e+3, 1.e+3, -1.5E-7, '<<']
+  fields:
+    - {name: score, type: number}
+variables:
+  score: {role: outcome, measurement: bounded_score, bounds: [-1.5E-7, 1.0e+3]}

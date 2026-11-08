@@ -1,0 +1,6 @@
+vocabulary: 0.1.0
+variables:
+  pre: {role: baseline_covariate}
+  post:
+    <<: {role: outcome}
+    measurement: continuous

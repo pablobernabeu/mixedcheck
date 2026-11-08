@@ -1,0 +1,131 @@
+id: structure.cluster_sizes
+version: 1
+title: Level sizes of a grouping factor
+tier: T0
+summary: >-
+  Reports the distribution of the rows of the design sample over the levels
+  of a grouping factor, with the singletons, which are kept, and the effective
+  level size of an unbalanced one-way layout. Only levels with two or more rows
+  separate the variance of the factor from the residual variance. A factor with
+  one row per level duplicates the residual in a Gaussian model, whereas for
+  counts and binomial outcomes with trials it is an observation-level random
+  effect, a standard term for overdispersion.
+reads: [formula, grouping_factors]
+fitted_model: false
+sample: design
+scope: grouping_factor
+availability: []
+statistics:
+  levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the factor in the design sample, J.
+  rows:
+    kind: count
+    count_class: person
+    definition: The number of rows of the design sample, N.
+  smallest:
+    kind: count
+    count_class: person
+    definition: The smallest number of rows in a level.
+  lower_quartile:
+    kind: count
+    count_class: person
+    definition: >-
+      The level size at position ceil(J/4) when the level sizes are sorted in
+      increasing order and counted from 1.
+  median:
+    kind: count
+    count_class: person
+    definition: The level size at position ceil(J/2) in the same order.
+  upper_quartile:
+    kind: count
+    count_class: person
+    definition: The level size at position ceil(3J/4) in the same order.
+  largest:
+    kind: count
+    count_class: person
+    definition: The largest number of rows in a level.
+  singletons:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels with one row.
+  effective_size:
+    kind: real
+    definition: >-
+      The effective level size n0 = (N - S/N)/(J - 1), where S is the sum of
+      the squared level sizes, for which the expected between-level mean square
+      of a one-way layout is the residual variance plus n0 times the variance
+      of the factor. It is absent when J is 1.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: levels equals rows and the family class is gaussian or other.
+      thresholds: []
+      message: one_row_per_level
+    - finding: consequential
+      condition: levels equals rows and the family class is bernoulli.
+      thresholds: []
+      message: one_row_bernoulli
+    - finding: consistent
+      condition: levels equals rows and the family class is binomial or poisson.
+      thresholds: []
+      message: observation_level
+  otherwise:
+    finding: consistent
+    message: sizes
+assessability: []
+messages:
+  one_row_per_level:
+    template: >-
+      Every level of '{factor}' has one row, so its random intercept duplicates
+      the residual and the two variances are not separately identified.
+    args:
+      factor: {source: scope, name: factor}
+  one_row_bernoulli:
+    template: >-
+      Every level of '{factor}' has one row, so its random intercept is an
+      observation-level effect, which a binary outcome does not identify under a
+      probit link and identifies only weakly under a logit link.
+    args:
+      factor: {source: scope, name: factor}
+  observation_level:
+    template: >-
+      Every level of '{factor}' has one row, so its random intercept is an
+      observation-level effect, which models overdispersion in this family.
+    args:
+      factor: {source: scope, name: factor}
+  sizes:
+    template: >-
+      '{factor}' has {levels} levels with {rows} rows. Level sizes range from
+      {smallest} to {largest}, with quartiles {lower} and {upper} and median
+      {median}, and {singletons} levels have one row, which are kept.
+    args:
+      factor: {source: scope, name: factor}
+      levels: {source: statistic, name: levels}
+      rows: {source: statistic, name: rows}
+      smallest: {source: statistic, name: smallest}
+      largest: {source: statistic, name: largest}
+      lower: {source: statistic, name: lower_quartile}
+      upper: {source: statistic, name: upper_quartile}
+      median: {source: statistic, name: median}
+      singletons: {source: statistic, name: singletons}
+remedies:
+  - id: remove_random_term
+    description: >-
+      Remove the random terms of the factor, whose variance the residual already
+      carries in this family.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [keys.duplicates, sample.raw_vs_analysis]
+references:
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-02, L1-09
+      and L1-19.
+catalogue: [L1-02, L1-09, L1-19, L7-06]

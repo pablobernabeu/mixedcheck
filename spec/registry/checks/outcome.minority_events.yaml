@@ -1,0 +1,90 @@
+id: outcome.minority_events
+version: 1
+title: Minority events of a binary outcome
+tier: T1
+summary: >-
+  For binary and binomial outcomes, the information about effects grows with
+  the number of events in the minority class rather than with the number of
+  rows. The check reports the events and non-events in the analysis sample,
+  the minority count in each level of a grouping factor and the minority events
+  per fixed-effects column, as an index without a cut-off. It reads the
+  outcome by grouping factor only.
+reads: [declaration, formula, grouping_factors, outcome]
+fitted_model: false
+sample: analysis
+families: [bernoulli, binomial]
+scope: grouping_factor
+availability:
+  - reason: declaration_missing
+    condition: >-
+      The family class is bernoulli, the outcome takes values other than 0 and
+      1, as numbers or logical values, and the declaration gives no event level.
+    pointer: /variables/{outcome}/event_level
+statistics:
+  events:
+    kind: count
+    count_class: person
+    definition: >-
+      The number of events in the analysis sample: rows whose value of the
+      response vector of ir.md (Response, offsets and weights) is 1 for the
+      bernoulli family class, and the sum of the event counts for the binomial
+      family class.
+  non_events:
+    kind: count
+    count_class: person
+    definition: The number of rows, or of trials for the binomial family class, minus events.
+  levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the factor in the analysis sample.
+  levels_without_minority:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of levels in which the smaller of the level's events and
+      non-events is 0.
+  median_minority:
+    kind: count
+    count_class: person
+    definition: >-
+      The level minority count at position ceil(J/2) when the smaller of each
+      level's events and non-events are sorted in increasing order, with J the
+      number of levels.
+  events_per_column:
+    kind: real
+    definition: >-
+      The smaller of events and non-events divided by the statistic kept of
+      design.rank_deficiency, the number of fixed-effects columns that the
+      sequential rule keeps on the design sample, so that the check reads no
+      predictor. It is absent when kept is 0.
+thresholds: {}
+parameters: {}
+decision:
+  rules: []
+  otherwise:
+    finding: consistent
+    message: events
+assessability: []
+messages:
+  events:
+    template: >-
+      The outcome has {events} events and {non_events} non-events, or {per_column}
+      minority events per fixed-effects column. In {without} of the {levels}
+      levels of '{factor}' one of the two classes is absent, and the median
+      level has {median} minority events.
+    args:
+      events: {source: statistic, name: events}
+      non_events: {source: statistic, name: non_events}
+      per_column: {source: statistic, name: events_per_column, digits: 1}
+      without: {source: statistic, name: levels_without_minority}
+      levels: {source: statistic, name: levels}
+      factor: {source: scope, name: factor}
+      median: {source: statistic, name: median_minority}
+remedies: []
+links:
+  requires: [design.rank_deficiency]
+  explained_by: []
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L3-20 and L3-21.
+catalogue: [L3-20, L3-21]

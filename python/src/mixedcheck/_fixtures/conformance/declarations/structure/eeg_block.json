@@ -1,0 +1,10 @@
+{
+  "vocabulary": "0.1.0",
+  "features": ["trial_level", "crossed_experiment"],
+  "units": [
+    {"name": "subject", "columns": ["subject"], "role": "participant"},
+    {"name": "channel", "columns": ["chan"], "role": "channel"}
+  ],
+  "eeg": {"channel_column": "chan", "reference": "average", "baseline_column": "baseline_amp"},
+  "variables": {"amp": {"role": "outcome"}, "baseline_amp": {"role": "baseline_covariate"}}
+}

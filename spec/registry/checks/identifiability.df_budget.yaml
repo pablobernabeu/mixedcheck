@@ -1,0 +1,84 @@
+id: identifiability.df_budget
+version: 1
+title: Degrees of freedom between the levels of a grouping factor
+tier: T0
+summary: >-
+  Counts the independent contrasts between the levels of a grouping factor
+  that remain after the fixed effects, d = rank([X, Z]) - rank(X) with Z the
+  indicator matrix of the factor. When it is 0, as when the factor is also a
+  fixed effect or its levels are used up by level-constant covariates, the
+  variance of its random intercept is not identified under REML. In balanced
+  designs it equals the denominator degrees of freedom for effects that are
+  constant within levels. It is computed by rank, never by counting columns,
+  because columns that vary within levels can combine into a direction that
+  does not.
+reads: [formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: grouping_factor
+availability: []
+statistics:
+  levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the factor in the design sample.
+  budget:
+    kind: count
+    count_class: non_person
+    definition: >-
+      The number of indicator columns of the factor, one for each level in
+      level order, that the sequential rule keeps when it is applied to the
+      fixed-effects columns followed by the indicator columns.
+  consuming_terms:
+    kind: names
+    definition: >-
+      The fixed terms, the intercept included, whose removal from the
+      fixed-effects columns raises budget, in term order.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: budget is 0.
+      thresholds: []
+      message: no_budget
+  otherwise:
+    finding: consistent
+    message: budget
+assessability: []
+messages:
+  no_budget:
+    template: >-
+      No degrees of freedom between levels of '{factor}' remain after the
+      fixed effects, since {terms} use up its {levels} levels, so the variance
+      of its random intercept is not identified under REML.
+    args:
+      factor: {source: scope, name: factor}
+      terms: {source: statistic, name: consuming_terms}
+      levels: {source: statistic, name: levels}
+  budget:
+    template: >-
+      '{factor}' has {levels} levels and {budget} degrees of freedom between
+      levels after the fixed effects.
+    args:
+      factor: {source: scope, name: factor}
+      levels: {source: statistic, name: levels}
+      budget: {source: statistic, name: budget}
+remedies:
+  - id: remove_level_terms
+    description: >-
+      Remove fixed effects that are constant within the levels of the factor,
+      or treat the factor as a fixed effect without a random intercept.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-10, with
+      the verifier's correction that d equals J minus the dimension of the
+      intersection of the column spaces of X and Z, computed by rank.
+catalogue: [L1-10]

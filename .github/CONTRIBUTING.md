@@ -18,7 +18,7 @@ repository with the design that governs them.
 | `parity/` | the cross-language harness |
 | `sim/` | the validation studies on the HPC, never shipped |
 | `paper/` | the JOSS paper |
-| `docs/` | the design documents in `docs/design/` and the provenance log |
+| `docs/` | the design documents in `docs/design/`, the specifications in `docs/spec/` and the provenance log |
 
 The decision record (`docs/design/02-decisions.md`) settles what the packages
 do, and the execution plan (`docs/design/03-execution-plan.md`) sets the order
@@ -37,6 +37,17 @@ root:
 ```bash
 python3 spec/tools/vendor.py sync    # write the copies and the manifests
 python3 spec/tools/vendor.py check   # report any copy that does not match its source
+```
+
+The registry of checks is written in YAML, one file per check in
+`spec/registry/checks/`, and compiled into `spec/compiled/registry.json`, the
+only form that the packages read. After editing a source, compile the registry
+before running the vendoring script. The compiler needs PyYAML built with
+libyaml, which the wheels on PyPI include:
+
+```bash
+python3 spec/tools/compile_registry.py           # write spec/compiled/registry.json
+python3 spec/tools/compile_registry.py --check   # report whether it matches its sources
 ```
 
 The files in `spec/` must have LF line endings and no byte-order mark, and
@@ -72,28 +83,50 @@ the large component of the development version number. Without access to a time
 server, also set `_R_CHECK_SYSTEM_CLOCK_=false`.
 
 The Python package needs Python 3.11 or later. Install it with its test group,
-then run the tests and ruff from the repository root:
+then run the tests and ruff from the repository root, and mypy, which reads its
+settings from python/pyproject.toml, from python/:
 
 ```bash
 python -m pip install ./python --group python/pyproject.toml:test
 python -m pytest python
-ruff check python spec/tools
+ruff check python spec/tools parity fixtures/conformance/tools .github/scripts
+(cd python && mypy)
 ```
 
 The `--group` option needs pip 25.1 or later. With uv, `uv pip install ./python
 --group python/pyproject.toml:test` does the same, and `--resolution
 lowest-direct` installs the lowest versions that the package declares.
 
-The vendoring script's tests use the standard library only:
+The tests of the scripts in spec/tools/ use the standard library, PyYAML for
+the registry compiler and, where it is installed, jsonschema as an oracle. The
+tests that need PyYAML are skipped without it:
 
 ```bash
 python3 -m unittest discover -s spec/tools -v
 ```
 
+The parity harness runs both packages over every case of the conformance
+corpora and reports every case in which they differ from each other or from
+the expected outcome. It needs the R package installed with yaml and the
+Python package installed with its extra 'yaml', as
+[parity/README.md](../parity/README.md) describes:
+
+```bash
+python3 parity/parity.py --python /path/to/venv/bin/python --r-lib /path/to/rlib
+```
+
 Continuous integration runs these checks on every push to main and every pull
 request that touches the files concerned. The full matrix of R and Python versions and
 platforms runs when started by hand from the Actions tab and, once the
-repository is public, every night.
+repository is public, every night. The references in docs/ that carry a DOI
+are checked against their Crossref records by `.github/scripts/check_references.py`
+in the workflow references.yaml, which runs when started by hand or when the
+label 'references' is added to a pull request, since the cloud sessions cannot
+reach Crossref. Its tests need no network:
+
+```bash
+python3 -m unittest discover -s .github/scripts -v
+```
 
 ## Changelogs
 

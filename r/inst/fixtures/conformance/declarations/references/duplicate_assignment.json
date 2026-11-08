@@ -1,0 +1,17 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {"name": "school", "columns": ["school"], "role": "cluster"},
+    {
+      "name": "pupil",
+      "columns": ["pupil"],
+      "nested_in": "school",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "assignment": [
+    {"column": "arm", "unit": "school", "randomised": true},
+    {"column": "arm", "unit": "pupil", "randomised": false}
+  ]
+}

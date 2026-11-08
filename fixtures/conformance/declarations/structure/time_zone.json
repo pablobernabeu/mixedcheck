@@ -1,0 +1,4 @@
+{
+  "vocabulary": "0.1.0",
+  "observation": {"time": {"column": "ts", "kind": "timestamp", "timezone": "Europe/London"}}
+}

@@ -1,0 +1,3836 @@
+{
+  "description": "Inputs that the strict reader refuses in stages 1 and 3, before it checks any value: files, byte-order marks, unexpected ends, characters and trailing content, control characters and escapes in strings, non-finite literals, invalid numbers and nesting.",
+  "cases": [
+    {
+      "id": "json-syntax-001",
+      "description": "A file that does not exist.",
+      "file": "missing",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1001",
+            "message": "The file does not exist."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1001",
+            "message": "The file does not exist."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1001",
+            "message": "The file does not exist."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-002",
+      "description": "A directory in place of a file.",
+      "file": "directory",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1002",
+            "message": "The file cannot be read."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1002",
+            "message": "The file cannot be read."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1002",
+            "message": "The file cannot be read."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-003",
+      "description": "A byte-order mark before an object.",
+      "input": "\ufeff{}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-004",
+      "description": "A byte-order mark before a valid document.",
+      "input": "\ufeff{\"a\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-005",
+      "description": "A byte-order mark is reported before a syntax error.",
+      "input": "\ufeff[",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-006",
+      "description": "A byte-order mark is reported before invalid UTF-8.",
+      "input_hex": "efbbbfff",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-007",
+      "description": "A byte-order mark alone.",
+      "input": "\ufeff",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-008",
+      "description": "Two byte-order marks.",
+      "input": "\ufeff\ufeff1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-009",
+      "description": "The UTF-16 little-endian byte-order mark is invalid UTF-8.",
+      "input_hex": "fffe7b7d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-010",
+      "description": "The UTF-16 big-endian byte-order mark is invalid UTF-8.",
+      "input_hex": "feff7b7d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-011",
+      "description": "The first two bytes of a byte-order mark.",
+      "input_hex": "efbb7b7d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-012",
+      "description": "A byte-order mark after the first byte is the character U+FEFF where a value is expected.",
+      "input": "[\ufeff1]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ufeff' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ufeff' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ufeff' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-013",
+      "description": "A byte-order mark after white space.",
+      "input": " \ufeff{}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ufeff' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ufeff' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ufeff' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-014",
+      "description": "JSON text encoded in UTF-16LE holds U+0000 after '{'.",
+      "input_hex": "7b007d00",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u0000' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u0000' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u0000' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-015",
+      "description": "An empty input.",
+      "input": "",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-016",
+      "description": "White space only.",
+      "input": "  \n\t\r",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-017",
+      "description": "An array that is not closed.",
+      "input": "[",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-018",
+      "description": "An object that is not closed.",
+      "input": "{",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-019",
+      "description": "An array that ends after a value.",
+      "input": "[1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-020",
+      "description": "An array that ends after a comma.",
+      "input": "[1,",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-021",
+      "description": "An object that ends after a key.",
+      "input": "{\"a\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-022",
+      "description": "An object that ends after a colon.",
+      "input": "{\"a\":",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-023",
+      "description": "An object that ends after a member.",
+      "input": "{\"a\":1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 6.",
+            "offset": 6
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 6.",
+            "offset": 6
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 6.",
+            "offset": 6
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-024",
+      "description": "An object that ends after a comma.",
+      "input": "{\"a\":1,",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-025",
+      "description": "A string that is not closed.",
+      "input": "\"abc",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-026",
+      "description": "A string that ends after a backslash.",
+      "input": "\"\\",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-027",
+      "description": "A string that ends inside a \\u escape.",
+      "input": "\"\\u12",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-028",
+      "description": "A truncated true.",
+      "input": "tru",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-029",
+      "description": "A truncated false inside an array.",
+      "input": "[fals",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-030",
+      "description": "A truncated null.",
+      "input": "nul",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-031",
+      "description": "A closing bracket where a value is expected.",
+      "input": "]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-032",
+      "description": "A closing brace where a value is expected.",
+      "input": "}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-033",
+      "description": "A comma where a value is expected.",
+      "input": ",",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-034",
+      "description": "A colon where a value is expected.",
+      "input": ":",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-035",
+      "description": "Two values in an array without a comma.",
+      "input": "[1 2]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '2' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '2' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '2' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-036",
+      "description": "A trailing comma in an array.",
+      "input": "[1,]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-037",
+      "description": "A leading comma in an array.",
+      "input": "[,1]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-038",
+      "description": "Two commas in an array.",
+      "input": "[1,,2]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-039",
+      "description": "A key without a colon.",
+      "input": "{\"a\" 1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '1' at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '1' at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '1' at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-040",
+      "description": "A trailing comma in an object.",
+      "input": "{\"a\":1,}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-041",
+      "description": "An unquoted key.",
+      "input": "{a:1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'a' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'a' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'a' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-042",
+      "description": "A key in single quotation marks.",
+      "input": "{'a':1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ''' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ''' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ''' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-043",
+      "description": "Two members without a comma.",
+      "input": "{\"a\":1 \"b\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\"' at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\"' at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\"' at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-044",
+      "description": "A key without a value.",
+      "input": "{\"a\"}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-045",
+      "description": "A colon without a value.",
+      "input": "{\"a\":}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-046",
+      "description": "A colon in an array.",
+      "input": "[1:2]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-047",
+      "description": "A comma after a key.",
+      "input": "{\"a\",1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-048",
+      "description": "A number as a key.",
+      "input": "{1:2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '1' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '1' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '1' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-049",
+      "description": "Two colons after a key.",
+      "input": "{\"a\"::1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ':' at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-050",
+      "description": "A hexadecimal number in an array: the number 0 ends before 'x'.",
+      "input": "[0x1F]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'x' at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'x' at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'x' at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-051",
+      "description": "True with a capital letter.",
+      "input": "True",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'T' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'T' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'T' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-052",
+      "description": "A literal that differs at its second byte.",
+      "input": "tRue",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'R' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'R' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'R' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-053",
+      "description": "nan is compared with null and differs at its second byte.",
+      "input": "nan",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'a' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'a' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'a' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-054",
+      "description": "A literal that differs at its last byte.",
+      "input": "nulL",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'L' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'L' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'L' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-055",
+      "description": "A literal that differs at a non-ASCII character, which the message names.",
+      "input": "n\u00fcll",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00fc' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00fc' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00fc' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-056",
+      "description": "undefined is not a JSON value.",
+      "input": "undefined",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'u' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'u' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'u' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-057",
+      "description": "Inf is not a literal that the reader names.",
+      "input": "Inf",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'I' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'I' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'I' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-058",
+      "description": "A comment.",
+      "input": "// comment\n1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '/' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '/' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '/' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-059",
+      "description": "A block comment.",
+      "input": "/* c */ 1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '/' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '/' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '/' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-060",
+      "description": "A string in single quotation marks.",
+      "input": "'a'",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ''' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ''' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ''' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-061",
+      "description": "A parenthesis.",
+      "input": "(1)",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '(' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '(' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '(' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-062",
+      "description": "A form feed is not white space.",
+      "input": "[1,\f2]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u000C' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u000C' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u000C' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-063",
+      "description": "A vertical tab is not white space.",
+      "input": "[1,\u000b2]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u000B' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u000B' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u000B' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-064",
+      "description": "A no-break space is not white space.",
+      "input": "[1,\u00a02]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00a0' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00a0' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00a0' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-065",
+      "description": "A line separator is not white space.",
+      "input": "[1,\u20282]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u2028' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u2028' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u2028' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-066",
+      "description": "A non-ASCII letter where a value is expected.",
+      "input": "[\u00e9]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00e9' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00e9' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00e9' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-067",
+      "description": "A raw U+0000 where a value is expected.",
+      "input_hex": "5b312c005d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u0000' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u0000' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\\u0000' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-068",
+      "description": "Two numbers.",
+      "input": "1 2",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-069",
+      "description": "An extra closing bracket.",
+      "input": "[1]]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-070",
+      "description": "Two objects.",
+      "input": "{}{}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-071",
+      "description": "Two strings.",
+      "input": "\"a\"\"b\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-072",
+      "description": "A hexadecimal number at the top level: the number 0 ends before 'x'.",
+      "input": "0x1F",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-073",
+      "description": "A literal followed by a letter.",
+      "input": "truex",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-074",
+      "description": "Two literals.",
+      "input": "nullnull",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-075",
+      "description": "A letter after white space.",
+      "input": "[1] x",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-076",
+      "description": "NaN after the top-level value is trailing content.",
+      "input": "1 NaN",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-077",
+      "description": "A raw U+0000 after the top-level value.",
+      "input_hex": "5b315d00",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-078",
+      "description": "A raw tab in a string.",
+      "input": "\"a\tb\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-079",
+      "description": "A raw line feed in a string.",
+      "input": "\"a\nb\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+000A in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+000A in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+000A in a string at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-080",
+      "description": "A raw carriage return in a string.",
+      "input": "\"a\rb\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+000D in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+000D in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+000D in a string at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-081",
+      "description": "A raw U+001F in a string.",
+      "input": "\"\u001f\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+001F in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+001F in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+001F in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-082",
+      "description": "A raw U+0000 in a string.",
+      "input_hex": "220022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0000 in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0000 in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0000 in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-083",
+      "description": "A raw tab in a key.",
+      "input": "{\"a\tb\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-084",
+      "description": "A raw U+007F is allowed in a string, and the next problem is the missing end.",
+      "input": "\"\u007f",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-085",
+      "description": "The escape \\x.",
+      "input": "\"\\x41\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-086",
+      "description": "The escape \\a.",
+      "input": "\"\\a\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-087",
+      "description": "An escaped single quotation mark.",
+      "input": "\"\\'\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-088",
+      "description": "The escape \\U with a capital letter.",
+      "input": "\"\\U0041\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-089",
+      "description": "A \\u escape with a character that is not hexadecimal.",
+      "input": "\"\\u12G4\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-090",
+      "description": "A \\u escape with three digits before the end of the string.",
+      "input": "\"\\u12\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-091",
+      "description": "The escape \\0.",
+      "input": "\"\\0\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-092",
+      "description": "A backslash before a space.",
+      "input": "\"\\ \"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-093",
+      "description": "A backslash before a raw line feed.",
+      "input": "\"\\\n\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-094",
+      "description": "The second escape of a surrogate pair has three digits.",
+      "input": "\"\\uD83D\\uDE0\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-095",
+      "description": "An invalid escape in a key.",
+      "input": "{\"\\q\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1025",
+            "message": "Invalid escape sequence in a string at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-096",
+      "description": "NaN.",
+      "input": "NaN",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-097",
+      "description": "Infinity.",
+      "input": "Infinity",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-098",
+      "description": "-Infinity.",
+      "input": "-Infinity",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'-Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'-Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'-Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-099",
+      "description": "NaN in an array.",
+      "input": "[1,NaN]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 3 is not a JSON value.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 3 is not a JSON value.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 3 is not a JSON value.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-100",
+      "description": "-Infinity as a member's value.",
+      "input": "{\"a\":-Infinity}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'-Infinity' at byte 5 is not a JSON value.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'-Infinity' at byte 5 is not a JSON value.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'-Infinity' at byte 5 is not a JSON value.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-101",
+      "description": "Input that begins with NaN.",
+      "input": "NaNx",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'NaN' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-102",
+      "description": "Input that begins with Infinity.",
+      "input": "Infinityx",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1027",
+            "message": "'Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1027",
+            "message": "'Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1027",
+            "message": "'Infinity' at byte 0 is not a JSON value.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-103",
+      "description": "A leading zero.",
+      "input": "01",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '01' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '01' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '01' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-104",
+      "description": "A negative number with a leading zero.",
+      "input": "-01",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-01' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-01' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-01' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-105",
+      "description": "Two zeros.",
+      "input": "00",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '00' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '00' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '00' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-106",
+      "description": "A point without a fraction.",
+      "input": "1.",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-107",
+      "description": "A fraction without an integer part.",
+      "input": ".5",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '.5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '.5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '.5' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-108",
+      "description": "A plus sign.",
+      "input": "+1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '+1' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '+1' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '+1' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-109",
+      "description": "An exponent without digits.",
+      "input": "1e",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-110",
+      "description": "An exponent with a sign and no digits.",
+      "input": "1e+",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e+' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e+' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e+' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-111",
+      "description": "A capital E with a sign and no digits.",
+      "input": "1E-",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1E-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1E-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1E-' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-112",
+      "description": "A minus sign alone.",
+      "input": "-",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-113",
+      "description": "Two minus signs.",
+      "input": "--1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '--1' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '--1' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '--1' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-114",
+      "description": "Two points.",
+      "input": "1..2",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1..2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1..2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1..2' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-115",
+      "description": "Two fractions.",
+      "input": "1.2.3",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.2.3' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.2.3' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.2.3' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-116",
+      "description": "Two exponents.",
+      "input": "1e5e5",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e5e5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e5e5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e5e5' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-117",
+      "description": "A point before an exponent.",
+      "input": "2.e3",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '2.e3' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '2.e3' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '2.e3' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-118",
+      "description": "A minus sign inside a number.",
+      "input": "1-2",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1-2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1-2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1-2' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-119",
+      "description": "A plus sign inside a number.",
+      "input": "1+2",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1+2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1+2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1+2' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-120",
+      "description": "A negative fraction without an integer part.",
+      "input": "-.5",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-.5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-.5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-.5' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-121",
+      "description": "A fractional exponent.",
+      "input": "1e1.5",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e1.5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e1.5' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1e1.5' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-122",
+      "description": "Two signs in an exponent.",
+      "input": "1.0E+-2",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.0E+-2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.0E+-2' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '1.0E+-2' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-123",
+      "description": "A minus sign alone in an array.",
+      "input": "[1,-]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-124",
+      "description": "-Inf is a minus sign followed by a letter.",
+      "input": "-Inf",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-125",
+      "description": "-NaN is a minus sign followed by a letter.",
+      "input": "-NaN",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '-' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-126",
+      "description": "A run of 70 zeros, named in the message by its first 57 characters.",
+      "input": "0000000000000000000000000000000000000000000000000000000000000000000000",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '000000000000000000000000000000000000000000000000000000000...' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '000000000000000000000000000000000000000000000000000000000...' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1028",
+            "message": "Invalid number '000000000000000000000000000000000000000000000000000000000...' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-127",
+      "description": "Arrays nested 64 deep are accepted.",
+      "input": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+      "expected": {
+        "plain": {
+          "canonical": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+          "sha256": "sha256:36127fd491fb6253bca865d070b1c735abaf9d9b4d8a225ea3392e9c36ad193a"
+        },
+        "data": {
+          "canonical": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+          "sha256": "sha256:36127fd491fb6253bca865d070b1c735abaf9d9b4d8a225ea3392e9c36ad193a"
+        },
+        "hashable": {
+          "canonical": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+          "sha256": "sha256:36127fd491fb6253bca865d070b1c735abaf9d9b4d8a225ea3392e9c36ad193a"
+        }
+      }
+    },
+    {
+      "id": "json-syntax-128",
+      "description": "Arrays nested 65 deep.",
+      "input": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 64.",
+            "offset": 64
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 64.",
+            "offset": 64
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 64.",
+            "offset": 64
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-129",
+      "description": "Objects nested 65 deep.",
+      "input": "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":1}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 320.",
+            "offset": 320
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 320.",
+            "offset": 320
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 320.",
+            "offset": 320
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-130",
+      "description": "Arrays and objects nested 65 deep.",
+      "input": "[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[{\"a\":[1]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 192.",
+            "offset": 192
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 192.",
+            "offset": 192
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 192.",
+            "offset": 192
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-131",
+      "description": "An unclosed nesting of 65 arrays reports the depth before the end.",
+      "input": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 64.",
+            "offset": 64
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 64.",
+            "offset": 64
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 64.",
+            "offset": 64
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-132",
+      "description": "A syntax error before the 65th level is reported first.",
+      "input": "[[[[[[[[[[,[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 10.",
+            "offset": 10
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 10.",
+            "offset": 10
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ',' at byte 10.",
+            "offset": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-133",
+      "description": "A value that starts with 'e', which does not start a number.",
+      "input": "[e]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-134",
+      "description": "A word that starts with 'e' at the top level.",
+      "input": "e1",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-135",
+      "description": "A word that starts with 'E' at the top level.",
+      "input": "E5",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'E' at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'E' at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'E' at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-136",
+      "description": "An exponent without a mantissa in an array.",
+      "input": "[E-1]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'E' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'E' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'E' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-137",
+      "description": "An exponent without a mantissa as a member's value.",
+      "input": "{\"a\":e2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-syntax-138",
+      "description": "An unquoted word that starts with 'e' as a member's value.",
+      "input": "{\"goal\": exploratory}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 9.",
+            "offset": 9
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 9.",
+            "offset": 9
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 9.",
+            "offset": 9
+          }
+        }
+      }
+    }
+  ]
+}

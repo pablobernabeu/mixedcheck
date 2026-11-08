@@ -10,6 +10,7 @@ import hashlib
 import json
 from importlib.resources import files
 from importlib.resources.abc import Traversable
+from typing import cast
 
 
 def spec_versions() -> dict[str, str]:
@@ -50,7 +51,7 @@ def _read_versions(text: str, label: str) -> dict[str, str]:
         versions = None
     if not _is_object_of_strings(versions):
         raise ValueError(f"'{label}' must hold a JSON object whose values are strings.")
-    return versions
+    return cast(dict[str, str], versions)
 
 
 def _walk(directory: Traversable, prefix: str = "") -> list[str]:

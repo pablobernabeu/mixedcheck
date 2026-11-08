@@ -1,0 +1,12 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {
+      "name": "class",
+      "columns": ["class"],
+      "nested_in": "schools",
+      "id_scope": "global",
+      "level": 2
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "description": "Byte strings with their SHA-256 hashes, written as in documents.",
+  "cases": [
+    {
+      "id": "hash-sha256-001",
+      "description": "The example of NIST with no bytes.",
+      "input": "",
+      "expected": {
+        "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "hash-sha256-002",
+      "description": "The example of NIST with 'abc'.",
+      "input": "abc",
+      "expected": {
+        "sha256": "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      }
+    },
+    {
+      "id": "hash-sha256-003",
+      "description": "The example of NIST with a message of 448 bits.",
+      "input": "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+      "expected": {
+        "sha256": "sha256:248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1"
+      }
+    },
+    {
+      "id": "hash-sha256-004",
+      "description": "The example of NIST with a message of 896 bits.",
+      "input": "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu",
+      "expected": {
+        "sha256": "sha256:cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1"
+      }
+    },
+    {
+      "id": "hash-sha256-005",
+      "description": "The example of NIST with one million 'a'.",
+      "input": "a",
+      "repeat": 1000000,
+      "expected": {
+        "sha256": "sha256:cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0"
+      }
+    },
+    {
+      "id": "hash-sha256-006",
+      "description": "55 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:9f4390f8d30c2dd92ec9f095b65e2b9ae9b0a925a5258e241c9f1e910f734318"
+      }
+    },
+    {
+      "id": "hash-sha256-007",
+      "description": "56 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:b35439a4ac6f0948b6d6f9e3c6af0f5f590ce20f1bde7090ef7970686ec6738a"
+      }
+    },
+    {
+      "id": "hash-sha256-008",
+      "description": "63 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:7d3e74a05d7db15bce4ad9ec0658ea98e3f06eeecf16b4c6fff2da457ddc2f34"
+      }
+    },
+    {
+      "id": "hash-sha256-009",
+      "description": "64 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:ffe054fe7ae0cb6dc65c3af9b61d5209f439851db43d0ba5997337df154668eb"
+      }
+    },
+    {
+      "id": "hash-sha256-010",
+      "description": "65 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:635361c48bb9eab14198e76ea8ab7f1a41685d6ad62aa9146d301d4f17eb0ae0"
+      }
+    },
+    {
+      "id": "hash-sha256-011",
+      "description": "119 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:31eba51c313a5c08226adf18d4a359cfdfd8d2e816b13f4af952f7ea6584dcfb"
+      }
+    },
+    {
+      "id": "hash-sha256-012",
+      "description": "120 bytes 'a', at a boundary of SHA-256 padding.",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "sha256": "sha256:2f3d335432c70b580af0e8e1b3674a7c020d683aa5f73aaaedfdc55af904c21c"
+      }
+    },
+    {
+      "id": "hash-sha256-013",
+      "description": "Every byte from 00 to FF.",
+      "input_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+      "expected": {
+        "sha256": "sha256:40aff2e9d2d8922e47afd4648e6967497158785fbd1da870e7110266bf944880"
+      }
+    },
+    {
+      "id": "hash-sha256-014",
+      "description": "Bytes that are not UTF-8 are hashed as they are.",
+      "input_hex": "fffe0080",
+      "expected": {
+        "sha256": "sha256:5a741968f40e57485ed6e1a1af381adeb2714223c35acedf1ad0670e42df2eb5"
+      }
+    },
+    {
+      "id": "hash-sha256-015",
+      "description": "A file that starts with a byte-order mark.",
+      "input_hex": "efbbbf7b7d",
+      "expected": {
+        "sha256": "sha256:aa25e978046d680ef8740d837e6de5bc1e2a2dc6089dbda1012544b538d53f65"
+      }
+    },
+    {
+      "id": "hash-sha256-016",
+      "description": "JSON text with LF line endings.",
+      "input": "{\n  \"a\": 1\n}\n",
+      "expected": {
+        "sha256": "sha256:5e36b6560513586ced65eca0e8b025fe88edbcab82ba2cb67a5fcb2d7b202383"
+      }
+    },
+    {
+      "id": "hash-sha256-017",
+      "description": "The same JSON text with CRLF line endings.",
+      "input": "{\r\n  \"a\": 1\r\n}\r\n",
+      "expected": {
+        "sha256": "sha256:d8b04a95ac8f6ebb754f2567d677142939890259b9facc2629436023638eef9e"
+      }
+    },
+    {
+      "id": "hash-sha256-018",
+      "description": "'\u00e9cole' in UTF-8.",
+      "input": "\u00e9cole",
+      "expected": {
+        "sha256": "sha256:f0f772e182a4941e6fdef31116540b17be18ab0be3290d2d1df760251f859b24"
+      }
+    },
+    {
+      "id": "hash-sha256-019",
+      "description": "'\u00e9cole' in Latin-1.",
+      "input_hex": "e9636f6c65",
+      "expected": {
+        "sha256": "sha256:842f99853643706941a3aa1008dc1b7eb993691f12a88a0c63e611f38cdee25f"
+      }
+    },
+    {
+      "id": "hash-sha256-020",
+      "description": "The 117 canonical bytes of the worked example of conventions.md.",
+      "input": "{\"a\":{\"b\":false,\"z\":true,\"\u00e9\":\"\u00e9\"},\"n\":[1,100,0.000001,1e-7,4.5,0,2.5],\"tab\":\"a\\tb\\u001f\",\"title\":\"caf\u00e9 \\\"study\\\"\"}",
+      "expected": {
+        "sha256": "sha256:288afb1eec38acd97fc29eb68a97d9200dd6e77da5ee06d7586945b51372b80d"
+      }
+    }
+  ]
+}

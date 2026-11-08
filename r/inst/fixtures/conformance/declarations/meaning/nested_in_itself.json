@@ -1,0 +1,4 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [{"name": "a", "columns": ["a"], "nested_in": "a", "id_scope": "global"}]
+}

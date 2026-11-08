@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:registry",
+  "title": "mixedcheck compiled registry",
+  "description": "The compiled registry, spec/compiled/registry.json, which spec/tools/compile_registry.py writes from the YAML sources in spec/registry/ and which both packages read. docs/spec/registry.md is normative together with this schema. The file holds exactly its canonical bytes (E4018), and its SHA-256 is the registry hash (conventions.md, Hashes). The entries are in ascending order of identifier (E4017), every check that a link names exists (E4004) and the links form no cycle (E4005). registry_version is the version member that readers check first (E1441).",
+  "type": "object",
+  "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/hashable_value"}],
+  "additionalProperties": false,
+  "required": ["entries", "privacy", "registry_version"],
+  "properties": {
+    "registry_version": {
+      "description": "The registry version, equal to 'registry' in spec/versions.json.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/semver"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "urn:mixedcheck:schema:registry-entry"}
+    },
+    "privacy": {"$ref": "#/$defs/privacy"}
+  },
+  "$defs": {
+    "privacy": {
+      "title": "privacy parameters",
+      "description": "The parameters of the privacy filter that shareable output passes through (02-decisions.md, Q5). A displayed cell, bin or band holds at least min_count distinct members of the disclosure unit. A person count below min_count is shown as '<' followed by min_count. The 'contributors' largest contributors supply less than 'share' of a bin's rows. A quantile p is shown only if n * min(p, 1 - p) >= min_count. Suppressed tables have every cell rounded to a multiple of rounding_base. Zeros in cross-tabulations of person attributes are treated as disclosive when zeros_disclosive is true.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dominance", "min_count", "rounding_base", "sources", "zeros_disclosive"],
+      "properties": {
+        "min_count": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "dominance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["contributors", "share"],
+          "properties": {
+            "contributors": {"type": "integer", "minimum": 1, "maximum": 100},
+            "share": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/nonnegative_decimal"}
+          }
+        },
+        "rounding_base": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "zeros_disclosive": {"type": "boolean"},
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/source"}
+        }
+      }
+    }
+  }
+}

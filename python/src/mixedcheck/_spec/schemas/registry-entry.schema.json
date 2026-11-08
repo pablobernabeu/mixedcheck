@@ -1,0 +1,482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:registry-entry",
+  "title": "mixedcheck registry entry",
+  "description": "One check of the registry, as written in a YAML source under spec/registry/checks/ and as it appears in the compiled registry. docs/spec/registry.md is normative together with this schema. The rules enforced in code are stated in descriptions with their codes: references between names in an entry and to other checks (E4004), unique remedy identifiers (E4006), message templates and their arguments (E4007, E4008, E4009, E4014, E4015), thresholds and their statistics (E4010 to E4013), the inputs and the sample a tier may read (E4016), consequential findings from descriptive thresholds (E4020) and the counts of a ratio (E4021).",
+  "type": "object",
+  "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/hashable_value"}],
+  "additionalProperties": false,
+  "required": [
+    "assessability",
+    "availability",
+    "catalogue",
+    "decision",
+    "fitted_model",
+    "id",
+    "links",
+    "messages",
+    "parameters",
+    "reads",
+    "references",
+    "remedies",
+    "sample",
+    "scope",
+    "statistics",
+    "summary",
+    "thresholds",
+    "tier",
+    "title",
+    "version"
+  ],
+  "properties": {
+    "id": {
+      "description": "The stable identifier of the check. A source file is named after it, as <id>.yaml (E4002), and no two entries share it (E4003).",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/check_id"
+    },
+    "version": {
+      "description": "The check version, raised by 1 whenever the check's statistics, decision, thresholds, parameters or assessability change, so that a result can be matched with the rule that produced it.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "title": {"$ref": "#/$defs/line"},
+    "tier": {
+      "description": "T0 checks read no outcome, T1 checks read the outcome marginally or by grouping factor and T2 checks relate it to the predictors (02-decisions.md, Q3). The inputs in 'reads' must agree with the tier (E4016).",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/tier"
+    },
+    "summary": {"$ref": "#/$defs/text"},
+    "reads": {
+      "description": "The inputs the check reads. 'outcome' appears exactly for T1 and T2, and 'predictors' never appears for T1 (E4016).",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "declaration",
+          "formula",
+          "grouping_factors",
+          "keys",
+          "other_columns",
+          "outcome",
+          "predictors"
+        ]
+      }
+    },
+    "fitted_model": {
+      "description": "Whether the check evaluates a fitted model, which decides whether its findings carry the optimisation status.",
+      "type": "boolean"
+    },
+    "families": {
+      "description": "The family classes of docs/spec/registry.md for which the check yields findings. Without it, the check applies to every family class.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/family_class"}
+    },
+    "sample": {
+      "description": "The rows that the check reads, which the support of its findings counts: 'table' for every row of the table as read, 'design' for the design sample and 'analysis' for the analysis sample (ir.md, Samples). T0 checks read the table or the design sample, and T1 and T2 checks the analysis sample (E4016).",
+      "enum": ["analysis", "design", "table"]
+    },
+    "scope": {
+      "description": "What one finding covers. docs/spec/registry.md defines each scope and the names of its elements, which messages may use.",
+      "enum": [
+        "assignment",
+        "column",
+        "fixed_term",
+        "fixed_term_by_factor",
+        "grouping_column_pair",
+        "grouping_factor",
+        "grouping_factor_pair",
+        "model",
+        "random_term"
+      ]
+    },
+    "applies_when": {
+      "description": "A condition on a scope element. The check yields a finding for the element only when it holds.",
+      "$ref": "#/$defs/text"
+    },
+    "availability": {
+      "description": "The conditions under which the check is not available, each with its reason, checked in order before anything is computed.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/availability_rule"}
+    },
+    "statistics": {
+      "description": "The quantities the check computes, by name.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/local_name"},
+      "additionalProperties": {"$ref": "#/$defs/statistic"}
+    },
+    "thresholds": {
+      "description": "The cut-offs the decision compares statistics with, by name.",
+      "type": "object",
+      "propertyNames": {"$ref": "#/$defs/local_name"},
+      "additionalProperties": {"$ref": "#/$defs/threshold"}
+    },
+    "parameters": {
+      "description": "Fixed values of the computation that are not cut-offs, such as tolerances and size limits, by name.",
+      "type": "object",
+      "propertyNames": {"$ref": "#/$defs/local_name"},
+      "additionalProperties": {"$ref": "#/$defs/parameter"}
+    },
+    "decision": {"$ref": "#/$defs/decision"},
+    "assessability": {
+      "description": "Rules evaluated in order. The first whose condition holds gives the assessability status, and the status is adequate when none holds.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/assessability_rule"}
+    },
+    "messages": {
+      "description": "The message templates the decision rules name, by name.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/local_name"},
+      "additionalProperties": {"$ref": "#/$defs/message"}
+    },
+    "remedies": {
+      "description": "The remedies a report may list for a finding that is not consistent. Their identifiers are unique within the entry (E4006).",
+      "type": "array",
+      "items": {"$ref": "#/$defs/remedy"}
+    },
+    "links": {
+      "title": "links in the dependency graph",
+      "description": "'requires' lists the checks whose results this check uses, which run before it. 'explained_by' lists the checks whose consequential finding can cause a finding of this check, so that reports group the finding under that root cause. Every check named exists (E4004), and the links together form no cycle (E4005).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["explained_by", "requires"],
+      "properties": {
+        "explained_by": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/check_id"}
+        },
+        "requires": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/check_id"}
+        }
+      }
+    },
+    "references": {
+      "description": "Sources for the check as a whole. Sources for a threshold or parameter are given with it.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/source"}
+    },
+    "catalogue": {
+      "description": "The items of the review catalogue (docs/design/evidence/review-catalogue.md) behind the check.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "title": "catalogue item",
+        "type": "string",
+        "pattern": "^L[1-7]-[0-9]{2}$"
+      }
+    }
+  },
+  "$defs": {
+    "line": {
+      "title": "single line of text",
+      "description": "Text without control characters, of 1 to 120 characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "text": {
+      "title": "text",
+      "description": "Prose in British English without control characters, of 1 to 4000 characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "local_name": {
+      "title": "local name",
+      "description": "The name of a statistic, threshold, parameter, message, message argument, remedy or prerequisite within one entry.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,47}$"
+    },
+    "family_class": {
+      "title": "family class",
+      "description": "A class of outcome families (docs/spec/registry.md, Family classes).",
+      "enum": ["bernoulli", "binomial", "gaussian", "other", "poisson"]
+    },
+    "nonnegative_decimal": {
+      "title": "non-negative decimal string",
+      "description": "A decimal string (defs.schema.json, decimal_string) that is not negative.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*(\\.[0-9]*[1-9])?|0\\.[0-9]*[1-9])$"
+    },
+    "declaration_pointer": {
+      "title": "declaration pointer",
+      "description": "A JSON Pointer into the declaration. The token {outcome} stands for the name of the outcome column, escaped as RFC 6901 requires.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(/([^~/]|~[01])*)+$"
+    },
+    "availability_rule": {
+      "description": "A condition under which the check is not available. declaration_missing names the declaration field with 'pointer', which becomes the status detail. package_missing names the packages by language. too_large names the parameter that holds the limit.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition", "reason"],
+      "properties": {
+        "reason": {"enum": ["capability_missing", "declaration_missing", "package_missing", "too_large"]},
+        "condition": {"$ref": "#/$defs/text"},
+        "pointer": {"$ref": "#/$defs/declaration_pointer"},
+        "packages": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "Python": {"$ref": "#/$defs/package_list"},
+            "R": {"$ref": "#/$defs/package_list"}
+          }
+        },
+        "parameter": {"$ref": "#/$defs/local_name"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["reason"], "properties": {"reason": {"const": "declaration_missing"}}},
+          "then": {"required": ["pointer"]},
+          "else": {"properties": {"pointer": false}}
+        },
+        {
+          "if": {"required": ["reason"], "properties": {"reason": {"const": "package_missing"}}},
+          "then": {"required": ["packages"]},
+          "else": {"properties": {"packages": false}}
+        },
+        {
+          "if": {"required": ["reason"], "properties": {"reason": {"const": "too_large"}}},
+          "then": {"required": ["parameter"]},
+          "else": {"properties": {"parameter": false}}
+        }
+      ]
+    },
+    "package_list": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"}
+    },
+    "statistic": {
+      "description": "A quantity the check computes. A count or a ratio of counts carries its count class (docs/spec/registry.md, Statistics and counts), a ratio names the count statistics of its numerator and denominator, which have its count class (E4004, E4021), and a category lists its values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["definition", "kind"],
+      "properties": {
+        "kind": {"enum": ["boolean", "category", "count", "labels", "names", "ratio", "real", "reals"]},
+        "definition": {"$ref": "#/$defs/text"},
+        "count_class": {"enum": ["by_unit", "non_person", "person"]},
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/local_name"}
+        },
+        "numerator": {"$ref": "#/$defs/local_name"},
+        "denominator": {"$ref": "#/$defs/local_name"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"enum": ["count", "ratio"]}}},
+          "then": {"required": ["count_class"]},
+          "else": {"properties": {"count_class": false}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "ratio"}}},
+          "then": {"required": ["denominator", "numerator"]},
+          "else": {"properties": {"denominator": false, "numerator": false}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "category"}}},
+          "then": {"required": ["values"]},
+          "else": {"properties": {"values": false}}
+        }
+      ]
+    },
+    "threshold": {
+      "description": "A cut-off on a count, ratio or real statistic of the entry (E4011). 'value' is an integer for a count and lies between 0 and 1 with at most four decimal places for a ratio (E4012). 'proximity' is given exactly when the statistic is real (E4013). The threshold is descriptive while a source of kind literature or software has not been read in full (E4010).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["comparator", "rationale", "sources", "statistic", "validation", "value"],
+      "properties": {
+        "statistic": {"$ref": "#/$defs/local_name"},
+        "comparator": {"enum": ["<", "<=", ">", ">="]},
+        "value": {"$ref": "urn:mixedcheck:schema:defs#/$defs/decimal_string"},
+        "proximity": {
+          "title": "proximity band",
+          "description": "A real statistic s lies near the threshold t when |s - t| <= absolute + relative * |t|.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["absolute", "relative"],
+          "properties": {
+            "absolute": {"$ref": "#/$defs/nonnegative_decimal"},
+            "relative": {"$ref": "#/$defs/nonnegative_decimal"}
+          }
+        },
+        "validation": {
+          "allOf": [
+            {"$ref": "urn:mixedcheck:schema:defs#/$defs/validation"},
+            {"properties": {"value": {"enum": ["descriptive", "validated"]}}}
+          ]
+        },
+        "rationale": {"$ref": "#/$defs/text"},
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/source"}
+        }
+      }
+    },
+    "parameter": {
+      "description": "A fixed value of the computation, such as a tolerance or a size limit, with its sources.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["definition", "sources", "value"],
+      "properties": {
+        "value": {"$ref": "urn:mixedcheck:schema:defs#/$defs/decimal_string"},
+        "definition": {"$ref": "#/$defs/text"},
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/source"}
+        }
+      }
+    },
+    "source": {
+      "title": "source",
+      "description": "Where a check, threshold or parameter comes from. 'literature' is a publication and 'software' the documented behaviour of a package, each with 'full_text_read' recording whether it has been read in full, which the local session confirms (03-execution-plan.md, Local session). 'decision' is a section of the design documents, 'derivation' an argument stated in the citation or in the documents it names, and 'convention' a value set by this project.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["citation", "kind"],
+      "properties": {
+        "kind": {"enum": ["convention", "decision", "derivation", "literature", "software"]},
+        "citation": {"$ref": "#/$defs/text"},
+        "locator": {"$ref": "#/$defs/line"},
+        "doi": {
+          "title": "DOI",
+          "type": "string",
+          "pattern": "^10\\.[0-9]{4,9}/[\\u0021-\\u007E]+$"
+        },
+        "url": {
+          "title": "HTTPS URL",
+          "type": "string",
+          "pattern": "^https://[\\u0021-\\u007E]+$"
+        },
+        "full_text_read": {"type": "boolean"}
+      },
+      "if": {"required": ["kind"], "properties": {"kind": {"enum": ["literature", "software"]}}},
+      "then": {"required": ["full_text_read"]},
+      "else": {"properties": {"full_text_read": false}}
+    },
+    "decision": {
+      "description": "How the finding status is decided: the rules in order, the first whose condition holds deciding, and 'otherwise' when none holds. A rule lists the thresholds its condition uses and the message it reports, which exist in the entry (E4004).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["otherwise", "rules"],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/decision_rule"}
+        },
+        "otherwise": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["finding", "message"],
+          "properties": {
+            "finding": {"$ref": "#/$defs/finding_value"},
+            "message": {"$ref": "#/$defs/local_name"}
+          }
+        }
+      }
+    },
+    "decision_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition", "finding", "message", "thresholds"],
+      "properties": {
+        "finding": {"$ref": "#/$defs/finding_value"},
+        "condition": {"$ref": "#/$defs/text"},
+        "thresholds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/local_name"}
+        },
+        "message": {"$ref": "#/$defs/local_name"}
+      }
+    },
+    "finding_value": {"enum": ["consequential", "consistent", "detectable_inconsequential"]},
+    "assessability_rule": {
+      "description": "A condition that lowers the assessability status. not_assessable needs a reason, and the reason prerequisite_unmet needs the name of the prerequisite, which becomes the status detail.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition", "value"],
+      "properties": {
+        "value": {"enum": ["not_assessable", "weak"]},
+        "reason": {"enum": ["low_detection", "prerequisite_unmet"]},
+        "prerequisite": {"$ref": "#/$defs/local_name"},
+        "condition": {"$ref": "#/$defs/text"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["value"], "properties": {"value": {"const": "not_assessable"}}},
+          "then": {"required": ["reason"]},
+          "else": {"properties": {"reason": false}}
+        },
+        {
+          "if": {"required": ["reason"], "properties": {"reason": {"const": "prerequisite_unmet"}}},
+          "then": {"required": ["prerequisite"]},
+          "else": {"properties": {"prerequisite": false}}
+        }
+      ]
+    },
+    "message": {
+      "description": "A message template with its arguments. The template uses every argument at least once as {name} (E4008), names no other placeholder (E4007) and has no other braces (E4009).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["args", "template"],
+      "properties": {
+        "template": {
+          "title": "message template",
+          "description": "ASCII text in British English, written as complete sentences.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": "^[\\u0020-\\u007E]+$"
+        },
+        "args": {
+          "type": "object",
+          "propertyNames": {"$ref": "#/$defs/local_name"},
+          "additionalProperties": {"$ref": "#/$defs/message_arg"}
+        }
+      }
+    },
+    "message_arg": {
+      "description": "What a placeholder renders: a statistic, an element of the scope, a threshold or a parameter of the entry, named by 'name' (E4004). 'digits' gives the decimal places of a real or ratio statistic and appears exactly for those (E4014). Statistics of kind boolean or reals cannot be rendered (E4015).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source"],
+      "properties": {
+        "source": {"enum": ["parameter", "scope", "statistic", "threshold"]},
+        "name": {"$ref": "#/$defs/local_name"},
+        "digits": {"type": "integer", "minimum": 0, "maximum": 6}
+      }
+    },
+    "remedy": {
+      "description": "A remedy for a finding. 'uses_outcome' is true when applying it reads the outcome, 'changes_estimand' when it changes what the focal coefficients estimate, and 'software' lists the packages or engines it needs, empty when any engine can apply it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changes_estimand", "description", "id", "software", "uses_outcome"],
+      "properties": {
+        "id": {"$ref": "#/$defs/local_name"},
+        "description": {"$ref": "#/$defs/text"},
+        "uses_outcome": {"type": "boolean"},
+        "changes_estimand": {"type": "boolean"},
+        "software": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"}
+        }
+      }
+    }
+  }
+}

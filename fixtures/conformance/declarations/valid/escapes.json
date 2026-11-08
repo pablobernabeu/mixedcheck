@@ -1,0 +1,23 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "caf\u00e9 \u201cstudy\u201d, line\u2028separator",
+  "table": {
+    "missingValues": ["", "tab\there", "\"q\"", "back\\slash", "\u001f", "a/b", "\u00e9"],
+    "fields": [
+      {"name": "Zeta", "type": "string", "categories": ["\ud83d\ude00", "😁", "\u00e9", "e"]},
+      {"name": "alpha"},
+      {"name": "_x"},
+      {"name": "\u00e9"},
+      {"name": "\uff08"},
+      {"name": "A"}
+    ]
+  },
+  "variables": {
+    "\uff08": {"role": "auxiliary"},
+    "\u00e9": {"role": "auxiliary"},
+    "_x": {"role": "auxiliary"},
+    "alpha": {"role": "auxiliary"},
+    "Zeta": {"role": "auxiliary"},
+    "A": {"role": "auxiliary"}
+  }
+}

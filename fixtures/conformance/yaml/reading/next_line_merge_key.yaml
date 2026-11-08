@@ -1,0 +1,2 @@
+vocabulary: 0.1.0
+variables:  <<: {post: {role: outcome}}

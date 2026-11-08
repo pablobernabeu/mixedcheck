@@ -1,0 +1,4 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "arm", "categories": ["a", "b"]}]}
+}

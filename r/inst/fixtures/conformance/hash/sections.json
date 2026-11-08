@@ -1,0 +1,105 @@
+{
+  "description": "Sections of a document in the hashable profile, located by JSON Pointer, with their canonical bytes and hashes.",
+  "cases": [
+    {
+      "id": "hash-sections-001",
+      "description": "The root: the whole document.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "",
+      "expected": {
+        "canonical": "{\"a/b\":{\"m~n\":[1.5,true]},\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"list\":[0,1,2,3,4,5,6,7,8,9,10,11],\"version\":\"0.1.0\",\"\u00e9\":\"value\"}",
+        "sha256": "sha256:a58954b21349ae75e1123d47188b34cc3fb9b4a78cee04dbe298ba2fd7ada762"
+      }
+    },
+    {
+      "id": "hash-sections-002",
+      "description": "An object section.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/design",
+      "expected": {
+        "canonical": "{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}}",
+        "sha256": "sha256:5d35a049bf6c91d3e8680d8f330e47e7665da581f1086898649243722ddeecdd"
+      }
+    },
+    {
+      "id": "hash-sections-003",
+      "description": "An array section.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/design/rungs",
+      "expected": {
+        "canonical": "[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}]",
+        "sha256": "sha256:299e1201ba62ad27328fce64fb20daa14ced4558b23f264d2f8da66cc5e8141a"
+      }
+    },
+    {
+      "id": "hash-sections-004",
+      "description": "An element of an array.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/design/rungs/1",
+      "expected": {
+        "canonical": "{\"id\":\"r1\",\"terms\":[\"x\"]}",
+        "sha256": "sha256:ab6d8afaa148d79d588fc58642326e977ea619d4b1ca06e6c7df36b985216eec"
+      }
+    },
+    {
+      "id": "hash-sections-005",
+      "description": "A string.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/design/stop/rule",
+      "expected": {
+        "canonical": "\"protected\"",
+        "sha256": "sha256:1fa71a962f334dfa399deba3ebc726e3f0c672313de50a6520d4e4d2c43bb325"
+      }
+    },
+    {
+      "id": "hash-sections-006",
+      "description": "A key with '/', written '~1'.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/a~1b",
+      "expected": {
+        "canonical": "{\"m~n\":[1.5,true]}",
+        "sha256": "sha256:924e171b6fc61a7bafea20790c3f49188a044b01466aaf716801b1dc541fc987"
+      }
+    },
+    {
+      "id": "hash-sections-007",
+      "description": "A key with '~', written '~0'.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/a~1b/m~0n",
+      "expected": {
+        "canonical": "[1.5,true]",
+        "sha256": "sha256:74f4de9272140ad90d2ef032082838b1b8278f369e87ead27179c730ebdf79b1"
+      }
+    },
+    {
+      "id": "hash-sections-008",
+      "description": "A number.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/a~1b/m~0n/0",
+      "expected": {
+        "canonical": "1.5",
+        "sha256": "sha256:9f29a130438b81170b92a42650f9a94291ecad60bd47af2a3886e75f7f728725"
+      }
+    },
+    {
+      "id": "hash-sections-009",
+      "description": "A non-ASCII key.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/\u00e9",
+      "expected": {
+        "canonical": "\"value\"",
+        "sha256": "sha256:a0b7821a11db531982044ca5ca2e788e2d749d6b696cd3aa4172342f584f2ee1"
+      }
+    },
+    {
+      "id": "hash-sections-010",
+      "description": "The element with index 10, an index of two digits.",
+      "input": "{\"version\":\"0.1.0\",\"design\":{\"rungs\":[{\"id\":\"r0\",\"terms\":[\"x\",\"(1|g)\"]},{\"id\":\"r1\",\"terms\":[\"x\"]}],\"stop\":{\"rule\":\"protected\",\"version\":\"0.1.0\"}},\"a/b\":{\"m~n\":[1.5,true]},\"\u00e9\":\"value\",\"list\":[0,1,2,3,4,5,6,7,8,9,10,11]}",
+      "pointer": "/list/10",
+      "expected": {
+        "canonical": "10",
+        "sha256": "sha256:4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5"
+      }
+    }
+  ]
+}

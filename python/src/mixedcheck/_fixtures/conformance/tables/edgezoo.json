@@ -1,0 +1,466 @@
+{
+  "description": "The ten edge tables of docs/design/evidence/decisions/E-verify/edgezoo, read as stored, with their table descriptors updated to vocabulary 0.1.",
+  "cases": [
+    {
+      "id": "tables-edgezoo-001",
+      "description": "T1: without missingValues, the Frictionless default [''] applies, so the empty values of a string and a number column are missing. The row with a missing predictor leaves the design sample and the row with a missing response the analysis sample.",
+      "path": "edgezoo/T1_missing_default.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "g",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "formula": "y ~ g",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "g",
+            "type": "string",
+            "values": [
+              "a",
+              null,
+              "b"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1.5,
+              2.5,
+              null
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          2
+        ],
+        "analysis_sample": [
+          0
+        ]
+      }
+    },
+    {
+      "id": "tables-edgezoo-002",
+      "description": "T2: '007' and '+5' are integers, but ' 12' is not, since nothing is trimmed, so the reader stops at it before reaching '1_000'.",
+      "path": "edgezoo/T2_integer_forms.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value ' 12' of the column 'k' at byte 18 cannot be read as an integer.",
+          "offset": 18
+        }
+      }
+    },
+    {
+      "id": "tables-edgezoo-003",
+      "description": "T3: '0x1A' is not an integer.",
+      "path": "edgezoo/T3_hex_integer.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '0x1A' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edgezoo-004",
+      "description": "T4: NaN, INF and -INF are numbers, not missing values, so no row leaves either sample. Building the response vector later gives E6073 (ir.md).",
+      "path": "edgezoo/T4_number_tokens.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "formula": "y ~ 1",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              "NaN",
+              "Infinity",
+              "-Infinity"
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1,
+          2
+        ],
+        "analysis_sample": [
+          0,
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "tables-edgezoo-005",
+      "description": "T5: 'NA' is a string value, not a missing value, and white space and a quoted comma are kept, so every row stays in the analysis sample of a formula whose response is the string column.",
+      "path": "edgezoo/T5_strings.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "formula": "s ~ 1",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "NA",
+              "caf\u00e9",
+              " padded ",
+              "a,b"
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "analysis_sample": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "tables-edgezoo-006",
+      "description": "T6: CR LF line endings end records like LF.",
+      "path": "edgezoo/T6_crlf.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "x",
+              "y"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edgezoo-007",
+      "description": "T7: a CSV file that starts with a byte-order mark is refused.",
+      "path": "edgezoo/T7_bom.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E1003",
+          "message": "The input starts with a UTF-8 byte-order mark."
+        }
+      }
+    },
+    {
+      "id": "tables-edgezoo-008",
+      "description": "T8: small numbers in exponent notation, as EEG amplitudes in volts are written.",
+      "path": "edgezoo/T8_volts.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "amp",
+              "type": "number"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "amp",
+            "type": "number",
+            "values": [
+              3.2e-06,
+              -1.25e-07
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edgezoo-009",
+      "description": "T9: a quoted field holds a line feed, which is kept.",
+      "path": "edgezoo/T9_embedded_newline.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "two\nlines",
+              "z"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edgezoo-010",
+      "description": "T10: a clean ASCII table, the control case of the edge tables.",
+      "path": "edgezoo/T10_clean_control.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "missingValues": [
+            ""
+          ]
+        }
+      },
+      "formula": "y ~ s",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "x",
+              "y"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              0.5,
+              1.25
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1
+        ],
+        "analysis_sample": [
+          0,
+          1
+        ]
+      }
+    }
+  ]
+}

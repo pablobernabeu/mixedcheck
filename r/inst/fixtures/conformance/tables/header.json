@@ -1,0 +1,305 @@
+{
+  "description": "The header: an empty table, invalid and repeated column names (E5002) and the match of the column names with the table block (E5003).",
+  "cases": [
+    {
+      "id": "tables-header-001",
+      "description": "An empty first column name.",
+      "path": "header/empty_first_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 0 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "tables-header-002",
+      "description": "An empty last column name, located at the line break.",
+      "path": "header/empty_last_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 2 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-header-003",
+      "description": "A tab in a quoted column name.",
+      "path": "header/tab_in_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 0 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "tables-header-004",
+      "description": "The C1 control character U+0085 in a column name.",
+      "path": "header/c1_control_in_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 2 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-header-005",
+      "description": "U+007F in a column name.",
+      "path": "header/delete_in_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 2 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-header-006",
+      "description": "A column name of 129 characters.",
+      "path": "header/name_too_long.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 3 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 3
+        }
+      }
+    },
+    {
+      "id": "tables-header-007",
+      "description": "A column name of 128 characters, the most allowed.",
+      "path": "header/name_128.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "number",
+            "values": [
+              1.0
+            ]
+          },
+          {
+            "name": "\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9",
+            "type": "number",
+            "values": [
+              2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-header-008",
+      "description": "A column name that repeats an earlier one.",
+      "path": "header/repeated_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 4 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "tables-header-009",
+      "description": "A column name that differs from the field at its position.",
+      "path": "header/name_differs.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 3 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 3
+        }
+      }
+    },
+    {
+      "id": "tables-header-010",
+      "description": "Column names are compared without case folding.",
+      "path": "header/name_case.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 3 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 3
+        }
+      }
+    },
+    {
+      "id": "tables-header-011",
+      "description": "The fields must follow the order of the columns.",
+      "path": "header/names_reordered.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 0 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "tables-header-012",
+      "description": "A header with fewer columns than the block has fields gives E5003 at the line break that ends it.",
+      "path": "header/fewer_columns.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 2 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-header-013",
+      "description": "A header that ends the text and has fewer columns gives E5003 at the end of the text.",
+      "path": "header/fewer_columns_end.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 2 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-header-014",
+      "description": "A header with more columns than the block has fields gives E5003 at the first column without a field.",
+      "path": "header/more_columns.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 5 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 5
+        }
+      }
+    },
+    {
+      "id": "tables-header-015",
+      "description": "An invalid column name gives E5002, although an earlier column already differs from the block.",
+      "path": "header/names_before_match.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "y",
+              "type": "string"
+            },
+            {
+              "name": "a",
+              "type": "string"
+            },
+            {
+              "name": "b",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 4 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 4
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,531 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:results",
+  "title": "mixedcheck results document, version 0.1",
+  "description": "The results document of a run of Stream B audits or Stream A diagnostics, in the data profile, normative together with docs/spec/documents.md. It records the versions and software that produced it, the privacy mode and parameters, the hashes and keyed commitments of its inputs, the access log section at /access_log and every finding with its six status fields, its statistics and the counts the privacy filter needs. $defs/sidecar is the internal sidecar that accompanies a written results document. The validators first check results_version (E1441), then this schema, then the rules in code that documents.md lists with codes E7001 to E7044 and W7090: findings unique and in order (E7001, E7002), every tier of a finding logged (E7003), a plan for planned access (E7004), entries in time order (E7005), the support basis (E7006), the invariants of a shareable document (E7020 to E7023) and, when the registry hash matches the registry of the release, agreement with the registry entries (E7040 to E7044).",
+  "type": "object",
+  "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/data_value"}],
+  "additionalProperties": false,
+  "required": [
+    "access_log",
+    "created",
+    "findings",
+    "inputs",
+    "privacy",
+    "results_version",
+    "software",
+    "stream",
+    "versions"
+  ],
+  "properties": {
+    "results_version": {
+      "title": "results version 0.1",
+      "description": "The version of the results document. This release reads every 0.1.x version. A version outside that line is reported with E1441 alone, before any other check.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/semver",
+      "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$"
+    },
+    "created": {
+      "description": "The UTC time at which the document was written.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/utc_timestamp"
+    },
+    "stream": {
+      "description": "'B' for the design audits of Stream B and 'A' for the diagnostics of a fitted model in Stream A (02-decisions.md).",
+      "enum": ["A", "B"]
+    },
+    "versions": {"$ref": "urn:mixedcheck:schema:defs#/$defs/versions"},
+    "software": {"$ref": "#/$defs/software"},
+    "privacy": {"$ref": "#/$defs/privacy"},
+    "inputs": {"$ref": "#/$defs/inputs"},
+    "access_log": {"$ref": "#/$defs/access_log"},
+    "findings": {
+      "description": "The findings, ordered by check and then by scope (E7002), with no two sharing a check and a scope (E7001).",
+      "type": "array",
+      "items": {"$ref": "#/$defs/finding"}
+    }
+  },
+  "$defs": {
+    "text": {
+      "title": "text",
+      "description": "Text of 1 to 4000 characters without control characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "software": {
+      "title": "software",
+      "description": "The software that produced the document: the language of the package, the version of R or Python, the library that computed NFC and its version (utf8 in R and unicodedata, with unicodedata.unidata_version, in Python) and the other packages whose results the findings use, such as an engine or a solver, keyed by name.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "runtime", "unicode"],
+      "properties": {
+        "language": {"$ref": "urn:mixedcheck:schema:defs#/$defs/language"},
+        "runtime": {"$ref": "urn:mixedcheck:schema:defs#/$defs/software_version"},
+        "unicode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["library", "version"],
+          "properties": {
+            "library": {"enum": ["unicodedata", "utf8"]},
+            "version": {"$ref": "urn:mixedcheck:schema:defs#/$defs/software_version"}
+          }
+        },
+        "packages": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+          "additionalProperties": {"$ref": "urn:mixedcheck:schema:defs#/$defs/software_version"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"required": ["language"], "properties": {"language": {"const": "R"}}},
+          "then": {"properties": {"unicode": {"properties": {"library": {"const": "utf8"}}}}}
+        },
+        {
+          "if": {"required": ["language"], "properties": {"language": {"const": "Python"}}},
+          "then": {"properties": {"unicode": {"properties": {"library": {"const": "unicodedata"}}}}}
+        }
+      ]
+    },
+    "privacy": {
+      "title": "privacy",
+      "description": "The privacy mode of the document and the parameters of the privacy filter that produced it (02-decisions.md, Q5), copied from the registry: min_count (k), dominance, rounding_base and zeros_disclosive have the meaning of registry.schema.json. A shareable document passed through the filter and meets the invariants of documents.md (E7020 to E7023). An internal document did not pass through it. disclosure_unit names the unit whose distinct members the filter counts, declared in the declaration or, by default, the one declared unit with role 'participant'. Without it, there is no disclosure unit.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dominance", "min_count", "mode", "rounding_base", "zeros_disclosive"],
+      "properties": {
+        "mode": {"enum": ["shareable", "internal"]},
+        "min_count": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "dominance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["contributors", "share"],
+          "properties": {
+            "contributors": {"type": "integer", "minimum": 1, "maximum": 100},
+            "share": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/nonnegative_decimal"}
+          }
+        },
+        "rounding_base": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "zeros_disclosive": {"type": "boolean"},
+        "disclosure_unit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "source"],
+          "properties": {
+            "name": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+            "source": {"enum": ["declared", "participant"]}
+          }
+        }
+      }
+    },
+    "inputs": {
+      "title": "inputs",
+      "description": "The hashes and keyed commitments of the inputs (conventions.md, Hashes and Keyed commitments). The registry hash is always present. The declaration, the model, the data commitments and the execution binding hash are present when the run had them. The execution binding hash requires /access_log/plan (E7004). The hash of the written results file cannot be part of the file and is recorded in the internal sidecar.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry_hash"],
+      "properties": {
+        "registry_hash": {"$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"},
+        "declaration": {
+          "description": "The declaration of the run: its hash, its vocabulary version, whether it is a draft with inferred entries and whether it was validated as a minimal declaration.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["draft", "hash", "minimal", "vocabulary"],
+          "properties": {
+            "hash": {"$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"},
+            "vocabulary": {"$ref": "urn:mixedcheck:schema:defs#/$defs/semver"},
+            "draft": {"type": "boolean"},
+            "minimal": {"type": "boolean"}
+          }
+        },
+        "model": {
+          "description": "The model that the checks concern: the formula as the caller gave it, the family class (registry.md, Family classes) and the hash of its canonical IR (ir.md).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["family_class", "formula", "ir_hash"],
+          "properties": {
+            "formula": {
+              "title": "formula",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000,
+              "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+            },
+            "family_class": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/family_class"},
+            "ir_hash": {"$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"}
+          }
+        },
+        "data": {
+          "description": "Keyed commitments to the data, by what they cover: the bytes of the raw data file and the canonical analysis table (M2).",
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "data_file": {
+              "allOf": [
+                {"$ref": "urn:mixedcheck:schema:defs#/$defs/keyed_commitment"},
+                {"properties": {"covers": {"const": "data_file"}}}
+              ]
+            },
+            "analysis_table": {
+              "allOf": [
+                {"$ref": "urn:mixedcheck:schema:defs#/$defs/keyed_commitment"},
+                {"properties": {"covers": {"const": "analysis_table"}}}
+              ]
+            }
+          }
+        },
+        "execution_binding_hash": {
+          "description": "For Stream A executing a plan, the hash of the execution binding it ran (conventions.md, Hashes).",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"
+        }
+      }
+    },
+    "access_log": {
+      "title": "access log",
+      "description": "The section that records access to the outcome (02-decisions.md, Q3): the frozen plan that the run is bound to, if any, the attestation of prior knowledge of the outcome, if given, and one entry for each tier at which checks ran, in time order (E7005). Every tier of an available finding has an entry (E7003), and an entry in mode 'planned' requires the plan (E7004).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entries"],
+      "properties": {
+        "plan": {
+          "description": "The frozen plan: its design-plan hash and the highest tier at which the outcome had been read when it was frozen, as the plan records it (plan.schema.json, outcome_access). The report header shows that tier.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["design_plan_hash", "outcome_access"],
+          "properties": {
+            "design_plan_hash": {"$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"},
+            "outcome_access": {"$ref": "urn:mixedcheck:schema:defs#/$defs/tier"}
+          }
+        },
+        "outcome_seen": {
+          "description": "The attestation that the outcome had been seen before the run, as for secondary data, from the declaration's provenance or the caller. Absent when no attestation was given. The package cannot verify it.",
+          "type": "boolean"
+        },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/access_entry"}
+        }
+      }
+    },
+    "access_entry": {
+      "title": "access log entry",
+      "description": "One access at one tier. A T0 entry reads no outcome, so its mode is outcome_blind and it has neither outcome nor reason. A T1 or T2 entry has the mode 'planned' when the access was bound to the frozen plan and 'exploratory' otherwise, the outcome column with a keyed commitment to it and the reason the caller gave.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "tier", "time"],
+      "properties": {
+        "tier": {"$ref": "urn:mixedcheck:schema:defs#/$defs/tier"},
+        "time": {"$ref": "urn:mixedcheck:schema:defs#/$defs/utc_timestamp"},
+        "mode": {"enum": ["outcome_blind", "planned", "exploratory"]},
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["column", "commitment"],
+          "properties": {
+            "column": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+            "commitment": {
+              "allOf": [
+                {"$ref": "urn:mixedcheck:schema:defs#/$defs/keyed_commitment"},
+                {"properties": {"covers": {"const": "outcome_column"}}}
+              ]
+            }
+          }
+        },
+        "reason": {"$ref": "#/$defs/text"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["tier"], "properties": {"tier": {"const": "T0"}}},
+          "then": {
+            "properties": {
+              "mode": {"const": "outcome_blind"},
+              "outcome": false,
+              "reason": false
+            }
+          }
+        },
+        {
+          "if": {"required": ["tier"], "properties": {"tier": {"enum": ["T1", "T2"]}}},
+          "then": {
+            "required": ["outcome", "reason"],
+            "properties": {"mode": {"enum": ["planned", "exploratory"]}}
+          }
+        }
+      ]
+    },
+    "finding": {
+      "title": "finding",
+      "description": "The result of one check for one element of its scope (registry.md, Scopes). A check that is not available as a whole yields one finding with an empty scope. An available finding has its message, its statistics and its support, and a finding that is not available has none of them. The registry entry of the check decides the scope parts (E7042, E7043), the statistics and their kinds and count classes (E7041, E7042), the message (E7042) and whether the status includes optimisation (E7044).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "check_version", "scope", "status", "tier"],
+      "properties": {
+        "check": {"$ref": "urn:mixedcheck:schema:defs#/$defs/check_id"},
+        "check_version": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "tier": {"$ref": "urn:mixedcheck:schema:defs#/$defs/tier"},
+        "scope": {
+          "description": "The parts of the scope element, named as registry.md (Scopes) names them, each the name of a column, grouping factor, term or unit as the IR or the declaration gives it.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "column": {"$ref": "#/$defs/identifier"},
+            "factor": {"$ref": "#/$defs/identifier"},
+            "first": {"$ref": "#/$defs/identifier"},
+            "second": {"$ref": "#/$defs/identifier"},
+            "term": {"$ref": "#/$defs/identifier"},
+            "unit": {"$ref": "#/$defs/identifier"}
+          }
+        },
+        "status": {"$ref": "urn:mixedcheck:schema:defs#/$defs/status"},
+        "message": {
+          "description": "The message that the decision named, by its name in the registry entry, and its text as rendered (registry.md, Messages), after the privacy filter in a shareable document.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "text"],
+          "properties": {
+            "id": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/local_name"},
+            "text": {
+              "title": "message text",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10000,
+              "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+            }
+          }
+        },
+        "statistics": {
+          "description": "The statistics of the finding, by their names in the registry entry. A statistic that its definition leaves absent is left out.",
+          "type": "object",
+          "propertyNames": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/local_name"},
+          "additionalProperties": {"$ref": "#/$defs/statistic"}
+        },
+        "support": {"$ref": "#/$defs/support"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["status"],
+            "properties": {
+              "status": {
+                "required": ["availability"],
+                "properties": {"availability": {"required": ["value"], "properties": {"value": {"const": "available"}}}}
+              }
+            }
+          },
+          "then": {"required": ["message", "statistics", "support"]}
+        },
+        {
+          "if": {
+            "required": ["status"],
+            "properties": {
+              "status": {
+                "required": ["availability"],
+                "properties": {"availability": {"required": ["value"], "properties": {"value": {"const": "not_available"}}}}
+              }
+            }
+          },
+          "then": {"properties": {"message": false, "statistics": false, "support": false}}
+        }
+      ]
+    },
+    "identifier": {
+      "title": "identifier",
+      "description": "The name of a column, grouping factor, term, unit or parameter, as the IR or the declaration gives it.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "statistic": {
+      "title": "statistic",
+      "description": "The value of one statistic, with the kind of its registry entry (registry.md, Statistics and counts). A count or ratio has its count class, resolved to person or non_person for the finding. value is null exactly when the value was not written, and availability then says why, as privacy_suppressed does for a value that the privacy filter suppressed. quantile gives, for a statistic that is the p-quantile of n values, p and n, which the privacy filter uses (E7022). A minimum is the quantile 0 and a maximum the quantile 1.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {"enum": ["boolean", "category", "count", "labels", "names", "ratio", "real", "reals"]},
+        "value": true,
+        "availability": {"$ref": "urn:mixedcheck:schema:defs#/$defs/availability"},
+        "count_class": {"$ref": "urn:mixedcheck:schema:defs#/$defs/count_class"},
+        "quantile": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["n", "p"],
+          "properties": {
+            "p": {"type": "number", "minimum": 0, "maximum": 1},
+            "n": {"type": "integer", "minimum": 0}
+          }
+        }
+      },
+      "allOf": [
+        {"$ref": "#/$defs/null_with_availability"},
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"enum": ["count", "ratio"]}}},
+          "then": {"required": ["count_class"]}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"enum": ["boolean", "category", "labels", "names", "real", "reals"]}}},
+          "then": {"properties": {"count_class": false}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"enum": ["boolean", "category", "labels", "names", "ratio", "reals"]}}},
+          "then": {"properties": {"quantile": false}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "boolean"}}},
+          "then": {"properties": {"value": {"type": ["boolean", "null"]}}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "category"}}},
+          "then": {
+            "properties": {
+              "value": {
+                "title": "category value",
+                "type": ["string", "null"],
+                "pattern": "^[a-z][a-z0-9_]{0,47}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "count"}}},
+          "then": {"properties": {"value": {"type": ["integer", "null"], "minimum": 0}}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "ratio"}}},
+          "then": {"properties": {"value": {"type": ["number", "null"], "minimum": 0}}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "real"}}},
+          "then": {
+            "properties": {
+              "value": {
+                "type": ["number", "string", "null"],
+                "if": {"type": "string"},
+                "then": {"enum": ["NaN", "Infinity", "-Infinity"]}
+              }
+            }
+          }
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "reals"}}},
+          "then": {
+            "properties": {
+              "value": {
+                "type": ["array", "null"],
+                "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_number"}
+              }
+            }
+          }
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "labels"}}},
+          "then": {"properties": {"value": {"type": ["array", "null"], "items": {"type": "string"}}}}
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "names"}}},
+          "then": {"properties": {"value": {"type": ["array", "null"], "items": {"$ref": "#/$defs/identifier"}}}}
+        }
+      ]
+    },
+    "null_with_availability": {
+      "description": "Pairs a null value with an availability status, as conventions.md (Status fields) requires: availability is present exactly when value is null, and its value is then not_available.",
+      "allOf": [
+        {
+          "if": {"required": ["value"], "properties": {"value": {"type": "null"}}},
+          "then": {
+            "required": ["availability"],
+            "properties": {"availability": {"properties": {"value": {"const": "not_available"}}}}
+          }
+        },
+        {
+          "if": {"required": ["value"], "properties": {"value": {"not": {"type": "null"}}}},
+          "then": {"properties": {"availability": false}}
+        }
+      ]
+    },
+    "reported_count": {
+      "title": "reported count",
+      "description": "A count, or null with its availability when it was not written, as when the privacy filter suppressed it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"type": ["integer", "null"], "minimum": 0},
+        "availability": {"$ref": "urn:mixedcheck:schema:defs#/$defs/availability"}
+      },
+      "allOf": [{"$ref": "#/$defs/null_with_availability"}]
+    },
+    "support": {
+      "title": "support",
+      "description": "The counts behind a finding that the privacy filter needs (02-decisions.md, Q5). rows is the number of rows of the sample the finding was computed from. contributors describes who supplied those rows. With basis disclosure_unit, a contributor is a member of the disclosure unit. With basis grouping_factors, used when there is no disclosure unit and the model has grouping factors, a contributor is a level of a grouping factor, distinct is the smallest number of levels over the grouping factors and largest_share the largest over them. With basis rows, used when there is neither, each row is a contributor. distinct is the number of distinct contributors, and largest_share is the share of the rows supplied by the dominance.contributors largest contributors, 0 when there are no rows. The basis must agree with /privacy/disclosure_unit and the model (E7006). rows and distinct are person counts.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contributors", "rows"],
+      "properties": {
+        "rows": {"$ref": "#/$defs/reported_count"},
+        "contributors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["basis", "distinct", "largest_share"],
+          "properties": {
+            "basis": {"enum": ["disclosure_unit", "grouping_factors", "rows"]},
+            "distinct": {"$ref": "#/$defs/reported_count"},
+            "largest_share": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      }
+    },
+    "sidecar": {
+      "title": "internal sidecar, version 0.1",
+      "description": "The internal sidecar that accompanies a written results document, in the data profile (docs/spec/documents.md, Internal sidecar). It never leaves the analyst's machine. It holds the hash of the results file it accompanies, the commitment keys, with unique identifiers (E7061) that match their keys (E1321), and the map from the pseudonyms of a shareable document to the labels they replace, with unique pseudonyms (E7060). Observation keys and the labels of predicted random effects follow with the milestones that write them (M2 and M5). sidecar_version is checked first (E1441).",
+      "type": "object",
+      "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/data_value"}],
+      "additionalProperties": false,
+      "required": ["keys", "pseudonyms", "results_hash", "sidecar_version"],
+      "properties": {
+        "sidecar_version": {
+          "title": "sidecar version 0.1",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/semver",
+          "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$"
+        },
+        "results_hash": {
+          "description": "The SHA-256 of the bytes of the results file that the sidecar accompanies.",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"
+        },
+        "keys": {
+          "type": "array",
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/commitment_key"}
+        },
+        "pseudonyms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["factor", "label", "pseudonym"],
+            "properties": {
+              "pseudonym": {"$ref": "#/$defs/pseudonym"},
+              "factor": {
+                "description": "The column or grouping factor whose label the pseudonym replaces, as the IR names it.",
+                "$ref": "#/$defs/identifier"
+              },
+              "label": {
+                "description": "The label as the data give it, or for an interaction the labels of its columns joined by ':', as ir.md writes the levels of a grouping factor.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "pseudonym": {
+      "title": "pseudonym",
+      "description": "A label that exists only in the report: '#' followed by a positive integer without leading zeros.",
+      "type": "string",
+      "pattern": "^#[1-9][0-9]{0,8}$"
+    }
+  }
+}

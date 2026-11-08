@@ -1,0 +1,308 @@
+{
+  "description": "Declarations that each break one rule on names and references, with the issues of stage 4.",
+  "cases": [
+    {
+      "id": "declarations-references-001",
+      "description": "Two units with the same name.",
+      "path": "references/duplicate_unit.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2001",
+            "message": "The unit name 'school' at /units/1/name is already used by an earlier unit.",
+            "pointer": "/units/1/name"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-002",
+      "description": "Two fields with the same name.",
+      "path": "references/duplicate_field.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2002",
+            "message": "The field name 'pre' at /table/fields/2/name is already used by an earlier field.",
+            "pointer": "/table/fields/2/name"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-003",
+      "description": "Two estimands with the same ID.",
+      "path": "references/duplicate_estimand.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2003",
+            "message": "The estimand ID 'ITT' at /estimands/1/id is already used by an earlier estimand.",
+            "pointer": "/estimands/1/id"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-004",
+      "description": "A column assigned by two entries.",
+      "path": "references/duplicate_assignment.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2004",
+            "message": "The column 'arm' at /assignment/1/column is already assigned by an earlier entry.",
+            "pointer": "/assignment/1/column"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-005",
+      "description": "A crossing that repeats an earlier one in the other order.",
+      "path": "references/duplicate_crossing.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2005",
+            "message": "The crossing at /crossings/1/units repeats an earlier crossing of the same two units.",
+            "pointer": "/crossings/1/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-006",
+      "description": "A unit nested in a unit that is not declared.",
+      "path": "references/unknown_parent.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2006",
+            "message": "The unit 'schools' at /units/1/nested_in is not declared in the units block.",
+            "pointer": "/units/1/nested_in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-007",
+      "description": "Undeclared units at each of the seven places that name a unit, reported in the order of their pointers.",
+      "path": "references/unknown_units.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2006",
+            "message": "The unit 'district' at /assignment/0/blocks/1 is not declared in the units block.",
+            "pointer": "/assignment/0/blocks/1"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'klass' at /assignment/0/unit is not declared in the units block.",
+            "pointer": "/assignment/0/unit"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'rater' at /crossings/0/units/1 is not declared in the units block.",
+            "pointer": "/crossings/0/units/1"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'person' at /disclosure_unit is not declared in the units block.",
+            "pointer": "/disclosure_unit"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'child' at /observation/time/within is not declared in the units block.",
+            "pointer": "/observation/time/within"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'pupil' at /observation/unit is not declared in the units block.",
+            "pointer": "/observation/unit"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'School' at /units/1/nested_in is not declared in the units block.",
+            "pointer": "/units/1/nested_in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-008",
+      "description": "With a table block, columns that are not fields at each of the places that name a column, among them two variables of one term.",
+      "path": "references/unknown_columns.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2007",
+            "message": "The column 'arm' at /assignment/0/column is not a field of the table block.",
+            "pointer": "/assignment/0/column"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'list' at /crossings/0/list is not a field of the table block.",
+            "pointer": "/crossings/0/list"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'post' at /estimands/0/outcome is not a field of the table block.",
+            "pointer": "/estimands/0/outcome"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'arm' at /estimands/0/term is not a field of the table block.",
+            "pointer": "/estimands/0/term"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'pre' at /estimands/0/term is not a field of the table block.",
+            "pointer": "/estimands/0/term"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'row' at /observation/key/1 is not a field of the table block.",
+            "pointer": "/observation/key/1"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'wave' at /observation/time/column is not a field of the table block.",
+            "pointer": "/observation/time/column"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'row' at /table/primaryKey/1 is not a field of the table block.",
+            "pointer": "/table/primaryKey/1"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'wave' at /table/uniqueKeys/0/1 is not a field of the table block.",
+            "pointer": "/table/uniqueKeys/0/1"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'item' at /units/1/columns/0 is not a field of the table block.",
+            "pointer": "/units/1/columns/0"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'count' at /variables/count is not a field of the table block.",
+            "pointer": "/variables/count"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'days' at /variables/count/exposure/column is not a field of the table block.",
+            "pointer": "/variables/count/exposure/column"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'raw_y' at /variables/y/derived_from/0 is not a field of the table block.",
+            "pointer": "/variables/y/derived_from/0"
+          },
+          {
+            "code": "E2007",
+            "message": "The column 'trials' at /variables/y/trials is not a field of the table block.",
+            "pointer": "/variables/y/trials"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-009",
+      "description": "A reference that differs from a field name in letter case. Names are compared without case folding.",
+      "path": "references/column_case.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2007",
+            "message": "The column 'caf\u00e9' at /observation/key/0 is not a field of the table block.",
+            "pointer": "/observation/key/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-010",
+      "description": "A variable that appears twice in a term.",
+      "path": "references/term_repeated.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2008",
+            "message": "The term at /estimands/0/term names the variable 'arm' more than once.",
+            "pointer": "/estimands/0/term"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-011",
+      "description": "A variable written bare and between backquotes in one term, which is the same variable twice.",
+      "path": "references/term_repeated_quoted.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2008",
+            "message": "The term at /estimands/0/term names the variable 'arm' more than once.",
+            "pointer": "/estimands/0/term"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-references-012",
+      "description": "Pointers in provenance.inferred that cannot be marked as inferred: the whole declaration, the version, the provenance and a member of it, an index out of range, an index with a leading zero, the token '-', a token inside a string and '/' that is not escaped.",
+      "path": "references/inferred_pointers.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2009",
+            "message": "The pointer '' at /provenance/inferred/0 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/0"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/vocabulary' at /provenance/inferred/1 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/1"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/provenance' at /provenance/inferred/2 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/2"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/provenance/created' at /provenance/inferred/3 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/3"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/units/1' at /provenance/inferred/4 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/4"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/units/00' at /provenance/inferred/5 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/5"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/units/-' at /provenance/inferred/6 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/6"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/title/0' at /provenance/inferred/7 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/7"
+          },
+          {
+            "code": "E2009",
+            "message": "The pointer '/variables/a/b' at /provenance/inferred/8 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/8"
+          }
+        ]
+      }
+    }
+  ]
+}

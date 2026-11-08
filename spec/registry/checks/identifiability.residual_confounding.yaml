@@ -1,0 +1,131 @@
+id: identifiability.residual_confounding
+version: 1
+title: Random effects confounded with the residual
+tier: T0
+summary: >-
+  For a random term whose columns come from factors, checks whether any
+  combination of a level of its grouping factor and a cell of its columns
+  holds more than one row. With one row per combination, as with a
+  subject-by-item intercept in a Latin-square design or one observation per
+  subject and condition, a Gaussian model cannot separate the term from the
+  residual when the term has one column or estimates correlations, and with
+  uncorrelated columns it is identified only through the restriction its
+  coding imposes, if at all. For Bernoulli outcomes the term acts as an
+  observation-level effect, which is not identified under a probit link and
+  weakly identified under a logit link, whereas for binomial outcomes with
+  trials and counts it is an identified overdispersion term.
+reads: [formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: random_term
+applies_when: >-
+  The term's columns are the intercept and columns coded from factors, so that
+  its rows take finitely many patterns.
+availability: []
+statistics:
+  columns:
+    kind: count
+    count_class: non_person
+    definition: The number of columns of the term.
+  correlated:
+    kind: boolean
+    definition: Whether the term has two or more columns and estimates their correlations.
+  cells:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of distinct combinations of a level of the term's grouping
+      factor and a pattern of the term's columns in the design sample, two
+      rows having the same pattern when all the term's columns are equal. Its
+      count class is that of the grouping factor.
+  replicated_cells:
+    kind: count
+    count_class: by_unit
+    definition: The number of those combinations that hold at least two rows.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: >-
+        replicated_cells is 0, the family class is gaussian or other, and
+        columns is 1 or correlated is true.
+      thresholds: []
+      message: confounded
+    - finding: consequential
+      condition: replicated_cells is 0 and the family class is bernoulli.
+      thresholds: []
+      message: bernoulli
+    - finding: detectable_inconsequential
+      condition: replicated_cells is 0 and the family class is gaussian or other.
+      thresholds: []
+      message: coding_dependent
+    - finding: consistent
+      condition: replicated_cells is 0.
+      thresholds: []
+      message: overdispersion
+  otherwise:
+    finding: consistent
+    message: replicated
+assessability: []
+messages:
+  confounded:
+    template: >-
+      Each combination of a level of '{factor}' and a cell of '{term}' has one
+      row, so the random effects of '{term}' are confounded with the residual
+      and not identified.
+    args:
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+  bernoulli:
+    template: >-
+      Each combination of a level of '{factor}' and a cell of '{term}' has one
+      row, so '{term}' acts as an observation-level effect, which is not
+      identified under a probit link and only weakly identified under a logit
+      link.
+    args:
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+  coding_dependent:
+    template: >-
+      Each combination of a level of '{factor}' and a cell of '{term}' has one
+      row. With uncorrelated random effects, '{term}' is identified only
+      through the restriction that its coding imposes, if at all, and the
+      result changes with the coding.
+    args:
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+  overdispersion:
+    template: >-
+      Each combination of a level of '{factor}' and a cell of '{term}' has one
+      row, so '{term}' acts as an observation-level effect, which models
+      overdispersion in this family.
+    args:
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+  replicated:
+    template: >-
+      {replicated} of the {cells} combinations of a level of '{factor}' and a
+      cell of '{term}' have two or more rows.
+    args:
+      replicated: {source: statistic, name: replicated_cells}
+      cells: {source: statistic, name: cells}
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+remedies:
+  - id: remove_term
+    description: >-
+      Remove the term, whose variance the residual already carries, or reduce
+      it to the components that replicated cells identify.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [structure.cluster_sizes]
+references:
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-05 and
+      L7-14, with the verifiers' corrections on coding and on families.
+catalogue: [L1-05, L7-14]

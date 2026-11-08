@@ -1,0 +1,6 @@
+vocabulary: 0.1.0
+table:
+  fields:
+    - {name: wave, type: integer, categories: [0, 1], categoriesOrdered: yes}
+estimands:
+  - {id: e, term: wave, focal: no}

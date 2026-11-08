@@ -1,0 +1,157 @@
+id: outcome.separation
+version: 1
+title: Separation of a binary outcome by the fixed effects
+tier: T2
+summary: >-
+  Tests by linear programming whether the fixed-effects columns separate the
+  events from the non-events completely or quasi-completely, in which case the
+  maximum-likelihood estimates of the fixed effects diverge, with or without
+  random effects. An all-0 or all-1 cell is neither necessary nor sufficient
+  for separation, which depends only on the column space of the fixed effects
+  and so does not change with the coding. Because different solver settings
+  can return different optimal vertices, the check reports the verdict with the
+  range of each coefficient over the optimal face, which both packages compare
+  within bound_tolerance. The check relates the outcome to the predictors, so
+  Stream B runs it only in its exploratory mode (02-decisions.md, Q2 and Q3).
+reads: [declaration, formula, outcome, predictors]
+fitted_model: false
+sample: analysis
+families: [bernoulli, binomial]
+scope: model
+availability:
+  - reason: package_missing
+    condition: In R, lpSolveAPI is not installed. In Python, scipy provides the solver.
+    packages:
+      R: [lpSolveAPI]
+  - reason: declaration_missing
+    condition: >-
+      The family class is bernoulli, the outcome takes values other than 0 and
+      1, as numbers or logical values, and the declaration gives no event level.
+    pointer: /variables/{outcome}/event_level
+statistics:
+  verdict:
+    kind: category
+    values: [none, quasi, complete]
+    definition: >-
+      Let X be the fixed-effects columns of the analysis sample that the
+      sequential rule keeps, each divided by its largest absolute value. Each
+      row gives one observation with sign s = 1 when it is an event and s = -1
+      otherwise. For the binomial family class, a row with k events of n
+      trials gives an observation with s = 1 when k is above 0 and one with
+      s = -1 when k is below n. The first linear program maximises the sum over
+      observations of s x'b subject to s x'b >= 0 for every observation and -1
+      <= b_j <= 1 for every coefficient, with optimum v1. The second maximises
+      t subject to s x'b >= t for every observation, the same bounds on b and t
+      <= 1, with optimum v2. The verdict is complete when v2 is above
+      separation_tolerance, quasi when v1 is above separation_tolerance, and
+      none otherwise.
+  optimum:
+    kind: real
+    definition: >-
+      v1, the optimum of the first linear program, which the two packages
+      compare within bound_tolerance, as they compare bounds.
+  bounds:
+    kind: reals
+    definition: >-
+      For each kept column in column order, the smallest and the largest value
+      of b_j over the optimal face of the first program, the set of b that
+      meets its constraints with a sum of s x'b of at least v1 minus
+      separation_tolerance, as the pairs (smallest, largest) laid out in one
+      list. Both packages compare these values within bound_tolerance.
+  columns_involved:
+    kind: names
+    definition: >-
+      The kept columns whose largest value in bounds is above
+      separation_tolerance or whose smallest value is below minus
+      separation_tolerance, in column order.
+thresholds: {}
+parameters:
+  separation_tolerance:
+    value: 0.000001
+    definition: >-
+      The value above which an optimum of the linear programs, computed on
+      columns scaled to a largest absolute value of 1, indicates separation.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0, well above the default
+          feasibility tolerances of lpSolve and of HiGHS in scipy.
+  bound_tolerance:
+    value: 0.000001
+    definition: >-
+      The absolute difference within which the coefficient bounds and the
+      optimum from the two packages agree (02-decisions.md, Q2, and
+      conventions.md, Comparison across languages).
+    sources:
+      - kind: decision
+        citation: 02-decisions.md, Q2
+decision:
+  rules:
+    - finding: consequential
+      condition: verdict is complete.
+      thresholds: []
+      message: complete
+    - finding: consequential
+      condition: verdict is quasi.
+      thresholds: []
+      message: quasi
+  otherwise:
+    finding: consistent
+    message: none
+assessability: []
+messages:
+  complete:
+    template: >-
+      The fixed effects separate the events from the non-events completely,
+      through {columns}, so the estimates of these coefficients diverge and
+      their Wald statistics are unreliable.
+    args:
+      columns: {source: statistic, name: columns_involved}
+  quasi:
+    template: >-
+      The fixed effects separate the events from the non-events
+      quasi-completely, through {columns}, so the estimates of these
+      coefficients diverge and their Wald statistics are unreliable.
+    args:
+      columns: {source: statistic, name: columns_involved}
+  none:
+    template: The fixed effects do not separate the events from the non-events.
+    args: {}
+remedies:
+  - id: merge_levels
+    description: >-
+      Merge sparse levels or remove the interaction that creates the
+      separation, if this was declared as a contingency before the outcome was
+      seen.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+  - id: penalised_estimation
+    description: >-
+      Use penalised or Bayesian estimation with weakly informative priors on the
+      fixed effects, and report likelihood-ratio tests or profile intervals for
+      the affected terms rather than Wald tests.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: [design.rank_deficiency]
+  explained_by: [outcome.constant_clusters]
+references:
+  - kind: literature
+    citation: >-
+      Albert, A., & Anderson, J. A. (1984). On the existence of maximum
+      likelihood estimates in logistic regression models. Biometrika, 71(1),
+      1-10.
+    doi: 10.1093/biomet/71.1.1
+    full_text_read: false
+  - kind: literature
+    citation: >-
+      Konis, K. (2007). Linear programming algorithms for detecting separated
+      data in binary logistic regression models [Doctoral thesis, University
+      of Oxford]. Oxford University Research Archive.
+    url: https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a
+    full_text_read: false
+  - kind: decision
+    citation: 02-decisions.md, Q2
+catalogue: [L3-03, L3-04]

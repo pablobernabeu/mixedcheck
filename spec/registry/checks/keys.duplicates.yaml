@@ -1,0 +1,121 @@
+id: keys.duplicates
+version: 1
+title: Duplicates of the declared observation key
+tier: T0
+summary: >-
+  Checks that every row of the table has its own value of the declared
+  observation key. Identical rows are legitimate in trial-level data without a
+  trial index, so duplicates are judged against the key and never against
+  whole rows, and rows are never removed automatically. A key value shared by
+  rows that differ elsewhere is an error in the data, and one shared by
+  identical rows suggests rows imported twice. The check runs on the whole
+  table, before rows with missing values are removed, and compares the columns
+  it may read at T0, which exclude the outcome.
+reads: [declaration, formula, grouping_factors, keys, other_columns, predictors]
+fitted_model: false
+sample: table
+scope: model
+availability:
+  - reason: declaration_missing
+    condition: The declaration gives no observation key.
+    pointer: /observation/key
+statistics:
+  key_columns:
+    kind: names
+    definition: The columns of the declared observation key, in the declared order.
+  rows:
+    kind: count
+    count_class: person
+    definition: The number of rows of the table.
+  missing_key_rows:
+    kind: count
+    count_class: person
+    definition: The number of rows with a missing value in a key column.
+  duplicated_keys:
+    kind: count
+    count_class: person
+    definition: >-
+      The number of distinct values of the key, among rows without a missing
+      key value, that occur in two or more rows. Key values are compared as
+      the table reader returns them, labels after NFC normalisation.
+  conflicting_keys:
+    kind: count
+    count_class: person
+    definition: >-
+      The number of duplicated key values whose rows differ in a compared
+      column. The compared columns are those that the IR reads, other than the
+      response and its trials column, and those that the declaration gives a
+      role other than outcome or outcome_derived. Missing values are equal to
+      each other.
+  identical_keys:
+    kind: count
+    count_class: person
+    definition: duplicated_keys minus conflicting_keys.
+  duplicate_rows:
+    kind: count
+    count_class: person
+    definition: The number of rows whose key value occurs in another row.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: conflicting_keys is above 0.
+      thresholds: []
+      message: conflicting
+    - finding: consequential
+      condition: identical_keys is above 0.
+      thresholds: []
+      message: double_import
+    - finding: consequential
+      condition: missing_key_rows is above 0.
+      thresholds: []
+      message: missing_key
+  otherwise:
+    finding: consistent
+    message: unique
+assessability: []
+messages:
+  conflicting:
+    template: >-
+      {conflicting} values of the observation key {key} occur in rows that
+      differ in other columns, and {identical} in identical rows, {rows} rows
+      in all. Each row must have its own key value.
+    args:
+      conflicting: {source: statistic, name: conflicting_keys}
+      key: {source: statistic, name: key_columns}
+      identical: {source: statistic, name: identical_keys}
+      rows: {source: statistic, name: duplicate_rows}
+  double_import:
+    template: >-
+      {identical} values of the observation key {key} occur in two or more
+      identical rows, {rows} rows in all, which suggests rows imported twice.
+      Remove the copies at the source.
+    args:
+      identical: {source: statistic, name: identical_keys}
+      key: {source: statistic, name: key_columns}
+      rows: {source: statistic, name: duplicate_rows}
+  missing_key:
+    template: '{missing} rows have a missing value in the observation key {key}.'
+    args:
+      missing: {source: statistic, name: missing_key_rows}
+      key: {source: statistic, name: key_columns}
+  unique:
+    template: Every row has its own value of the observation key {key}.
+    args:
+      key: {source: statistic, name: key_columns}
+remedies:
+  - id: correct_source
+    description: >-
+      Correct the duplicated or missing key values at the source. The packages
+      never remove rows automatically.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L1-15 and L7-19.
+catalogue: [L1-15, L7-19]

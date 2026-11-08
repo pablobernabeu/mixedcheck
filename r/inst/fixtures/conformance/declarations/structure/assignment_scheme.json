@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [{"name": "class", "columns": ["class"]}],
+  "assignment": [{"column": "arm", "unit": "class", "randomised": true, "scheme": "blocked_cluster"}]
+}

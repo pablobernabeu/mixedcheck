@@ -16,9 +16,11 @@ Depends:
     R (>= 4.2.0)
 Imports:
     cli (>= 3.2.0),
-    jsonlite
+    jsonlite,
+    utf8 (>= 1.2.4)
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.1.7),
+    yaml (>= 2.3.8)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-GB

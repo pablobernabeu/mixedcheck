@@ -1,0 +1,697 @@
+{
+  "description": "The primary key (E5008 and E5009) and the unique keys (E5010) of the table block.",
+  "cases": [
+    {
+      "id": "tables-keys-001",
+      "description": "A primary key without missing or repeated values.",
+      "path": "keys/primary.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              2.0,
+              2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-keys-002",
+      "description": "A missing value in the primary key.",
+      "path": "keys/primary_missing.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5008",
+          "message": "The value of the column 'id' at byte 9 is missing, but the column belongs to the primary key.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "tables-keys-003",
+      "description": "A record repeats the primary key of the first record.",
+      "path": "keys/primary_duplicate.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 13 has the same values in the primary key as the record at byte 5.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "tables-keys-004",
+      "description": "A composite primary key whose columns repeat on their own.",
+      "path": "keys/composite.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "school",
+              "type": "string"
+            },
+            {
+              "name": "pupil",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "school",
+            "pupil"
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "school",
+            "type": "string",
+            "values": [
+              "A",
+              "A",
+              "B"
+            ]
+          },
+          {
+            "name": "pupil",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "1"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0,
+              3.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-keys-005",
+      "description": "A composite primary key repeated.",
+      "path": "keys/composite_duplicate.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "school",
+              "type": "string"
+            },
+            {
+              "name": "pupil",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "school",
+            "pupil"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 27 has the same values in the primary key as the record at byte 15.",
+          "offset": 27
+        }
+      }
+    },
+    {
+      "id": "tables-keys-006",
+      "description": "With both columns missing, E5008 names the first column of primaryKey.",
+      "path": "keys/missing_in_key_order.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "a",
+              "type": "string"
+            },
+            {
+              "name": "b",
+              "type": "string"
+            }
+          ],
+          "primaryKey": [
+            "b",
+            "a"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5008",
+          "message": "The value of the column 'b' at byte 9 is missing, but the column belongs to the primary key.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "tables-keys-007",
+      "description": "Integers are compared by value, so '7' repeats '007'.",
+      "path": "keys/integer_by_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "k",
+              "type": "integer"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "k"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 10 has the same values in the primary key as the record at byte 4.",
+          "offset": 10
+        }
+      }
+    },
+    {
+      "id": "tables-keys-008",
+      "description": "Strings are compared as text, so '7' and '007' differ.",
+      "path": "keys/string_by_text.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "k",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "k"
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "k",
+            "type": "string",
+            "values": [
+              "007",
+              "7"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-keys-009",
+      "description": "Strings are compared after NFC.",
+      "path": "keys/string_nfc.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "k",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "k"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 12 has the same values in the primary key as the record at byte 4.",
+          "offset": 12
+        }
+      }
+    },
+    {
+      "id": "tables-keys-010",
+      "description": "NaN equals NaN in a key.",
+      "path": "keys/number_nan.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "k",
+              "type": "number"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "k"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 10 has the same values in the primary key as the record at byte 4.",
+          "offset": 10
+        }
+      }
+    },
+    {
+      "id": "tables-keys-011",
+      "description": "Negative zero equals zero, and 1 equals 1.0.",
+      "path": "keys/number_zero.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "k",
+              "type": "number"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "k"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 8 has the same values in the primary key as the record at byte 4.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "tables-keys-012",
+      "description": "'1' and 'true' are one boolean value.",
+      "path": "keys/boolean_by_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "k",
+              "type": "boolean"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "k"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 11 has the same values in the primary key as the record at byte 4.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "tables-keys-013",
+      "description": "Unique keys without repeated values.",
+      "path": "keys/unique.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "code",
+              "type": "string"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ],
+          "uniqueKeys": [
+            [
+              "email"
+            ],
+            [
+              "code"
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "values": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "name": "code",
+            "type": "string",
+            "values": [
+              "x",
+              "y"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-keys-014",
+      "description": "A repeated value of the first unique key.",
+      "path": "keys/unique_duplicate.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "code",
+              "type": "string"
+            }
+          ],
+          "uniqueKeys": [
+            [
+              "email"
+            ],
+            [
+              "code"
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5010",
+          "message": "The record at byte 20 has the same values in unique key 1 of the table block as the record at byte 14.",
+          "offset": 20
+        }
+      }
+    },
+    {
+      "id": "tables-keys-015",
+      "description": "A repeated value of the second unique key.",
+      "path": "keys/unique_second.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "code",
+              "type": "string"
+            }
+          ],
+          "uniqueKeys": [
+            [
+              "email"
+            ],
+            [
+              "code"
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5010",
+          "message": "The record at byte 20 has the same values in unique key 2 of the table block as the record at byte 14.",
+          "offset": 20
+        }
+      }
+    },
+    {
+      "id": "tables-keys-016",
+      "description": "Records with a missing value in a unique key are not compared on it.",
+      "path": "keys/unique_missing.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "code",
+              "type": "string"
+            }
+          ],
+          "uniqueKeys": [
+            [
+              "email",
+              "code"
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "values": [
+              null,
+              null,
+              "a"
+            ]
+          },
+          {
+            "name": "code",
+            "type": "string",
+            "values": [
+              "x",
+              "x",
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-keys-017",
+      "description": "The primary key is checked over every record before the unique keys.",
+      "path": "keys/primary_before_unique.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "code",
+              "type": "string"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ],
+          "uniqueKeys": [
+            [
+              "email"
+            ]
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 26 has the same values in the primary key as the record at byte 14.",
+          "offset": 26
+        }
+      }
+    },
+    {
+      "id": "tables-keys-018",
+      "description": "Keys are checked after every value, so a value error later in the file is reported first.",
+      "path": "keys/values_before_keys.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'x' of the column 'y' at byte 15 cannot be read as a number.",
+          "offset": 15
+        }
+      }
+    }
+  ]
+}

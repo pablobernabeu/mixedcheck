@@ -1,0 +1,128 @@
+{
+  "description": "Declarations written in YAML that break several rules, with the one issue that reading and conversion report.",
+  "cases": [
+    {
+      "id": "yaml-precedence-001",
+      "description": "Two scalars that cannot be coerced. The first in the order of the canonical serialisation is reported, under 'estimands', although the one under 'table' comes first in the text.",
+      "path": "precedence/canonical_order.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value 'no' at /estimands/0/focal cannot be read as a boolean.",
+            "pointer": "/estimands/0/focal"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-002",
+      "description": "A title in NFD early in the text and a boolean that cannot be coerced under 'provenance', which comes first in canonical order.",
+      "path": "precedence/coercion_before_nfc.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value 'no' at /provenance/outcome_seen cannot be read as a boolean.",
+            "pointer": "/provenance/outcome_seen"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-003",
+      "description": "A key in NFD whose value holds a bound that cannot be coerced. A key is checked before its value.",
+      "path": "precedence/key_before_value.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1203",
+            "message": "The string at /variables/a\u0302ge is not in Unicode normalisation form C (NFC).",
+            "pointer": "/variables/a\u0302ge"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-004",
+      "description": "A nested mapping with a duplicate key that ends before a syntax error later in the text. Whichever comes first in the order of events is reported.",
+      "path": "precedence/duplicate_before_syntax.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3007",
+            "message": "A YAML mapping holds a key twice."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-005",
+      "description": "A duplicate key in the top-level mapping and a syntax error before that mapping ends.",
+      "path": "precedence/syntax_before_duplicate.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3002",
+            "message": "The YAML text cannot be parsed."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-006",
+      "description": "A tab used for indentation, which libyaml refuses, followed by an anchor. The pre-scan runs before the parser.",
+      "path": "precedence/prescan_before_parsing.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3004",
+            "message": "The YAML text has an anchor or an alias at byte 56. Anchors and aliases are not accepted.",
+            "offset": 56
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-007",
+      "description": "A complex key before a duplicate key. Duplicate keys are found while parsing, before keys are checked.",
+      "path": "precedence/duplicate_before_complex_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3007",
+            "message": "A YAML mapping holds a key twice."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-008",
+      "description": "U+0000 before an anchor. The pre-scan reports the first problem in the order of the text.",
+      "path": "precedence/nul_before_anchor.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1202",
+            "message": "The string at byte 26 contains the character U+0000.",
+            "offset": 26
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-precedence-009",
+      "description": "A boolean that cannot be coerced in a declaration with an unknown key and an unsupported version. Conversion comes before validation.",
+      "path": "precedence/conversion_before_validation.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value 'no' at /provenance/outcome_seen cannot be read as a boolean.",
+            "pointer": "/provenance/outcome_seen"
+          }
+        ]
+      }
+    }
+  ]
+}

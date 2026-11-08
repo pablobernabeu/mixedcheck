@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "Café"}, {"name": "wave", "type": "integer"}]},
+  "observation": {"key": ["café", "wave"]}
+}

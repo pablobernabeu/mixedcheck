@@ -1,0 +1,2237 @@
+{
+  "description": "The error and warning codes of mixedcheck, shared by the R and Python packages. docs/spec/errors.md describes the format, the rendering of templates and the reporting rules. Codes are never renumbered or reused.",
+  "areas": [
+    {
+      "area": "input",
+      "first": 1000,
+      "last": 1019,
+      "title": "Input files and bytes",
+      "description": "Files that cannot be opened and inputs that start with a byte-order mark, for every reader."
+    },
+    {
+      "area": "json",
+      "first": 1020,
+      "last": 1099,
+      "title": "JSON reading",
+      "description": "The syntax of JSON text and the rules of the strict reader on keys, surrogates, literals, numbers and nesting (conventions.md, Strict reader)."
+    },
+    {
+      "area": "profile",
+      "first": 1100,
+      "last": 1199,
+      "title": "JSON profiles",
+      "description": "The rules of the hashable and data profiles, applied by readers and writers (conventions.md, Profiles)."
+    },
+    {
+      "area": "unicode",
+      "first": 1200,
+      "last": 1299,
+      "title": "Unicode",
+      "description": "UTF-8 validity, NFC, encoding marks in R and surrogates in Python (conventions.md, Text and Unicode)."
+    },
+    {
+      "area": "canonical",
+      "first": 1300,
+      "last": 1309,
+      "title": "Canonical serialisation",
+      "description": "In-memory values that have no JSON form (conventions.md, Serialisation)."
+    },
+    {
+      "area": "hash",
+      "first": 1310,
+      "last": 1399,
+      "title": "Hashes and keyed commitments",
+      "description": "Commitment keys, commitments and recorded hashes (conventions.md, Hashes and Keyed commitments)."
+    },
+    {
+      "area": "schema",
+      "first": 1400,
+      "last": 1499,
+      "title": "Structural validation",
+      "description": "Violations of the JSON Schema keywords of a document schema and unsupported document versions, shared by every document validator (errors.md, Structural validation)."
+    },
+    {
+      "area": "declaration",
+      "first": 2000,
+      "last": 2999,
+      "title": "Declarations",
+      "description": "Rules of declaration vocabulary 0.1 that the validators enforce in code, including the table block."
+    },
+    {
+      "area": "yaml",
+      "first": 3000,
+      "last": 3999,
+      "title": "YAML authoring",
+      "description": "Reading YAML sources with every scalar as a string and converting them to JSON (conventions.md, YAML authoring)."
+    },
+    {
+      "area": "registry",
+      "first": 4000,
+      "last": 4999,
+      "title": "Registry",
+      "description": "Registry sources, the compiler and loading of the compiled registry."
+    },
+    {
+      "area": "table",
+      "first": 5000,
+      "last": 5999,
+      "title": "Data tables",
+      "description": "Reading data tables against the declared table block (tables.md)."
+    },
+    {
+      "area": "formula",
+      "first": 6000,
+      "last": 6999,
+      "title": "Formulas and the IR",
+      "description": "The formula grammar, term expansion, the building of the canonical IR and its design matrices, and IR documents (ir.md)."
+    },
+    {
+      "area": "results",
+      "first": 7000,
+      "last": 7299,
+      "title": "Results documents",
+      "description": "Results documents, their access log section and the internal sidecar."
+    },
+    {
+      "area": "plan",
+      "first": 7300,
+      "last": 7599,
+      "title": "Plans",
+      "description": "Stream B plan documents."
+    },
+    {
+      "area": "estimates",
+      "first": 7600,
+      "last": 7899,
+      "title": "Bring-your-own estimates",
+      "description": "Estimates contract documents."
+    },
+    {
+      "area": "internal",
+      "first": 9000,
+      "last": 9999,
+      "title": "Internal errors",
+      "description": "Failed internal checks, which indicate a bug."
+    }
+  ],
+  "codes": [
+    {
+      "code": "E1001",
+      "name": "input_file_missing",
+      "area": "input",
+      "location": "none",
+      "template": "The file does not exist.",
+      "args": {}
+    },
+    {
+      "code": "E1002",
+      "name": "input_file_unreadable",
+      "area": "input",
+      "location": "none",
+      "template": "The file cannot be read.",
+      "args": {}
+    },
+    {
+      "code": "E1003",
+      "name": "input_byte_order_mark",
+      "area": "input",
+      "location": "none",
+      "template": "The input starts with a UTF-8 byte-order mark.",
+      "args": {}
+    },
+    {
+      "code": "E1021",
+      "name": "json_unexpected_end",
+      "area": "json",
+      "location": "offset",
+      "template": "The JSON text ends unexpectedly at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1022",
+      "name": "json_unexpected_character",
+      "area": "json",
+      "location": "offset",
+      "template": "Unexpected character '{character}' at {location}.",
+      "args": {
+        "character": "text"
+      }
+    },
+    {
+      "code": "E1023",
+      "name": "json_trailing_content",
+      "area": "json",
+      "location": "offset",
+      "template": "Unexpected content after the JSON value at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1024",
+      "name": "json_control_character",
+      "area": "json",
+      "location": "offset",
+      "template": "Unescaped control character U+{codepoint} in a string at {location}.",
+      "args": {
+        "codepoint": "codepoint"
+      }
+    },
+    {
+      "code": "E1025",
+      "name": "json_invalid_escape",
+      "area": "json",
+      "location": "offset",
+      "template": "Invalid escape sequence in a string at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1026",
+      "name": "json_lone_surrogate",
+      "area": "json",
+      "location": "offset",
+      "template": "Unpaired surrogate escape in a string at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1027",
+      "name": "json_nonfinite_literal",
+      "area": "json",
+      "location": "offset",
+      "template": "'{literal}' at {location} is not a JSON value.",
+      "args": {
+        "literal": "text"
+      }
+    },
+    {
+      "code": "E1028",
+      "name": "json_invalid_number",
+      "area": "json",
+      "location": "offset",
+      "template": "Invalid number '{token}' at {location}.",
+      "args": {
+        "token": "text"
+      }
+    },
+    {
+      "code": "E1029",
+      "name": "json_duplicate_key",
+      "area": "json",
+      "location": "offset",
+      "template": "Duplicate key '{key}' at {location}.",
+      "args": {
+        "key": "text"
+      }
+    },
+    {
+      "code": "E1030",
+      "name": "json_too_deep",
+      "area": "json",
+      "location": "offset_or_pointer",
+      "template": "The JSON value is nested more than {limit} levels deep at {location}.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1101",
+      "name": "profile_null",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "A null at {location} is not allowed in the hashable profile.",
+      "args": {}
+    },
+    {
+      "code": "E1102",
+      "name": "profile_integer_range",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "The integer {number} at {location} lies outside the range from -9007199254740991 to 9007199254740991.",
+      "args": {
+        "number": "text"
+      }
+    },
+    {
+      "code": "E1103",
+      "name": "profile_too_many_digits",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "The number {number} at {location} has more than 15 significant digits.",
+      "args": {
+        "number": "text"
+      }
+    },
+    {
+      "code": "E1104",
+      "name": "profile_number_too_small",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "The number {number} at {location} is smaller in magnitude than 1e-307.",
+      "args": {
+        "number": "text"
+      }
+    },
+    {
+      "code": "E1105",
+      "name": "profile_number_overflow",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "The number {number} at {location} is too large to be held as a double.",
+      "args": {
+        "number": "text"
+      }
+    },
+    {
+      "code": "E1106",
+      "name": "profile_number_underflow",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "The number {number} at {location} is too small to be held as a double and would become zero.",
+      "args": {
+        "number": "text"
+      }
+    },
+    {
+      "code": "E1107",
+      "name": "profile_nonfinite",
+      "area": "profile",
+      "location": "pointer",
+      "template": "A non-finite number at {location} is not allowed in the hashable profile.",
+      "args": {}
+    },
+    {
+      "code": "E1108",
+      "name": "profile_key_outside_bmp",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "The key at {location} contains a character outside the Basic Multilingual Plane.",
+      "args": {}
+    },
+    {
+      "code": "E1109",
+      "name": "profile_empty_key",
+      "area": "profile",
+      "location": "offset_or_pointer",
+      "template": "Empty key at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1201",
+      "name": "unicode_invalid_utf8",
+      "area": "unicode",
+      "location": "offset_or_pointer",
+      "template": "Invalid UTF-8 at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1202",
+      "name": "unicode_nul",
+      "area": "unicode",
+      "location": "offset_or_pointer",
+      "template": "The string at {location} contains the character U+0000.",
+      "args": {}
+    },
+    {
+      "code": "E1203",
+      "name": "unicode_not_nfc",
+      "area": "unicode",
+      "location": "offset_or_pointer",
+      "template": "The string at {location} is not in Unicode normalisation form C (NFC).",
+      "args": {}
+    },
+    {
+      "code": "E1204",
+      "name": "unicode_unmarked",
+      "area": "unicode",
+      "location": "pointer",
+      "template": "The string at {location} contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+      "args": {},
+      "languages": [
+        "R"
+      ]
+    },
+    {
+      "code": "E1205",
+      "name": "unicode_bytes_encoding",
+      "area": "unicode",
+      "location": "pointer",
+      "template": "The string at {location} is marked as bytes and cannot be read as text.",
+      "args": {},
+      "languages": [
+        "R"
+      ]
+    },
+    {
+      "code": "E1206",
+      "name": "unicode_surrogate",
+      "area": "unicode",
+      "location": "pointer",
+      "template": "The string at {location} contains a surrogate code point.",
+      "args": {},
+      "languages": [
+        "Python"
+      ]
+    },
+    {
+      "code": "E1207",
+      "name": "unicode_identifier_outside_bmp",
+      "area": "unicode",
+      "location": "pointer",
+      "template": "The identifier at {location} contains a character outside the Basic Multilingual Plane.",
+      "args": {}
+    },
+    {
+      "code": "E1208",
+      "name": "unicode_unassigned_character",
+      "area": "unicode",
+      "location": "offset_or_pointer",
+      "template": "The string at {location} contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+      "args": {}
+    },
+    {
+      "code": "W1251",
+      "name": "unicode_form_collision",
+      "area": "unicode",
+      "location": "pointer",
+      "template": "The strings '{first}' and '{second}' at {location} differ only in their Unicode form.",
+      "args": {
+        "first": "text",
+        "second": "text"
+      }
+    },
+    {
+      "code": "E1301",
+      "name": "canonical_unsupported_type",
+      "area": "canonical",
+      "location": "pointer",
+      "template": "The value at {location} has the type '{type}', which has no JSON form.",
+      "args": {
+        "type": "text"
+      }
+    },
+    {
+      "code": "E1302",
+      "name": "canonical_vector_length",
+      "area": "canonical",
+      "location": "pointer",
+      "template": "The vector at {location} has length {length}. Wrap the values in a list to write a JSON array.",
+      "args": {
+        "length": "integer"
+      },
+      "languages": [
+        "R"
+      ]
+    },
+    {
+      "code": "E1303",
+      "name": "canonical_invalid_names",
+      "area": "canonical",
+      "location": "pointer",
+      "template": "The list at {location} has missing, empty or duplicated names.",
+      "args": {},
+      "languages": [
+        "R"
+      ]
+    },
+    {
+      "code": "E1311",
+      "name": "hash_key_invalid",
+      "area": "hash",
+      "location": "none",
+      "template": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits.",
+      "args": {}
+    },
+    {
+      "code": "E1312",
+      "name": "hash_key_unavailable",
+      "area": "hash",
+      "location": "none",
+      "template": "No secure source of random bytes is available to create a commitment key. Supply a key.",
+      "args": {},
+      "languages": [
+        "R"
+      ]
+    },
+    {
+      "code": "E1313",
+      "name": "hash_key_not_found",
+      "area": "hash",
+      "location": "none",
+      "template": "No commitment key with the identifier '{key_id}' was found.",
+      "args": {
+        "key_id": "text"
+      }
+    },
+    {
+      "code": "E1314",
+      "name": "hash_commitment_mismatch",
+      "area": "hash",
+      "location": "pointer",
+      "template": "The data do not match the commitment at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E1315",
+      "name": "hash_key_in_shareable",
+      "area": "hash",
+      "location": "pointer",
+      "template": "The commitment key at {location} cannot be written to a shareable file.",
+      "args": {}
+    },
+    {
+      "code": "E1321",
+      "name": "hash_mismatch",
+      "area": "hash",
+      "location": "pointer",
+      "template": "The hash at {location} does not match the content it covers.",
+      "args": {}
+    },
+    {
+      "code": "E1401",
+      "name": "schema_type",
+      "area": "schema",
+      "location": "pointer",
+      "template": "Expected {expected} at {location}, found {found}.",
+      "args": {
+        "expected": "words",
+        "found": "text"
+      }
+    },
+    {
+      "code": "E1402",
+      "name": "schema_required",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The object at {location} lacks the required member '{key}'.",
+      "args": {
+        "key": "text"
+      }
+    },
+    {
+      "code": "E1403",
+      "name": "schema_unknown_key",
+      "area": "schema",
+      "location": "pointer",
+      "template": "Unknown key '{key}' in the object at {location}.",
+      "args": {
+        "key": "text"
+      }
+    },
+    {
+      "code": "E1404",
+      "name": "schema_member_not_allowed",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The member '{key}' is not allowed in the object at {location}.",
+      "args": {
+        "key": "text"
+      }
+    },
+    {
+      "code": "E1405",
+      "name": "schema_enum",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The value at {location} must be {allowed}.",
+      "args": {
+        "allowed": "values"
+      }
+    },
+    {
+      "code": "E1406",
+      "name": "schema_pattern",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The string at {location} is not a valid {form}.",
+      "args": {
+        "form": "text"
+      }
+    },
+    {
+      "code": "E1407",
+      "name": "schema_too_short",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The string at {location} has fewer than {limit} characters.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1408",
+      "name": "schema_too_long",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The string at {location} has more than {limit} characters.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1409",
+      "name": "schema_minimum",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The number at {location} is less than {limit}.",
+      "args": {
+        "limit": "number"
+      }
+    },
+    {
+      "code": "E1410",
+      "name": "schema_maximum",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The number at {location} is greater than {limit}.",
+      "args": {
+        "limit": "number"
+      }
+    },
+    {
+      "code": "E1411",
+      "name": "schema_exclusive_minimum",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The number at {location} must be greater than {limit}.",
+      "args": {
+        "limit": "number"
+      }
+    },
+    {
+      "code": "E1412",
+      "name": "schema_exclusive_maximum",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The number at {location} must be less than {limit}.",
+      "args": {
+        "limit": "number"
+      }
+    },
+    {
+      "code": "E1413",
+      "name": "schema_too_few_items",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The array at {location} has fewer than {limit} items.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1414",
+      "name": "schema_too_many_items",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The array at {location} has more than {limit} items.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1415",
+      "name": "schema_duplicate_item",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The item at {location} repeats an earlier item.",
+      "args": {}
+    },
+    {
+      "code": "E1416",
+      "name": "schema_too_few_members",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The object at {location} has fewer than {limit} members.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1417",
+      "name": "schema_too_many_members",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The object at {location} has more than {limit} members.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E1418",
+      "name": "schema_property_name",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The key '{key}' in the object at {location} is not a valid {form}.",
+      "args": {
+        "key": "text",
+        "form": "text"
+      }
+    },
+    {
+      "code": "E1419",
+      "name": "schema_dependent_required",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The member '{key}' in the object at {location} requires the member '{required}'.",
+      "args": {
+        "key": "text",
+        "required": "text"
+      }
+    },
+    {
+      "code": "E1420",
+      "name": "schema_contains",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The array at {location} has no item of the required form.",
+      "args": {}
+    },
+    {
+      "code": "E1421",
+      "name": "schema_no_alternative",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The value at {location} matches none of the allowed forms.",
+      "args": {}
+    },
+    {
+      "code": "E1422",
+      "name": "schema_several_alternatives",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The value at {location} matches more than one of the allowed forms.",
+      "args": {}
+    },
+    {
+      "code": "E1423",
+      "name": "schema_not",
+      "area": "schema",
+      "location": "pointer",
+      "template": "The value at {location} is not allowed.",
+      "args": {}
+    },
+    {
+      "code": "E1441",
+      "name": "schema_version_unsupported",
+      "area": "schema",
+      "location": "pointer",
+      "template": "Version '{version}' at {location} is not supported. This release reads version {supported}.",
+      "args": {
+        "version": "text",
+        "supported": "words"
+      }
+    },
+    {
+      "code": "W1490",
+      "name": "schema_issues_truncated",
+      "area": "schema",
+      "location": "none",
+      "template": "{count} further problems were found but not listed.",
+      "args": {
+        "count": "integer"
+      }
+    },
+    {
+      "code": "E2001",
+      "name": "declaration_duplicate_unit",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The unit name '{name}' at {location} is already used by an earlier unit.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2002",
+      "name": "declaration_duplicate_field",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The field name '{name}' at {location} is already used by an earlier field.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2003",
+      "name": "declaration_duplicate_estimand",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The estimand ID '{name}' at {location} is already used by an earlier estimand.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2004",
+      "name": "declaration_duplicate_assignment",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The column '{name}' at {location} is already assigned by an earlier entry.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2005",
+      "name": "declaration_duplicate_crossing",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The crossing at {location} repeats an earlier crossing of the same two units.",
+      "args": {}
+    },
+    {
+      "code": "E2006",
+      "name": "declaration_unknown_unit",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The unit '{name}' at {location} is not declared in the units block.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2007",
+      "name": "declaration_unknown_column",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The column '{name}' at {location} is not a field of the table block.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2008",
+      "name": "declaration_term_repeated_variable",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The term at {location} names the variable '{name}' more than once.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2009",
+      "name": "declaration_inferred_pointer",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The pointer '{pointer}' at {location} does not point to an entry that can be marked as inferred.",
+      "args": {
+        "pointer": "text"
+      }
+    },
+    {
+      "code": "E2010",
+      "name": "declaration_nesting_cycle",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The unit '{name}' at {location} is nested in itself, directly or through other units.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2011",
+      "name": "declaration_crossing_nested",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The crossing at {location} pairs a unit with a unit it is nested in.",
+      "args": {}
+    },
+    {
+      "code": "E2012",
+      "name": "declaration_derivation_cycle",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The column '{name}' at {location} is derived from itself, directly or through other columns.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2013",
+      "name": "declaration_category_type",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The category at {location} must be {type} to match the type of its field.",
+      "args": {
+        "type": "text"
+      }
+    },
+    {
+      "code": "E2014",
+      "name": "declaration_mixed_list",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The list at {location} mixes plain values and objects.",
+      "args": {}
+    },
+    {
+      "code": "E2015",
+      "name": "declaration_duplicate_value",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The value {value} at {location} repeats an earlier value in the list.",
+      "args": {
+        "value": "values"
+      }
+    },
+    {
+      "code": "E2016",
+      "name": "declaration_identifier_categories",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The field '{name}' is an identifier column and cannot have the categories at {location}.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2017",
+      "name": "declaration_bounds_order",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The first bound at {location} is not less than the second.",
+      "args": {}
+    },
+    {
+      "code": "E2018",
+      "name": "declaration_assigned_role",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The column '{name}' is in the assignment block, so its role at {location} must be 'assigned'.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2019",
+      "name": "declaration_outcome_misused",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The outcome column '{name}' cannot be used at {location}.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2020",
+      "name": "declaration_outcome_derivation",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The column '{name}' is derived from an outcome, so its role at {location} must be 'outcome' or 'outcome_derived'.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2021",
+      "name": "declaration_not_outcome",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The column '{name}' at {location} does not have the role 'outcome'.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E2022",
+      "name": "declaration_estimand_outcome_missing",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The estimand at {location} must name its outcome, because more than one outcome is declared.",
+      "args": {}
+    },
+    {
+      "code": "E2023",
+      "name": "declaration_event_level_type",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The event level at {location} cannot match the type '{type}' of its field.",
+      "args": {
+        "type": "text"
+      }
+    },
+    {
+      "code": "E2024",
+      "name": "declaration_event_level_category",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The event level {value} at {location} is not one of the categories of its field.",
+      "args": {
+        "value": "values"
+      }
+    },
+    {
+      "code": "E2025",
+      "name": "declaration_feature_requirement",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The feature '{feature}' at {location} requires '{required}' to be declared.",
+      "args": {
+        "feature": "text",
+        "required": "text"
+      }
+    },
+    {
+      "code": "E2026",
+      "name": "declaration_membership_time",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The membership at {location} may change over time, which requires '/observation/time' to be declared.",
+      "args": {}
+    },
+    {
+      "code": "E2027",
+      "name": "declaration_observational_conflict",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The entry at {location} contradicts the feature 'observational'.",
+      "args": {}
+    },
+    {
+      "code": "E2028",
+      "name": "declaration_minimal_member",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The object at {location} lacks the member '{key}', which a minimal declaration requires.",
+      "args": {
+        "key": "text"
+      }
+    },
+    {
+      "code": "E2029",
+      "name": "declaration_minimal_outcome",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The variables at {location} include no outcome, which a minimal declaration requires.",
+      "args": {}
+    },
+    {
+      "code": "E2030",
+      "name": "declaration_minimal_assigned",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The declaration at {location} names no assigned variable. A minimal declaration needs one unless it declares the feature 'observational'.",
+      "args": {}
+    },
+    {
+      "code": "E2031",
+      "name": "declaration_minimal_focal",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The estimands at {location} include no focal estimand, which a minimal declaration requires.",
+      "args": {}
+    },
+    {
+      "code": "E2032",
+      "name": "declaration_minimal_draft",
+      "area": "declaration",
+      "location": "pointer",
+      "template": "The declaration is a draft with the inferred entries listed at {location}. A minimal declaration must be accepted first.",
+      "args": {}
+    },
+    {
+      "code": "E3001",
+      "name": "yaml_package_missing",
+      "area": "yaml",
+      "location": "none",
+      "template": "Reading YAML needs the package '{package}'.",
+      "args": {
+        "package": "text"
+      }
+    },
+    {
+      "code": "E3002",
+      "name": "yaml_syntax",
+      "area": "yaml",
+      "location": "none",
+      "template": "The YAML text cannot be parsed.",
+      "args": {}
+    },
+    {
+      "code": "E3003",
+      "name": "yaml_document_count",
+      "area": "yaml",
+      "location": "offset",
+      "template": "A second YAML document starts at {location}. The text must hold exactly one document.",
+      "args": {}
+    },
+    {
+      "code": "E3004",
+      "name": "yaml_anchor_alias",
+      "area": "yaml",
+      "location": "offset",
+      "template": "The YAML text has an anchor or an alias at {location}. Anchors and aliases are not accepted.",
+      "args": {}
+    },
+    {
+      "code": "E3005",
+      "name": "yaml_tag",
+      "area": "yaml",
+      "location": "offset",
+      "template": "The YAML text has an explicit tag or a directive at {location}. Tags and directives are not accepted.",
+      "args": {}
+    },
+    {
+      "code": "E3006",
+      "name": "yaml_complex_key",
+      "area": "yaml",
+      "location": "pointer",
+      "template": "The mapping at {location} has a key that is not a scalar.",
+      "args": {}
+    },
+    {
+      "code": "E3007",
+      "name": "yaml_duplicate_key",
+      "area": "yaml",
+      "location": "none",
+      "template": "A YAML mapping holds a key twice.",
+      "args": {}
+    },
+    {
+      "code": "E3008",
+      "name": "yaml_coercion",
+      "area": "yaml",
+      "location": "pointer",
+      "template": "The value '{value}' at {location} cannot be read as {type}.",
+      "args": {
+        "value": "text",
+        "type": "text"
+      }
+    },
+    {
+      "code": "E3009",
+      "name": "yaml_merge_key",
+      "area": "yaml",
+      "location": "offset",
+      "template": "The plain scalar at {location} starts with '<<', which can be read as a merge key. Quote the scalar.",
+      "args": {}
+    },
+    {
+      "code": "E3010",
+      "name": "yaml_no_document",
+      "area": "yaml",
+      "location": "none",
+      "template": "The YAML text holds no document.",
+      "args": {}
+    },
+    {
+      "code": "E4001",
+      "name": "registry_unknown_check",
+      "area": "registry",
+      "location": "none",
+      "template": "No registry entry has the identifier '{id}'.",
+      "args": {
+        "id": "text"
+      }
+    },
+    {
+      "code": "E4002",
+      "name": "registry_file_name",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The identifier at {location} must equal the name of its source file, '{expected}'.",
+      "args": {
+        "expected": "text"
+      }
+    },
+    {
+      "code": "E4003",
+      "name": "registry_duplicate_id",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The identifier '{id}' at {location} is already used by another entry.",
+      "args": {
+        "id": "text"
+      }
+    },
+    {
+      "code": "E4004",
+      "name": "registry_unknown_reference",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The {kind} '{name}' named at {location} is not defined.",
+      "args": {
+        "kind": "text",
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4005",
+      "name": "registry_dependency_cycle",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The link to '{check}' at {location} closes a cycle of links between checks.",
+      "args": {
+        "check": "text"
+      }
+    },
+    {
+      "code": "E4006",
+      "name": "registry_duplicate_name",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The name '{name}' at {location} repeats an earlier name in the entry.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4007",
+      "name": "registry_template_placeholder",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The template at {location} uses the placeholder '{name}', which its arguments do not define.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4008",
+      "name": "registry_unused_argument",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The argument '{name}' at {location} is not used in its template.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4009",
+      "name": "registry_template_brace",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The template at {location} has a brace outside a placeholder.",
+      "args": {}
+    },
+    {
+      "code": "E4010",
+      "name": "registry_unread_source",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The validation at {location} must be 'descriptive', because a source of the threshold has not been read in full.",
+      "args": {}
+    },
+    {
+      "code": "E4011",
+      "name": "registry_threshold_statistic",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The threshold at {location} applies to the statistic '{name}', which is not a count, ratio or real statistic.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4012",
+      "name": "registry_threshold_value",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The value at {location} must be {form} for a threshold on a {kind} statistic.",
+      "args": {
+        "form": "text",
+        "kind": "text"
+      }
+    },
+    {
+      "code": "E4013",
+      "name": "registry_proximity",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The threshold at {location} must have a proximity band if and only if its statistic is real.",
+      "args": {}
+    },
+    {
+      "code": "E4014",
+      "name": "registry_message_digits",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The argument at {location} must give digits if and only if it shows a real or ratio statistic.",
+      "args": {}
+    },
+    {
+      "code": "E4015",
+      "name": "registry_message_kind",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The statistic '{name}' named at {location} is of a kind that messages cannot show.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4016",
+      "name": "registry_tier_reads",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The inputs at {location} do not match tier '{tier}'.",
+      "args": {
+        "tier": "text"
+      }
+    },
+    {
+      "code": "E4017",
+      "name": "registry_entry_order",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The entry at {location} is not in ascending order of identifier.",
+      "args": {}
+    },
+    {
+      "code": "E4018",
+      "name": "registry_not_canonical",
+      "area": "registry",
+      "location": "none",
+      "template": "The compiled registry is not in canonical form.",
+      "args": {}
+    },
+    {
+      "code": "E4019",
+      "name": "registry_unexpected_file",
+      "area": "registry",
+      "location": "none",
+      "template": "The registry sources hold the file '{name}', which is not a YAML source.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E4020",
+      "name": "registry_consequential_descriptive",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The rule at {location} grades a finding as consequential with a threshold whose validation is descriptive.",
+      "args": {}
+    },
+    {
+      "code": "E4021",
+      "name": "registry_ratio_counts",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The ratio at {location} must name as its numerator and denominator two count statistics of its own count class.",
+      "args": {}
+    },
+    {
+      "code": "E5001",
+      "name": "table_no_header",
+      "area": "table",
+      "location": "none",
+      "template": "The table has no header row.",
+      "args": {}
+    },
+    {
+      "code": "E5002",
+      "name": "table_column_name",
+      "area": "table",
+      "location": "offset",
+      "template": "The column name at {location} is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+      "args": {}
+    },
+    {
+      "code": "E5003",
+      "name": "table_fields_mismatch",
+      "area": "table",
+      "location": "offset",
+      "template": "The column names from {location} on do not match the fields of the table block, which must name every column of the data in order.",
+      "args": {}
+    },
+    {
+      "code": "E5004",
+      "name": "table_csv_quote",
+      "area": "table",
+      "location": "offset",
+      "template": "Invalid quoting in the CSV text at {location}.",
+      "args": {}
+    },
+    {
+      "code": "E5005",
+      "name": "table_record_length",
+      "area": "table",
+      "location": "offset",
+      "template": "The record at {location} has a different number of values from the header: {found} against {expected}.",
+      "args": {
+        "found": "integer",
+        "expected": "integer"
+      }
+    },
+    {
+      "code": "E5006",
+      "name": "table_value_type",
+      "area": "table",
+      "location": "offset",
+      "template": "The value '{value}' of the column '{column}' at {location} cannot be read as {type}.",
+      "args": {
+        "value": "text",
+        "column": "text",
+        "type": "text"
+      }
+    },
+    {
+      "code": "E5007",
+      "name": "table_value_category",
+      "area": "table",
+      "location": "offset",
+      "template": "The value '{value}' of the column '{column}' at {location} is not one of its categories.",
+      "args": {
+        "value": "text",
+        "column": "text"
+      }
+    },
+    {
+      "code": "E5008",
+      "name": "table_key_missing",
+      "area": "table",
+      "location": "offset",
+      "template": "The value of the column '{column}' at {location} is missing, but the column belongs to the primary key.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E5009",
+      "name": "table_primary_key_duplicate",
+      "area": "table",
+      "location": "offset",
+      "template": "The record at {location} has the same values in the primary key as the record at byte {earlier}.",
+      "args": {
+        "earlier": "integer"
+      }
+    },
+    {
+      "code": "E5010",
+      "name": "table_unique_key_duplicate",
+      "area": "table",
+      "location": "offset",
+      "template": "The record at {location} has the same values in unique key {index} of the table block as the record at byte {earlier}.",
+      "args": {
+        "index": "integer",
+        "earlier": "integer"
+      }
+    },
+    {
+      "code": "E6001",
+      "name": "formula_too_long",
+      "area": "formula",
+      "location": "none",
+      "template": "The formula has more than 10000 characters.",
+      "args": {}
+    },
+    {
+      "code": "E6002",
+      "name": "formula_unexpected_character",
+      "area": "formula",
+      "location": "offset",
+      "template": "The character U+{codepoint} at {location} cannot appear in a formula outside a quoted name.",
+      "args": {
+        "codepoint": "codepoint"
+      }
+    },
+    {
+      "code": "E6003",
+      "name": "formula_unclosed_quote",
+      "area": "formula",
+      "location": "offset",
+      "template": "The quoted name that starts at {location} has no closing backquote.",
+      "args": {}
+    },
+    {
+      "code": "E6004",
+      "name": "formula_invalid_quoted_name",
+      "area": "formula",
+      "location": "offset",
+      "template": "The quoted name at {location} is empty or contains a backslash or a control character.",
+      "args": {}
+    },
+    {
+      "code": "E6005",
+      "name": "formula_reserved_word",
+      "area": "formula",
+      "location": "offset",
+      "template": "'{name}' at {location} is a reserved word of R. Write it between backquotes to name a column.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E6006",
+      "name": "formula_invalid_number",
+      "area": "formula",
+      "location": "offset",
+      "template": "'{number}' at {location} is not a valid number there. Only 0 and 1 can stand as terms, and an exponent is an integer from 2 to 1000.",
+      "args": {
+        "number": "text"
+      }
+    },
+    {
+      "code": "E6007",
+      "name": "formula_unsupported_operator",
+      "area": "formula",
+      "location": "offset",
+      "template": "The operator '{operator}' at {location} is not supported. Name the columns and use '+', '-', '*', '/', ':' or '^'.",
+      "args": {
+        "operator": "text"
+      }
+    },
+    {
+      "code": "E6008",
+      "name": "formula_no_tilde",
+      "area": "formula",
+      "location": "none",
+      "template": "The formula has no '~'.",
+      "args": {}
+    },
+    {
+      "code": "E6010",
+      "name": "formula_unexpected_end",
+      "area": "formula",
+      "location": "offset",
+      "template": "The formula ends at {location}, where more is expected.",
+      "args": {}
+    },
+    {
+      "code": "E6011",
+      "name": "formula_unexpected_token",
+      "area": "formula",
+      "location": "offset",
+      "template": "'{token}' at {location} is not expected there.",
+      "args": {
+        "token": "text"
+      }
+    },
+    {
+      "code": "E6012",
+      "name": "formula_response",
+      "area": "formula",
+      "location": "offset",
+      "template": "The response at {location} must be one column or log() of one column.",
+      "args": {}
+    },
+    {
+      "code": "E6013",
+      "name": "formula_bar_position",
+      "area": "formula",
+      "location": "offset",
+      "template": "'{bar}' at {location} must separate the two parts of a random term in parentheses, as in (1 | g).",
+      "args": {
+        "bar": "text"
+      }
+    },
+    {
+      "code": "E6014",
+      "name": "formula_random_term_position",
+      "area": "formula",
+      "location": "offset",
+      "template": "The random term at {location} must be a summand of the formula, not part of another term.",
+      "args": {}
+    },
+    {
+      "code": "E6015",
+      "name": "formula_intercept_position",
+      "area": "formula",
+      "location": "offset",
+      "template": "The intercept term '{intercept}' at {location} is not allowed there. 0 and 1 can only be summands of the fixed part or of a random term, and '- 0' is not allowed.",
+      "args": {
+        "intercept": "text"
+      }
+    },
+    {
+      "code": "E6016",
+      "name": "formula_grouping",
+      "area": "formula",
+      "location": "offset",
+      "template": "The grouping factor of a random term must be columns joined by ':' or '/', which the token at {location} is not.",
+      "args": {}
+    },
+    {
+      "code": "E6017",
+      "name": "formula_function",
+      "area": "formula",
+      "location": "offset",
+      "template": "The function '{function}' at {location} is not supported. Add the transformed column to the data instead.",
+      "args": {
+        "function": "text"
+      }
+    },
+    {
+      "code": "E6018",
+      "name": "formula_structured_covariance",
+      "area": "formula",
+      "location": "offset",
+      "template": "The covariance structure '{function}' at {location} is planned for version 1.3 and not yet supported.",
+      "args": {
+        "function": "text"
+      }
+    },
+    {
+      "code": "E6019",
+      "name": "formula_offset",
+      "area": "formula",
+      "location": "offset",
+      "template": "The call offset() at {location} must be added with '+' as a summand of the fixed part and hold one column or log() of one column.",
+      "args": {}
+    },
+    {
+      "code": "E6020",
+      "name": "formula_log_position",
+      "area": "formula",
+      "location": "offset",
+      "template": "The call log() at {location} is allowed only around the response or around the column of an offset.",
+      "args": {}
+    },
+    {
+      "code": "E6021",
+      "name": "formula_too_deep",
+      "area": "formula",
+      "location": "offset",
+      "template": "The parenthesis at {location} opens a 65th level of nesting, and at most 64 are allowed.",
+      "args": {}
+    },
+    {
+      "code": "E6031",
+      "name": "formula_remove_absent",
+      "area": "formula",
+      "location": "offset",
+      "template": "The term '{term}' removed at {location} is not in the formula at that point.",
+      "args": {
+        "term": "text"
+      }
+    },
+    {
+      "code": "E6032",
+      "name": "formula_response_on_right",
+      "area": "formula",
+      "location": "offset",
+      "template": "The response '{column}' appears again at {location} on the right-hand side.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6033",
+      "name": "formula_grouping_repeated",
+      "area": "formula",
+      "location": "offset",
+      "template": "The column '{column}' at {location} appears twice in one grouping factor.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6034",
+      "name": "formula_random_term_empty",
+      "area": "formula",
+      "location": "offset",
+      "template": "The random term at {location} has no columns.",
+      "args": {}
+    },
+    {
+      "code": "E6035",
+      "name": "formula_random_term_duplicate",
+      "area": "formula",
+      "location": "offset",
+      "template": "The random term at {location} repeats the earlier random term '{term}'.",
+      "args": {
+        "term": "text"
+      }
+    },
+    {
+      "code": "E6036",
+      "name": "formula_offset_duplicate",
+      "area": "formula",
+      "location": "offset",
+      "template": "The offset at {location} repeats an earlier offset.",
+      "args": {}
+    },
+    {
+      "code": "E6037",
+      "name": "formula_empty_expression",
+      "area": "formula",
+      "location": "offset",
+      "template": "The expression in parentheses at {location} has no terms left.",
+      "args": {}
+    },
+    {
+      "code": "E6051",
+      "name": "formula_unknown_column",
+      "area": "formula",
+      "location": "offset",
+      "template": "The column '{column}' at {location} is not in the data, or in the declared table when there are no data.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6052",
+      "name": "formula_column_type",
+      "area": "formula",
+      "location": "offset",
+      "template": "The column '{column}' at {location} has the kind '{kind}', which cannot be used as {use}.",
+      "args": {
+        "column": "text",
+        "kind": "text",
+        "use": "text"
+      }
+    },
+    {
+      "code": "E6053",
+      "name": "formula_double_bar_categorical",
+      "area": "formula",
+      "location": "offset",
+      "template": "The column '{column}' at {location} is categorical, and '||' splits only numeric terms. Use '|' for a random term with a categorical column.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6054",
+      "name": "formula_log_response_declared",
+      "area": "formula",
+      "location": "offset",
+      "template": "The response at {location} has a declared '{member}', so it cannot be written with log().",
+      "args": {
+        "member": "text"
+      }
+    },
+    {
+      "code": "E6055",
+      "name": "formula_levels_unknown",
+      "area": "formula",
+      "location": "offset",
+      "template": "The levels of the categorical column '{column}' at {location} are neither declared nor found in the data.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6056",
+      "name": "formula_too_few_levels",
+      "area": "formula",
+      "location": "offset",
+      "template": "The categorical column '{column}' at {location} has fewer than two levels and cannot be coded.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6057",
+      "name": "formula_exposure_offset",
+      "area": "formula",
+      "location": "offset",
+      "template": "The offset at {location} uses the exposure column '{column}' on a scale other than its declared scale.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6058",
+      "name": "formula_random_column_shared",
+      "area": "formula",
+      "location": "offset",
+      "template": "The random term at {location} repeats the column '{column}' of an earlier random term of the grouping factor '{factor}'.",
+      "args": {
+        "column": "text",
+        "factor": "text"
+      }
+    },
+    {
+      "code": "E6059",
+      "name": "formula_column_name_duplicate",
+      "area": "formula",
+      "location": "none",
+      "template": "Two columns of one part of the model are both named '{name}'.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E6061",
+      "name": "formula_coding_unknown_column",
+      "area": "formula",
+      "location": "none",
+      "template": "The coding names the column '{column}', which is not a predictor of the formula.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6062",
+      "name": "formula_coding_kind",
+      "area": "formula",
+      "location": "none",
+      "template": "The coding of the column '{column}' sets '{member}', which does not apply to a column of its kind.",
+      "args": {
+        "column": "text",
+        "member": "text"
+      }
+    },
+    {
+      "code": "E6063",
+      "name": "formula_coding_value",
+      "area": "formula",
+      "location": "none",
+      "template": "The coding of the column '{column}' has an unknown member, an invalid value or a missing value at '{member}'.",
+      "args": {
+        "column": "text",
+        "member": "text"
+      }
+    },
+    {
+      "code": "E6064",
+      "name": "formula_reference_not_level",
+      "area": "formula",
+      "location": "none",
+      "template": "The reference level {reference} of the column '{column}' is not one of its levels.",
+      "args": {
+        "reference": "values",
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6065",
+      "name": "formula_declared_column",
+      "area": "formula",
+      "location": "none",
+      "template": "The column '{column}', declared as the {member} of the response, is not a numeric column of the data or the declaration.",
+      "args": {
+        "column": "text",
+        "member": "text"
+      }
+    },
+    {
+      "code": "E6066",
+      "name": "formula_weights_column",
+      "area": "formula",
+      "location": "none",
+      "template": "The weights column '{column}' is not a numeric column of the data or the declaration.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6067",
+      "name": "formula_empty_sample",
+      "area": "formula",
+      "location": "none",
+      "template": "The design sample has no rows, so the centring constant of '{column}' cannot be computed.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6068",
+      "name": "formula_identifier_predictor",
+      "area": "formula",
+      "location": "offset",
+      "template": "The column '{column}' at {location} identifies persons and cannot be a predictor. Use it to group a random term.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6069",
+      "name": "formula_outcome_in_design",
+      "area": "formula",
+      "location": "none",
+      "template": "The column '{column}' is an outcome, is derived from one or holds the trials of the response, so the outcome-blind checks cannot read it.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6070",
+      "name": "formula_sample_column",
+      "area": "formula",
+      "location": "none",
+      "template": "The sample column '{column}' is not in the data, or in the declared table when there are no data.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6071",
+      "name": "formula_log_not_positive",
+      "area": "formula",
+      "location": "none",
+      "template": "log() of the column '{column}' meets a value that is not positive.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6072",
+      "name": "formula_weights_not_positive",
+      "area": "formula",
+      "location": "none",
+      "template": "The weights column '{column}' has a value that is not positive.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6073",
+      "name": "formula_nonfinite_value",
+      "area": "formula",
+      "location": "none",
+      "template": "The column '{column}' holds NaN or an infinity in a row that the model uses.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6101",
+      "name": "formula_ir_inconsistent",
+      "area": "formula",
+      "location": "pointer",
+      "template": "The IR at {location} differs from what its own predictors and terms define.",
+      "args": {}
+    },
+    {
+      "code": "E7001",
+      "name": "results_duplicate_finding",
+      "area": "results",
+      "location": "pointer",
+      "template": "The finding at {location} has the same check and scope as an earlier finding.",
+      "args": {}
+    },
+    {
+      "code": "E7002",
+      "name": "results_finding_order",
+      "area": "results",
+      "location": "pointer",
+      "template": "The finding at {location} is not in the order of check and scope.",
+      "args": {}
+    },
+    {
+      "code": "E7003",
+      "name": "results_tier_not_logged",
+      "area": "results",
+      "location": "pointer",
+      "template": "The finding at {location} has the tier '{tier}', which no entry of the access log records.",
+      "args": {
+        "tier": "text"
+      }
+    },
+    {
+      "code": "E7004",
+      "name": "results_plan_missing",
+      "area": "results",
+      "location": "pointer",
+      "template": "The member at {location} requires the plan at /access_log/plan.",
+      "args": {}
+    },
+    {
+      "code": "E7005",
+      "name": "results_access_order",
+      "area": "results",
+      "location": "pointer",
+      "template": "The time at {location} is earlier than the time of the entry before it.",
+      "args": {}
+    },
+    {
+      "code": "E7006",
+      "name": "results_support_basis",
+      "area": "results",
+      "location": "pointer",
+      "template": "The basis at {location} must be {expected}.",
+      "args": {
+        "expected": "values"
+      }
+    },
+    {
+      "code": "E7020",
+      "name": "results_person_count_shown",
+      "area": "results",
+      "location": "pointer",
+      "template": "The person count at {location} is below the minimum count of {limit} and must be suppressed in a shareable document.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E7021",
+      "name": "results_statistic_shown",
+      "area": "results",
+      "location": "pointer",
+      "template": "The statistic at {location} must be suppressed in a shareable document, because its finding fails the {rule} rule.",
+      "args": {
+        "rule": "text"
+      }
+    },
+    {
+      "code": "E7022",
+      "name": "results_quantile_shown",
+      "area": "results",
+      "location": "pointer",
+      "template": "The quantile at {location} must be suppressed in a shareable document, because n times min(p, 1 - p) is below {limit}.",
+      "args": {
+        "limit": "integer"
+      }
+    },
+    {
+      "code": "E7023",
+      "name": "results_label_not_pseudonym",
+      "area": "results",
+      "location": "pointer",
+      "template": "The label at {location} must be a pseudonym, such as '#1', in a shareable document.",
+      "args": {}
+    },
+    {
+      "code": "E7024",
+      "name": "results_ratio_shown",
+      "area": "results",
+      "location": "pointer",
+      "template": "The ratio at {location} must be suppressed in a shareable document, because a person count behind it is suppressed or below the minimum count.",
+      "args": {}
+    },
+    {
+      "code": "E7040",
+      "name": "results_unknown_check",
+      "area": "results",
+      "location": "pointer",
+      "template": "The check '{id}' at {location} is not in the registry.",
+      "args": {
+        "id": "text"
+      }
+    },
+    {
+      "code": "E7041",
+      "name": "results_registry_value",
+      "area": "results",
+      "location": "pointer",
+      "template": "The value at {location} must be {expected}, as the registry entry of the check states.",
+      "args": {
+        "expected": "values"
+      }
+    },
+    {
+      "code": "E7042",
+      "name": "results_unknown_name",
+      "area": "results",
+      "location": "pointer",
+      "template": "The {kind} '{name}' at {location} is not defined by the registry entry of the check.",
+      "args": {
+        "kind": "text",
+        "name": "text"
+      }
+    },
+    {
+      "code": "E7043",
+      "name": "results_scope_part_missing",
+      "area": "results",
+      "location": "pointer",
+      "template": "The scope at {location} lacks the part '{name}'.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E7044",
+      "name": "results_optimisation_status",
+      "area": "results",
+      "location": "pointer",
+      "template": "The status at {location} must include optimisation exactly when the check evaluates a fitted model.",
+      "args": {}
+    },
+    {
+      "code": "E7060",
+      "name": "results_duplicate_pseudonym",
+      "area": "results",
+      "location": "pointer",
+      "template": "The pseudonym '{name}' at {location} is already used by an earlier entry.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E7061",
+      "name": "results_duplicate_key",
+      "area": "results",
+      "location": "pointer",
+      "template": "The key identifier '{name}' at {location} is already used by an earlier key.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "W7090",
+      "name": "results_registry_differs",
+      "area": "results",
+      "location": "pointer",
+      "template": "The registry hash at {location} differs from the hash of the registry of this release, so the findings were not checked against registry entries.",
+      "args": {}
+    },
+    {
+      "code": "E7301",
+      "name": "plan_binding_rungs",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The binding at {location} has {found} rungs, but the design has {expected}.",
+      "args": {
+        "found": "integer",
+        "expected": "integer"
+      }
+    },
+    {
+      "code": "E7302",
+      "name": "plan_binding_design",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The binding at {location} refers to a design plan other than the one at /design_plan_hash.",
+      "args": {}
+    },
+    {
+      "code": "E7303",
+      "name": "plan_verdict_count",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The plan has {found} verdicts at {location}, but {expected} rungs.",
+      "args": {
+        "found": "integer",
+        "expected": "integer"
+      }
+    },
+    {
+      "code": "E7304",
+      "name": "plan_rung_not_identified",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The rung whose verdict is at {location} is not identified, so it cannot be on the ladder.",
+      "args": {}
+    },
+    {
+      "code": "E7305",
+      "name": "plan_duplicate_protected",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The protected component at {location} repeats an earlier protected component.",
+      "args": {}
+    },
+    {
+      "code": "E7306",
+      "name": "plan_protected_missing",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The protected component at {location} is missing from rung {rung}.",
+      "args": {
+        "rung": "integer"
+      }
+    },
+    {
+      "code": "E7307",
+      "name": "plan_terminal_unsupported",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The terminal state '{state}' at {location} cannot be run by this package.",
+      "args": {
+        "state": "text"
+      },
+      "languages": [
+        "Python"
+      ]
+    },
+    {
+      "code": "E7308",
+      "name": "plan_duplicate_factor",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The grouping factor '{name}' at {location} is already described by an earlier entry.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E7309",
+      "name": "plan_terminal_design",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The terminal state 'cluster_robust_cr2' at {location} needs one grouping factor of rung 0 whose columns every other grouping factor of rung 0 includes.",
+      "args": {}
+    },
+    {
+      "code": "E7310",
+      "name": "plan_run_mismatch",
+      "area": "plan",
+      "location": "none",
+      "template": "The run does not belong to the plan: its {member} differs from the one the plan records.",
+      "args": {
+        "member": "text"
+      }
+    },
+    {
+      "code": "E7601",
+      "name": "estimates_duplicate_column",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The column '{name}' at {location} is already mapped by an earlier coefficient.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E7602",
+      "name": "estimates_duplicate_engine_name",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The engine coefficient '{name}' at {location} is already mapped by an earlier coefficient.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E7603",
+      "name": "estimates_packed_length",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The matrix at {location} has {found} values, but its packing order needs {expected} for {columns} columns.",
+      "args": {
+        "found": "integer",
+        "expected": "integer",
+        "columns": "integer"
+      }
+    },
+    {
+      "code": "E7604",
+      "name": "estimates_not_symmetric",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The matrix at {location} is not symmetric.",
+      "args": {}
+    },
+    {
+      "code": "E7605",
+      "name": "estimates_covariance_columns",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The columns at {location} must be those of the coefficients that are not aliased, in the same order.",
+      "args": {}
+    },
+    {
+      "code": "E7606",
+      "name": "estimates_key_length",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The key at {location} has {found} values, but the observation key has {expected} columns.",
+      "args": {
+        "found": "integer",
+        "expected": "integer"
+      }
+    },
+    {
+      "code": "E7607",
+      "name": "estimates_block_column",
+      "area": "estimates",
+      "location": "pointer",
+      "template": "The column '{name}' at {location} already belongs to an earlier block of the same grouping factor.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E9001",
+      "name": "internal_error",
+      "area": "internal",
+      "location": "none",
+      "template": "Internal error: {detail}. Please report it.",
+      "args": {
+        "detail": "text"
+      }
+    }
+  ]
+}

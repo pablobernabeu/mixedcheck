@@ -1,0 +1,3 @@
+vocabulary: 0.1.0
+variables:
+  score: {role: outcome, measurement: bounded_score, bounds: [+1, 2]}

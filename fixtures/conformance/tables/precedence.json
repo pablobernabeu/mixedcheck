@@ -1,0 +1,211 @@
+{
+  "description": "Tables with several problems, of which the reader reports the first.",
+  "cases": [
+    {
+      "id": "tables-precedence-001",
+      "description": "A value error in an earlier record before a record of the wrong length.",
+      "path": "precedence/earlier_record_first.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'x' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-002",
+      "description": "Within a record, a quoting problem comes before a value error earlier in the record.",
+      "path": "precedence/quote_before_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            },
+            {
+              "name": "z",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 14.",
+          "offset": 14
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-003",
+      "description": "Within a record, its length comes before its values.",
+      "path": "precedence/length_before_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5005",
+          "message": "The record at byte 5 has a different number of values from the header: 3 against 2.",
+          "offset": 5
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-004",
+      "description": "Values are checked from left to right.",
+      "path": "precedence/first_column_first.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            },
+            {
+              "name": "z",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'x' of the column 'y' at byte 9 cannot be read as a number.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-005",
+      "description": "In the header, a quoting problem comes before an invalid column name earlier in the header.",
+      "path": "precedence/header_quote_before_name.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 2.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-006",
+      "description": "The header is checked before any record.",
+      "path": "precedence/header_before_records.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5003",
+          "message": "The column names from byte 3 on do not match the fields of the table block, which must name every column of the data in order.",
+          "offset": 3
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-007",
+      "description": "A value error in an earlier record before a quoted field that the text ends inside.",
+      "path": "precedence/value_before_unclosed_quote.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'x' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-008",
+      "description": "Invalid UTF-8 later in the input is reported before an earlier U+0000.",
+      "path": "precedence/utf8_before_nul.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 11.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "tables-precedence-009",
+      "description": "Invalid UTF-8 in a record is reported before an empty column name.",
+      "path": "precedence/utf8_before_header.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 5.",
+          "offset": 5
+        }
+      }
+    }
+  ]
+}

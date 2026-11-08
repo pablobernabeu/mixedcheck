@@ -1,0 +1,242 @@
+{
+  "description": "Declarations in JSON that the strict reader refuses in the hashable profile, each with the one issue it reports.",
+  "cases": [
+    {
+      "id": "declarations-reading-001",
+      "description": "A declaration that starts with a byte-order mark (the draft's edge3).",
+      "path": "reading/bom.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-002",
+      "description": "A key that repeats an earlier key of the same object (the draft's bad6).",
+      "path": "reading/duplicate_key.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1029",
+            "message": "Duplicate key 'goal' at byte 47.",
+            "offset": 47
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-003",
+      "description": "A null, which the hashable profile does not allow (the draft's bad5).",
+      "path": "reading/null_title.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1101",
+            "message": "A null at byte 33 is not allowed in the hashable profile.",
+            "offset": 33
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-004",
+      "description": "A title written in NFD with escapes, which a hashable document cannot hold (the draft's edge2).",
+      "path": "reading/nfd_title.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1203",
+            "message": "The string at byte 33 is not in Unicode normalisation form C (NFC).",
+            "offset": 33
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-005",
+      "description": "NaN in place of a bound (the draft's edge4).",
+      "path": "reading/nan_bound.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1027",
+            "message": "'NaN' at byte 113 is not a JSON value.",
+            "offset": 113
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-006",
+      "description": "An integer above 9007199254740991 as a bound (E-verify e7).",
+      "path": "reading/big_integer.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1102",
+            "message": "The integer 9007199254740993 at byte 113 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 113
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-007",
+      "description": "1e21 as a bound, an integer outside the range of the profile although it has one significant digit (E-verify e6).",
+      "path": "reading/large_number.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1102",
+            "message": "The integer 1e21 at byte 113 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 113
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-008",
+      "description": "A bound with 17 significant digits (E-verify e10).",
+      "path": "reading/too_many_digits.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1103",
+            "message": "The number 1.0000000000000002 at byte 113 has more than 15 significant digits.",
+            "offset": 113
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-009",
+      "description": "The smallest subnormal double as a bound (E-verify e5).",
+      "path": "reading/small_number.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1104",
+            "message": "The number 5e-324 at byte 110 is smaller in magnitude than 1e-307.",
+            "offset": 110
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-010",
+      "description": "An unpaired surrogate escape in the title (E-verify e9).",
+      "path": "reading/lone_surrogate.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 33.",
+            "offset": 33
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-011",
+      "description": "A variables key outside the BMP after one inside it (E-verify e8).",
+      "path": "reading/key_outside_bmp.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1108",
+            "message": "The key at byte 71 contains a character outside the Basic Multilingual Plane.",
+            "offset": 71
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-012",
+      "description": "A title with the byte FF, which is not UTF-8.",
+      "path": "reading/invalid_utf8.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 37.",
+            "offset": 37
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-013",
+      "description": "A title with an escaped U+0000.",
+      "path": "reading/escaped_nul.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1202",
+            "message": "The string at byte 33 contains the character U+0000.",
+            "offset": 33
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-014",
+      "description": "An empty key in the variables block.",
+      "path": "reading/empty_key.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1109",
+            "message": "Empty key at byte 38.",
+            "offset": 38
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-015",
+      "description": "A title with U+1E4EC, which Unicode 14.0 does not assign, followed by U+0316 (conventions.md, NFC).",
+      "path": "reading/unassigned.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1208",
+            "message": "The string at byte 33 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 33
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-016",
+      "description": "A trailing comma in the list of features.",
+      "path": "reading/trailing_comma.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 49.",
+            "offset": 49
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-reading-017",
+      "description": "An unquoted word as the goal, whose first letter 'e' does not start a number.",
+      "path": "reading/unquoted_word.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1022",
+            "message": "Unexpected character 'e' at byte 32.",
+            "offset": 32
+          }
+        ]
+      }
+    }
+  ]
+}

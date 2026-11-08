@@ -1,0 +1,129 @@
+id: assignment.unit_in_random_part
+version: 1
+title: Randomisation unit in the random part
+tier: T0
+summary: >-
+  For a variable randomised between units, checks that a grouping factor of
+  the model matches the randomisation unit. Leaving the randomised level out of
+  the random part understates the uncertainty of the treatment effect, and a
+  higher level alone never makes up for it. In a review simulation with 4
+  schools, 6 classes each and randomisation by class, a model with a school
+  intercept only rejected a true null in 31.7% of replicates at a nominal 5%,
+  against 1.3% when class was included (01-design-review.md).
+reads: [declaration, formula, grouping_factors]
+fitted_model: false
+sample: design
+scope: assignment
+applies_when: >-
+  The assignment is randomised, its level is between_unit, declared or
+  inferred (registry.md, Terms), and some level of the unit has at least two
+  rows in the design sample.
+availability:
+  - reason: declaration_missing
+    condition: The declaration has no assignment block.
+    pointer: /assignment
+statistics:
+  units:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the assignment unit in the design sample.
+  coverage:
+    kind: category
+    values: [present, absent]
+    definition: >-
+      present when some grouping factor of the IR divides the design sample
+      into the same groups as the levels of the unit, and absent otherwise.
+  coarser_factors:
+    kind: names
+    definition: >-
+      The grouping factors of the IR, other than one that matches the unit,
+      each of whose levels contains whole levels of the unit, in the order in
+      which they first arise in the IR.
+  level_source:
+    kind: category
+    values: [declared, inferred_from_the_data]
+    definition: >-
+      declared when the assignment declares its level, and
+      inferred_from_the_data when its level is inferred (registry.md, Terms).
+thresholds: {}
+parameters:
+  agreement:
+    value: 0.99
+    definition: >-
+      The share of a level's rows that the most frequent value of the assigned
+      column must cover for the level to count as constant, when the level of
+      the assignment is inferred (registry.md, Terms).
+    sources:
+      - kind: decision
+        citation: >-
+          02-decisions.md, Q4. A rule that required 99% agreement within
+          clusters recovered the school level in 99.3 to 100% of 2,000
+          replicates with up to 0.5% of rows miscoded.
+decision:
+  rules:
+    - finding: consequential
+      condition: coverage is absent.
+      thresholds: []
+      message: unit_missing
+  otherwise:
+    finding: consistent
+    message: unit_present
+assessability: []
+messages:
+  unit_missing:
+    template: >-
+      '{column}' was randomised by '{unit}', at a level between units that is
+      {level}, but no grouping factor of the model matches the {units} levels
+      of '{unit}'. Grouping factors at higher
+      levels ({coarser}) do not account for the dependence between rows of one
+      '{unit}'. Add a random intercept for '{unit}', analyse '{unit}' means or
+      use cluster-robust inference at that level.
+    args:
+      column: {source: scope, name: column}
+      unit: {source: scope, name: unit}
+      units: {source: statistic, name: units}
+      coarser: {source: statistic, name: coarser_factors}
+      level: {source: statistic, name: level_source}
+  unit_present:
+    template: >-
+      A grouping factor of the model matches '{unit}', the unit by which
+      '{column}' was randomised, at a level between units that is {level}.
+    args:
+      unit: {source: scope, name: unit}
+      column: {source: scope, name: column}
+      level: {source: statistic, name: level_source}
+remedies:
+  - id: add_unit_intercept
+    description: Add a random intercept for the randomisation unit.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+  - id: analyse_unit_means
+    description: >-
+      Analyse means at the level of the randomisation unit, which keeps the
+      unit as the unit of inference.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+  - id: cluster_robust
+    description: >-
+      Use cluster-robust standard errors with the CR2 small-sample correction,
+      clustered on the randomisation unit, which the R package offers for
+      nested designs through clubSandwich.
+    uses_outcome: false
+    changes_estimand: false
+    software: [clubSandwich]
+links:
+  requires: []
+  explained_by: [assignment.constant_within_unit]
+references:
+  - kind: literature
+    citation: >-
+      Pustejovsky, J. E., & Tipton, E. (2018). Small-sample methods for
+      cluster-robust variance estimation and hypothesis testing in fixed effects
+      models. Journal of Business & Economic Statistics, 36(4), 672-683.
+    doi: 10.1080/07350015.2016.1247004
+    full_text_read: false
+  - kind: decision
+    citation: 02-decisions.md, Q3 and Q4
+catalogue: [L7-03, L7-05]

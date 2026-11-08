@@ -1,0 +1,15 @@
+{
+  "description": "Fields of Crossref records that are known to be wrong, checked against the publication itself. check_references.py does not compare these fields.",
+  "exceptions": [
+    {
+      "doi": "10.1007/PL00009321",
+      "field": "authors",
+      "reason": "Crossref gives the family name as 'Richard Shewchuk'. The article's author is Jonathan Richard Shewchuk, family name Shewchuk."
+    },
+    {
+      "doi": "10.17487/RFC6901",
+      "field": "authors",
+      "reason": "Crossref lists only the two editors, P. Bryan and M. Nottingham. RFC 6901 names K. Zyp as its second author."
+    }
+  ]
+}

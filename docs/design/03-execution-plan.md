@@ -2,7 +2,7 @@
 
 This plan turns the decisions in 02-decisions.md into milestones for a single maintainer. Each milestone ends at a gate, a set of conditions that must hold before the next one starts, rather than at a date. Revise the plan whenever a gate exposes a problem.
 
-Work happens in three places. Implementation runs in cloud sessions or locally. Checks that need sites blocked in the cloud sessions (CRAN, R-universe, publishers and Oxford's internal pages) run in the local session or in GitHub Actions, whose runners can install current CRAN packages. Simulation studies run on ARC. Jobs go to the htc cluster with `sbatch --clusters=htc`, never on a login node, and large files are kept under /data/educ-intract/educ1242/.
+Work happens in three places. Implementation runs in cloud sessions or locally. Checks that need sites blocked in the cloud sessions (CRAN, R-universe, publishers and Oxford's internal pages) run in the local session or in GitHub Actions, whose runners can install current CRAN packages. Simulation studies and every other heavy step, image builds included, run on ARC, which the local session reaches over SSH. Jobs go to the htc cluster with `sbatch --clusters=htc`, never on a login node, and large files are kept under /data/educ-intract/educ1242/.
 
 Each component is built in R first. Rscript then writes JSON fixtures, and the Python port is developed against those fixtures. Parity is enforced at milestone gates rather than on every commit.
 
@@ -10,13 +10,13 @@ Each component is built in R first. Rscript then writes JSON fixtures, and the P
 
 | Milestone | Content | Where | Gate |
 |---|---|---|---|
-| M0 Foundations | Maintainer decisions and Oxford approvals, monorepo skeleton, licences, CI, vendoring checks, governance notes, repository made public | Cloud and local | Both empty packages pass CI on every platform, and each vendoring check fails on a deliberate mismatch |
-| H0 Environment and pilot | Apptainer image, ARC limits, rerun of the benchmark and the ladder simulations with current engines | Local and ARC | Objective-match tolerances, memory classes and the cost of H1 re-estimated with lme4 ≥ 2.1-0 |
+| M0 Foundations | Monorepo skeleton, licences, CI, vendoring checks, governance notes, name checks, repository renamed and made public | Cloud | Both empty packages pass CI on every platform, and each vendoring check fails on a deliberate mismatch |
 | M1 Specifications | Cross-cutting conventions, schema bundle, registry compiler, declaration vocabulary 0.1, IR and formula grammar, conformance corpora | Cloud | Both languages validate every corpus with identical error codes and hashes |
 | M2 Stream B core | Strict readers, canonicalisation, formula parser, design matrices, T0 and T1 audits, the exploratory T2 separation check, results object and writer, view model and privacy filter, pathology zoo | Cloud | Exact parity on all zoo fixtures, clean R CMD check with and without Suggests and under LC_ALL=C, and Python tests on 3.11 to 3.15 |
 | M3 Plan object | Ceiling, protected set, ladder, stopping-rule menu, terminal states, design-plan hash and execution binding, preregistration text, access log, draft_design() and builders | Cloud | Identical design-plan hashes across languages on the zoo, and every plan validates |
+| H0 Environment and pilot | Apptainer image built on ARC, ARC limits, rerun of the benchmark and the ladder simulations with current engines | ARC, from the local session | Objective-match tolerances, memory classes and the cost of H1 re-estimated with lme4 ≥ 2.1-0 |
 | M3b Convergence-triage core | Optimisation statuses, scale-free rank and second-optimiser restarts for lme4 fits in R | Cloud | Statuses agree with the H0 benchmark, and every step of the stopping rule runs in R |
-| R0 Release 0.x | Stream B with the results object, console output and preregistration text, privacy-filtered | Cloud and local | CRAN incoming checks pass, the name is confirmed and plans are marked 'not for preregistration' until plan versioning is in place, and every unvalidated thresholded check is labelled descriptive |
+| R0 Release 0.x | Stream B with the results object, console output and preregistration text, privacy-filtered | Cloud and local | CRAN incoming checks pass, a rerun of the name checks finds no conflict, plans are marked 'not for preregistration' until plan versioning is in place, and every unvalidated thresholded check is labelled descriptive |
 | P1 Stage 1 Registered Report | Protocol for the ladder and stopping-rule study (V5 with the V3 criteria it needs) | Local | Submitted, or deposited on OSF if the regular route is chosen |
 | M4 Reports | Shared Mustache renderer, inline SVG layouts, aggregated CSV per figure, accessibility | Cloud | Golden reports agree across languages and pass axe-core and HTML validation |
 | M5 Stream A (Gaussian) | Reference evaluator, adapters, objective-match gate, residual and random-effect diagnostics, plan execution, reconciliation with Stream B | Cloud | Conformance corpus passes in CI with current engines, and the check code is frozen at a v0.9 tag |
@@ -52,31 +52,17 @@ Parity is defined per registry version. The two packages are released together o
 
 ## M0. Foundations
 
-The package name is settled as mixedcheck (02-decisions.md, Q7), and development proceeds in the private repository. Before the repository goes public, which is a public release of its contents, these steps follow in order:
+The maintainer has chosen mixedcheck as the package name, subject to the registry checks (02-decisions.md, Q7), and development proceeds in the private repository. Once M0 is merged, these steps follow in order:
 
-1. Oxford's approval for open-source release and the copyright holder.
-2. The name checks.
-3. An update of LICENSE.
-4. The repository is renamed mixedcheck and goes public, which starts the six months of public history that JOSS requires.
+1. The name checks, `pak::pkg_name_check()` and an R-universe search, run as a GitHub Actions job.
+2. The repository is renamed mixedcheck.
+3. The repository goes public, which starts the six months of public history that JOSS requires and makes Actions minutes free for the full matrix.
 
 The skeleton follows the layout in Q7. r/ holds a minimal R package: DESCRIPTION with Depends R ≥ 4.2.0, the two-line licence stub and testthat (02-decisions.md, Q6 and Q10). Each Import is declared when the code first uses it, because R CMD check reports an Import that the code does not use. jsonlite and cli are declared in M0, where they read and verify the vendored files, and Matrix, jsonlite, cli and utf8 are all declared by M2. python/ holds a pyproject package with a src layout, requires-python ≥ 3.11 and numpy, pandas and scipy as dependencies. Each extra is declared with its first optional dependency, because an empty extra would accept an installation request and install nothing. spec/, fixtures/, parity/, sim/ and paper/ exist with short README files. A .gitattributes file turns off Git's line-ending conversion for spec/, fixtures/ and the vendored copies, so that every checkout keeps the bytes that were hashed. Converting fixtures to LF would rewrite their deliberate CRLF cases, so LF is enforced in spec/ sources alone, by a vendoring check that rejects CR characters there. REUSE-style licence files mark any directory whose contents are not MIT, from the first fixture directory that holds third-party data. The evidence in docs/design is frozen, so its third-party material is identified in its README instead.
 
-CI uses GitHub Actions with path filters. The R and Python workflows run the job matrix of Q10, and a vendoring workflow runs the SHA-256 check of Q7 on every vendored artefact (02-decisions.md). A minimal set of jobs runs on every push to main and every pull request, the full matrix runs nightly, and the accessibility and PDF checks run before releases. The full matrix can also be started by hand. Its nightly run starts only once the repository is public, because a private repository pays for Actions minutes and macOS minutes count tenfold. Until then, the M0 gate is met by a run started by hand.
+CI uses GitHub Actions with path filters. The R and Python workflows run the job matrix of Q10, and a vendoring workflow runs the SHA-256 check of Q7 on every vendored artefact (02-decisions.md). A minimal set of jobs runs on every push to main and every pull request, the full matrix runs nightly, and the accessibility and PDF checks run before releases. The full matrix can also be started by hand. Its nightly run starts only once the repository is public, because a private repository pays for Actions minutes and macOS minutes count tenfold. Until then, the full matrix runs on a pull request when the label 'full-ci' is added, and by hand once the workflows are on main. The M0 gate is met by such a run.
 
 Short CONTRIBUTING, code-of-conduct, governance and succession notes give JOSS the signals of open development it looks for in single-author projects. Each release is archived on Zenodo, with a CITATION file in the repository. An organisation-owned repository would also reduce the risk of depending on one person.
-
-## H0. Environment and pilot
-
-H0 runs in the local session, in parallel with M1, because every later budget and tolerance depends on it.
-
-The R environment is an Apptainer image built off-cluster with portable compiler flags from a dated package snapshot. It contains R ≥ 4.5, which current glmmTMB needs through Deriv and which ARC's documented module, R 4.4.0, does not provide. It also sets LC_ALL=C.UTF-8 and contains lme4 ≥ 2.1-0, glmmTMB ≥ 1.1.15, lmerTest, pbkrtest and clubSandwich, and a Python environment with the candidate engines. The image and a lockfile are archived with every result.
-
-On ARC, the pilot checks the R module, the Apptainer runtime, the array and QoS limits, the project's credit allocation and the CPU feature names. It then runs four things:
-
-- the 27-model benchmark from evidence/decisions/A/bench, which fixes the objective-match tolerances and the registered offsets
-- the random-effects simulations from evidence/decisions/B/sim, which show how current lme4 handles singular rungs and cs()
-- a six-task array of V1 with the real suite overhead, which fixes the speed multiplier and the memory classes
-- a timing run of the stopping-rule walk on H1 cells, with a second optimiser and suite derivatives at every rung, which re-costs H1
 
 ## M1. Specifications
 
@@ -136,6 +122,19 @@ The T0 audits are:
 The T1 audits require the outcome-access argument, and the separation check runs as an exploratory T2 audit (02-decisions.md, Q2 and Q3).
 
 The pathology zoo grows from nine prototyped fixtures, one of them (Z01) with its matched negative, to the thirty fixtures specified in Q8 (02-decisions.md). The generators live in sim/ so that the simulation studies reuse them. Disclosure-attack tests on the privacy filter run in CI.
+
+## H0. Environment and pilot
+
+H0 runs on ARC, driven from the local session, before the M3b gate. Nothing in M1 to M3 uses its results, whereas the M3b gate, P1 and every later budget and tolerance depend on them.
+
+The R environment is an Apptainer image built on ARC, so that the maintainer's laptop does no heavy work. A rocker image with R ≥ 4.5, which current glmmTMB needs through Deriv and which ARC's documented module, R 4.4.0, does not provide, is pulled by digest with `apptainer pull`, which needs no root access. R packages are installed from a dated Posit Package Manager snapshot into a library under /data/educ-intract/educ1242/, and the builds run as jobs on the htc cluster, not on a login node. If htc compute nodes have no outbound network access, the pull runs on an interactive node. The environment sets LC_ALL=C.UTF-8 and contains lme4 ≥ 2.1-0, glmmTMB ≥ 1.1.15, lmerTest, pbkrtest and clubSandwich, and a Python environment with the candidate engines. The image digest, the snapshot date and a lockfile are archived with every result.
+
+On ARC, the pilot checks the R module, the Apptainer runtime, the array and QoS limits, the project's credit allocation and the CPU feature names. It then runs four things:
+
+- the 27-model benchmark from evidence/decisions/A/bench, which fixes the objective-match tolerances and the registered offsets
+- the random-effects simulations from evidence/decisions/B/sim, which show how current lme4 handles singular rungs and cs()
+- a six-task array of V1 with the real suite overhead, which fixes the speed multiplier and the memory classes
+- a timing run of the stopping-rule walk on H1 cells, with a second optimiser and suite derivatives at every rung, which re-costs H1
 
 ## M3 and M3b. Plan object and convergence triage
 
@@ -223,32 +222,31 @@ Studies V8 to V10 validate them. Python covers GLMMs through the routes in Q1 (0
 | CI growth to about 30 jobs | Tiered CI (M0) |
 | Clean reports treated as certification or approval | No badges, scores or 'assumptions were met', a statement of what could not be assessed in every report, and banned phrases in generated text (02-decisions.md, Q5) |
 | Choosing among contested methods after seeing the outcome | Choices declared in the plan before the outcome is seen, alternatives reported in a fixed order, a log of views generated |
-| Disclosure of participant data | One privacy filter, keyed commitments in place of hashes, an internal sidecar, shareable files by default, disclosure tests in CI, and the data protection officer's view obtained in writing |
+| Disclosure of participant data | One privacy filter, keyed commitments in place of hashes, an internal sidecar, shareable files by default, disclosure tests in CI, and settings checked against the primary UK output-checking guidance |
 | CRAN archival | Small hard dependency closure, engine tests skipped when engines are absent, golden files based on fits kept off CRAN, files written only to tempdir() in examples and tests |
 | JOSS scrutiny of a single-author project, and dependence on one person | Public history from M0, releases, tests, CI, governance and succession notes, research use in the maintainer's own analyses |
 | AI-assisted code reproducing GPL source | Clean-room rule, a provenance entry for every algorithm that records any AI assistance, and the AI-usage disclosure that JOSS requires (02-decisions.md, Q10) |
-| Reference-checking backlog | One block in the local session before any preregistration, with full reads of the papers listed below |
+| Reference-checking backlog | Full reads of the papers listed under Open checks in the local session at the start of M3b, before any preregistration, with DOI metadata checked by a GitHub Actions job |
+
+## Local session
+
+Full texts, publisher pages, Oxford's internal pages and ARC are out of reach of the cloud sessions. They are handled in one local session at the start of M3b, which covers the H0 pilot on ARC, the reading of the papers listed under Open checks, the venue facts and the privacy guidance. That point comes before the first steps that depend on them: the M3b gate needs H0, the Stage 1 report (P1) needs the full texts and the venue facts, and the first CRAN release (R0) should rest on no claim that has not been read in full. Until then, registry thresholds taken from the literature are labelled descriptive, with their sources marked as not yet read in full. Checks that need only network access run as GitHub Actions jobs instead, among them the DOI metadata of every reference, through the Crossref API, and the name checks.
 
 ## Open checks
 
 Each item needs the local session, CI with network access or ARC. Delete an item once it is resolved, and record the outcome in 02-decisions.md if it changes a decision.
 
-The checks on maintainer decisions and Oxford procedures are:
-
-- the choices under 'Decisions for the maintainer' in 02-decisions.md
-- Oxford's rules on copyright and open-source release
-- the views of the data protection officer and of data providers on publishing shareable reports
-- where any restricted data may be analysed, and under which agreement
+The decisions still open are the paper route, settled at P1 (02-decisions.md, Decisions for the maintainer), and, for each restricted dataset, where its agreement allows it to be analysed.
 
 The checks on registries and current software are:
 
-- `pak::pkg_name_check()` and the R-universe search for the chosen name
+- `pak::pkg_name_check()` and the R-universe search for the chosen name, as a GitHub Actions job before the repository goes public
 - the live CRAN policy revision
 - the H0 reruns with current engines
 - R 4.2.0, 4.2.2, 4.2.3 and 4.3.3 in rocker images, testing whether lme4 2.x installs with the bundled Matrix
 - optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe
 
-On ARC, the environment checks of the H0 pilot remain open.
+On ARC, the environment checks of the H0 pilot remain open, including whether htc compute nodes have outbound network access.
 
 The checks on venues and their policies are:
 

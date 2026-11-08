@@ -13,6 +13,7 @@ on:
       - 'ruff.toml'
       - '.github/workflows/python-tests.yaml'
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - 'python/**'
       - 'spec/**'
@@ -38,7 +39,7 @@ env:
 jobs:
   ruff:
     name: ruff
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'labeled')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -52,7 +53,7 @@ jobs:
 
   quick:
     name: ${{ matrix.name }}
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'labeled')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -138,6 +139,7 @@ jobs:
     needs: visibility
     if: >-
       !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.label.name == 'full-ci') ||
       (github.event_name == 'schedule' &&
       (toJSON(github.event.repository.private) == 'false' ||
       needs.visibility.outputs.public == 'true')))

@@ -28,7 +28,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  # The action keeps a 'full-ci' label run and a push to the same pull request
+  # in separate groups, so that neither cancels the other.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.action }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:

@@ -1,0 +1,20 @@
+# A declaration with comments, document markers and quoted scalars.
+---
+vocabulary: "0.1.0"   # a quoted version
+title: >-
+  Reading intervention,
+  classes randomised within schools
+table:
+  missingValues:
+    - ""
+    - "\t"
+    - 'it''s missing'
+    - "caf\u00e9"
+  fields:
+    - name: 'class # 1'   # not a comment inside quotes
+    - name: "note"
+provenance:
+  author: |-
+    A. Author
+...
+# Comments may follow the end of the document.

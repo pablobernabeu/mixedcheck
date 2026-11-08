@@ -1,0 +1,600 @@
+{
+  "description": "Comparisons and sorts of strings by the code points of their comparison forms (conventions.md, Order).",
+  "cases": [
+    {
+      "id": "unicode-order-001",
+      "description": "Letters: the first string comes first.",
+      "first": "a",
+      "second": "b",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-002",
+      "description": "Letters: the second string comes first.",
+      "first": "b",
+      "second": "a",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-003",
+      "description": "Upper case before lower case: the first string comes first.",
+      "first": "B",
+      "second": "a",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-004",
+      "description": "Upper case before lower case: the second string comes first.",
+      "first": "a",
+      "second": "B",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-005",
+      "description": "Upper case before '_': the first string comes first.",
+      "first": "Z",
+      "second": "_",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-006",
+      "description": "Upper case before '_': the second string comes first.",
+      "first": "_",
+      "second": "Z",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-007",
+      "description": "'_' before lower case: the first string comes first.",
+      "first": "_",
+      "second": "a",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-008",
+      "description": "'_' before lower case: the second string comes first.",
+      "first": "a",
+      "second": "_",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-009",
+      "description": "Digits as characters: the first string comes first.",
+      "first": "10",
+      "second": "9",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-010",
+      "description": "Digits as characters: the second string comes first.",
+      "first": "9",
+      "second": "10",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-011",
+      "description": "A prefix first: the first string comes first.",
+      "first": "ab",
+      "second": "abc",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-012",
+      "description": "A prefix first: the second string comes first.",
+      "first": "abc",
+      "second": "ab",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-013",
+      "description": "The empty string first: the first string comes first.",
+      "first": "",
+      "second": "a",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-014",
+      "description": "The empty string first: the second string comes first.",
+      "first": "a",
+      "second": "",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-015",
+      "description": "Two empty strings: the two strings are equal.",
+      "first": "",
+      "second": "",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-016",
+      "description": "'\u00e9' after 'z': the first string comes first.",
+      "first": "z",
+      "second": "\u00e9",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-017",
+      "description": "'\u00e9' after 'z': the second string comes first.",
+      "first": "\u00e9",
+      "second": "z",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-018",
+      "description": "NFD and NFC forms of '\u00e9': the two strings are equal.",
+      "first": "e\u0301",
+      "second": "\u00e9",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-019",
+      "description": "NFD and NFC forms of '\u00e9': the two strings are equal.",
+      "first": "\u00e9",
+      "second": "e\u0301",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-020",
+      "description": "'\u00e9' in NFD compares as U+00E9, after 'f': the second string comes first.",
+      "first": "e\u0301",
+      "second": "f",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-021",
+      "description": "'\u00e9' in NFD compares as U+00E9, after 'f': the first string comes first.",
+      "first": "f",
+      "second": "e\u0301",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-022",
+      "description": "Code points, not UTF-16 code units: the first string comes first.",
+      "first": "\uff08",
+      "second": "\ud83d\ude00",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-023",
+      "description": "Code points, not UTF-16 code units: the second string comes first.",
+      "first": "\ud83d\ude00",
+      "second": "\uff08",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-024",
+      "description": "OHM SIGN and GREEK CAPITAL LETTER OMEGA: the two strings are equal.",
+      "first": "\u2126",
+      "second": "\u03a9",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-025",
+      "description": "OHM SIGN and GREEK CAPITAL LETTER OMEGA: the two strings are equal.",
+      "first": "\u03a9",
+      "second": "\u2126",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-026",
+      "description": "KELVIN SIGN and 'K': the two strings are equal.",
+      "first": "\u212a",
+      "second": "K",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-027",
+      "description": "KELVIN SIGN and 'K': the two strings are equal.",
+      "first": "K",
+      "second": "\u212a",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-028",
+      "description": "No compatibility mapping: the second string comes first.",
+      "first": "\ufb01",
+      "second": "fi",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-029",
+      "description": "No compatibility mapping: the first string comes first.",
+      "first": "fi",
+      "second": "\ufb01",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-030",
+      "description": "No case mapping for dotless i: the second string comes first.",
+      "first": "\u0131",
+      "second": "i",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-031",
+      "description": "No case mapping for dotless i: the first string comes first.",
+      "first": "i",
+      "second": "\u0131",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-032",
+      "description": "No case mapping for dotted capital I: the second string comes first.",
+      "first": "\u0130",
+      "second": "I",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-033",
+      "description": "No case mapping for dotted capital I: the first string comes first.",
+      "first": "I",
+      "second": "\u0130",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-034",
+      "description": "No case folding: the first string comes first.",
+      "first": "A",
+      "second": "a",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-035",
+      "description": "No case folding: the second string comes first.",
+      "first": "a",
+      "second": "A",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-036",
+      "description": "No trimming before: the first string comes first.",
+      "first": " a",
+      "second": "a",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-037",
+      "description": "No trimming before: the second string comes first.",
+      "first": "a",
+      "second": " a",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-038",
+      "description": "No trimming after: the second string comes first.",
+      "first": "a ",
+      "second": "a",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-039",
+      "description": "No trimming after: the first string comes first.",
+      "first": "a",
+      "second": "a ",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-040",
+      "description": "A no-break space is not a space: the second string comes first.",
+      "first": "\u00a0",
+      "second": " ",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-041",
+      "description": "A no-break space is not a space: the first string comes first.",
+      "first": " ",
+      "second": "\u00a0",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-042",
+      "description": "EN QUAD and EN SPACE are equal after NFC: the two strings are equal.",
+      "first": "\u2000",
+      "second": "\u2002",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-043",
+      "description": "EN QUAD and EN SPACE are equal after NFC: the two strings are equal.",
+      "first": "\u2002",
+      "second": "\u2000",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-044",
+      "description": "Hangul jamo and the composed syllable: the two strings are equal.",
+      "first": "\u1100\u1161",
+      "second": "\uac00",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-045",
+      "description": "Hangul jamo and the composed syllable: the two strings are equal.",
+      "first": "\uac00",
+      "second": "\u1100\u1161",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-046",
+      "description": "Combining marks in either order: the two strings are equal.",
+      "first": "a\u0301\u0316",
+      "second": "a\u0316\u0301",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-047",
+      "description": "Combining marks in either order: the two strings are equal.",
+      "first": "a\u0316\u0301",
+      "second": "a\u0301\u0316",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-048",
+      "description": "Normalisable strings with U+1E2AE: the two strings are equal.",
+      "first": "x\ud838\udeae\u0316",
+      "second": "x\u0316\ud838\udeae",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-049",
+      "description": "Normalisable strings with U+1E2AE: the two strings are equal.",
+      "first": "x\u0316\ud838\udeae",
+      "second": "x\ud838\udeae\u0316",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-050",
+      "description": "Strings with U+1E4EC, compared code point by code point without NFC: the second string comes first.",
+      "first": "x\ud839\udcec\u0316",
+      "second": "x\u0316\ud839\udcec",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-051",
+      "description": "Strings with U+1E4EC, compared code point by code point without NFC: the first string comes first.",
+      "first": "x\u0316\ud839\udcec",
+      "second": "x\ud839\udcec\u0316",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-052",
+      "description": "Unassigned code points stand for themselves: the first string comes first.",
+      "first": "\u0378",
+      "second": "\u0379",
+      "expected": {
+        "order": -1
+      }
+    },
+    {
+      "id": "unicode-order-053",
+      "description": "Unassigned code points stand for themselves: the second string comes first.",
+      "first": "\u0379",
+      "second": "\u0378",
+      "expected": {
+        "order": 1
+      }
+    },
+    {
+      "id": "unicode-order-054",
+      "description": "A composition exclusion and its NFC form: the two strings are equal.",
+      "first": "\ufb33",
+      "second": "\u05d3\u05bc",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-055",
+      "description": "A composition exclusion and its NFC form: the two strings are equal.",
+      "first": "\u05d3\u05bc",
+      "second": "\ufb33",
+      "expected": {
+        "order": 0
+      }
+    },
+    {
+      "id": "unicode-order-056",
+      "description": "Letters, digits, punctuation and non-ASCII letters.",
+      "strings": [
+        "z",
+        "\u00e9",
+        "e",
+        "f",
+        "E",
+        "Z",
+        "_",
+        "a",
+        "1",
+        "10",
+        "9",
+        " "
+      ],
+      "expected": {
+        "sorted": [
+          " ",
+          "1",
+          "10",
+          "9",
+          "E",
+          "Z",
+          "_",
+          "a",
+          "e",
+          "f",
+          "z",
+          "\u00e9"
+        ]
+      }
+    },
+    {
+      "id": "unicode-order-057",
+      "description": "Turkish letters i and words that differ in case.",
+      "strings": [
+        "\u0131",
+        "i",
+        "I",
+        "\u0130",
+        "Ab",
+        "aB",
+        "ab",
+        "AB"
+      ],
+      "expected": {
+        "sorted": [
+          "AB",
+          "Ab",
+          "I",
+          "aB",
+          "ab",
+          "i",
+          "\u0130",
+          "\u0131"
+        ]
+      }
+    },
+    {
+      "id": "unicode-order-058",
+      "description": "Strings in NFD sort as their NFC forms.",
+      "strings": [
+        "f",
+        "e\u0301",
+        "e",
+        "\u00e8",
+        "ea"
+      ],
+      "expected": {
+        "sorted": [
+          "e",
+          "ea",
+          "f",
+          "\u00e8",
+          "e\u0301"
+        ]
+      }
+    },
+    {
+      "id": "unicode-order-059",
+      "description": "Characters outside the BMP after U+FFxx.",
+      "strings": [
+        "\ud83d\ude00",
+        "\uff08",
+        "\ue000",
+        "\u00ff",
+        "\ud800\udc00"
+      ],
+      "expected": {
+        "sorted": [
+          "\u00ff",
+          "\ue000",
+          "\uff08",
+          "\ud800\udc00",
+          "\ud83d\ude00"
+        ]
+      }
+    }
+  ]
+}

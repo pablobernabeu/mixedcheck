@@ -2,6 +2,17 @@
   "source": "spec",
   "algorithm": "sha256",
   "files": {
-    "versions.json": "b0cf46543474fa71751587ec6648d732215a07d67ac97811c2f7e1ed3fc3f93f"
+    "compiled/registry.json": "eb26f8b8f0b3bcc580d750ca742dc82b14e82d70b5499b44e58bdca7822de000",
+    "errors.json": "621d88272b1d843efd8296e8b1bf4bcd2243cfa0cfc208b90fef8ec4b7d79d3f",
+    "schemas/declaration.schema.json": "846360eebabc9a87724858b23face8993b317dbeabddc52f26bd945a27181549",
+    "schemas/defs.schema.json": "924bee1736306e8feeedcf4b3fd84f5757d26ccceca80f44f65c814f9cfd7e5a",
+    "schemas/estimates.schema.json": "c1f2c611a786036c67fd11f2dda3d9610c2b85234f90844e8bac3ab872306350",
+    "schemas/ir.schema.json": "81fa1fc01e8912407167131363dfca8443c887fbe1493a5490e2465c1a9f7645",
+    "schemas/plan.schema.json": "f782a820329203fb001cf7fa4882626f2b9e32957eaada804e41a50687d417f3",
+    "schemas/registry-entry.schema.json": "5d9383bbc029021bf4d764be7cbabe51db99d57848c8e4c0fe3fc29464b5205c",
+    "schemas/registry.schema.json": "908ee6d8990cecd75f7edb881c0d130ca23031223ca4c853ca634c6aadca2ad7",
+    "schemas/results.schema.json": "e8da732f67851bb96b2c3a616683a84cd85d0b30ac95ac1b49ca5559045f88a6",
+    "unicode/assigned-14.0.json": "10e9acff289fa3f3b9abf282f57706e83cb0c40731cdd96f7de83b78e798c366",
+    "versions.json": "5b34a79a72257ebe56fb124d49b7c5a7eb7f2f9219a82430574298ed36412281"
   }
 }

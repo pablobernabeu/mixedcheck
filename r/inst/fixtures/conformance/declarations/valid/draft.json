@@ -1,0 +1,18 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {"name": "school", "columns": ["school"], "role": "cluster"},
+    {
+      "name": "class",
+      "columns": ["class"],
+      "nested_in": "school",
+      "id_scope": "within_parent",
+      "role": "cluster"
+    }
+  ],
+  "observation": {"key": ["school", "class", "a/b"]},
+  "variables": {"a/b": {"role": "id"}, "score": {"role": "outcome", "measurement": "continuous"}},
+  "provenance": {
+    "inferred": ["/units/1/id_scope", "/variables/a~1b", "/observation/key/0", "/units/1"]
+  }
+}

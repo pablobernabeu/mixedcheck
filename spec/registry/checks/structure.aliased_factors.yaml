@@ -1,0 +1,109 @@
+id: structure.aliased_factors
+version: 1
+title: Grouping factors with identical partitions
+tier: T0
+summary: >-
+  Two grouping factors that divide the design sample into the same groups give
+  random effects with identical covariance bases, so only the sum of their
+  variances is identified, as with one class per school or a session
+  identifier that equals the subject identifier after rows are dropped. The
+  comparison uses the partitions and ignores the labels. For a factor nested
+  in another, the check reports how many levels of the coarser factor contain
+  more than one level of the finer factor, since the variance of the finer
+  factor rests on those levels alone.
+reads: [formula, grouping_factors]
+fitted_model: false
+sample: design
+scope: grouping_factor_pair
+availability: []
+statistics:
+  partition:
+    kind: category
+    values: [identical, first_finer, second_finer, other]
+    definition: >-
+      identical when every level of each factor occurs with exactly one level
+      of the other in the design sample, first_finer when every level of the
+      first occurs with exactly one level of the second but not conversely,
+      second_finer in the reverse case, and other otherwise.
+  finer:
+    kind: names
+    definition: The finer factor when partition is first_finer or second_finer, and no factor otherwise.
+  coarser:
+    kind: names
+    definition: The coarser factor when partition is first_finer or second_finer, and no factor otherwise.
+  coarser_levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the coarser factor, and 0 when there is none.
+  informative_levels:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of levels of the coarser factor that contain at least two
+      levels of the finer factor, and 0 when there is no coarser factor. Its
+      count class is that of the coarser factor.
+  informative_rows:
+    kind: count
+    count_class: person
+    definition: The number of rows of the design sample in the levels that informative_levels counts.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: partition is identical.
+      thresholds: []
+      message: aliased
+    - finding: consistent
+      condition: partition is first_finer or second_finer.
+      thresholds: []
+      message: nested
+  otherwise:
+    finding: consistent
+    message: distinct
+assessability: []
+messages:
+  aliased:
+    template: >-
+      '{first}' and '{second}' divide the design sample into the same groups,
+      so their random effects on the same columns are aliased and only the sum
+      of their variances is identified. Keep one of the two factors.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+  nested:
+    template: >-
+      {informative} of the {levels} levels of {coarser} contain two or more
+      levels of {finer}, with {rows} rows. The variance of {finer} separate
+      from that of {coarser} rests on these levels alone.
+    args:
+      informative: {source: statistic, name: informative_levels}
+      levels: {source: statistic, name: coarser_levels}
+      coarser: {source: statistic, name: coarser}
+      finer: {source: statistic, name: finer}
+      rows: {source: statistic, name: informative_rows}
+  distinct:
+    template: >-
+      '{first}' and '{second}' divide the design sample into different groups,
+      and neither is nested in the other.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+remedies:
+  - id: keep_one_factor
+    description: >-
+      Remove the random terms of one of the two factors, since the data cannot
+      separate their variances.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [sample.raw_vs_analysis]
+references:
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-02: with
+      identical partitions the REML-projected covariance bases have rank 2 of
+      3, with the null direction of the difference of the two variances.
+catalogue: [L1-02]

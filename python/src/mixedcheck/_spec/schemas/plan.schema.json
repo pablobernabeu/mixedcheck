@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:plan",
+  "title": "mixedcheck plan, version 0.1 (draft)",
+  "description": "A Stream B plan in the hashable profile, normative together with docs/spec/documents.md (02-decisions.md, Q3). Version 0.1 is a draft that M3 refines. The plan has the design section at /design, whose hash is the design-plan hash at /design_plan_hash, the ceiling with its counts and verdict, one identifiability verdict for each rung and any number of execution bindings, each with its hash. The validators first check plan_version (E1441), then this schema, then the rules in code that documents.md lists with codes E7301 to E7309, E1321 and E6101: the recorded hashes, rungs and verdicts in step with the design, verdicts of identified rungs, unique and retained protected components, a terminal state that the package can run and suits the design, and the rule of ir.md for every IR.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bindings",
+    "ceiling",
+    "created",
+    "design",
+    "design_plan_hash",
+    "for_preregistration",
+    "language",
+    "outcome_access",
+    "plan_version",
+    "verdicts",
+    "versions"
+  ],
+  "properties": {
+    "plan_version": {
+      "title": "plan version 0.1",
+      "description": "The version of the plan document. This release reads every 0.1.x version. A version outside that line is reported with E1441 alone, before any other check.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/semver",
+      "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$"
+    },
+    "created": {
+      "description": "The UTC time at which the plan was frozen.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/utc_timestamp"
+    },
+    "language": {
+      "description": "The language of the package that wrote the plan. The design section does not depend on it.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/language"
+    },
+    "versions": {"$ref": "urn:mixedcheck:schema:defs#/$defs/versions"},
+    "outcome_access": {
+      "description": "The highest tier at which the outcome had been read, as far as the package knows, when the plan was frozen. T0 means that the plan was made outcome-blind. T1 or T2 stamps the plan as planned after outcome inspection (02-decisions.md, Q3).",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/tier"
+    },
+    "for_preregistration": {
+      "description": "Whether the plan may serve as a preregistration. Plans of version 0.1 are written by 0.x releases and are not for preregistration until the plan schema and the canonicaliser carry versions that later releases can verify (02-decisions.md, Q3).",
+      "const": false
+    },
+    "rule_evidence": {
+      "description": "Present exactly when the design has a stopping rule: the statement that the rule's operating characteristics are known only for the simulated conditions until study H1 has run (02-decisions.md, Q3).",
+      "const": "simulated_conditions_only"
+    },
+    "design": {"$ref": "#/$defs/design"},
+    "design_plan_hash": {
+      "description": "The SHA-256 of the canonical bytes of /design (E1321 if it differs).",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"
+    },
+    "ceiling": {"$ref": "#/$defs/ceiling"},
+    "verdicts": {
+      "description": "The identifiability verdict of each rung, in the order of /design/rungs (E7303). A rung that is not identified is not on the ladder (E7304).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/verdict"}
+    },
+    "bindings": {
+      "description": "The execution bindings of the plan, one for each engine that has run or will run it.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/binding_entry"}
+    }
+  },
+  "allOf": [
+    {"$ref": "urn:mixedcheck:schema:defs#/$defs/hashable_value"},
+    {
+      "if": {"required": ["design"], "properties": {"design": {"required": ["rule"]}}},
+      "then": {"required": ["rule_evidence"]}
+    },
+    {
+      "if": {"required": ["design"], "properties": {"design": {"properties": {"rule": false}}}},
+      "then": {"properties": {"rule_evidence": false}}
+    }
+  ],
+  "$defs": {
+    "line": {
+      "title": "single line of text",
+      "description": "Text without control characters, of 1 to 1000 characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "ir": {
+      "title": "IR",
+      "description": "The canonical IR of a model (ir.md), whose hash is the IR hash. The plan validator also applies the rule of ir.md to it (E6101).",
+      "$ref": "urn:mixedcheck:schema:ir"
+    },
+    "design": {
+      "title": "design section",
+      "description": "The language-neutral part of the plan, which the design-plan hash covers: the declaration hash, the ladder with the IR of every rung, the protected set, the stopping rule with its version and the terminal state (conventions.md, Hashes). With a protected set, the ladder is 'protected' and has a stopping rule and a terminal state. Without declared estimands, the protected set cannot be defined, the ladder is 'exploratory' and the plan has no protected set, rule or terminal state (02-decisions.md, Q3).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ladder", "rungs"],
+      "properties": {
+        "declaration_hash": {
+          "description": "The hash of the declaration the plan was built from. Absent when there was none.",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"
+        },
+        "ladder": {"enum": ["protected", "exploratory"]},
+        "rungs": {
+          "description": "The rungs in order. Each IR codes every categorical predictor frozen as numeric contrast columns and lists the columns that the ceiling reads as its sample columns, so that every rung has the design sample of the ceiling (documents.md, The design section). Rung 0 is the ceiling restricted to identifiable terms and has no step. Every later rung has the step that leads to it from the rung before.",
+          "type": "array",
+          "minItems": 1,
+          "prefixItems": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["ir"],
+              "properties": {
+                "ir": {"$ref": "#/$defs/ir"},
+                "step": false
+              }
+            }
+          ],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ir", "step"],
+            "properties": {
+              "ir": {"$ref": "#/$defs/ir"},
+              "step": {"$ref": "#/$defs/step"}
+            }
+          }
+        },
+        "protected": {
+          "description": "The protected set, which the ladder never removes. Each component appears once (E7305) and in every rung (E7306).",
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/protected_component"}
+        },
+        "rule": {"$ref": "#/$defs/rule"},
+        "terminal": {
+          "description": "The declared terminal state for when the protected rung fails. cluster_robust_cr2 is CR2 cluster-robust inference for nested designs, through clubSandwich in R only, labelled engine-specific. A package rejects a terminal state that it cannot run (E7307), and cluster_robust_cr2 needs nested grouping factors (E7309).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state"],
+          "properties": {
+            "state": {"enum": ["no_confirmatory_model", "cluster_robust_cr2"]}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"required": ["ladder"], "properties": {"ladder": {"const": "protected"}}},
+          "then": {"required": ["protected", "rule", "terminal"]}
+        },
+        {
+          "if": {"required": ["ladder"], "properties": {"ladder": {"const": "exploratory"}}},
+          "then": {"properties": {"protected": false, "rule": false, "terminal": false}}
+        }
+      ]
+    },
+    "random_term": {
+      "title": "random term",
+      "description": "A random term as ir.md names it, with its grouping factor.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factor", "term"],
+      "properties": {
+        "factor": {"$ref": "#/$defs/line"},
+        "term": {"$ref": "#/$defs/line"}
+      }
+    },
+    "step": {
+      "title": "ladder step",
+      "description": "How a rung follows from the rung before (02-decisions.md, Q3). decorrelate replaces a correlated block of numeric slopes, among them the contrast columns of frozen factors, by separate uncorrelated terms. complex_intercepts replaces the unstructured block of a factor slope with three or more levels by (1 | g) + (1 | g:f), with its restriction to non-negative correlation. drop_terms removes the variances of the terms listed. terms lists the random terms of the rung before that the step changes or removes, all of the grouping factor given.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factor", "kind", "terms"],
+      "properties": {
+        "kind": {"enum": ["decorrelate", "complex_intercepts", "drop_terms"]},
+        "factor": {"$ref": "#/$defs/line"},
+        "terms": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/line"}
+        }
+      }
+    },
+    "protected_component": {
+      "title": "protected component",
+      "description": "A component of the protected set (02-decisions.md, Q3): a grouping factor, as the IR names it, and the variables of the term of the random part that is protected, an empty list for the random intercept, with the reason it is protected: the random intercept of a replication unit or of a randomisation unit, the by-unit slope of a focal within-unit effect, the slope of the highest-order combination of within-unit factors in a focal interaction, or the lower-level slope of a focal cross-level interaction.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factor", "reason", "variables"],
+      "properties": {
+        "factor": {"$ref": "#/$defs/line"},
+        "variables": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+        },
+        "reason": {
+          "enum": [
+            "replication_unit",
+            "randomisation_unit",
+            "focal_slope",
+            "focal_interaction_slope",
+            "cross_level_interaction_slope"
+          ]
+        }
+      }
+    },
+    "rule": {
+      "title": "stopping rule",
+      "description": "The stopping rule from the menu of the first 0.x release (02-decisions.md, Q3): the localised protected back-off, the default, protected likelihood-ratio selection and no reduction. version is the version of the rule, and parameters holds the values it uses, such as alpha '0.2' for protected_lrt, so that the plan states every value the rule needs.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "parameters", "version"],
+      "properties": {
+        "id": {"enum": ["localised_backoff", "protected_lrt", "no_reduction"]},
+        "version": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "parameters": {
+          "type": "object",
+          "propertyNames": {"$ref": "urn:mixedcheck:schema:registry-entry#/$defs/local_name"},
+          "additionalProperties": {"$ref": "urn:mixedcheck:schema:defs#/$defs/decimal_string"}
+        }
+      }
+    },
+    "count": {
+      "title": "count",
+      "description": "A count in a plan: a non-negative integer, or {\"below\": k} when the privacy filter suppressed a person count below k (02-decisions.md, Q5), since the hashable profile has no null.",
+      "type": ["integer", "object"],
+      "minimum": 0,
+      "additionalProperties": false,
+      "required": ["below"],
+      "properties": {
+        "below": {"type": "integer", "minimum": 1, "maximum": 1000}
+      }
+    },
+    "ceiling": {
+      "title": "ceiling",
+      "description": "The design-implied ceiling (02-decisions.md, Q3): its IR, its identifiability verdict, the terms left out of rung 0 because they are not identifiable and, for each grouping factor, its number of levels, its level-specific df budget and the number of informative groups behind each of its random terms. Each grouping factor appears once (E7308).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["factors", "ir", "verdict"],
+      "properties": {
+        "ir": {"$ref": "#/$defs/ir"},
+        "verdict": {"$ref": "#/$defs/verdict"},
+        "factors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["df_budget", "factor", "levels", "terms"],
+            "properties": {
+              "factor": {"$ref": "#/$defs/line"},
+              "levels": {"$ref": "#/$defs/count"},
+              "df_budget": {
+                "description": "The level-specific df budget of the grouping factor, the statistic budget of identifiability.df_budget.",
+                "type": "integer",
+                "minimum": 0
+              },
+              "terms": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["informative_groups", "term"],
+                  "properties": {
+                    "term": {"$ref": "#/$defs/line"},
+                    "informative_groups": {"$ref": "#/$defs/count"}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/random_term"}
+        }
+      }
+    },
+    "verdict": {
+      "title": "identifiability verdict",
+      "description": "The statistic verdict of identifiability.gram_rank. identified and not_identified come from the exact test for Gaussian LMMs whose covariance parameters enter linearly. For GLMMs only a necessary condition is tested, giving necessary_condition_met or not_identified (02-decisions.md, Q3).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"enum": ["identified", "not_identified", "necessary_condition_met"]}
+      }
+    },
+    "binding_entry": {
+      "title": "execution binding with its hash",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding", "hash"],
+      "properties": {
+        "binding": {"$ref": "#/$defs/binding"},
+        "hash": {
+          "description": "The execution binding hash: the SHA-256 of the canonical bytes of the binding beside it (E1321 if it differs).",
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"
+        }
+      }
+    },
+    "binding": {
+      "title": "execution binding",
+      "description": "How one engine in one language runs the plan (02-decisions.md, Q3): the design-plan hash it refers to (E7302), the language, the engine and its version, the optimisers in order of use, the second serving as the restart, and the encoding of each rung for the engine, one for each rung of the design (E7301). A rung that the engine cannot express is not_available with the reason not_expressible and the engine's name as detail, and has no encoding.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["design_plan_hash", "engine", "language", "optimisers", "rungs"],
+      "properties": {
+        "design_plan_hash": {"$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"},
+        "language": {"$ref": "urn:mixedcheck:schema:defs#/$defs/language"},
+        "engine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+            "version": {"$ref": "urn:mixedcheck:schema:defs#/$defs/software_version"}
+          }
+        },
+        "optimisers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "settings"],
+            "properties": {
+              "name": {"$ref": "#/$defs/line"},
+              "settings": {
+                "type": "object",
+                "propertyNames": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+                "additionalProperties": {"$ref": "urn:mixedcheck:schema:defs#/$defs/hashable_value"}
+              }
+            }
+          }
+        },
+        "rungs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["availability"],
+            "properties": {
+              "availability": {
+                "allOf": [
+                  {"$ref": "urn:mixedcheck:schema:defs#/$defs/availability"},
+                  {"properties": {"reason": {"const": "not_expressible"}}}
+                ]
+              },
+              "encoding": {
+                "title": "engine encoding",
+                "description": "The rung as the engine is called with it, such as an lme4 formula.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 10000,
+                "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": ["availability"],
+                  "properties": {"availability": {"required": ["value"], "properties": {"value": {"const": "available"}}}}
+                },
+                "then": {"required": ["encoding"]}
+              },
+              {
+                "if": {
+                  "required": ["availability"],
+                  "properties": {"availability": {"required": ["value"], "properties": {"value": {"const": "not_available"}}}}
+                },
+                "then": {"properties": {"encoding": false}}
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

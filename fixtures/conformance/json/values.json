@@ -1,0 +1,1442 @@
+{
+  "description": "Inputs that the strict reader refuses in stage 4, when it checks keys, strings and null in the order of the input, with the precedence of syntax errors over value errors.",
+  "cases": [
+    {
+      "id": "json-values-001",
+      "description": "A duplicate key.",
+      "input": "{\"a\":1,\"a\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-002",
+      "description": "A duplicate key written with an escape.",
+      "input": "{\"a\":1,\"\\u0061\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-003",
+      "description": "A duplicate key after another member.",
+      "input": "{\"a\":1,\"b\":2,\"a\":3}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 13.",
+            "offset": 13
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 13.",
+            "offset": 13
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 13.",
+            "offset": 13
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-004",
+      "description": "Equal keys in different objects are allowed.",
+      "input": "{\"a\":{\"a\":1},\"b\":{\"a\":2}}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":{\"a\":1},\"b\":{\"a\":2}}",
+          "sha256": "sha256:8270eac46faac6230442cdcf6feba8cdd5d9bfcdf084840b1ad12200ec36bfc0"
+        },
+        "data": {
+          "canonical": "{\"a\":{\"a\":1},\"b\":{\"a\":2}}",
+          "sha256": "sha256:8270eac46faac6230442cdcf6feba8cdd5d9bfcdf084840b1ad12200ec36bfc0"
+        },
+        "hashable": {
+          "canonical": "{\"a\":{\"a\":1},\"b\":{\"a\":2}}",
+          "sha256": "sha256:8270eac46faac6230442cdcf6feba8cdd5d9bfcdf084840b1ad12200ec36bfc0"
+        }
+      }
+    },
+    {
+      "id": "json-values-005",
+      "description": "Equal keys in objects of an array are allowed.",
+      "input": "[{\"x\":1},{\"x\":1}]",
+      "expected": {
+        "plain": {
+          "canonical": "[{\"x\":1},{\"x\":1}]",
+          "sha256": "sha256:aa36417ba1dc8446e96286be19248ef0da432d7a28dc507a839872ca29b9034c"
+        },
+        "data": {
+          "canonical": "[{\"x\":1},{\"x\":1}]",
+          "sha256": "sha256:aa36417ba1dc8446e96286be19248ef0da432d7a28dc507a839872ca29b9034c"
+        },
+        "hashable": {
+          "canonical": "[{\"x\":1},{\"x\":1}]",
+          "sha256": "sha256:aa36417ba1dc8446e96286be19248ef0da432d7a28dc507a839872ca29b9034c"
+        }
+      }
+    },
+    {
+      "id": "json-values-006",
+      "description": "Keys that differ in case are different.",
+      "input": "{\"A\":1,\"a\":2}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"A\":1,\"a\":2}",
+          "sha256": "sha256:0d0e3924a16d7710884d7aaf5ddacfafcef0079c6717e1415b8074f911635606"
+        },
+        "data": {
+          "canonical": "{\"A\":1,\"a\":2}",
+          "sha256": "sha256:0d0e3924a16d7710884d7aaf5ddacfafcef0079c6717e1415b8074f911635606"
+        },
+        "hashable": {
+          "canonical": "{\"A\":1,\"a\":2}",
+          "sha256": "sha256:0d0e3924a16d7710884d7aaf5ddacfafcef0079c6717e1415b8074f911635606"
+        }
+      }
+    },
+    {
+      "id": "json-values-007",
+      "description": "Keys that are equal after NFC are different keys, but the hashable profile refuses the second, which is not in NFC.",
+      "input": "{\"\u00e9\":1,\"e\u0301\":2}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"e\u0301\":2,\"\u00e9\":1}",
+          "sha256": "sha256:a7962fb10dc1255be368ece9c22b2256605921dc6d0a8c9409d3ee406bcb86e5"
+        },
+        "data": {
+          "canonical": "{\"e\u0301\":2,\"\u00e9\":1}",
+          "sha256": "sha256:a7962fb10dc1255be368ece9c22b2256605921dc6d0a8c9409d3ee406bcb86e5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 8 is not in Unicode normalisation form C (NFC).",
+            "offset": 8
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-008",
+      "description": "A duplicate key that is not in NFC: the hashable profile refuses the first, and the other modes report the duplicate.",
+      "input": "{\"e\u0301\":1,\"e\u0301\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'e\u0301' at byte 9.",
+            "offset": 9
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'e\u0301' at byte 9.",
+            "offset": 9
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-009",
+      "description": "The example of errors.md: a duplicate key that holds a tab, at byte 45.",
+      "input": "{\"x\":\"abcdefghijklmnopqrstuvwxyz\",\"go\\tal\":1,\"go\\tal\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'go\\u0009al' at byte 45.",
+            "offset": 45
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'go\\u0009al' at byte 45.",
+            "offset": 45
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'go\\u0009al' at byte 45.",
+            "offset": 45
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-010",
+      "description": "A duplicate key of 70 characters, named in the message by its first 57.",
+      "input": "{\"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\":1,\"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...' at byte 76.",
+            "offset": 76
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...' at byte 76.",
+            "offset": 76
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...' at byte 76.",
+            "offset": 76
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-011",
+      "description": "An escaped U+0000 in a key.",
+      "input": "{\"\\u0000\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 1 contains the character U+0000.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 1 contains the character U+0000.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 1 contains the character U+0000.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-012",
+      "description": "An empty key.",
+      "input": "{\"\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1109",
+            "message": "Empty key at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1109",
+            "message": "Empty key at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1109",
+            "message": "Empty key at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-013",
+      "description": "Two empty keys: the first is reported.",
+      "input": "{\"\":1,\"\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1109",
+            "message": "Empty key at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1109",
+            "message": "Empty key at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1109",
+            "message": "Empty key at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-014",
+      "description": "A key outside the BMP, written as UTF-8, which only the plain mode accepts.",
+      "input": "{\"\ud83d\ude00\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00\":1}",
+          "sha256": "sha256:763606c9e0046348cc185a6e829e12ae6c0f3565b940f8184901a4d83dda6c33"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-015",
+      "description": "A key outside the BMP, written as a surrogate pair.",
+      "input": "{\"\\ud83d\\ude00\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00\":1}",
+          "sha256": "sha256:763606c9e0046348cc185a6e829e12ae6c0f3565b940f8184901a4d83dda6c33"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-016",
+      "description": "A key outside the BMP, written as a surrogate pair in capital letters.",
+      "input": "{\"\\uD83D\\uDE00\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00\":1}",
+          "sha256": "sha256:763606c9e0046348cc185a6e829e12ae6c0f3565b940f8184901a4d83dda6c33"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-017",
+      "description": "A key with an unpaired high surrogate.",
+      "input": "{\"\\ud800\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-018",
+      "description": "In a key, an unpaired surrogate is reported before U+0000.",
+      "input": "{\"\\u0000\\ud800\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-019",
+      "description": "In a key, a character outside the BMP is reported before NFC.",
+      "input": "{\"\ud83d\ude00e\u0301\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00e\u0301\":1}",
+          "sha256": "sha256:2bc4c44b97dd3d402764d084efd5e5cb8ed1fa8a56eb8405ae3faf0917d33868"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-020",
+      "description": "In a key, an unassigned code point is reported before NFC.",
+      "input": "{\"\\u0378e\\u0301\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u0378e\u0301\":1}",
+          "sha256": "sha256:fed1c2917fb4e7fe9741ebeda9fd80f9cdc106f10cbd8bbb3a44ba03d92e42d3"
+        },
+        "data": {
+          "canonical": "{\"\u0378e\u0301\":1}",
+          "sha256": "sha256:fed1c2917fb4e7fe9741ebeda9fd80f9cdc106f10cbd8bbb3a44ba03d92e42d3"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 1 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-021",
+      "description": "A key that is a noncharacter.",
+      "input": "{\"\\uffff\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\uffff\":1}",
+          "sha256": "sha256:100ae8189f40a0e500c71a6db32e2d3a4d9d6d1f1e600203a32f416be0dc851e"
+        },
+        "data": {
+          "canonical": "{\"\uffff\":1}",
+          "sha256": "sha256:100ae8189f40a0e500c71a6db32e2d3a4d9d6d1f1e600203a32f416be0dc851e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 1 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-022",
+      "description": "An unpaired high surrogate.",
+      "input": "\"\\ud800\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-023",
+      "description": "An unpaired low surrogate.",
+      "input": "\"\\udc00\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-024",
+      "description": "A high surrogate followed by an escape that is not a low surrogate.",
+      "input": "\"\\ud800\\u0041\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-025",
+      "description": "A high surrogate followed by a character.",
+      "input": "\"\\ud800x\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-026",
+      "description": "Two high surrogates.",
+      "input": "\"\\ud800\\ud800\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-027",
+      "description": "A low surrogate before a high surrogate.",
+      "input": "\"\\udc00\\ud800\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-028",
+      "description": "A high surrogate at the end of a longer string, located at its quotation mark.",
+      "input": "\"a\\ud800\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-029",
+      "description": "An unpaired surrogate in the second item.",
+      "input": "[\"ok\",\"\\udfff\"]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 6.",
+            "offset": 6
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 6.",
+            "offset": 6
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 6.",
+            "offset": 6
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-030",
+      "description": "A high surrogate followed by a non-ASCII character.",
+      "input": "\"\\ud800\u00e9\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-031",
+      "description": "A surrogate pair is U+10000, which every mode accepts.",
+      "input": "\"\\ud800\\udc00\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ud800\udc00\"",
+          "sha256": "sha256:80066806fcc52478beec53a2ac42bc6a6324eb67c1161136649a669c15d4b7bf"
+        },
+        "data": {
+          "canonical": "\"\ud800\udc00\"",
+          "sha256": "sha256:80066806fcc52478beec53a2ac42bc6a6324eb67c1161136649a669c15d4b7bf"
+        },
+        "hashable": {
+          "canonical": "\"\ud800\udc00\"",
+          "sha256": "sha256:80066806fcc52478beec53a2ac42bc6a6324eb67c1161136649a669c15d4b7bf"
+        }
+      }
+    },
+    {
+      "id": "json-values-032",
+      "description": "An escaped U+0000 in a string.",
+      "input": "\"a\\u0000b\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 0 contains the character U+0000.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 0 contains the character U+0000.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 0 contains the character U+0000.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-033",
+      "description": "An escaped U+0000 alone.",
+      "input": "\"\\u0000\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 0 contains the character U+0000.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 0 contains the character U+0000.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 0 contains the character U+0000.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-034",
+      "description": "An escaped U+0000 in the second item.",
+      "input": "[\"x\",\"\\u0000\"]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 5 contains the character U+0000.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 5 contains the character U+0000.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1202",
+            "message": "The string at byte 5 contains the character U+0000.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-035",
+      "description": "In a string, an unpaired surrogate is reported before U+0000.",
+      "input": "\"\\u0000\\ud800\"",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 0.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-036",
+      "description": "A string in NFD, which only the hashable profile refuses.",
+      "input": "\"e\u0301\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"e\u0301\"",
+          "sha256": "sha256:3d68ce21f2899a475713cdbe7562ba9bdb6b1dfde8af1f221bdff4a0935b53b2"
+        },
+        "data": {
+          "canonical": "\"e\u0301\"",
+          "sha256": "sha256:3d68ce21f2899a475713cdbe7562ba9bdb6b1dfde8af1f221bdff4a0935b53b2"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-037",
+      "description": "A string in NFD written with an escape.",
+      "input": "\"e\\u0301\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"e\u0301\"",
+          "sha256": "sha256:3d68ce21f2899a475713cdbe7562ba9bdb6b1dfde8af1f221bdff4a0935b53b2"
+        },
+        "data": {
+          "canonical": "\"e\u0301\"",
+          "sha256": "sha256:3d68ce21f2899a475713cdbe7562ba9bdb6b1dfde8af1f221bdff4a0935b53b2"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-038",
+      "description": "The noncharacter U+FFFF, written as UTF-8.",
+      "input": "\"\uffff\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\uffff\"",
+          "sha256": "sha256:7c6c5c98a320272b95b2a73e2a2ff15825794b0460f8af7835c9dfd9e76b38bb"
+        },
+        "data": {
+          "canonical": "\"\uffff\"",
+          "sha256": "sha256:7c6c5c98a320272b95b2a73e2a2ff15825794b0460f8af7835c9dfd9e76b38bb"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-039",
+      "description": "The noncharacter U+FDD0, written as an escape.",
+      "input": "\"\\ufdd0\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ufdd0\"",
+          "sha256": "sha256:f6e6f275c4eb06885c78152147d2eafe8e0802bfa40cb78efa67dc2967bd7a47"
+        },
+        "data": {
+          "canonical": "\"\ufdd0\"",
+          "sha256": "sha256:f6e6f275c4eb06885c78152147d2eafe8e0802bfa40cb78efa67dc2967bd7a47"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-040",
+      "description": "U+0378, unassigned in Unicode 14.0.",
+      "input": "\"\\u0378\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0378\"",
+          "sha256": "sha256:c579a23395d2402541e350e6d86e00de81910673271ec5d7b9aa1ca1108a8adb"
+        },
+        "data": {
+          "canonical": "\"\u0378\"",
+          "sha256": "sha256:c579a23395d2402541e350e6d86e00de81910673271ec5d7b9aa1ca1108a8adb"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-041",
+      "description": "U+E000, a private-use character, which Unicode assigns.",
+      "input": "\"\\ue000\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        },
+        "data": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        },
+        "hashable": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        }
+      }
+    },
+    {
+      "id": "json-values-042",
+      "description": "U+10FFFF, a noncharacter.",
+      "input": "\"\\udbff\\udfff\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\udbff\udfff\"",
+          "sha256": "sha256:216551a7df34e082dd063693c09f0b567df0351251da1fd71057b83fe66003c6"
+        },
+        "data": {
+          "canonical": "\"\udbff\udfff\"",
+          "sha256": "sha256:216551a7df34e082dd063693c09f0b567df0351251da1fd71057b83fe66003c6"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-043",
+      "description": "The example of conventions.md: 'x', U+1E4EC and U+0316. U+1E4EC was assigned in Unicode 15.0.",
+      "input": "\"x\\ud838\\udcec\\u0316\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"x\ud838\udcec\u0316\"",
+          "sha256": "sha256:bcb8a61ee82b960a00ffc5d29b2d2f3241118fc039d129af5ede4aab181f441b"
+        },
+        "data": {
+          "canonical": "\"x\ud838\udcec\u0316\"",
+          "sha256": "sha256:bcb8a61ee82b960a00ffc5d29b2d2f3241118fc039d129af5ede4aab181f441b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-044",
+      "description": "null at the top level.",
+      "input": "null",
+      "expected": {
+        "plain": {
+          "canonical": "null",
+          "sha256": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+        },
+        "data": {
+          "canonical": "null",
+          "sha256": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at byte 0 is not allowed in the hashable profile.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-045",
+      "description": "null in an array.",
+      "input": "[1,null]",
+      "expected": {
+        "plain": {
+          "canonical": "[1,null]",
+          "sha256": "sha256:28f6766b5fb80e872afcf27841930088024e6e9fd95a0a0d8df076b911376978"
+        },
+        "data": {
+          "canonical": "[1,null]",
+          "sha256": "sha256:28f6766b5fb80e872afcf27841930088024e6e9fd95a0a0d8df076b911376978"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at byte 3 is not allowed in the hashable profile.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-046",
+      "description": "null as a member's value.",
+      "input": "{\"a\":null}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":null}",
+          "sha256": "sha256:d091f9c83c091f79652fe8786375b3fe4ce0861a56f5bfbafedbe431877ff0e8"
+        },
+        "data": {
+          "canonical": "{\"a\":null}",
+          "sha256": "sha256:d091f9c83c091f79652fe8786375b3fe4ce0861a56f5bfbafedbe431877ff0e8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at byte 5 is not allowed in the hashable profile.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-047",
+      "description": "null nested in an array of an object.",
+      "input": "{\"a\":[true,null]}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":[true,null]}",
+          "sha256": "sha256:e0a467f10f93c978d98de6a76f283950fd3935184e82eae7de9a81cbba403658"
+        },
+        "data": {
+          "canonical": "{\"a\":[true,null]}",
+          "sha256": "sha256:e0a467f10f93c978d98de6a76f283950fd3935184e82eae7de9a81cbba403658"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at byte 11 is not allowed in the hashable profile.",
+            "offset": 11
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-048",
+      "description": "A syntax error after a null is reported first.",
+      "input": "[null,1,]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 8.",
+            "offset": 8
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 8.",
+            "offset": 8
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 8.",
+            "offset": 8
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-049",
+      "description": "The end of the input after an unpaired surrogate is reported first.",
+      "input": "[\"\\ud800\",tru",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 13.",
+            "offset": 13
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 13.",
+            "offset": 13
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 13.",
+            "offset": 13
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-050",
+      "description": "An unpaired surrogate before a number that overflows.",
+      "input": "[\"\\ud800\",1e400]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-051",
+      "description": "A number that overflows before an unpaired surrogate. The hashable profile refuses it as an integer out of range.",
+      "input": "[1e400,\"\\ud800\"]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1e400 at byte 1 is too large to be held as a double.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1e400 at byte 1 is too large to be held as a double.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e400 at byte 1 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-052",
+      "description": "A null before a string in NFD.",
+      "input": "[null,\"e\u0301\"]",
+      "expected": {
+        "plain": {
+          "canonical": "[null,\"e\u0301\"]",
+          "sha256": "sha256:9c31c3a054e13fbd2992d004f03bee49d3f310a611245068c789180f3baf1a1c"
+        },
+        "data": {
+          "canonical": "[null,\"e\u0301\"]",
+          "sha256": "sha256:9c31c3a054e13fbd2992d004f03bee49d3f310a611245068c789180f3baf1a1c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at byte 1 is not allowed in the hashable profile.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-053",
+      "description": "A string in NFD before a null.",
+      "input": "[\"e\u0301\",null]",
+      "expected": {
+        "plain": {
+          "canonical": "[\"e\u0301\",null]",
+          "sha256": "sha256:a79e3478dba93fd16da08448e58b82edf31b36035b67dd04f9d7f71fdee22190"
+        },
+        "data": {
+          "canonical": "[\"e\u0301\",null]",
+          "sha256": "sha256:a79e3478dba93fd16da08448e58b82edf31b36035b67dd04f9d7f71fdee22190"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-054",
+      "description": "A null before a key outside the BMP.",
+      "input": "{\"a\":null,\"\ud83d\ude00\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":null,\"\ud83d\ude00\":1}",
+          "sha256": "sha256:11c7647fb88fd4c4fdec164a388b196bc04cd8b3ccb993ec6bc6dc2eb6609020"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 10 contains a character outside the Basic Multilingual Plane.",
+            "offset": 10
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at byte 5 is not allowed in the hashable profile.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-055",
+      "description": "A key outside the BMP before its null value.",
+      "input": "{\"\ud83d\ude00\":null}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00\":null}",
+          "sha256": "sha256:0ba8c72dc2980fba77bc78a77ef667a6cb4d90b1779f17b1a7d3a76c93d7ce43"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-056",
+      "description": "A duplicate key is reported before its value.",
+      "input": "{\"a\":1,\"a\":\"\\ud800\"}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key 'a' at byte 7.",
+            "offset": 7
+          }
+        }
+      }
+    },
+    {
+      "id": "json-values-057",
+      "description": "A value is reported before a later duplicate key.",
+      "input": "{\"a\":\"\\ud800\",\"a\":1}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    }
+  ]
+}

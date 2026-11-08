@@ -1,0 +1,18 @@
+vocabulary: 0.1.0
+table:
+  fields:
+    - {name: wave, type: integer, categories: [0, 1, '2', -3]}
+    - {name: arm, type: string, categories: [0, 1, '2', -3]}
+    - {name: hit, type: integer, categories: [0, 1]}
+    - {name: acc, type: string, categories: ['0', 1]}
+    - {name: free}
+    - {name: label}
+    - {name: resp, type: number}
+    - {name: grade, type: integer, categories: [{value: '1', label: low}, {value: 2, label: '3'}]}
+    - {name: code, type: string, categories: [{value: 1, label: one}, {value: '2'}]}
+variables:
+  hit: {role: outcome, measurement: binary, event_level: 1}
+  acc: {role: outcome, measurement: binary, event_level: 1}
+  free: {role: outcome, measurement: binary, event_level: 1}
+  label: {role: outcome, measurement: binary, event_level: yes}
+  resp: {role: outcome, measurement: binary, event_level: '2'}

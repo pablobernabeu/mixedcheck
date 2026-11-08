@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "school", "type": "string", "categories": [1, 2]}]},
+  "units": [{"name": "school", "columns": ["school"]}]
+}

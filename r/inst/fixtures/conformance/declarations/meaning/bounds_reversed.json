@@ -1,0 +1,4 @@
+{
+  "vocabulary": "0.1.0",
+  "variables": {"post": {"role": "outcome", "measurement": "bounded_score", "bounds": [40, 0]}}
+}

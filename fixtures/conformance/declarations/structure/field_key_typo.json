@@ -1,0 +1,13 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {
+        "name": "wave",
+        "type": "integer",
+        "categories": [0, 1],
+        "categoriesordered": true
+      }
+    ]
+  }
+}

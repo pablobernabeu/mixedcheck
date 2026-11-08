@@ -1,0 +1,720 @@
+{
+  "description": "Declarations that each break one rule on meaning or of the minimal declaration, with the issues of stage 5.",
+  "cases": [
+    {
+      "id": "declarations-meaning-001",
+      "description": "Two units nested in each other and a third nested in one of them, which is not on the cycle and is not reported.",
+      "path": "meaning/nesting_cycle.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2010",
+            "message": "The unit 'a' at /units/0/nested_in is nested in itself, directly or through other units.",
+            "pointer": "/units/0/nested_in"
+          },
+          {
+            "code": "E2010",
+            "message": "The unit 'b' at /units/1/nested_in is nested in itself, directly or through other units.",
+            "pointer": "/units/1/nested_in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-002",
+      "description": "A unit nested in itself.",
+      "path": "meaning/nested_in_itself.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2010",
+            "message": "The unit 'a' at /units/0/nested_in is nested in itself, directly or through other units.",
+            "pointer": "/units/0/nested_in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-003",
+      "description": "Pupils crossed with the schools they are nested in.",
+      "path": "meaning/crossing_parent.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2011",
+            "message": "The crossing at /crossings/0/units pairs a unit with a unit it is nested in.",
+            "pointer": "/crossings/0/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-004",
+      "description": "Pupils crossed with schools, which they are nested in through classes.",
+      "path": "meaning/crossing_ancestor.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2011",
+            "message": "The crossing at /crossings/0/units pairs a unit with a unit it is nested in.",
+            "pointer": "/crossings/0/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-005",
+      "description": "Two columns derived from each other and a third derived from one of them, which is not on the cycle.",
+      "path": "meaning/derivation_cycle.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2012",
+            "message": "The column 'x' at /variables/x/derived_from is derived from itself, directly or through other columns.",
+            "pointer": "/variables/x/derived_from"
+          },
+          {
+            "code": "E2012",
+            "message": "The column 'y' at /variables/y/derived_from is derived from itself, directly or through other columns.",
+            "pointer": "/variables/y/derived_from"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-006",
+      "description": "A column derived from itself.",
+      "path": "meaning/derived_from_itself.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2012",
+            "message": "The column 'x' at /variables/x/derived_from is derived from itself, directly or through other columns.",
+            "pointer": "/variables/x/derived_from"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-007",
+      "description": "An integer category in a field of type 'string'.",
+      "path": "meaning/category_not_string.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2013",
+            "message": "The category at /table/fields/0/categories/1 must be a string to match the type of its field.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-008",
+      "description": "A category object whose value is a string in a field of type 'integer'.",
+      "path": "meaning/category_not_integer.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2013",
+            "message": "The category at /table/fields/0/categories/1/value must be an integer to match the type of its field.",
+            "pointer": "/table/fields/0/categories/1/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-009",
+      "description": "A list of categories that mixes plain values and objects.",
+      "path": "meaning/mixed_categories.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2014",
+            "message": "The list at /table/fields/0/categories mixes plain values and objects.",
+            "pointer": "/table/fields/0/categories"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-010",
+      "description": "Table-level missing values that mix plain strings and objects.",
+      "path": "meaning/mixed_missing_values.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2014",
+            "message": "The list at /table/missingValues mixes plain values and objects.",
+            "pointer": "/table/missingValues"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-011",
+      "description": "A category that repeats an earlier one.",
+      "path": "meaning/duplicate_category.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2015",
+            "message": "The value 'control' at /table/fields/0/categories/2 repeats an earlier value in the list.",
+            "pointer": "/table/fields/0/categories/2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-012",
+      "description": "A sentinel code listed twice with different labels.",
+      "path": "meaning/duplicate_missing_value.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2015",
+            "message": "The value '-99' at /table/fields/0/missingValues/1 repeats an earlier value in the list.",
+            "pointer": "/table/fields/0/missingValues/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-013",
+      "description": "The integer categories 1 and 1.0, which are equal by value.",
+      "path": "meaning/duplicate_integer_category.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2015",
+            "message": "The value 1 at /table/fields/0/categories/2 repeats an earlier value in the list.",
+            "pointer": "/table/fields/0/categories/2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-014",
+      "description": "Categories on a column that labels a unit, which would put identifiers into the declaration.",
+      "path": "meaning/unit_column_categories.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2016",
+            "message": "The field 'school' is an identifier column and cannot have the categories at /table/fields/0/categories.",
+            "pointer": "/table/fields/0/categories"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-015",
+      "description": "Categories on a column whose role is 'id'.",
+      "path": "meaning/id_role_categories.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2016",
+            "message": "The field 'pid' is an identifier column and cannot have the categories at /table/fields/0/categories.",
+            "pointer": "/table/fields/0/categories"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-016",
+      "description": "Bounds in the wrong order.",
+      "path": "meaning/bounds_reversed.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2017",
+            "message": "The first bound at /variables/post/bounds is not less than the second.",
+            "pointer": "/variables/post/bounds"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-017",
+      "description": "Bounds 0 and -0, which are equal.",
+      "path": "meaning/bounds_equal.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2017",
+            "message": "The first bound at /variables/post/bounds is not less than the second.",
+            "pointer": "/variables/post/bounds"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-018",
+      "description": "An assigned column declared as a baseline covariate.",
+      "path": "meaning/assigned_role.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2018",
+            "message": "The column 'condition' is in the assignment block, so its role at /variables/condition/role must be 'assigned'.",
+            "pointer": "/variables/condition/role"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-019",
+      "description": "An assigned column declared as the outcome, which E2018 alone reports.",
+      "path": "meaning/assigned_outcome.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2018",
+            "message": "The column 'arm' is in the assignment block, so its role at /variables/arm/role must be 'assigned'.",
+            "pointer": "/variables/arm/role"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-020",
+      "description": "The outcome in the observation key.",
+      "path": "meaning/outcome_in_key.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2019",
+            "message": "The outcome column 'rt' cannot be used at /observation/key/2.",
+            "pointer": "/observation/key/2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-021",
+      "description": "Outcome columns at each of the places that describe the design and two outcome columns in one term, each reported once at the term.",
+      "path": "meaning/outcome_misused.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2019",
+            "message": "The outcome column 'z' cannot be used at /crossings/0/list.",
+            "pointer": "/crossings/0/list"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'y' cannot be used at /estimands/0/term.",
+            "pointer": "/estimands/0/term"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'z' cannot be used at /estimands/0/term.",
+            "pointer": "/estimands/0/term"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'y' cannot be used at /observation/key/1.",
+            "pointer": "/observation/key/1"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'z' cannot be used at /observation/time/column.",
+            "pointer": "/observation/time/column"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'y' cannot be used at /table/primaryKey/0.",
+            "pointer": "/table/primaryKey/0"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'z' cannot be used at /table/uniqueKeys/0/0.",
+            "pointer": "/table/uniqueKeys/0/0"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'y' cannot be used at /units/0/columns/0.",
+            "pointer": "/units/0/columns/0"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'z' cannot be used at /variables/c/exposure/column.",
+            "pointer": "/variables/c/exposure/column"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'y' cannot be used at /variables/k/trials.",
+            "pointer": "/variables/k/trials"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-022",
+      "description": "A gain score derived from the outcome and declared as a baseline covariate.",
+      "path": "meaning/derived_from_outcome.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2020",
+            "message": "The column 'gain' is derived from an outcome, so its role at /variables/gain/role must be 'outcome' or 'outcome_derived'.",
+            "pointer": "/variables/gain/role"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-023",
+      "description": "A column derived from an outcome-derived column, declared as a time-varying covariate.",
+      "path": "meaning/derived_from_derived.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2020",
+            "message": "The column 'y_lag_mean' is derived from an outcome, so its role at /variables/y_lag_mean/role must be 'outcome' or 'outcome_derived'.",
+            "pointer": "/variables/y_lag_mean/role"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-024",
+      "description": "An estimand whose outcome is a covariate.",
+      "path": "meaning/estimand_not_outcome.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2021",
+            "message": "The column 'age' at /estimands/0/outcome does not have the role 'outcome'.",
+            "pointer": "/estimands/0/outcome"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-025",
+      "description": "Two outcomes and an estimand that names neither.",
+      "path": "meaning/estimand_outcome_missing.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2022",
+            "message": "The estimand at /estimands/1 must name its outcome, because more than one outcome is declared.",
+            "pointer": "/estimands/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-026",
+      "description": "An integer event level for a field of type 'string'.",
+      "path": "meaning/event_level_string_field.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2023",
+            "message": "The event level at /variables/acc/event_level cannot match the type 'string' of its field.",
+            "pointer": "/variables/acc/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-027",
+      "description": "A string event level for a field of type 'integer'.",
+      "path": "meaning/event_level_integer_field.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2023",
+            "message": "The event level at /variables/hit/event_level cannot match the type 'integer' of its field.",
+            "pointer": "/variables/hit/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-028",
+      "description": "A string event level for a field of type 'number'.",
+      "path": "meaning/event_level_number_field.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2023",
+            "message": "The event level at /variables/resp/event_level cannot match the type 'number' of its field.",
+            "pointer": "/variables/resp/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-029",
+      "description": "Event levels for fields of types 'boolean', 'date' and 'datetime', which no event level can match.",
+      "path": "meaning/event_level_other_types.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2023",
+            "message": "The event level at /variables/b/event_level cannot match the type 'boolean' of its field.",
+            "pointer": "/variables/b/event_level"
+          },
+          {
+            "code": "E2023",
+            "message": "The event level at /variables/d/event_level cannot match the type 'date' of its field.",
+            "pointer": "/variables/d/event_level"
+          },
+          {
+            "code": "E2023",
+            "message": "The event level at /variables/t/event_level cannot match the type 'datetime' of its field.",
+            "pointer": "/variables/t/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-030",
+      "description": "An event level that is not one of the categories of its field.",
+      "path": "meaning/event_level_not_category.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2024",
+            "message": "The event level 'right' at /variables/acc/event_level is not one of the categories of its field.",
+            "pointer": "/variables/acc/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-031",
+      "description": "An event level that gives the label of a category instead of its value.",
+      "path": "meaning/event_level_label.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2024",
+            "message": "The event level 'Correct' at /variables/acc/event_level is not one of the categories of its field.",
+            "pointer": "/variables/acc/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-032",
+      "description": "An integer event level that is not one of the integer categories of its field.",
+      "path": "meaning/event_level_integer_category.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2024",
+            "message": "The event level 2 at /variables/hit/event_level is not one of the categories of its field.",
+            "pointer": "/variables/hit/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-033",
+      "description": "A longitudinal design without observation.time (the draft's bad7).",
+      "path": "meaning/longitudinal_without_time.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2025",
+            "message": "The feature 'longitudinal' at /features/0 requires '/observation/time' to be declared.",
+            "pointer": "/features/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-034",
+      "description": "A cluster-randomised trial without the assignment block. It names an assigned variable in the variables block, so it is otherwise a minimal declaration.",
+      "path": "meaning/trial_without_assignment.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2025",
+            "message": "The feature 'cluster_randomised' at /features/0 requires '/assignment' to be declared.",
+            "pointer": "/features/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-035",
+      "description": "A stepped-wedge trial without the assignment block and without observation.time, reported once for each.",
+      "path": "meaning/stepped_wedge_without_both.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2025",
+            "message": "The feature 'stepped_wedge' at /features/0 requires '/assignment' to be declared.",
+            "pointer": "/features/0"
+          },
+          {
+            "code": "E2025",
+            "message": "The feature 'stepped_wedge' at /features/0 requires '/observation/time' to be declared.",
+            "pointer": "/features/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-036",
+      "description": "Pupils who may change school, without observation.time.",
+      "path": "meaning/membership_without_time.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2026",
+            "message": "The membership at /units/1/membership may change over time, which requires '/observation/time' to be declared.",
+            "pointer": "/units/1/membership"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-037",
+      "description": "An observational study with an assignment block.",
+      "path": "meaning/observational_assignment.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2027",
+            "message": "The entry at /assignment contradicts the feature 'observational'.",
+            "pointer": "/assignment"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-038",
+      "description": "An observational study with a variable of role 'assigned'.",
+      "path": "meaning/observational_assigned_role.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2027",
+            "message": "The entry at /variables/programme/role contradicts the feature 'observational'.",
+            "pointer": "/variables/programme/role"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-039",
+      "description": "A confirmatory declaration whose observation block has no key.",
+      "path": "meaning/minimal_without_key.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2028",
+            "message": "The object at /observation lacks the member 'key', which a minimal declaration requires.",
+            "pointer": "/observation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-040",
+      "description": "A confirmatory declaration without estimands (the draft's bad4, with an assigned variable). E2028 reports the missing block and E2031 does not apply.",
+      "path": "meaning/minimal_without_estimands.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'estimands', which a minimal declaration requires.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-041",
+      "description": "An exploratory cluster-randomised trial without estimands, which declarations.md gives as an example: its trial feature makes it a minimal declaration.",
+      "path": "meaning/trial_without_estimands.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'estimands', which a minimal declaration requires.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-042",
+      "description": "A confirmatory declaration whose variables include no outcome.",
+      "path": "meaning/minimal_without_outcome.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2029",
+            "message": "The variables at /variables include no outcome, which a minimal declaration requires.",
+            "pointer": "/variables"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-043",
+      "description": "A confirmatory declaration without an assigned variable or the feature observational.",
+      "path": "meaning/minimal_without_assigned.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2030",
+            "message": "The declaration at (root) names no assigned variable. A minimal declaration needs one unless it declares the feature 'observational'.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-044",
+      "description": "A confirmatory declaration whose estimands are all declared not focal.",
+      "path": "meaning/minimal_without_focal.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2031",
+            "message": "The estimands at /estimands include no focal estimand, which a minimal declaration requires.",
+            "pointer": "/estimands"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-045",
+      "description": "A confirmatory declaration that is a draft.",
+      "path": "meaning/minimal_draft.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2032",
+            "message": "The declaration is a draft with the inferred entries listed at /provenance/inferred. A minimal declaration must be accepted first.",
+            "pointer": "/provenance/inferred"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-meaning-046",
+      "description": "An exploratory declaration without estimands, validated with the argument minimal set to true.",
+      "path": "meaning/minimal_argument.json",
+      "minimal": true,
+      "expected": {
+        "issues": [
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'estimands', which a minimal declaration requires.",
+            "pointer": ""
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [{"name": "y"}, {"name": "z"}, {"name": "k"}, {"name": "c"}, {"name": "x"}],
+    "primaryKey": ["y", "x"],
+    "uniqueKeys": [["z"]]
+  },
+  "units": [{"name": "u", "columns": ["y"]}, {"name": "v", "columns": ["x"]}],
+  "crossings": [{"units": ["u", "v"], "list": "z"}],
+  "observation": {"key": ["x", "y"], "time": {"column": "z", "kind": "occasion"}},
+  "variables": {
+    "y": {"role": "outcome", "measurement": "continuous", "derived_from": ["z"]},
+    "z": {"role": "outcome"},
+    "k": {"role": "outcome", "measurement": "binomial", "trials": "y"},
+    "c": {
+      "role": "outcome",
+      "measurement": "count",
+      "exposure": {"column": "z", "scale": "log"}
+    }
+  },
+  "estimands": [{"id": "e", "term": "x:y:`z`", "outcome": "y"}]
+}

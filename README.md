@@ -1,6 +1,6 @@
 # mixedcheck
 
-A pair of packages, one for R and one for Python, for auditing designs before fitting mixed-effects models and for diagnosing and reporting fitted models. Both packages share one registry of checks and one results schema. The repository, created as lmecheck, holds the design and the skeletons of the two packages, which install, load and pass their checks but provide no audits or diagnostics yet. Nothing has been released.
+A pair of packages, one for R and one for Python, for auditing designs before fitting mixed-effects models and for diagnosing and reporting fitted models. Both packages share one registry of checks and one results schema. The repository, created as lmecheck, holds the design, the specifications and the two packages, which so far read, write and hash the shared JSON documents and validate declarations but provide no audits or diagnostics yet. Nothing has been released.
 
 ## Design
 
@@ -9,6 +9,7 @@ A pair of packages, one for R and one for Python, for auditing designs before fi
 - [Execution plan](docs/design/03-execution-plan.md): milestones and gates, validation on the HPC, risks and open checks
 - [Review catalogue](docs/design/evidence/review-catalogue.md): the 152 verified review items behind the design review
 - [Evidence for the decisions](docs/design/evidence/decisions/README.md): benchmark, simulations, schemas, prototypes, research reports and verification verdicts behind the decision record
+- [Specifications](docs/spec/conventions.md): the conventions, [error codes](docs/spec/errors.md), [declarations](docs/spec/declarations.md), [registry](docs/spec/registry.md), [results, plans and estimates](docs/spec/documents.md), [canonical IR and formula grammar](docs/spec/ir.md) and [data tables](docs/spec/tables.md)
 - [Provenance log](docs/provenance.md): the sources of each algorithm and any AI assistance in writing the code
 
 ## Layout
@@ -22,7 +23,7 @@ A pair of packages, one for R and one for Python, for auditing designs before fi
 | [parity/](parity/README.md) | the cross-language harness |
 | [sim/](sim/README.md) | the validation studies on the HPC |
 | [paper/](paper/README.md) | the JOSS paper |
-| docs/ | the design documents and the provenance log |
+| docs/ | the design documents in docs/design/, the specifications in docs/spec/ and the provenance log |
 
 ## Changes
 

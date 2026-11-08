@@ -1,0 +1,1744 @@
+{
+  "description": "Tables that carry the strings, numbers, byte-order marks, escapes and empty containers of the JSON edge files in docs/design/evidence/decisions/E/schema/edge and E-verify/edge into CSV text.",
+  "cases": [
+    {
+      "id": "tables-edge-001",
+      "description": "From edge1: a non-ASCII column name, strings with a tab, quotation marks, a backslash, U+0001 and characters outside the BMP, which are values as written, and the numbers of edge1, among them '-0' and '2026.10'.",
+      "path": "edge/edge1_mixed.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "Z\u00fcrich",
+              "type": "string"
+            },
+            {
+              "name": "b",
+              "type": "number"
+            },
+            {
+              "name": "esc",
+              "type": "string"
+            },
+            {
+              "name": "emoji",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11"
+            ]
+          },
+          {
+            "name": "Z\u00fcrich",
+            "type": "string",
+            "values": [
+              "caf\u00e9",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "name": "b",
+            "type": "number",
+            "values": [
+              1.0,
+              1.0,
+              3000000000.0,
+              0.0,
+              100.0,
+              0.5,
+              7.5,
+              0.001,
+              123.456,
+              0.1,
+              2026.1
+            ]
+          },
+          {
+            "name": "esc",
+            "type": "string",
+            "values": [
+              "tab\there \"q\" back\\slash \u0001 ctrl",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "name": "emoji",
+            "type": "string",
+            "values": [
+              "\ud83d\ude00 \ud83d\ude00",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-002",
+      "description": "From edge1: the same table without a table block. The column 'id' of '1' to '11' is a number column, and the columns with empty values are string columns with missing values.",
+      "path": "edge/edge1_inferred.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0
+            ]
+          },
+          {
+            "name": "Z\u00fcrich",
+            "type": "string",
+            "values": [
+              "caf\u00e9",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "name": "b",
+            "type": "number",
+            "values": [
+              1.0,
+              1.0,
+              3000000000.0,
+              0.0,
+              100.0,
+              0.5,
+              7.5,
+              0.001,
+              123.456,
+              0.1,
+              2026.1
+            ]
+          },
+          {
+            "name": "esc",
+            "type": "string",
+            "values": [
+              "tab\there \"q\" back\\slash \u0001 ctrl",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "name": "emoji",
+            "type": "string",
+            "values": [
+              "\ud83d\ude00 \ud83d\ude00",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-003",
+      "description": "From edge2: a value in NFD is returned as written, apart from the same value in NFC.",
+      "path": "edge/edge2_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "cafe\u0301",
+              "caf\u00e9"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-004",
+      "description": "From edge2: a column name in NFD matches the field name in NFC, and the column keeps the name as the header writes it.",
+      "path": "edge/edge2_header.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "caf\u00e9",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "cafe\u0301",
+            "type": "string",
+            "values": [
+              "x"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-005",
+      "description": "From edge2: values in NFD match categories in NFC and are returned as written.",
+      "path": "edge/edge2_category.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "categories": [
+                "caf\u00e9",
+                "th\u00e9"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "cafe\u0301",
+              "the\u0301",
+              "caf\u00e9"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-006",
+      "description": "From edge2: a value in NFD matches a labelled missing value in NFC and is missing.",
+      "path": "edge/edge2_missing.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "missingValues": [
+                {
+                  "value": "refus\u00e9",
+                  "label": "refused"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              null,
+              "x"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-007",
+      "description": "From edge2: two column names equal after NFC.",
+      "path": "edge/edge2_duplicate_header.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 6 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "tables-edge-008",
+      "description": "From edge3: a byte-order mark before a table without a table block.",
+      "path": "edge/edge3_bom.csv",
+      "expected": {
+        "issue": {
+          "code": "E1003",
+          "message": "The input starts with a UTF-8 byte-order mark."
+        }
+      }
+    },
+    {
+      "id": "tables-edge-009",
+      "description": "From edge3: U+FEFF after the start of the input is a character of its value.",
+      "path": "edge/edge3_bom_inside.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "\ufeffx"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-010",
+      "description": "From edge3: U+FEFF before a number makes it no number.",
+      "path": "edge/edge3_bom_number.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '\ufeff1' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-011",
+      "description": "From edge4: NaN, INF and -INF in any mix of upper and lower case are numbers.",
+      "path": "edge/edge4_special_numbers.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              "NaN",
+              "NaN",
+              "NaN",
+              "Infinity",
+              "-Infinity",
+              "Infinity",
+              "-Infinity"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-012",
+      "description": "From edge4: '+INF' has a sign that only '-INF' allows.",
+      "path": "edge/edge4_plus_inf.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '+INF' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-013",
+      "description": "From edge4: 'Infinity' is not one of the special values.",
+      "path": "edge/edge4_infinity.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'Infinity' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-014",
+      "description": "From edge4: '-NaN' is not one of the special values.",
+      "path": "edge/edge4_negative_nan.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '-NaN' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-015",
+      "description": "From edge4: 'NaN' is no integer.",
+      "path": "edge/edge4_nan_integer.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'NaN' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-016",
+      "description": "From edge4: without a table block, a column of 'NaN' and '1' is a number column and a column of 'NA' and '1' a string column.",
+      "path": "edge/edge4_inferred.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              "NaN",
+              1.0
+            ]
+          },
+          {
+            "name": "z",
+            "type": "string",
+            "values": [
+              "NA",
+              "1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-017",
+      "description": "From e5: small numbers, the smallest subnormal, the largest decimal that rounds to it, a zero with a large negative exponent and negative zero.",
+      "path": "edge/e5_small.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1e-07,
+              1.5e-07,
+              5e-324,
+              5e-324,
+              0.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-018",
+      "description": "From e5: the largest decimal that rounds to zero.",
+      "path": "edge/e5_underflow.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2.4703282292062327e-324' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-019",
+      "description": "From e5: '1e-400' rounds to zero.",
+      "path": "edge/e5_underflow_exponent.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1e-400' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-020",
+      "description": "From e6: large numbers, the largest double and the largest decimal that rounds to it.",
+      "path": "edge/e6_large.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1e+21,
+              1.7976931348623157e+308,
+              1.2345678901234568e+20,
+              1e+20,
+              1.7976931348623157e+308
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-021",
+      "description": "From e6: the smallest decimal that rounds to infinity.",
+      "path": "edge/e6_overflow.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1.7976931348623159e308' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-022",
+      "description": "From e6: '-1e400' rounds to minus infinity.",
+      "path": "edge/e6_negative_overflow.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '-1e400' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-023",
+      "description": "From e6: an integer beyond 9007199254740991.",
+      "path": "edge/e6_integer_range.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '123456789012345680000' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-024",
+      "description": "From e6: '1e21' is not in the lexical form of an integer.",
+      "path": "edge/e6_integer_exponent.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1e21' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-025",
+      "description": "From e7: the largest and smallest integers, leading zeros and signed zeros.",
+      "path": "edge/e7_integer_limits.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              9007199254740991,
+              -9007199254740991,
+              9007199254740991,
+              0,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-026",
+      "description": "From e7: 2^53 is outside the integer range.",
+      "path": "edge/e7_integer_2_53.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '9007199254740992' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-027",
+      "description": "From e7: 9007199254740993, the value of e7.",
+      "path": "edge/e7_integer_beyond.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '9007199254740993' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-028",
+      "description": "From e7: as numbers, 9007199254740993 rounds to the even neighbour 9007199254740992, and 9007199254740995 to 9007199254740996.",
+      "path": "edge/e7_number.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              9007199254740992.0,
+              9007199254740996.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-029",
+      "description": "From e8: a column name outside the BMP.",
+      "path": "edge/e8_header_outside_bmp.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 7 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-030",
+      "description": "From e8: columns keep the order of the header, which is not sorted, a column name may hold U+FF08 and a value may hold U+1F600.",
+      "path": "edge/e8_column_order.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "b",
+            "type": "string",
+            "values": [
+              "\ud83d\ude00"
+            ]
+          },
+          {
+            "name": "\uff08",
+            "type": "string",
+            "values": [
+              "x"
+            ]
+          },
+          {
+            "name": "a",
+            "type": "string",
+            "values": [
+              "y"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-031",
+      "description": "From e9: the bytes ED A0 80 encode the surrogate U+D800, which is not UTF-8.",
+      "path": "edge/e9_encoded_surrogate.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-032",
+      "description": "From e9: U+1F600 encoded as two surrogates (CESU-8) is not UTF-8.",
+      "path": "edge/e9_cesu.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-033",
+      "description": "From e9: CSV has no escapes, so the text '\\ud800' is six characters of a value.",
+      "path": "edge/e9_escape_text.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "\\ud800"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-034",
+      "description": "From e10: the number layouts of e10, with forms that only the table's lexical form allows: '.5', '5.', '+5' and '-.5e+1'.",
+      "path": "edge/e10_layout.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1e-06,
+              4.35,
+              0.3,
+              1.0000000000000002,
+              1e-06,
+              0.1,
+              100.0,
+              100.0,
+              25.0,
+              0.5,
+              5.0,
+              5.0,
+              -5.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-035",
+      "description": "From e10: decimals that R's as.numeric() misconverts, which the reader must round correctly (conventions.md, Numbers).",
+      "path": "edge/e10_rounding.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              -76944133.284736,
+              7.32e-97,
+              -6.1892785e-12
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-036",
+      "description": "From e10: a lone '.' has no digit.",
+      "path": "edge/e10_dot.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '.' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-037",
+      "description": "From e10: an exponent needs digits.",
+      "path": "edge/e10_exponent_without_digits.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1e' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-038",
+      "description": "From e10: the decimal character is '.'.",
+      "path": "edge/e10_decimal_comma.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1,5' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-039",
+      "description": "From e10: only ASCII digits are digits.",
+      "path": "edge/e10_arabic_indic.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '\u0661' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-040",
+      "description": "From e10: a quoted number that ends in a line feed.",
+      "path": "edge/e10_trailing_line_feed.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1\\u000A' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-041",
+      "description": "From e10: hexadecimal is not a number form.",
+      "path": "edge/e10_hexadecimal.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '0x10' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-042",
+      "description": "From e10: '1.0' is a number but not an integer.",
+      "path": "edge/e10_integer_decimal.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1.0' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-043",
+      "description": "From e11: a header without records is a table of no rows.",
+      "path": "edge/e11_header_only.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": []
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-044",
+      "description": "From e11: a header that ends the text, without a table block. Columns without values are string columns.",
+      "path": "edge/e11_header_without_line_break.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": []
+          },
+          {
+            "name": "y",
+            "type": "string",
+            "values": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-045",
+      "description": "From e11: in a table of one column, an empty line is a record with one empty field, which is missing.",
+      "path": "edge/e11_empty_line.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-046",
+      "description": "From e11: with an empty list of missing values, the empty field of an empty line is the empty string.",
+      "path": "edge/e11_empty_line_no_missing.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string",
+              "missingValues": []
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              ""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-047",
+      "description": "From e11: an empty line in a table of two columns is a record of one field, located at its line break.",
+      "path": "edge/e11_empty_line_two_columns.csv",
+      "expected": {
+        "issue": {
+          "code": "E5005",
+          "message": "The record at byte 9 has a different number of values from the header: 1 against 2.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "tables-edge-048",
+      "description": "From e11: with an empty list of missing values, an empty integer is no integer. The empty field is located at the line break that ends it.",
+      "path": "edge/e11_empty_integer.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "missingValues": []
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-049",
+      "description": "From e11: an empty input has no record.",
+      "path": "edge/e11_empty_input.csv",
+      "expected": {
+        "issue": {
+          "code": "E5001",
+          "message": "The table has no header row."
+        }
+      }
+    },
+    {
+      "id": "tables-edge-050",
+      "description": "From e11: a text of one line break has one empty record, whose column name is empty.",
+      "path": "edge/e11_line_break_only.csv",
+      "expected": {
+        "issue": {
+          "code": "E5002",
+          "message": "The column name at byte 0 is empty, is not a valid column name or equals an earlier column name after NFC normalisation.",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "tables-edge-051",
+      "description": "From e12: U+2028, U+001F and U+00E9 are characters of their values, not escapes.",
+      "path": "edge/e12_raw_characters.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "line\u2028sep and \u00e9 and \u001f"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-edge-052",
+      "description": "From e12: the message shows U+001F of a value escaped.",
+      "path": "edge/e12_control_message.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1\\u001F' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-053",
+      "description": "From e12: the message shows U+2028 of a value escaped.",
+      "path": "edge/e12_separator_message.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1\\u20282' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-edge-054",
+      "description": "From e12: the message truncates a value of more than 60 code points to 57 and '...'.",
+      "path": "edge/e12_long_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '123456789012345678901234567890123456789012345678901234567...' of the column 'y' at byte 7 cannot be read as a number.",
+          "offset": 7
+        }
+      }
+    }
+  ]
+}

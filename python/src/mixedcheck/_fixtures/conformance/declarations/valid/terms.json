@@ -1,0 +1,21 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {"name": "y", "type": "number"},
+      {"name": "arm", "type": "string"},
+      {"name": "reading score", "type": "number"},
+      {"name": "a:b", "type": "number"},
+      {"name": "âge", "type": "integer"},
+      {"name": "log_freq.c", "type": "number"}
+    ]
+  },
+  "variables": {"y": {"role": "outcome", "measurement": "continuous"}},
+  "estimands": [
+    {"id": "e1", "term": "log_freq.c", "kind": "association"},
+    {"id": "e2", "term": "arm:`reading score`", "kind": "association"},
+    {"id": "e3", "term": "`reading score`:arm", "kind": "association", "focal": false},
+    {"id": "e4", "term": "`a:b`", "kind": "association"},
+    {"id": "e5", "term": "`âge`:`arm`", "kind": "association", "outcome": "y"}
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [{"name": "subject", "columns": ["subject"]}],
+  "assignment": [{"column": "arm", "unit": "subject", "randomised": true}],
+  "variables": {"arm": {"role": "outcome"}}
+}

@@ -1,0 +1,35 @@
+vocabulary: 0.1.0
+title: ~
+table:
+  fields:
+    - name: answer
+      type: string
+      categories:
+        - yes
+        - no
+        - y
+        - n
+        - on
+        - off
+        - NO
+        - NA
+        - ~
+        - null
+        -
+        - 007
+        - 08
+        - 2026.10
+        - 1e3
+        - 1.0e3
+        - .5
+        - 0x1F
+        - 1_000
+        - 1,000
+        - 12:30
+        - 2026-11-07
+        - +1
+        - .inf
+    - name: code
+      missingValues: ["no", "", Null]
+provenance:
+  author: null

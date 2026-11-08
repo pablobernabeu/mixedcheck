@@ -1,0 +1,964 @@
+{
+  "description": "'||' on numeric terms and on factors whose coding is frozen as numeric contrast columns, its rejection on other categorical columns and its interplay with '/' and centring.",
+  "cases": [
+    {
+      "id": "double-bar-01",
+      "description": "'||' splits a numeric slope from the intercept.",
+      "formula": "y ~ x + (x || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:4309a2fe50a3c0c197e71127062b0489810f3a604b540b85846a4934a7f05c24"
+      }
+    },
+    {
+      "id": "double-bar-02",
+      "description": "The expanded form gives the same IR as double-bar-01.",
+      "formula": "y ~ x + (1 | g) + (0 + x | g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:4309a2fe50a3c0c197e71127062b0489810f3a604b540b85846a4934a7f05c24"
+      }
+    },
+    {
+      "id": "double-bar-03",
+      "description": "Each numeric term becomes its own random term.",
+      "formula": "y ~ (1 + x + z || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + z | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "z", "variables": [{"variable": "z"}]}],
+              "columns": [{"name": "z", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:3a7f24fb92df69a7ea87044381f9f3ec6eea0b81c97705063485291acb43745b"
+      }
+    },
+    {
+      "id": "double-bar-04",
+      "description": "Without an intercept, '||' gives only the slopes.",
+      "formula": "y ~ (0 + x + z || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "0 + x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + z | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "z", "variables": [{"variable": "z"}]}],
+              "columns": [{"name": "z", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:41cbe2496b787ea9307a4e61b8bf5ae2580e7e80791bf474487074a1e9c3f986"
+      }
+    },
+    {
+      "id": "double-bar-05",
+      "description": "An interaction of numeric columns is one term.",
+      "formula": "y ~ (x:z || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x:z | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x:z", "variables": [{"variable": "x"}, {"variable": "z"}]}],
+              "columns": [{"name": "x:z", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:d914f5d66a8f032d1dca8ed78c5d0e7843596d80f697b6ad8cfdd46e2ab24fde"
+      }
+    },
+    {
+      "id": "double-bar-06",
+      "description": "'||' with a nested grouping factor: the terms are grouped by factor.",
+      "formula": "y ~ (1 + x || g/h)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"],
+        "h": ["h1", "h2", "h1", "h2", "h1", "h2", "h1", "h2", "h1", "h2", "h1", "h2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | g:h",
+              "factor": "g:h",
+              "grouping": ["g", "h"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | g:h",
+              "factor": "g:h",
+              "grouping": ["g", "h"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:f65d644a817273e738e0af0997913c8947977dae51de3f04ecca3bd1cf1cd09d"
+      }
+    },
+    {
+      "id": "double-bar-07",
+      "description": "'||' cannot split a categorical column, whose indicators would duplicate the intercept.",
+      "formula": "y ~ (1 + cond || g)",
+      "data": {"y": [1, 2], "cond": ["A", "B"], "g": ["g1", "g2"]},
+      "expected": {
+        "issue": {
+          "code": "E6053",
+          "message": "The column 'cond' at byte 9 is categorical, and '||' splits only numeric terms. Use '|' for a random term with a categorical column.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "double-bar-08",
+      "description": "'||' is rejected when any term contains a categorical column.",
+      "formula": "y ~ (1 + x:cond || g)",
+      "data": {"y": [1, 2], "x": [1, 2], "cond": ["A", "B"], "g": ["g1", "g2"]},
+      "expected": {
+        "issue": {
+          "code": "E6053",
+          "message": "The column 'cond' at byte 11 is categorical, and '||' splits only numeric terms. Use '|' for a random term with a categorical column.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "double-bar-09",
+      "description": "A boolean column is categorical, so '||' rejects it.",
+      "formula": "y ~ (flag || g)",
+      "data": {"y": [1, 2], "flag": [true, false], "g": ["g1", "g2"]},
+      "expected": {
+        "issue": {
+          "code": "E6053",
+          "message": "The column 'flag' at byte 5 is categorical, and '||' splits only numeric terms. Use '|' for a random term with a categorical column.",
+          "offset": 5
+        }
+      }
+    },
+    {
+      "id": "double-bar-10",
+      "description": "'||' with the intercept alone is the plain random intercept.",
+      "formula": "y ~ (1 || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:0971099fa850c57dc97c6b377c57b5d21d57b6018dff65276ca2f07bcbb0c77a"
+      }
+    },
+    {
+      "id": "double-bar-11",
+      "description": "The intercept from '||' repeats the explicit random intercept.",
+      "formula": "y ~ (x || g) + (1 | g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6035",
+          "message": "The random term at byte 15 repeats the earlier random term '1 | g'.",
+          "offset": 15
+        }
+      }
+    },
+    {
+      "id": "double-bar-12",
+      "description": "A random term without columns.",
+      "formula": "y ~ (0 || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "issue": {"code": "E6034", "message": "The random term at byte 4 has no columns.", "offset": 4}
+      }
+    },
+    {
+      "id": "double-bar-13",
+      "description": "Mean centring applies to the split slopes too.",
+      "formula": "y ~ x + (x || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "coding": {"x": {"centring": "mean"}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {
+              "kind": "numeric",
+              "centring": {
+                "rule": "mean",
+                "sample": "design",
+                "constant": {"significant_digits": 6, "value": "3.5"}
+              }
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:c9ebfaafcde064a4e9c6249b14b867b88c1396f56ab3c6b81929837dc74b7e46",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, -2.5],
+            [1, -1.5],
+            [1, -0.5],
+            [1, 0.5],
+            [1, 1.5],
+            [1, 2.5],
+            [1, -2.5],
+            [1, -1.5],
+            [1, -0.5],
+            [1, 0.5],
+            [1, 1.5],
+            [1, 2.5]
+          ],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "g1", "column": "(Intercept)"},
+            {"term": 0, "level": "g2", "column": "(Intercept)"},
+            {"term": 0, "level": "g3", "column": "(Intercept)"},
+            {"term": 0, "level": "g4", "column": "(Intercept)"},
+            {"term": 1, "level": "g1", "column": "x"},
+            {"term": 1, "level": "g2", "column": "x"},
+            {"term": 1, "level": "g3", "column": "x"},
+            {"term": 1, "level": "g4", "column": "x"}
+          ],
+          "z": [
+            [1, 0, 0, 0, -2.5, 0, 0, 0],
+            [1, 0, 0, 0, -1.5, 0, 0, 0],
+            [1, 0, 0, 0, -0.5, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0.5, 0, 0],
+            [0, 1, 0, 0, 0, 1.5, 0, 0],
+            [0, 1, 0, 0, 0, 2.5, 0, 0],
+            [0, 0, 1, 0, 0, 0, -2.5, 0],
+            [0, 0, 1, 0, 0, 0, -1.5, 0],
+            [0, 0, 1, 0, 0, 0, -0.5, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0.5],
+            [0, 0, 0, 1, 0, 0, 0, 1.5],
+            [0, 0, 0, 1, 0, 0, 0, 2.5]
+          ]
+        }
+      }
+    },
+    {
+      "id": "double-bar-14",
+      "description": "With its coding frozen, a two-level factor is one numeric contrast column, so '||' splits it from the intercept.",
+      "formula": "rt ~ cond + (1 + cond || subject)",
+      "data": {
+        "rt": [6.1, 6.4, 6, 6.6, 6.2, 6.5, 6.3, 6.7],
+        "cond": ["A", "B", "A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4"]
+      },
+      "coding": {"cond": {"contrast": "simple", "frozen": true}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B"],
+              "levels_source": "table",
+              "contrast": "simple",
+              "reference": "A",
+              "frozen": true
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}],
+              "columns": [{"name": "cond[B]", "term": 0, "levels": {"cond": "B"}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "rt", "transform": "identity"}
+        },
+        "ir_hash": "sha256:b433ee9ac0d3d50d5a7c0dd2a8dda0afa9480df57639832182f7afd2fb5b0c1a",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7],
+          "x": [[1, -0.5], [1, 0.5], [1, -0.5], [1, 0.5], [1, -0.5], [1, 0.5], [1, -0.5], [1, 0.5]],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "s1", "column": "(Intercept)"},
+            {"term": 0, "level": "s2", "column": "(Intercept)"},
+            {"term": 0, "level": "s3", "column": "(Intercept)"},
+            {"term": 0, "level": "s4", "column": "(Intercept)"},
+            {"term": 1, "level": "s1", "column": "cond[B]"},
+            {"term": 1, "level": "s2", "column": "cond[B]"},
+            {"term": 1, "level": "s3", "column": "cond[B]"},
+            {"term": 1, "level": "s4", "column": "cond[B]"}
+          ],
+          "z": [
+            [1, 0, 0, 0, -0.5, 0, 0, 0],
+            [1, 0, 0, 0, 0.5, 0, 0, 0],
+            [0, 1, 0, 0, 0, -0.5, 0, 0],
+            [0, 1, 0, 0, 0, 0.5, 0, 0],
+            [0, 0, 1, 0, 0, 0, -0.5, 0],
+            [0, 0, 1, 0, 0, 0, 0.5, 0],
+            [0, 0, 0, 1, 0, 0, 0, -0.5],
+            [0, 0, 0, 1, 0, 0, 0, 0.5]
+          ]
+        }
+      }
+    },
+    {
+      "id": "double-bar-15",
+      "description": "The explicit form of double-bar-14 gives the same IR as double-bar-14.",
+      "formula": "rt ~ cond + (1 | subject) + (0 + cond | subject)",
+      "data": {
+        "rt": [6.1, 6.4, 6, 6.6, 6.2, 6.5, 6.3, 6.7],
+        "cond": ["A", "B", "A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4"]
+      },
+      "coding": {"cond": {"contrast": "simple", "frozen": true}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B"],
+              "levels_source": "table",
+              "contrast": "simple",
+              "reference": "A",
+              "frozen": true
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}],
+              "columns": [{"name": "cond[B]", "term": 0, "levels": {"cond": "B"}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "rt", "transform": "identity"}
+        },
+        "ir_hash": "sha256:b433ee9ac0d3d50d5a7c0dd2a8dda0afa9480df57639832182f7afd2fb5b0c1a"
+      }
+    },
+    {
+      "id": "double-bar-16",
+      "description": "A frozen factor with three levels gives one uncorrelated random term for each contrast column.",
+      "formula": "y ~ a + (1 + a || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "coding": {"a": {"contrast": "sum", "frozen": true}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "sum",
+              "reference": "A1",
+              "frozen": true
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + a[A2] | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [
+                {
+                  "name": "a[A2]",
+                  "variables": [{"variable": "a", "coding": "contrast", "level": "A2"}]
+                }
+              ],
+              "columns": [{"name": "a[A2]", "term": 0, "levels": {"a": "A2"}}]
+            },
+            {
+              "name": "0 + a[A3] | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [
+                {
+                  "name": "a[A3]",
+                  "variables": [{"variable": "a", "coding": "contrast", "level": "A3"}]
+                }
+              ],
+              "columns": [{"name": "a[A3]", "term": 0, "levels": {"a": "A3"}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:8509ad1294179d0a6609a6125148b32eb80bb5e15e9ae81de39bb00b3da31b58",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, -1, -1],
+            [1, 1, 0],
+            [1, 0, 1],
+            [1, -1, -1],
+            [1, 1, 0],
+            [1, 0, 1],
+            [1, -1, -1],
+            [1, 1, 0],
+            [1, 0, 1],
+            [1, -1, -1],
+            [1, 1, 0],
+            [1, 0, 1]
+          ],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "g1", "column": "(Intercept)"},
+            {"term": 0, "level": "g2", "column": "(Intercept)"},
+            {"term": 0, "level": "g3", "column": "(Intercept)"},
+            {"term": 0, "level": "g4", "column": "(Intercept)"},
+            {"term": 1, "level": "g1", "column": "a[A2]"},
+            {"term": 1, "level": "g2", "column": "a[A2]"},
+            {"term": 1, "level": "g3", "column": "a[A2]"},
+            {"term": 1, "level": "g4", "column": "a[A2]"},
+            {"term": 2, "level": "g1", "column": "a[A3]"},
+            {"term": 2, "level": "g2", "column": "a[A3]"},
+            {"term": 2, "level": "g3", "column": "a[A3]"},
+            {"term": 2, "level": "g4", "column": "a[A3]"}
+          ],
+          "z": [
+            [1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0],
+            [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0],
+            [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 1, 0, 0, 0, -1, 0, 0, 0, -1, 0],
+            [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0, -1],
+            [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]
+          ]
+        }
+      }
+    },
+    {
+      "id": "double-bar-17",
+      "description": "'||' splits an interaction of a frozen factor and a numeric column by the columns of the interaction.",
+      "formula": "y ~ a*x + (0 + a:x || g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "coding": {"a": {"frozen": true}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1",
+              "frozen": true
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {
+                "name": "a:x",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "x"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "x", "term": 2, "levels": {}},
+              {"name": "a[A2]:x", "term": 3, "levels": {"a": "A2"}},
+              {"name": "a[A3]:x", "term": 3, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "0 + a[A2]:x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [
+                {
+                  "name": "a[A2]:x",
+                  "variables": [{"variable": "a", "coding": "contrast", "level": "A2"}, {"variable": "x"}]
+                }
+              ],
+              "columns": [{"name": "a[A2]:x", "term": 0, "levels": {"a": "A2"}}]
+            },
+            {
+              "name": "0 + a[A3]:x | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [
+                {
+                  "name": "a[A3]:x",
+                  "variables": [{"variable": "a", "coding": "contrast", "level": "A3"}, {"variable": "x"}]
+                }
+              ],
+              "columns": [{"name": "a[A3]:x", "term": 0, "levels": {"a": "A3"}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:57ebabf84ac2180ff9debdf972772d74d844462af9ad3bdfd240ca0d7c1112a4"
+      }
+    },
+    {
+      "id": "double-bar-18",
+      "description": "Without an intercept, a frozen factor keeps its contrast in a random term, where an unfrozen one would switch to indicators.",
+      "formula": "y ~ a + (0 + a | g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "coding": {"a": {"contrast": "simple", "frozen": true}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "simple",
+              "reference": "A1",
+              "frozen": true
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "0 + a | g",
+              "factor": "g",
+              "grouping": ["g"],
+              "covariance": "unstructured",
+              "terms": [{"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]}],
+              "columns": [
+                {"name": "a[A2]", "term": 0, "levels": {"a": "A2"}},
+                {"name": "a[A3]", "term": 0, "levels": {"a": "A3"}}
+              ]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:26460fe8507abbcb80c6cadcb8e28c128df88c7e8aa95eba37b47d2f9d629121"
+      }
+    },
+    {
+      "id": "double-bar-19",
+      "description": "A frozen factor keeps its contrast in a fixed part without an intercept.",
+      "formula": "y ~ 0 + a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "coding": {"a": {"frozen": true}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1",
+              "frozen": true
+            }
+          },
+          "fixed": {
+            "terms": [{"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]}],
+            "columns": [
+              {"name": "a[A2]", "term": 0, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 0, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:6186e4f5c487aeef229ff22c7ec5b97b6f853cf344cface9c0c96fcf049e6e25"
+      }
+    },
+    {
+      "id": "double-bar-20",
+      "description": "Duplicates are found before '||' splits a frozen factor into its columns, so '(0 + a | g)' repeats the term '0 + a | g' that '||' gives.",
+      "formula": "y ~ (1 + a || g) + (0 + a | g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "coding": {"a": {"frozen": true}},
+      "expected": {
+        "issue": {
+          "code": "E6035",
+          "message": "The random term at byte 19 repeats the earlier random term '0 + a | g'.",
+          "offset": 19
+        }
+      }
+    },
+    {
+      "id": "double-bar-21",
+      "description": "The split terms of a frozen factor share their columns with a later correlated term of the same factor.",
+      "formula": "y ~ (0 + a || g) + (0 + a + x | g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "coding": {"a": {"frozen": true}},
+      "expected": {
+        "issue": {
+          "code": "E6058",
+          "message": "The random term at byte 19 repeats the column 'a[A2]' of an earlier random term of the grouping factor 'g'.",
+          "offset": 19
+        }
+      }
+    }
+  ]
+}

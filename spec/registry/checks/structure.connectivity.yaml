@@ -1,0 +1,88 @@
+id: structure.connectivity
+version: 1
+title: Connectivity of two crossed grouping factors
+tier: T0
+summary: >-
+  For two grouping factors that neither nest nor share a partition, such as
+  subjects and items, counts the connected groups of levels that rows link
+  together. In a disconnected design, the two sets of random effects are
+  compared only within each group, and a fixed term that is constant within
+  every group is estimated only from the differences between the groups.
+reads: [formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: grouping_factor_pair
+applies_when: For the pair, the statistic partition of structure.aliased_factors is other.
+availability: []
+statistics:
+  components:
+    kind: count
+    count_class: non_person
+    definition: >-
+      The number of connected components of the graph whose vertices are the
+      levels of the two factors and whose edges join two levels that occur
+      together in a row of the design sample.
+  between_component_terms:
+    kind: names
+    definition: >-
+      The fixed terms other than the intercept, in term order, whose columns,
+      restricted to the rows of each component, have rank 0 by the sequential
+      rule after the component's first row is subtracted from every row, in
+      every component.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: components is at least 2 and between_component_terms is not empty.
+      thresholds: []
+      message: confounded
+    - finding: detectable_inconsequential
+      condition: components is at least 2.
+      thresholds: []
+      message: disconnected
+  otherwise:
+    finding: consistent
+    message: connected
+assessability: []
+messages:
+  confounded:
+    template: >-
+      '{first}' and '{second}' form {components} disconnected groups of levels,
+      and {terms} do not vary within these groups, so their effects rest only
+      on the differences between the groups.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+      components: {source: statistic, name: components}
+      terms: {source: statistic, name: between_component_terms}
+  disconnected:
+    template: >-
+      '{first}' and '{second}' form {components} disconnected groups of levels,
+      so their random effects are compared only within each group.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+      components: {source: statistic, name: components}
+  connected:
+    template: >-
+      '{first}' and '{second}' are connected: rows link every level to every
+      other level.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+remedies:
+  - id: report_components
+    description: >-
+      Report the effects of terms that are constant within the groups as
+      comparisons between the groups, or collect data that link the groups.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+links:
+  requires: [structure.aliased_factors]
+  explained_by: [sample.raw_vs_analysis]
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L1-14 and L7-18.
+catalogue: [L1-14, L7-18]

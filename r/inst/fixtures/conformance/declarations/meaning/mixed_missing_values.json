@@ -1,0 +1,7 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [{"name": "score", "type": "number"}],
+    "missingValues": ["", {"value": "-99", "label": "refused"}]
+  }
+}

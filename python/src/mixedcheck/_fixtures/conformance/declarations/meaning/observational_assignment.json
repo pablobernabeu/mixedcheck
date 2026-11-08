@@ -1,0 +1,6 @@
+{
+  "vocabulary": "0.1.0",
+  "features": ["observational"],
+  "units": [{"name": "school", "columns": ["school"]}],
+  "assignment": [{"column": "programme", "unit": "school", "randomised": false}]
+}

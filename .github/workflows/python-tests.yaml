@@ -1,6 +1,8 @@
-# Tests of the Python package in python/. The quick jobs run on every push to
-# main and every pull request that touches the package or the shared artefacts it vendors. The
-# full matrix of 02-decisions.md (Q10) runs when started by hand and nightly.
+# Tests of the Python package in python/, with ruff on every Python script of
+# the repository and the offline tests of the reference checker. The quick jobs
+# run on every push to main and every pull request that touches the package,
+# the shared artefacts it vendors or the scripts. The full matrix of
+# 02-decisions.md (Q10) runs when started by hand and nightly.
 name: python-tests
 
 on:
@@ -11,6 +13,7 @@ on:
       - 'spec/**'
       - 'fixtures/**'
       - 'ruff.toml'
+      - '.github/scripts/**'
       - '.github/workflows/python-tests.yaml'
   pull_request:
     types: [opened, synchronize, reopened, labeled]
@@ -19,6 +22,7 @@ on:
       - 'spec/**'
       - 'fixtures/**'
       - 'ruff.toml'
+      - '.github/scripts/**'
       - '.github/workflows/python-tests.yaml'
   workflow_dispatch:
   schedule:
@@ -40,7 +44,7 @@ env:
 
 jobs:
   ruff:
-    name: ruff
+    name: ruff and repository scripts
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'labeled')
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -49,9 +53,18 @@ jobs:
         with:
           persist-credentials: false
       # The rule selection is in python/pyproject.toml, which ruff.toml extends
-      # for the vendoring script in spec/tools/.
-      - name: Lint the package and the vendoring script
-        run: pipx run ruff check python spec/tools
+      # for the scripts outside python/.
+      - name: Lint the package and the repository scripts
+        run: pipx run ruff check python spec/tools fixtures/conformance/tools .github/scripts
+      # The reference checker uses the standard library only. Its Crossref
+      # comparison runs in references.yaml.
+      - name: Test the reference checker offline
+        run: python3 -m unittest discover -s .github/scripts
+      # The settings are in python/pyproject.toml. The package ships the
+      # marker py.typed, so its hints must pass the strict mode.
+      - name: Check the type hints of the package
+        working-directory: python
+        run: pipx run --spec mypy==2.4.1 mypy
 
   quick:
     name: ${{ matrix.name }}
@@ -62,7 +75,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {name: 'Python 3.11, lowest direct', python: '3.11', resolution: 'lowest-direct'}
+          # The extra 'yaml' installs PyYAML, without which the tests check
+          # that reading YAML reports E3001.
+          - {name: 'Python 3.11, lowest direct, with yaml', python: '3.11', resolution: 'lowest-direct', extras: '[yaml]'}
           - {name: 'Python 3.15, latest', python: '3.15', resolution: 'highest', build: true}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -75,9 +90,10 @@ jobs:
         env:
           PYTHON_VERSION: ${{ matrix.python }}
           RESOLUTION: ${{ matrix.resolution }}
+          EXTRAS: ${{ matrix.extras }}
         run: |
           uv venv --python "$PYTHON_VERSION" "$RUNNER_TEMP/venv"
-          uv pip install --python "$RUNNER_TEMP/venv" --resolution "$RESOLUTION" --group test .
+          uv pip install --python "$RUNNER_TEMP/venv" --resolution "$RESOLUTION" --group test ".$EXTRAS"
           uv pip list --python "$RUNNER_TEMP/venv"
       # The package is installed from a built wheel, so the tests check the
       # vendored files that an installation receives.
@@ -110,6 +126,10 @@ jobs:
                      if f"src/mixedcheck/{name}" not in in_sdist]
           missing += [f"{wheel.name}: mixedcheck/{name}" for name in vendored
                       if f"mixedcheck/{name}" not in in_wheel]
+          if "src/mixedcheck/py.typed" not in in_sdist:
+              missing.append(f"{sdist.name}: src/mixedcheck/py.typed")
+          if "mixedcheck/py.typed" not in in_wheel:
+              missing.append(f"{wheel.name}: mixedcheck/py.typed")
           if "LICENSE" not in in_sdist:
               missing.append(f"{sdist.name}: LICENSE")
           if not any(name.endswith(".dist-info/licenses/LICENSE") for name in in_wheel):
@@ -152,9 +172,9 @@ jobs:
       matrix:
         include:
           - {name: 'Python 3.11, latest', python: '3.11', resolution: 'highest'}
-          - {name: 'Python 3.12, latest', python: '3.12', resolution: 'highest'}
-          - {name: 'Python 3.13, latest', python: '3.13', resolution: 'highest'}
-          - {name: 'Python 3.14, latest', python: '3.14', resolution: 'highest'}
+          - {name: 'Python 3.12, latest, with yaml', python: '3.12', resolution: 'highest', extras: '[yaml]'}
+          - {name: 'Python 3.13, latest, with yaml', python: '3.13', resolution: 'highest', extras: '[yaml]'}
+          - {name: 'Python 3.14, latest, with yaml', python: '3.14', resolution: 'highest', extras: '[yaml]'}
           - {name: 'Python 3.15, latest', python: '3.15', resolution: 'highest'}
           - {name: 'Python 3.11, lowest direct', python: '3.11', resolution: 'lowest-direct'}
           # pandas 3 infers a new string dtype, so pandas 2.3 is tested as
@@ -172,9 +192,10 @@ jobs:
           PYTHON_VERSION: ${{ matrix.python }}
           RESOLUTION: ${{ matrix.resolution }}
           PIN: ${{ matrix.pin }}
+          EXTRAS: ${{ matrix.extras }}
         run: |
           uv venv --python "$PYTHON_VERSION" "$RUNNER_TEMP/venv"
-          uv pip install --python "$RUNNER_TEMP/venv" --resolution "$RESOLUTION" --group test . ${PIN:+"$PIN"}
+          uv pip install --python "$RUNNER_TEMP/venv" --resolution "$RESOLUTION" --group test ".$EXTRAS" ${PIN:+"$PIN"}
           uv pip list --python "$RUNNER_TEMP/venv"
       - name: Run the tests
         working-directory: python

@@ -1,0 +1,140 @@
+id: outcome.constant_clusters
+version: 1
+title: Levels without outcome variation
+tier: T1
+summary: >-
+  Counts the levels of a grouping factor within which the outcome does not
+  vary. For a binary outcome, as with participants at 100% accuracy, such
+  levels contribute almost nothing to their own random slopes, and many of
+  them can push the standard deviation of the random intercept towards very
+  large values. For other outcomes, constant levels point to floor or ceiling
+  effects or to errors in the data. The check reads the outcome by grouping
+  factor only.
+reads: [declaration, formula, grouping_factors, outcome]
+fitted_model: false
+sample: analysis
+scope: grouping_factor
+availability: []
+statistics:
+  multi_row_levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the factor with at least two rows in the analysis sample.
+  constant_levels:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of those levels within which the response vector of ir.md
+      (Response, offsets and weights) takes one value, so that for a binary
+      outcome with a declared event level all the other categories count as
+      one. A categorical outcome without a response vector, such as an ordinal
+      item, is constant in a level when its labels, compared after NFC, take
+      one value there. For the binomial family class, a level is constant when
+      all its rows have no events or all have as many events as trials.
+  constant_share:
+    kind: ratio
+    count_class: by_unit
+    numerator: constant_levels
+    denominator: multi_row_levels
+    definition: constant_levels divided by multi_row_levels, absent when multi_row_levels is 0.
+thresholds:
+  many:
+    statistic: constant_share
+    comparator: '>='
+    value: 0.25
+    validation: {value: descriptive}
+    rationale: >-
+      A quarter of the levels without variation is taken as many, the point at
+      which the variance estimates rest largely on the other levels. The
+      cut-off is a convention, to be calibrated in the GLMM studies V8 to V10.
+    sources:
+      - kind: convention
+        citation: Set by this project for registry 0.1.0.
+      - kind: derivation
+        citation: Review catalogue (docs/design/evidence/review-catalogue.md), L3-20 and L3-03.
+  any:
+    statistic: constant_levels
+    comparator: '>='
+    value: 1
+    validation: {value: descriptive}
+    rationale: One constant level is reported so that its effect on the slopes can be judged.
+    sources:
+      - kind: convention
+        citation: Set by this project for registry 0.1.0.
+parameters: {}
+decision:
+  rules:
+    - finding: consistent
+      condition: multi_row_levels is 0.
+      thresholds: []
+      message: no_levels
+    - finding: detectable_inconsequential
+      condition: constant_share reaches many.
+      thresholds: [many]
+      message: many
+    - finding: detectable_inconsequential
+      condition: constant_levels reaches any.
+      thresholds: [any]
+      message: some
+  otherwise:
+    finding: consistent
+    message: none_constant
+assessability:
+  - value: not_assessable
+    reason: prerequisite_unmet
+    prerequisite: level_with_two_rows
+    condition: multi_row_levels is 0.
+messages:
+  no_levels:
+    template: >-
+      No level of '{factor}' has two or more rows, so variation within levels
+      cannot be assessed.
+    args:
+      factor: {source: scope, name: factor}
+  many:
+    template: >-
+      The outcome is constant within {constant} of the {levels} levels of
+      '{factor}' that have two or more rows ({share}). For a binary outcome,
+      this can push the standard deviation of the random intercept towards
+      very large values, and by-'{factor}' slopes rest on the other levels.
+    args:
+      constant: {source: statistic, name: constant_levels}
+      levels: {source: statistic, name: multi_row_levels}
+      factor: {source: scope, name: factor}
+      share: {source: statistic, name: constant_share, digits: 0}
+  some:
+    template: >-
+      The outcome is constant within {constant} of the {levels} levels of
+      '{factor}' that have two or more rows.
+    args:
+      constant: {source: statistic, name: constant_levels}
+      levels: {source: statistic, name: multi_row_levels}
+      factor: {source: scope, name: factor}
+  none_constant:
+    template: The outcome varies within every level of '{factor}' that has two or more rows.
+    args:
+      factor: {source: scope, name: factor}
+remedies:
+  - id: report_with_variances
+    description: >-
+      Report the share of constant levels with the variance estimates, and
+      treat a very large standard deviation of the random intercept as a
+      consequence of these levels.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+  - id: aggregate_binomial
+    description: >-
+      Where the design allows, model binary rows as binomial counts per cell
+      with their trials, which gives the same estimates and comparable
+      dispersion statistics.
+    uses_outcome: true
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: decision
+    citation: 02-decisions.md, Q2 and Q3
+catalogue: [L3-03, L3-20]

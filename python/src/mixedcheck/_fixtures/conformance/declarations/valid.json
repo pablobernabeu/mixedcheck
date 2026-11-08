@@ -1,0 +1,258 @@
+{
+  "description": "Valid declarations of vocabulary 0.1 in JSON, with their canonical bytes and declaration hashes.",
+  "cases": [
+    {
+      "id": "declarations-valid-001",
+      "description": "The smallest valid declaration: only the vocabulary version.",
+      "path": "valid/vocabulary_only.json",
+      "expected": {
+        "canonical": "{\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:a0e5a5633167d5b72f5163234aa521ad7a84231d4b16eadd52b1bb95867b0ff8"
+      }
+    },
+    {
+      "id": "declarations-valid-002",
+      "description": "Every 0.1.x version is read, here 0.1.12.",
+      "path": "valid/any_patch.json",
+      "expected": {
+        "canonical": "{\"goal\":\"exploratory\",\"vocabulary\":\"0.1.12\"}",
+        "sha256": "sha256:1d81901680a8da6a31c1c1815191a22262a010bcf598cc776f1c2c67581a1359"
+      }
+    },
+    {
+      "id": "declarations-valid-003",
+      "description": "The cluster-randomised trial of the Example in declarations.md, in JSON. It is minimal and has the declaration hash that the Example gives for its YAML form.",
+      "path": "valid/crt_example.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"blocks\":[\"school\"],\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"class\"}],\"estimands\":[{\"id\":\"ITT\",\"kind\":\"total_effect\",\"term\":\"arm\"}],\"features\":[\"cluster_randomised\",\"longitudinal\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"school\",\"class\",\"pupil\",\"wave\"],\"time\":{\"column\":\"wave\",\"kind\":\"occasion\",\"within\":\"pupil\"}},\"provenance\":{\"created\":\"2026-11-08T09:00:00Z\",\"outcome_seen\":false},\"table\":{\"fields\":[{\"name\":\"school\",\"type\":\"string\"},{\"name\":\"class\",\"type\":\"string\"},{\"name\":\"pupil\",\"type\":\"string\"},{\"categories\":[0,1],\"categoriesOrdered\":true,\"name\":\"wave\",\"type\":\"integer\"},{\"categories\":[\"control\",\"tutoring\"],\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"pre\",\"type\":\"number\"},{\"missingValues\":[{\"value\":\"\"},{\"label\":\"absent on test day\",\"value\":\"-99\"}],\"name\":\"post\",\"type\":\"number\"}]},\"title\":\"Reading intervention, classes randomised within schools\",\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"class\"],\"id_scope\":\"within_parent\",\"name\":\"class\",\"nested_in\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"pupil\"],\"id_scope\":\"global\",\"name\":\"pupil\",\"nested_in\":\"class\",\"role\":\"participant\"}],\"variables\":{\"post\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"pre\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:93ed460de965c328571efe40719f1d80debb72ae532653f68fca4c301226b8c0"
+      }
+    },
+    {
+      "id": "declarations-valid-004",
+      "description": "The cluster-randomised trial of the draft's example ex2, updated to vocabulary 0.1: randomised and level replace scheme and control_level, the table has missing values, a primary key and unique keys, disclosure_unit names the pupils and the provenance has an author.",
+      "path": "valid/crt_full.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"blocks\":[\"school\"],\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"class\"}],\"disclosure_unit\":\"pupil\",\"estimands\":[{\"focal\":true,\"id\":\"ITT\",\"kind\":\"total_effect\",\"outcome\":\"post\",\"term\":\"arm\"}],\"features\":[\"cluster_randomised\",\"longitudinal\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"school\",\"class\",\"pupil\",\"wave\"],\"time\":{\"column\":\"wave\",\"kind\":\"occasion\",\"within\":\"pupil\"}},\"provenance\":{\"author\":\"PB\",\"created\":\"2026-11-07T10:00:00Z\",\"outcome_seen\":false},\"table\":{\"fields\":[{\"name\":\"school\",\"type\":\"string\"},{\"name\":\"class\",\"type\":\"string\"},{\"name\":\"pupil\",\"type\":\"string\"},{\"categories\":[0,1],\"categoriesOrdered\":true,\"name\":\"wave\",\"type\":\"integer\"},{\"categories\":[\"control\",\"tutoring\"],\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"pre\",\"type\":\"number\"},{\"missingValues\":[{\"value\":\"\"},{\"label\":\"absent on test day\",\"value\":\"-99\"}],\"name\":\"post\",\"type\":\"number\"},{\"name\":\"attendance\",\"type\":\"number\"}],\"missingValues\":[\"\",\"NA\"],\"primaryKey\":[\"school\",\"class\",\"pupil\",\"wave\"],\"uniqueKeys\":[[\"pupil\",\"wave\"]]},\"title\":\"Reading intervention, classes randomised within schools\",\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"class\"],\"id_scope\":\"within_parent\",\"name\":\"class\",\"nested_in\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"pupil\"],\"id_scope\":\"global\",\"membership\":\"fixed\",\"name\":\"pupil\",\"nested_in\":\"class\",\"role\":\"participant\"}],\"variables\":{\"arm\":{\"role\":\"assigned\"},\"attendance\":{\"measurement\":\"continuous\",\"role\":\"post_assignment_covariate\"},\"post\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"pre\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"baseline_covariate\"},\"school\":{\"role\":\"block\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:86e115c5343d84f7e9a4ef08b40b24e4750dcc431f4bc75cdaa27e24efd7f67c"
+      }
+    },
+    {
+      "id": "declarations-valid-005",
+      "description": "The longitudinal design of lme4's sleepstudy, the draft's example ex1 updated to vocabulary 0.1. observation.unit is left out, because a row is one subject on one day.",
+      "path": "valid/sleepstudy.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"days\",\"kind\":\"association\",\"term\":\"Days\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"Subject\",\"Days\"],\"time\":{\"column\":\"Days\",\"kind\":\"occasion\",\"within\":\"Subject\"}},\"title\":\"lme4::sleepstudy\",\"units\":[{\"columns\":[\"Subject\"],\"name\":\"Subject\",\"role\":\"participant\"}],\"variables\":{\"Days\":{\"role\":\"time\"},\"Reaction\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:0ed5b8cbc64b9672e52a708864f701348df5513327456808fe507115414a0b06"
+      }
+    },
+    {
+      "id": "declarations-valid-006",
+      "description": "A crossed subjects-by-items priming experiment with Latin-square lists, the draft's example ex3 updated: two outcomes, so every estimand names its outcome, a counterbalancing list, trial-index time and assignment within subjects.",
+      "path": "valid/crossed_priming.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"column\":\"prime\",\"level\":\"within_unit\",\"randomised\":true,\"unit\":\"subject\"}],\"crossings\":[{\"list\":\"list\",\"units\":[\"subject\",\"item\"]}],\"estimands\":[{\"focal\":true,\"id\":\"priming\",\"kind\":\"total_effect\",\"outcome\":\"rt\",\"term\":\"prime\"},{\"focal\":false,\"id\":\"freq_x_prime\",\"kind\":\"association\",\"outcome\":\"rt\",\"term\":\"prime:log_freq\"},{\"id\":\"priming_acc\",\"kind\":\"total_effect\",\"outcome\":\"acc\",\"term\":\"prime\"}],\"features\":[\"crossed_experiment\",\"counterbalanced\",\"trial_level\"],\"observation\":{\"key\":[\"subject\",\"item\"],\"time\":{\"column\":\"trial\",\"kind\":\"trial_index\",\"within\":\"subject\"}},\"title\":\"Priming experiment, Latin-square lists\",\"units\":[{\"columns\":[\"subject\"],\"name\":\"subject\",\"role\":\"participant\"},{\"columns\":[\"item\"],\"name\":\"item\",\"role\":\"item\"}],\"variables\":{\"acc\":{\"event_level\":\"correct\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"excluded\":{\"role\":\"exclusion_flag\"},\"log_freq\":{\"measurement\":\"continuous\",\"role\":\"baseline_covariate\"},\"prime\":{\"role\":\"assigned\"},\"rt\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"},\"trial\":{\"role\":\"time\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:7f383d8f1963efac754dc134d331f1f0d210210ca5e82e5d77a200c896a2bcd2"
+      }
+    },
+    {
+      "id": "declarations-valid-007",
+      "description": "Intensive longitudinal app logs, the draft's example ex5 updated: timestamp time without the deferred time zone and resolution, sessions nested in children, an identifier column, an integer event level and an outcome-derived lag.",
+      "path": "valid/app_logs.json",
+      "expected": {
+        "canonical": "{\"features\":[\"intensive_longitudinal\",\"trial_level\"],\"observation\":{\"key\":[\"child\",\"event_id\"],\"time\":{\"column\":\"ts\",\"kind\":\"timestamp\",\"within\":\"child\"}},\"title\":\"Reading app event logs\",\"units\":[{\"columns\":[\"child\"],\"name\":\"child\",\"role\":\"participant\"},{\"columns\":[\"session\"],\"id_scope\":\"within_parent\",\"name\":\"session\",\"nested_in\":\"child\",\"role\":\"session\"}],\"variables\":{\"age_months\":{\"measurement\":\"continuous\",\"role\":\"baseline_covariate\"},\"correct\":{\"event_level\":1,\"measurement\":\"binary\",\"role\":\"outcome\"},\"event_id\":{\"role\":\"id\"},\"prev_correct\":{\"derived_from\":[\"correct\"],\"role\":\"outcome_derived\"},\"ts\":{\"role\":\"time\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:0c85ba2554b689fb2b2c7564952dcaa98b77995a4c832d8640cb708cfcce82ba"
+      }
+    },
+    {
+      "id": "declarations-valid-008",
+      "description": "A multisite trial randomised within sites with a binomial outcome and its trials column, categories written as objects with labels, a site unit and an explicit disclosure unit.",
+      "path": "valid/multisite_binomial.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"blocks\":[\"site\"],\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"participant\"}],\"disclosure_unit\":\"participant\",\"estimands\":[{\"id\":\"training\",\"kind\":\"total_effect\",\"outcome\":\"correct_k\",\"term\":\"arm\"}],\"features\":[\"multisite\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"site\",\"participant\"],\"unit\":\"participant\"},\"table\":{\"fields\":[{\"name\":\"site\",\"type\":\"string\"},{\"name\":\"participant\",\"type\":\"string\"},{\"categories\":[{\"label\":\"Waiting list\",\"value\":\"control\"},{\"value\":\"training\"}],\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"},{\"name\":\"correct_k\",\"type\":\"integer\"},{\"name\":\"n_items\",\"type\":\"integer\"}],\"primaryKey\":[\"site\",\"participant\"]},\"title\":\"Vocabulary training at four sites\",\"units\":[{\"columns\":[\"site\"],\"name\":\"site\",\"role\":\"site\"},{\"columns\":[\"participant\"],\"id_scope\":\"within_parent\",\"name\":\"participant\",\"nested_in\":\"site\",\"role\":\"participant\"}],\"variables\":{\"age\":{\"measurement\":\"count\",\"role\":\"baseline_covariate\"},\"arm\":{\"role\":\"assigned\"},\"correct_k\":{\"measurement\":\"binomial\",\"role\":\"outcome\",\"trials\":\"n_items\"},\"n_items\":{\"role\":\"auxiliary\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:0d32034caaa68d7600a05b600f2415de653b9ae93ff3980ab4bf97ca7c2320c8"
+      }
+    },
+    {
+      "id": "declarations-valid-009",
+      "description": "A stepped-wedge trial with time common to all rows, a count outcome with a raw exposure, fields of types boolean, date and datetime and ordered integer categories. Its trial feature makes it a minimal declaration.",
+      "path": "valid/stepped_wedge.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"column\":\"treated\",\"level\":\"within_unit\",\"randomised\":true,\"unit\":\"hospital\"}],\"estimands\":[{\"id\":\"effect\",\"kind\":\"total_effect\",\"term\":\"treated\"}],\"features\":[\"stepped_wedge\"],\"observation\":{\"key\":[\"hospital\",\"ward\",\"period\"],\"time\":{\"column\":\"period\",\"kind\":\"occasion\"}},\"table\":{\"fields\":[{\"name\":\"hospital\",\"type\":\"string\"},{\"name\":\"ward\",\"type\":\"string\"},{\"categories\":[1,2,3,4,5],\"categoriesOrdered\":true,\"name\":\"period\",\"type\":\"integer\"},{\"name\":\"treated\",\"type\":\"boolean\"},{\"name\":\"infections\",\"type\":\"integer\"},{\"name\":\"patient_days\",\"type\":\"number\"},{\"name\":\"opened\",\"type\":\"date\"},{\"name\":\"audited\",\"type\":\"datetime\"},{\"name\":\"excluded\",\"type\":\"boolean\"}]},\"title\":\"Infection control, stepped wedge over five periods\",\"units\":[{\"columns\":[\"hospital\"],\"name\":\"hospital\",\"role\":\"cluster\"},{\"columns\":[\"ward\"],\"id_scope\":\"within_parent\",\"name\":\"ward\",\"nested_in\":\"hospital\",\"role\":\"other\"}],\"variables\":{\"audited\":{\"role\":\"time_varying_covariate\"},\"excluded\":{\"role\":\"exclusion_flag\"},\"infections\":{\"exposure\":{\"column\":\"patient_days\",\"scale\":\"raw\"},\"measurement\":\"count\",\"role\":\"outcome\"},\"opened\":{\"role\":\"baseline_covariate\"},\"patient_days\":{\"role\":\"auxiliary\"},\"period\":{\"role\":\"time\"},\"treated\":{\"role\":\"assigned\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:2855f7458d4e836fcc15dbbb19a013a9b1bb0d888116c7db1ab9794ace0439ee"
+      }
+    },
+    {
+      "id": "declarations-valid-010",
+      "description": "A partially nested trial, with therapy groups in the treatment arm only, a mediator and a focal total effect beside a direct effect that is not focal.",
+      "path": "valid/partially_nested.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"patient\"}],\"estimands\":[{\"id\":\"total\",\"kind\":\"total_effect\",\"term\":\"arm\"},{\"focal\":false,\"id\":\"direct\",\"kind\":\"direct_effect\",\"term\":\"arm\"}],\"features\":[\"partially_nested\"],\"observation\":{\"key\":[\"patient\"],\"unit\":\"patient\"},\"units\":[{\"columns\":[\"group\"],\"name\":\"group\",\"role\":\"cluster\"},{\"columns\":[\"patient\"],\"id_scope\":\"global\",\"name\":\"patient\",\"nested_in\":\"group\",\"role\":\"participant\"}],\"variables\":{\"alliance\":{\"measurement\":\"continuous\",\"role\":\"mediator\"},\"arm\":{\"role\":\"assigned\"},\"baseline\":{\"measurement\":\"continuous\",\"role\":\"baseline_covariate\"},\"distress\":{\"measurement\":\"continuous\",\"role\":\"outcome\"},\"sessions\":{\"measurement\":\"count\",\"role\":\"post_assignment_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:536f5216c8559b16a9d86ae4b6cbecb1caf09c1fbd976a93bbf964694afef8c1"
+      }
+    },
+    {
+      "id": "declarations-valid-011",
+      "description": "A confirmatory analysis of a speech corpus, with speakers crossed with words. The feature observational lets it be a minimal declaration without an assigned variable.",
+      "path": "valid/observational_corpus.json",
+      "expected": {
+        "canonical": "{\"crossings\":[{\"units\":[\"word\",\"speaker\"]}],\"estimands\":[{\"id\":\"frequency\",\"kind\":\"association\",\"term\":\"frequency\"}],\"features\":[\"corpus\",\"observational\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"speaker\",\"word\",\"token\"]},\"provenance\":{\"author\":\"Secondary analysis team\",\"outcome_seen\":true},\"title\":\"Word durations in a conversational corpus\",\"units\":[{\"columns\":[\"speaker\"],\"name\":\"speaker\",\"role\":\"participant\"},{\"columns\":[\"word\"],\"name\":\"word\",\"role\":\"item\"}],\"variables\":{\"duration\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"},\"frequency\":{\"measurement\":\"continuous\",\"role\":\"baseline_covariate\"},\"token\":{\"role\":\"id\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:5afca58090b1cd011016872f4beacdf61241306a28ffc80e732bd323ab2e271b"
+      }
+    },
+    {
+      "id": "declarations-valid-012",
+      "description": "Children nested in families, measured at ages given as durations since birth, with an ordinal outcome whose categories are ordered integers and labelled categories on another field.",
+      "path": "valid/family_ordinal.json",
+      "expected": {
+        "canonical": "{\"features\":[\"family\",\"longitudinal\"],\"observation\":{\"key\":[\"family\",\"child\",\"age_years\"],\"time\":{\"column\":\"age_years\",\"kind\":\"duration_since_start\",\"within\":\"child\"}},\"table\":{\"fields\":[{\"name\":\"family\",\"type\":\"string\"},{\"name\":\"child\",\"type\":\"string\"},{\"name\":\"age_years\",\"type\":\"number\"},{\"categories\":[1,2,3,4,5],\"categoriesOrdered\":true,\"name\":\"score\",\"type\":\"integer\"},{\"categories\":[{\"label\":\"female\",\"value\":\"f\"},{\"label\":\"male\",\"value\":\"m\"}],\"categoriesOrdered\":false,\"name\":\"sex\",\"type\":\"string\"}]},\"units\":[{\"columns\":[\"family\"],\"name\":\"family\",\"role\":\"family\"},{\"columns\":[\"child\"],\"id_scope\":\"within_parent\",\"membership\":\"fixed\",\"name\":\"child\",\"nested_in\":\"family\",\"role\":\"participant\"}],\"variables\":{\"age_years\":{\"role\":\"time\"},\"score\":{\"measurement\":\"ordinal\",\"role\":\"outcome\"},\"sex\":{\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:cfc59903c3984792951051537e1848aa51220dbb6eb6cad6b85504b2f4bbe3e4"
+      }
+    },
+    {
+      "id": "declarations-valid-013",
+      "description": "Pupils who may change school over time, which needs observation.time, teachers who teach at several schools at once and a programme assigned to schools without randomisation and without a declared level.",
+      "path": "valid/mobility.json",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"column\":\"programme\",\"randomised\":false,\"unit\":\"school\"}],\"crossings\":[{\"units\":[\"pupil\",\"teacher\"]}],\"estimands\":[{\"id\":\"programme\",\"kind\":\"association\",\"outcome\":\"math\",\"term\":\"programme\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"pupil\",\"year\"],\"time\":{\"column\":\"year\",\"kind\":\"occasion\",\"within\":\"pupil\"}},\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"pupil\"],\"id_scope\":\"global\",\"membership\":\"may_change_over_time\",\"name\":\"pupil\",\"nested_in\":\"school\",\"role\":\"participant\"},{\"columns\":[\"teacher\"],\"id_scope\":\"global\",\"membership\":\"multiple\",\"name\":\"teacher\",\"nested_in\":\"school\",\"role\":\"rater\"}],\"variables\":{\"math\":{\"measurement\":\"continuous\",\"role\":\"outcome\"},\"programme\":{\"role\":\"assigned\"},\"year\":{\"role\":\"time\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:e5041a5f30f7807ec1e261d8f4a87ef5fa9aeb5b95f1573bd9a49228e4f6a4ef"
+      }
+    },
+    {
+      "id": "declarations-valid-014",
+      "description": "Single-trial amplitudes with subjects crossed with items and trials crossed with channels, the draft's example ex6 without its EEG block and feature, which vocabulary 0.1 does not have.",
+      "path": "valid/eeg_like.json",
+      "expected": {
+        "canonical": "{\"crossings\":[{\"units\":[\"subject\",\"item\"]},{\"units\":[\"trial\",\"channel\"]}],\"features\":[\"trial_level\",\"crossed_experiment\"],\"observation\":{\"key\":[\"subject\",\"trial\",\"chan\"]},\"title\":\"N400 single-trial mean amplitudes\",\"units\":[{\"columns\":[\"subject\"],\"name\":\"subject\",\"role\":\"participant\"},{\"columns\":[\"item\"],\"name\":\"item\",\"role\":\"item\"},{\"columns\":[\"trial\"],\"id_scope\":\"within_parent\",\"name\":\"trial\",\"nested_in\":\"subject\",\"role\":\"trial\"},{\"columns\":[\"chan\"],\"name\":\"channel\",\"role\":\"channel\"}],\"variables\":{\"amp\":{\"measurement\":\"continuous\",\"role\":\"outcome\"},\"baseline_amp\":{\"measurement\":\"continuous\",\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:9847f035bcdb8f7acf61fe5db37fcaabe87cf53c76da5a7efbd38490e2a9f921"
+      }
+    },
+    {
+      "id": "declarations-valid-015",
+      "description": "Parent-child dyads with one row per member, the draft's example ex4 without its dyad block and feature, with the dyad as a unit of role 'dyad'.",
+      "path": "valid/dyads.json",
+      "expected": {
+        "canonical": "{\"observation\":{\"key\":[\"family_id\",\"member_id\"],\"unit\":\"member\"},\"title\":\"Parent-child dyads, one observation per member\",\"units\":[{\"columns\":[\"family_id\"],\"name\":\"dyad\",\"role\":\"dyad\"},{\"columns\":[\"member_id\"],\"id_scope\":\"within_parent\",\"name\":\"member\",\"nested_in\":\"dyad\",\"role\":\"participant\"}],\"variables\":{\"member_role\":{\"role\":\"auxiliary\"},\"wellbeing\":{\"measurement\":\"continuous\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:cec164fb7e23aa76f909f504c70a144681d5870d0347fe08f5e47b99b2cf47dd"
+      }
+    },
+    {
+      "id": "declarations-valid-016",
+      "description": "An exploratory draft whose inferred entries are listed as JSON Pointers, one of them to the column 'a/b', written with '~1'. A draft is valid.",
+      "path": "valid/draft.json",
+      "expected": {
+        "canonical": "{\"observation\":{\"key\":[\"school\",\"class\",\"a/b\"]},\"provenance\":{\"inferred\":[\"/units/1/id_scope\",\"/variables/a~1b\",\"/observation/key/0\",\"/units/1\"]},\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"class\"],\"id_scope\":\"within_parent\",\"name\":\"class\",\"nested_in\":\"school\",\"role\":\"cluster\"}],\"variables\":{\"a/b\":{\"role\":\"id\"},\"score\":{\"measurement\":\"continuous\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:6a580f59684362f81dce37bb91b02934720179f6435a5c40676492dd7ab93e1d"
+      }
+    },
+    {
+      "id": "declarations-valid-017",
+      "description": "A draft whose inferred entry is the observation time that its feature 'longitudinal' requires. The validator checks a draft as written, so the requirement is met.",
+      "path": "valid/draft_time.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"days\",\"kind\":\"association\",\"term\":\"Days\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"Subject\",\"Days\"],\"time\":{\"column\":\"Days\",\"kind\":\"occasion\",\"within\":\"Subject\"}},\"provenance\":{\"inferred\":[\"/observation/time\"]},\"title\":\"lme4::sleepstudy\",\"units\":[{\"columns\":[\"Subject\"],\"name\":\"Subject\",\"role\":\"participant\"}],\"variables\":{\"Days\":{\"role\":\"time\"},\"Reaction\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:3b1267b020593780446ac3ceaa442cea86db61c139fd2123002afff1b1755053"
+      }
+    },
+    {
+      "id": "declarations-valid-018",
+      "description": "Estimand terms with bare names containing '.' and '_', quoted names with spaces, ':' and non-ASCII letters, a bare name written between backquotes and the same interaction written in two orders, all resolving to fields of the table.",
+      "path": "valid/terms.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"e1\",\"kind\":\"association\",\"term\":\"log_freq.c\"},{\"id\":\"e2\",\"kind\":\"association\",\"term\":\"arm:`reading score`\"},{\"focal\":false,\"id\":\"e3\",\"kind\":\"association\",\"term\":\"`reading score`:arm\"},{\"id\":\"e4\",\"kind\":\"association\",\"term\":\"`a:b`\"},{\"id\":\"e5\",\"kind\":\"association\",\"outcome\":\"y\",\"term\":\"`\u00e2ge`:`arm`\"}],\"table\":{\"fields\":[{\"name\":\"y\",\"type\":\"number\"},{\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"reading score\",\"type\":\"number\"},{\"name\":\"a:b\",\"type\":\"number\"},{\"name\":\"\u00e2ge\",\"type\":\"integer\"},{\"name\":\"log_freq.c\",\"type\":\"number\"}]},\"variables\":{\"y\":{\"measurement\":\"continuous\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:4d7b0c53efcb982c69a46f4f0199dd1568c52db953edb47e9dafee0733a34e5d"
+      }
+    },
+    {
+      "id": "declarations-valid-019",
+      "description": "Numbers in bounds and integer categories written with exponents, trailing zeros, '-0' and the limits of the hashable profile, which canonical serialisation writes by the ECMAScript rules. The categories 1.0e0 and 2E0 are the integers 1 and 2.",
+      "path": "valid/numbers.json",
+      "expected": {
+        "canonical": "{\"table\":{\"fields\":[{\"categories\":[0,1,2],\"name\":\"level\",\"type\":\"integer\"},{\"name\":\"v1\",\"type\":\"number\"},{\"name\":\"v2\",\"type\":\"number\"},{\"name\":\"v3\",\"type\":\"number\"},{\"name\":\"v4\",\"type\":\"number\"},{\"name\":\"v5\",\"type\":\"integer\"},{\"name\":\"v6\",\"type\":\"number\"},{\"name\":\"v7\",\"type\":\"number\"},{\"name\":\"v8\",\"type\":\"number\"}]},\"title\":\"Bounds written in several number forms\",\"variables\":{\"v1\":{\"bounds\":[0,100],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"v2\":{\"bounds\":[2.5,45],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"v3\":{\"bounds\":[1e-7,1.5e-7],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"v4\":{\"bounds\":[0.000001,0.0000033],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"v5\":{\"bounds\":[-9007199254740991,9007199254740991],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"v6\":{\"bounds\":[1e-307,1],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"v7\":{\"bounds\":[123.456,2026.1],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"v8\":{\"bounds\":[-150,1000000000000000],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:0adc49dccfd23b7e3fa940d8acb811e2c50754634a47437eada97431745a00b8"
+      }
+    },
+    {
+      "id": "declarations-valid-020",
+      "description": "Escapes and characters that canonical serialisation writes in particular ways: control characters, quotation marks, backslashes, '/', U+2028, characters outside the BMP written as a surrogate pair or as UTF-8 and keys whose order depends on code points.",
+      "path": "valid/escapes.json",
+      "expected": {
+        "canonical": "{\"table\":{\"fields\":[{\"categories\":[\"\ud83d\ude00\",\"\ud83d\ude01\",\"\u00e9\",\"e\"],\"name\":\"Zeta\",\"type\":\"string\"},{\"name\":\"alpha\"},{\"name\":\"_x\"},{\"name\":\"\u00e9\"},{\"name\":\"\uff08\"},{\"name\":\"A\"}],\"missingValues\":[\"\",\"tab\\there\",\"\\\"q\\\"\",\"back\\\\slash\",\"\\u001f\",\"a/b\",\"\u00e9\"]},\"title\":\"caf\u00e9 \u201cstudy\u201d, line\u2028separator\",\"variables\":{\"A\":{\"role\":\"auxiliary\"},\"Zeta\":{\"role\":\"auxiliary\"},\"_x\":{\"role\":\"auxiliary\"},\"alpha\":{\"role\":\"auxiliary\"},\"\u00e9\":{\"role\":\"auxiliary\"},\"\uff08\":{\"role\":\"auxiliary\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:c60180732ddbfc68a474a485faa556cf08679b6df8e5340845c3298f4be4d109"
+      }
+    },
+    {
+      "id": "declarations-valid-021",
+      "description": "Every role and every measurement level, with an event level, trials, a logged exposure, bounds and derivation from an outcome. Several outcomes are declared, so every estimand names its outcome.",
+      "path": "valid/roles_and_measurements.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"e1\",\"kind\":\"total_effect\",\"outcome\":\"y1\",\"term\":\"a\"},{\"focal\":false,\"id\":\"e2\",\"kind\":\"direct_effect\",\"outcome\":\"y2\",\"term\":\"a\"},{\"focal\":false,\"id\":\"e3\",\"kind\":\"association\",\"outcome\":\"y7\",\"term\":\"b:tv\"}],\"variables\":{\"a\":{\"role\":\"assigned\"},\"b\":{\"measurement\":\"continuous\",\"role\":\"baseline_covariate\"},\"blk\":{\"role\":\"block\"},\"ex\":{\"role\":\"exclusion_flag\"},\"log_t4\":{\"role\":\"auxiliary\"},\"m\":{\"role\":\"mediator\"},\"n3\":{\"role\":\"auxiliary\"},\"off\":{\"role\":\"offset\"},\"pa\":{\"role\":\"post_assignment_covariate\"},\"pid\":{\"role\":\"id\"},\"t\":{\"role\":\"time\"},\"tv\":{\"role\":\"time_varying_covariate\"},\"w\":{\"role\":\"weight\"},\"y1\":{\"measurement\":\"continuous\",\"role\":\"outcome\"},\"y1_lag\":{\"derived_from\":[\"y1\"],\"role\":\"outcome_derived\"},\"y2\":{\"event_level\":\"yes\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"y3\":{\"measurement\":\"binomial\",\"role\":\"outcome\",\"trials\":\"n3\"},\"y4\":{\"exposure\":{\"column\":\"log_t4\",\"scale\":\"log\"},\"measurement\":\"count\",\"role\":\"outcome\"},\"y5\":{\"bounds\":[1,7],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"y6\":{\"measurement\":\"ordinal\",\"role\":\"outcome\"},\"y7\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:61b3759a947564163db3f5b458a5281c2b5bcf0de3daf0b9ac2700cd9fbcf489"
+      }
+    },
+    {
+      "id": "declarations-valid-022",
+      "description": "Event levels that match their fields: a string among string categories, an integer among integer categories, an integer for a number field, a category value given as an object and a string for a field without a type.",
+      "path": "valid/event_levels.json",
+      "expected": {
+        "canonical": "{\"table\":{\"fields\":[{\"categories\":[\"correct\",\"incorrect\"],\"name\":\"acc\",\"type\":\"string\"},{\"categories\":[0,1],\"name\":\"hit\",\"type\":\"integer\"},{\"name\":\"resp\",\"type\":\"number\"},{\"categories\":[{\"label\":\"Correct\",\"value\":\"c\"},{\"value\":\"w\"}],\"name\":\"ans\",\"type\":\"string\"},{\"name\":\"flag\"}]},\"variables\":{\"acc\":{\"event_level\":\"correct\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"ans\":{\"event_level\":\"c\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"flag\":{\"event_level\":\"x\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"hit\":{\"event_level\":1,\"measurement\":\"binary\",\"role\":\"outcome\"},\"resp\":{\"event_level\":2,\"measurement\":\"binary\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:a68bc4b4c7dcc2a33268afa38f297355b76a005a421e558012bc684915af3bcc"
+      }
+    },
+    {
+      "id": "declarations-valid-023",
+      "description": "Values at the limits of the schema: a title and an author of 200 characters, a column name of 128 characters, a unit name of 64 characters and 29 February of a leap year divisible by 400.",
+      "path": "valid/limits.json",
+      "expected": {
+        "canonical": "{\"provenance\":{\"author\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"created\":\"2000-02-29T23:59:59Z\"},\"title\":\"TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\",\"units\":[{\"columns\":[\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"],\"name\":\"uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"}],\"variables\":{\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\":{\"role\":\"id\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:3ba0dcd3876587daf16a6d3edb19a7c27ee181d32debf9d17dcd0f8f498cb7b8"
+      }
+    },
+    {
+      "id": "declarations-valid-024",
+      "description": "An exploratory declaration without trial features that meets every rule of the minimal declaration, validated with the argument minimal set to true.",
+      "path": "valid/minimal_argument.json",
+      "minimal": true,
+      "expected": {
+        "canonical": "{\"assignment\":[{\"column\":\"condition\",\"level\":\"within_unit\",\"randomised\":true,\"unit\":\"subject\"}],\"estimands\":[{\"id\":\"effect\",\"kind\":\"total_effect\",\"term\":\"condition\"}],\"observation\":{\"key\":[\"subject\",\"condition\"]},\"units\":[{\"columns\":[\"subject\"],\"name\":\"subject\",\"role\":\"participant\"}],\"variables\":{\"condition\":{\"role\":\"assigned\"},\"rt\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:9c69f5aaefbc2bd3c47b7fd2ac464892da7026a66400c8ab0b226c23423eaa58"
+      }
+    },
+    {
+      "id": "declarations-valid-025",
+      "description": "The sleepstudy declaration with CRLF line endings, other white space and its members in another order. Same canonical bytes as declarations-valid-005.",
+      "path": "valid/sleepstudy_crlf.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"days\",\"kind\":\"association\",\"term\":\"Days\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"Subject\",\"Days\"],\"time\":{\"column\":\"Days\",\"kind\":\"occasion\",\"within\":\"Subject\"}},\"title\":\"lme4::sleepstudy\",\"units\":[{\"columns\":[\"Subject\"],\"name\":\"Subject\",\"role\":\"participant\"}],\"variables\":{\"Days\":{\"role\":\"time\"},\"Reaction\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:0ed5b8cbc64b9672e52a708864f701348df5513327456808fe507115414a0b06"
+      }
+    },
+    {
+      "id": "declarations-valid-026",
+      "description": "The sleepstudy declaration with an author in its provenance. Every member counts towards the hash, so its hash differs from that of declarations-valid-005.",
+      "path": "valid/sleepstudy_author.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"days\",\"kind\":\"association\",\"term\":\"Days\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"Subject\",\"Days\"],\"time\":{\"column\":\"Days\",\"kind\":\"occasion\",\"within\":\"Subject\"}},\"provenance\":{\"author\":\"Belenky et al.\"},\"title\":\"lme4::sleepstudy\",\"units\":[{\"columns\":[\"Subject\"],\"name\":\"Subject\",\"role\":\"participant\"}],\"variables\":{\"Days\":{\"role\":\"time\"},\"Reaction\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:dcd367a090ae78bca37bbed100b15463d913793ca59311c2dfff70e735a93302"
+      }
+    },
+    {
+      "id": "declarations-valid-027",
+      "description": "A provenance block with a keyed commitment to a raw data file, the outcome-seen attestation and an author.",
+      "path": "valid/data_commitment.json",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"days\",\"kind\":\"association\",\"term\":\"Days\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"Subject\",\"Days\"],\"time\":{\"column\":\"Days\",\"kind\":\"occasion\",\"within\":\"Subject\"}},\"provenance\":{\"author\":\"PB\",\"created\":\"2026-11-08T12:30:00Z\",\"data_commitment\":{\"algorithm\":\"hmac-sha256\",\"covers\":\"data_file\",\"digest\":\"dd8943be1fcb832169c6f874652f017415a37dddc77d6e9407ac0d910f67227a\",\"key_id\":\"630dcd2966c43366\"},\"outcome_seen\":true},\"title\":\"lme4::sleepstudy\",\"units\":[{\"columns\":[\"Subject\"],\"name\":\"Subject\",\"role\":\"participant\"}],\"variables\":{\"Days\":{\"role\":\"time\"},\"Reaction\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:5e89255d1e1892c808dc40afd1d59ba0954de4f40bd637bb9c5a7f94a33c1939"
+      }
+    },
+    {
+      "id": "declarations-valid-028",
+      "description": "Labelled sentinel codes as table-level missing values, a field whose empty list declares that no value is missing, unique keys of one and two columns and categories that are not ordered.",
+      "path": "valid/missing_values.json",
+      "expected": {
+        "canonical": "{\"table\":{\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"wave\",\"type\":\"integer\"},{\"missingValues\":[],\"name\":\"code\",\"type\":\"string\"},{\"categories\":[\"low\",\"mid\",\"high\"],\"categoriesOrdered\":false,\"name\":\"mood\",\"type\":\"string\"}],\"missingValues\":[{\"label\":\"refused\",\"value\":\"-99\"},{\"label\":\"don't know\",\"value\":\"-98\"}],\"uniqueKeys\":[[\"id\",\"wave\"],[\"code\"]]},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:f73f5ab4b7802ecd104db22e01f1ea3bde6233aa57aa9974504195cdb6e59072"
+      }
+    }
+  ]
+}

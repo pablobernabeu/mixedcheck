@@ -1,0 +1,655 @@
+{
+  "description": "Cases whose outputs a locale could change: non-ASCII strings, keys and messages, the order of keys, numbers, and, for one language, strings in memory with their encoding.",
+  "cases": [
+    {
+      "id": "unicode-c-locale-001",
+      "description": "'\u00e9cole' as a string.",
+      "input": "\"\u00e9cole\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u00e9cole\"",
+          "sha256": "sha256:679f03cc0c393e4ef2b092ab8c71bd4ee606e387c7871f9c76ef7301bb5fd60e"
+        },
+        "data": {
+          "canonical": "\"\u00e9cole\"",
+          "sha256": "sha256:679f03cc0c393e4ef2b092ab8c71bd4ee606e387c7871f9c76ef7301bb5fd60e"
+        },
+        "hashable": {
+          "canonical": "\"\u00e9cole\"",
+          "sha256": "sha256:679f03cc0c393e4ef2b092ab8c71bd4ee606e387c7871f9c76ef7301bb5fd60e"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-002",
+      "description": "'\u00e9cole' in an array, whose hash the evidence of G-critic records (out/c_locale_encoding.txt).",
+      "input": "[\"\u00e9cole\"]",
+      "expected": {
+        "plain": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        },
+        "data": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        },
+        "hashable": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-003",
+      "description": "Keys in code point order, which no locale's collation gives: 'E', 'Z', '_', 'a', 'e', 'f', 'z' and '\u00e9'.",
+      "input": "{\"z\":1,\"\u00e9\":2,\"e\":3,\"f\":4,\"E\":5,\"Z\":6,\"_\":7,\"a\":8}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"E\":5,\"Z\":6,\"_\":7,\"a\":8,\"e\":3,\"f\":4,\"z\":1,\"\u00e9\":2}",
+          "sha256": "sha256:db69719db52e6af96fb668109706d4db2f04b5637bfc787c19cce18104426ed9"
+        },
+        "data": {
+          "canonical": "{\"E\":5,\"Z\":6,\"_\":7,\"a\":8,\"e\":3,\"f\":4,\"z\":1,\"\u00e9\":2}",
+          "sha256": "sha256:db69719db52e6af96fb668109706d4db2f04b5637bfc787c19cce18104426ed9"
+        },
+        "hashable": {
+          "canonical": "{\"E\":5,\"Z\":6,\"_\":7,\"a\":8,\"e\":3,\"f\":4,\"z\":1,\"\u00e9\":2}",
+          "sha256": "sha256:db69719db52e6af96fb668109706d4db2f04b5637bfc787c19cce18104426ed9"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-004",
+      "description": "The letters i of Turkish are distinct keys, sorted by code point.",
+      "input": "{\"I\":1,\"\u0131\":2,\"i\":3,\"\u0130\":4}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"I\":1,\"i\":3,\"\u0130\":4,\"\u0131\":2}",
+          "sha256": "sha256:cacf0f6e6b20e7d59433f851c31838a5a2693074e34c2d2d9f6a908de6b570c8"
+        },
+        "data": {
+          "canonical": "{\"I\":1,\"i\":3,\"\u0130\":4,\"\u0131\":2}",
+          "sha256": "sha256:cacf0f6e6b20e7d59433f851c31838a5a2693074e34c2d2d9f6a908de6b570c8"
+        },
+        "hashable": {
+          "canonical": "{\"I\":1,\"i\":3,\"\u0130\":4,\"\u0131\":2}",
+          "sha256": "sha256:cacf0f6e6b20e7d59433f851c31838a5a2693074e34c2d2d9f6a908de6b570c8"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-005",
+      "description": "Keys that differ in case are distinct.",
+      "input": "{\"\u00c9\":1,\"\u00e9\":2}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u00c9\":1,\"\u00e9\":2}",
+          "sha256": "sha256:a880afa0e556b93c639e1ebb52b900db1655f267e0ce30edf4bc914da9840f00"
+        },
+        "data": {
+          "canonical": "{\"\u00c9\":1,\"\u00e9\":2}",
+          "sha256": "sha256:a880afa0e556b93c639e1ebb52b900db1655f267e0ce30edf4bc914da9840f00"
+        },
+        "hashable": {
+          "canonical": "{\"\u00c9\":1,\"\u00e9\":2}",
+          "sha256": "sha256:a880afa0e556b93c639e1ebb52b900db1655f267e0ce30edf4bc914da9840f00"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-006",
+      "description": "A duplicate non-ASCII key, named in the message.",
+      "input": "{\"\u00e9\":1,\"\u00e9\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key '\u00e9' at byte 8.",
+            "offset": 8
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key '\u00e9' at byte 8.",
+            "offset": 8
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key '\u00e9' at byte 8.",
+            "offset": 8
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-007",
+      "description": "A duplicate key of 70 non-ASCII characters, truncated in the message.",
+      "input": "{\"\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\":1,\"\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\":2}",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key '\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9...' at byte 146.",
+            "offset": 146
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key '\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9...' at byte 146.",
+            "offset": 146
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1029",
+            "message": "Duplicate key '\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9\u00e9...' at byte 146.",
+            "offset": 146
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-008",
+      "description": "A non-ASCII character where a value is expected, named in the message.",
+      "input": "[\u00e9]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00e9' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00e9' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\u00e9' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-009",
+      "description": "A character outside the BMP where a value is expected.",
+      "input": "[\ud83d\ude00]",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ud83d\ude00' at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ud83d\ude00' at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1022",
+            "message": "Unexpected character '\ud83d\ude00' at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-010",
+      "description": "Numbers whose canonical form no decimal separator of a locale changes.",
+      "input": "[0.5,1234.5,1e21,-0.000001,1.5e-7]",
+      "expected": {
+        "plain": {
+          "canonical": "[0.5,1234.5,1e+21,-0.000001,1.5e-7]",
+          "sha256": "sha256:d54b28cf1b8a1e429f332186183fbce6a48110449658a3674b1feed8ac92925b"
+        },
+        "data": {
+          "canonical": "[0.5,1234.5,1e+21,-0.000001,1.5e-7]",
+          "sha256": "sha256:d54b28cf1b8a1e429f332186183fbce6a48110449658a3674b1feed8ac92925b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e21 at byte 12 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 12
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-011",
+      "description": "Keys in NFD and NFC are distinct in the data profile and sorted by code point.",
+      "input": "{\"\u00e9\":1,\"e\u0301\":2}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"e\u0301\":2,\"\u00e9\":1}",
+          "sha256": "sha256:a7962fb10dc1255be368ece9c22b2256605921dc6d0a8c9409d3ee406bcb86e5"
+        },
+        "data": {
+          "canonical": "{\"e\u0301\":2,\"\u00e9\":1}",
+          "sha256": "sha256:a7962fb10dc1255be368ece9c22b2256605921dc6d0a8c9409d3ee406bcb86e5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 8 is not in Unicode normalisation form C (NFC).",
+            "offset": 8
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-012",
+      "description": "An R string marked UTF-8 that holds '\u00e9cole'.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "c3a9636f6c65",
+            "encoding": "UTF-8"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        },
+        "data": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        },
+        "hashable": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-013",
+      "description": "An R string marked latin1 that holds '\u00e9cole' gives the bytes and hash of the string marked UTF-8.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "e9636f6c65",
+            "encoding": "latin1"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        },
+        "data": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        },
+        "hashable": {
+          "canonical": "[\"\u00e9cole\"]",
+          "sha256": "sha256:0248553cf09b2dfba1301922ed584a2dbc690dc52ad6c793c42ae0d96097242e"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-014",
+      "description": "An R string marked latin1 that holds '\u00c5ngstr\u00f6m'.",
+      "languages": [
+        "R"
+      ],
+      "json": "{\"name\":\"x\"}",
+      "substitutions": [
+        {
+          "pointer": "/name",
+          "r_string": {
+            "hex": "c56e67737472f66d",
+            "encoding": "latin1"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "canonical": "{\"name\":\"\u00c5ngstr\u00f6m\"}",
+          "sha256": "sha256:9d48a2a5bb5e693d9683d8f0334ccbcce77219d70b00dfc43ce792305cd43bc6"
+        },
+        "data": {
+          "canonical": "{\"name\":\"\u00c5ngstr\u00f6m\"}",
+          "sha256": "sha256:9d48a2a5bb5e693d9683d8f0334ccbcce77219d70b00dfc43ce792305cd43bc6"
+        },
+        "hashable": {
+          "canonical": "{\"name\":\"\u00c5ngstr\u00f6m\"}",
+          "sha256": "sha256:9d48a2a5bb5e693d9683d8f0334ccbcce77219d70b00dfc43ce792305cd43bc6"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-015",
+      "description": "An unmarked R string with the bytes of '\u00e9cole' in UTF-8.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "c3a9636f6c65",
+            "encoding": "unknown"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1204",
+            "message": "The string at /0 contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+            "pointer": "/0"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1204",
+            "message": "The string at /0 contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+            "pointer": "/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1204",
+            "message": "The string at /0 contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-016",
+      "description": "An unmarked R string that is ASCII.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "65636f6c65",
+            "encoding": "unknown"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "canonical": "[\"ecole\"]",
+          "sha256": "sha256:3794f7336aecb818b1ef954f0c7d2a2f7f1ea7c89cc9ab4ebcc120f1639b3a96"
+        },
+        "data": {
+          "canonical": "[\"ecole\"]",
+          "sha256": "sha256:3794f7336aecb818b1ef954f0c7d2a2f7f1ea7c89cc9ab4ebcc120f1639b3a96"
+        },
+        "hashable": {
+          "canonical": "[\"ecole\"]",
+          "sha256": "sha256:3794f7336aecb818b1ef954f0c7d2a2f7f1ea7c89cc9ab4ebcc120f1639b3a96"
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-017",
+      "description": "An unmarked non-ASCII R string after a valid one.",
+      "languages": [
+        "R"
+      ],
+      "json": "{\"a\":\"ok\",\"b\":[\"x\"]}",
+      "substitutions": [
+        {
+          "pointer": "/b/0",
+          "r_string": {
+            "hex": "e9",
+            "encoding": "unknown"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1204",
+            "message": "The string at /b/0 contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+            "pointer": "/b/0"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1204",
+            "message": "The string at /b/0 contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+            "pointer": "/b/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1204",
+            "message": "The string at /b/0 contains non-ASCII bytes but no declared encoding. Mark it as UTF-8 with Encoding() or read the data with encoding = 'UTF-8'.",
+            "pointer": "/b/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-018",
+      "description": "An R string marked 'bytes' with the bytes of '\u00e9cole' in UTF-8. R cannot mark an ASCII string as 'bytes', so the string holds a byte of 80 or above.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "c3a9636f6c65",
+            "encoding": "bytes"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1205",
+            "message": "The string at /0 is marked as bytes and cannot be read as text.",
+            "pointer": "/0"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1205",
+            "message": "The string at /0 is marked as bytes and cannot be read as text.",
+            "pointer": "/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1205",
+            "message": "The string at /0 is marked as bytes and cannot be read as text.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-019",
+      "description": "An R string marked UTF-8 that holds the invalid byte FF.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "61ff",
+            "encoding": "UTF-8"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at /0.",
+            "pointer": "/0"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at /0.",
+            "pointer": "/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at /0.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-020",
+      "description": "An R string marked UTF-8 in NFD, which only the hashable profile refuses.",
+      "languages": [
+        "R"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "r_string": {
+            "hex": "65cc81",
+            "encoding": "UTF-8"
+          }
+        }
+      ],
+      "expected": {
+        "plain": {
+          "canonical": "[\"e\u0301\"]",
+          "sha256": "sha256:32860394d411eb384be988968561412199087c5fd8be3004ef5516db217fb254"
+        },
+        "data": {
+          "canonical": "[\"e\u0301\"]",
+          "sha256": "sha256:32860394d411eb384be988968561412199087c5fd8be3004ef5516db217fb254"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at /0 is not in Unicode normalisation form C (NFC).",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-021",
+      "description": "A Python str with a lone surrogate, as the error handler 'surrogateescape' produces for the byte E9.",
+      "languages": [
+        "Python"
+      ],
+      "json": "[\"x\"]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "python_string": [
+            99,
+            97,
+            102,
+            56553
+          ]
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1206",
+            "message": "The string at /0 contains a surrogate code point.",
+            "pointer": "/0"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1206",
+            "message": "The string at /0 contains a surrogate code point.",
+            "pointer": "/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1206",
+            "message": "The string at /0 contains a surrogate code point.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-c-locale-022",
+      "description": "A Python str with a high surrogate alone.",
+      "languages": [
+        "Python"
+      ],
+      "json": "{\"a\":\"x\"}",
+      "substitutions": [
+        {
+          "pointer": "/a",
+          "python_string": [
+            55357
+          ]
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1206",
+            "message": "The string at /a contains a surrogate code point.",
+            "pointer": "/a"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1206",
+            "message": "The string at /a contains a surrogate code point.",
+            "pointer": "/a"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1206",
+            "message": "The string at /a contains a surrogate code point.",
+            "pointer": "/a"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "features": ["dyadic"],
+  "units": [{"name": "dyad", "columns": ["fam"]}]
+}

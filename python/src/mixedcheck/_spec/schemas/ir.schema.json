@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:ir",
+  "title": "mixedcheck canonical IR, version 0.1",
+  "description": "The canonical intermediate representation (IR) of one model in the hashable profile, normative together with docs/spec/ir.md. It holds the response, the coding of every predictor with its levels, reference level, centring and whether its coding is frozen as numeric contrast columns, the terms and columns of the fixed part, the random terms with their grouping factors and columns, the offsets, the weights and any further columns that define the design sample. Its hash is the IR hash, the SHA-256 of its canonical bytes. The validators first check ir_version (E1441), then this schema, then the rule in code that ir.md states (E6101): every derived member, such as the coding of each variable in a term, the columns of each term and every name, equals what the predictors and the terms define.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fixed", "ir_version", "offsets", "predictors", "random"],
+  "properties": {
+    "ir_version": {
+      "title": "IR version 0.1",
+      "description": "The version of the IR. This release reads every 0.1.x version. A version outside that line is reported with E1441 alone, before any other check.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/semver",
+      "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$"
+    },
+    "response": {"$ref": "#/$defs/response"},
+    "predictors": {
+      "description": "The coding of each column that appears in a term of the fixed part or of a random term, keyed by column name in NFC.",
+      "type": "object",
+      "propertyNames": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+      "additionalProperties": {"$ref": "#/$defs/predictor"}
+    },
+    "fixed": {
+      "description": "The fixed part: its terms in term order, the intercept first when there is one, and its columns in column order.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "terms"],
+      "properties": {
+        "terms": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/term"}
+        },
+        "columns": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/column"}
+        }
+      }
+    },
+    "random": {
+      "description": "The random terms after '/' and '||' are expanded, grouped by grouping factor in the order in which each factor first arises, and in the order in which they arise within a factor.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/random_term"}
+    },
+    "offsets": {
+      "description": "The offsets, summed into the linear predictor, in code-point order of their column names and then of their transforms. Each appears once.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/offset"}
+    },
+    "weights": {
+      "description": "The column of precision weights, present only when the caller names one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variable"],
+      "properties": {
+        "variable": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+      }
+    },
+    "sample_columns": {
+      "description": "Columns that the IR does not otherwise read but whose missing values also remove rows from the design sample, in code-point order, so that the rungs of a plan share the design sample of the ceiling (ir.md, Samples). Absent when there are none.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+    }
+  },
+  "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/hashable_value"}],
+  "$defs": {
+    "ir_name": {
+      "title": "IR name",
+      "description": "The name of a term, column, random term or grouping factor, as ir.md (Names) forms it: 1 to 10000 characters without control characters.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]+$"
+    },
+    "level": {
+      "description": "A level of a categorical predictor: a string, as its NFC form, for a column of strings, an integer for declared integer categories, and false or true for a column of booleans.",
+      "type": ["string", "integer", "boolean"]
+    },
+    "response": {
+      "title": "response",
+      "description": "The response column and its transform. event_level, the declared event level of a binary outcome, and trials, the declared trials column of a binomial outcome, come from the declaration and exclude each other and the log transform.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transform", "variable"],
+      "properties": {
+        "variable": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+        "transform": {"enum": ["identity", "log"]},
+        "event_level": {"$ref": "urn:mixedcheck:schema:defs#/$defs/category_value"},
+        "trials": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+      },
+      "allOf": [
+        {"not": {"required": ["event_level", "trials"]}},
+        {
+          "if": {"required": ["transform"], "properties": {"transform": {"const": "log"}}},
+          "then": {"properties": {"event_level": false, "trials": false}}
+        }
+      ]
+    },
+    "predictor": {
+      "title": "predictor",
+      "description": "The coding of one predictor. A numeric predictor has its centring. A categorical predictor has its levels in level order, where they came from, its contrast and its reference level, which is one of its levels (E6101), and 'frozen' when its coding is frozen as numeric contrast columns, which every term then uses (ir.md, Coding argument).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["numeric", "categorical"]},
+        "centring": {"$ref": "#/$defs/centring"},
+        "levels": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/level"}
+        },
+        "levels_source": {"enum": ["declared", "table", "boolean"]},
+        "contrast": {"enum": ["treatment", "sum", "simple"]},
+        "reference": {"$ref": "#/$defs/level"},
+        "frozen": {"const": true}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "numeric"}}},
+          "then": {
+            "required": ["centring"],
+            "properties": {"contrast": false, "frozen": false, "levels": false, "levels_source": false, "reference": false}
+          }
+        },
+        {
+          "if": {"required": ["kind"], "properties": {"kind": {"const": "categorical"}}},
+          "then": {
+            "required": ["contrast", "levels", "levels_source", "reference"],
+            "properties": {"centring": false}
+          }
+        }
+      ]
+    },
+    "centring": {
+      "title": "centring",
+      "description": "How a numeric predictor is centred (ir.md, Centring). none leaves it as it is. mean centres it at its mean over the design sample, rounded to significant_digits significant digits: before the data are seen, the rule has significant_digits and no constant, and afterwards the constant, whose significant_digits it then holds. value centres it at a constant that the caller gives, whose significant_digits are those of the decimal string as given (conventions.md, Decimal strings and centring constants).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule"],
+      "properties": {
+        "rule": {"enum": ["none", "mean", "value"]},
+        "sample": {"const": "design"},
+        "significant_digits": {"type": "integer", "minimum": 1, "maximum": 15},
+        "constant": {"$ref": "urn:mixedcheck:schema:defs#/$defs/decimal_constant"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["rule"], "properties": {"rule": {"const": "none"}}},
+          "then": {"properties": {"constant": false, "sample": false, "significant_digits": false}}
+        },
+        {
+          "if": {"required": ["rule"], "properties": {"rule": {"const": "mean"}}},
+          "then": {
+            "required": ["sample"],
+            "if": {"required": ["constant"]},
+            "then": {"properties": {"significant_digits": false}},
+            "else": {"required": ["significant_digits"]}
+          }
+        },
+        {
+          "if": {"required": ["rule"], "properties": {"rule": {"const": "value"}}},
+          "then": {
+            "required": ["constant"],
+            "properties": {"sample": false, "significant_digits": false}
+          }
+        }
+      ]
+    },
+    "term": {
+      "title": "term",
+      "description": "A term of the fixed part or of a random term: its name and its variables in the term's variable order, each categorical variable with its coding in this term, contrast or indicator (ir.md, Contrasts or indicators). A variable of a frozen predictor carries a level when '||' has split the term into its columns, and the term then has the one column of that level. The intercept is the term '(Intercept)' with no variables.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "variables"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ir_name"},
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["variable"],
+            "properties": {
+              "variable": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+              "coding": {"enum": ["contrast", "indicator"]},
+              "level": {"$ref": "#/$defs/level"}
+            },
+            "dependentRequired": {"level": ["coding"]}
+          }
+        }
+      }
+    },
+    "column": {
+      "title": "design column",
+      "description": "One column of a design matrix: its name, the index from 0 of its term in the same list of terms and, for each categorical variable of the term, the level that the column belongs to.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["levels", "name", "term"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ir_name"},
+        "term": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "levels": {
+          "type": "object",
+          "propertyNames": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+          "additionalProperties": {"$ref": "#/$defs/level"}
+        }
+      }
+    },
+    "random_term": {
+      "title": "random term",
+      "description": "One random term after expansion: its name, its grouping factor by name and by its columns in the factor's order, its covariance structure, which is unstructured in IR 0.1, and the terms and columns of its left-hand side. Its columns differ from those of every other random term of the same grouping factor (E6101).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "covariance", "factor", "grouping", "name", "terms"],
+      "properties": {
+        "name": {"$ref": "#/$defs/ir_name"},
+        "factor": {"$ref": "#/$defs/ir_name"},
+        "grouping": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+        },
+        "covariance": {"const": "unstructured"},
+        "terms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/term"}
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/column"}
+        }
+      }
+    },
+    "offset": {
+      "title": "offset",
+      "description": "An offset: a numeric column, added as it is (identity) or as its natural logarithm (log).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transform", "variable"],
+      "properties": {
+        "variable": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"},
+        "transform": {"enum": ["identity", "log"]}
+      }
+    }
+  }
+}

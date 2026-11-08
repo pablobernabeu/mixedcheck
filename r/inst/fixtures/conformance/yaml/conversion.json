@@ -1,0 +1,341 @@
+{
+  "description": "Declarations written in YAML whose conversion to JSON fails, by coercion or by the hashable profile, each with the one issue reported.",
+  "cases": [
+    {
+      "id": "yaml-conversion-001",
+      "description": "'yes' where the schema requires a boolean.",
+      "path": "conversion/boolean_yes.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value 'yes' at /provenance/outcome_seen cannot be read as a boolean.",
+            "pointer": "/provenance/outcome_seen"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-002",
+      "description": "'True' where the schema requires a boolean, which reads only 'true' and 'false'.",
+      "path": "conversion/boolean_capital.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value 'True' at /estimands/0/focal cannot be read as a boolean.",
+            "pointer": "/estimands/0/focal"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-003",
+      "description": "An empty scalar where the schema requires a boolean.",
+      "path": "conversion/boolean_empty.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '' at /table/fields/0/categoriesOrdered cannot be read as a boolean.",
+            "pointer": "/table/fields/0/categoriesOrdered"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-004",
+      "description": "The bound '.5', which the number grammar of RFC 8259 does not accept.",
+      "path": "conversion/bound_dot_five.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '.5' at /variables/score/bounds/0 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-005",
+      "description": "The bound '+1'.",
+      "path": "conversion/bound_plus_one.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '+1' at /variables/score/bounds/0 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-006",
+      "description": "The bound '1_000'.",
+      "path": "conversion/bound_underscore.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '1_000' at /variables/score/bounds/1 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-007",
+      "description": "The bound '0x1F'.",
+      "path": "conversion/bound_hex.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '0x1F' at /variables/score/bounds/1 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-008",
+      "description": "The bound '.inf'.",
+      "path": "conversion/bound_inf.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '.inf' at /variables/score/bounds/1 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-009",
+      "description": "The bound '007'.",
+      "path": "conversion/bound_leading_zero.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '007' at /variables/score/bounds/0 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-010",
+      "description": "The bound '~', which stays a string and is not a null.",
+      "path": "conversion/bound_tilde.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '~' at /variables/score/bounds/0 cannot be read as a number.",
+            "pointer": "/variables/score/bounds/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-011",
+      "description": "A category '007' in an integer field.",
+      "path": "conversion/integer_category_leading_zero.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '007' at /table/fields/0/categories/1 cannot be read as an integer.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-012",
+      "description": "A category '1.0' in an integer field, which must have the form of an integer.",
+      "path": "conversion/integer_category_decimal.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value '1.0' at /table/fields/0/categories/1 cannot be read as an integer.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-013",
+      "description": "An event level that is not an integer for an integer field.",
+      "path": "conversion/integer_event_level.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3008",
+            "message": "The value 'one' at /variables/hit/event_level cannot be read as an integer.",
+            "pointer": "/variables/hit/event_level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-014",
+      "description": "A bound with 17 significant digits.",
+      "path": "conversion/bound_too_many_digits.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1103",
+            "message": "The number 1.0000000000000002 at /variables/score/bounds/1 has more than 15 significant digits.",
+            "pointer": "/variables/score/bounds/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-015",
+      "description": "A bound above 9007199254740991.",
+      "path": "conversion/bound_integer_range.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1102",
+            "message": "The integer 9007199254740993 at /variables/score/bounds/1 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/variables/score/bounds/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-016",
+      "description": "The bound 1e400, an integer outside the range of the profile.",
+      "path": "conversion/bound_exponent_range.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1102",
+            "message": "The integer 1e400 at /variables/score/bounds/1 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/variables/score/bounds/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-017",
+      "description": "The bound 5e-324.",
+      "path": "conversion/bound_too_small.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1104",
+            "message": "The number 5e-324 at /variables/score/bounds/0 is smaller in magnitude than 1e-307.",
+            "pointer": "/variables/score/bounds/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-018",
+      "description": "An integer category above 9007199254740991.",
+      "path": "conversion/category_integer_range.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1102",
+            "message": "The integer 9007199254740993 at /table/fields/0/categories/1 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-019",
+      "description": "A title in NFD.",
+      "path": "conversion/nfd_value.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1203",
+            "message": "The string at /title is not in Unicode normalisation form C (NFC).",
+            "pointer": "/title"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-020",
+      "description": "A variables key in NFD.",
+      "path": "conversion/nfd_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1203",
+            "message": "The string at /variables/a\u0302ge is not in Unicode normalisation form C (NFC).",
+            "pointer": "/variables/a\u0302ge"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-021",
+      "description": "A variables key with a character outside the BMP.",
+      "path": "conversion/key_outside_bmp.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1108",
+            "message": "The key at /variables/\ud83d\ude00 contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/variables/\ud83d\ude00"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-022",
+      "description": "A title with U+1E4EC, which Unicode 14.0 does not assign.",
+      "path": "conversion/unassigned.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1208",
+            "message": "The string at /title contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "pointer": "/title"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-023",
+      "description": "Sequences nested 65 containers deep, counting the top-level mapping.",
+      "path": "conversion/deep.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /x/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0.",
+            "pointer": "/x/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-conversion-024",
+      "description": "Sequences nested 1,000 deep, which the check of keys walks before the conversion reports the depth.",
+      "path": "conversion/deep_1000.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /x/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0.",
+            "pointer": "/x/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0"
+          }
+        ]
+      }
+    }
+  ]
+}

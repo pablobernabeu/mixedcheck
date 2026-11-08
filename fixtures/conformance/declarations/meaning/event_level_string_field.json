@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "acc", "type": "string"}]},
+  "variables": {"acc": {"role": "outcome", "measurement": "binary", "event_level": 1}}
+}

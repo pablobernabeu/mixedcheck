@@ -1,0 +1,18 @@
+# The members of the compiled registry other than its entries and its
+# version (docs/spec/registry.md). Every scalar is read as a string and coerced
+# to the type that spec/schemas/registry.schema.json requires.
+privacy:
+  min_count: 10
+  dominance:
+    contributors: 2
+    share: 0.9
+  rounding_base: 5
+  zeros_disclosive: true
+  sources:
+    - kind: decision
+      citation: >-
+        02-decisions.md, Q5. The settings follow the confirmed defaults of the
+        ACRO output-checking tool, with the dominance rule applied to the rows
+        of a bin, and the maintainer adopted them on 8 November 2026. They are
+        to be checked against the primary UK output-checking guidance before
+        1.0.

@@ -1,0 +1,71 @@
+id: labels.unicode_forms
+version: 1
+title: Labels that differ only in Unicode form
+tier: T0
+summary: >-
+  Labels are compared after NFC normalisation (conventions.md, Text and
+  Unicode), so distinct spellings that are canonically equivalent, such as a
+  precomposed and a decomposed accented letter, count as one label. The check
+  reports each column in which such spellings occur, so that the merge is
+  visible rather than silent. It compares no case and no white space.
+reads: [declaration, formula, grouping_factors, keys, predictors]
+fitted_model: false
+sample: table
+scope: column
+applies_when: >-
+  The column holds labels: a grouping column, a categorical predictor of the
+  fixed part, a column of the declared observation key or a declared
+  assignment column. The outcome is not read.
+availability: []
+statistics:
+  spellings:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of distinct strings of the column in the table that share
+      their NFC form with another distinct string of the column. A string that
+      is not normalisable stands for itself (conventions.md, NFC).
+  labels:
+    kind: count
+    count_class: by_unit
+    definition: The number of distinct NFC forms that those strings share.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: detectable_inconsequential
+      condition: spellings is above 0.
+      thresholds: []
+      message: merged
+  otherwise:
+    finding: consistent
+    message: distinct
+assessability: []
+messages:
+  merged:
+    template: >-
+      {spellings} distinct spellings in '{column}' differ only in their Unicode
+      form and are treated as {labels} labels.
+    args:
+      spellings: {source: statistic, name: spellings}
+      column: {source: scope, name: column}
+      labels: {source: statistic, name: labels}
+  distinct:
+    template: No two labels in '{column}' differ only in their Unicode form.
+    args:
+      column: {source: scope, name: column}
+remedies:
+  - id: normalise_source
+    description: >-
+      Normalise the labels to NFC in the data source, so that other software
+      reading the data treats them as the analysis does.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: decision
+    citation: conventions.md, Text and Unicode, and 02-decisions.md, cross-cutting conventions
+catalogue: [L1-20, L6-08]

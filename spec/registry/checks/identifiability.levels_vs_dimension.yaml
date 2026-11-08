@@ -1,0 +1,111 @@
+id: identifiability.levels_vs_dimension
+version: 1
+title: Levels against the dimension of a random term
+tier: T0
+summary: >-
+  Compares the number of levels of a grouping factor with the number of random
+  effects that a term estimates for each level. When the term's columns also
+  appear in the fixed part, J levels support a covariance matrix of rank at
+  most J - 1, and at most J otherwise, so a term whose dimension exceeds this
+  bound gives a singular fit whatever the data, and a fit reported as
+  non-singular then suggests that the optimiser stopped early. Levels in which
+  the term's columns do not all vary inform the covariance only in part, so
+  few informative levels make a singular fit likely.
+reads: [formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: random_term
+availability: []
+statistics:
+  dimension:
+    kind: count
+    count_class: non_person
+    definition: The number of columns of the term, which is the number of random effects for each level.
+  levels:
+    kind: count
+    count_class: by_unit
+    definition: The number of levels of the term's grouping factor in the design sample.
+  informative_levels:
+    kind: count
+    count_class: by_unit
+    definition: >-
+      The number of levels in which the term's columns, restricted to the
+      level's rows, have rank equal to dimension by the sequential rule.
+  counterparts:
+    kind: boolean
+    definition: >-
+      Whether the sequential rule, applied to the fixed-effects columns
+      followed by the term's columns, keeps none of the term's columns.
+  bound:
+    kind: count
+    count_class: non_person
+    definition: levels minus 1 when counterparts is true, and levels otherwise.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: bound is below dimension.
+      thresholds: []
+      message: guaranteed
+    - finding: detectable_inconsequential
+      condition: informative_levels is at most dimension.
+      thresholds: []
+      message: likely
+  otherwise:
+    finding: consistent
+    message: adequate
+assessability: []
+messages:
+  guaranteed:
+    template: >-
+      '{term}' has {dimension} random effects for each level of '{factor}',
+      but its {levels} levels support a covariance matrix of rank {bound} at
+      most, so the fit will be singular. A fit reported as non-singular would
+      suggest that the optimiser stopped early.
+    args:
+      term: {source: scope, name: term}
+      factor: {source: scope, name: factor}
+      dimension: {source: statistic, name: dimension}
+      levels: {source: statistic, name: levels}
+      bound: {source: statistic, name: bound}
+  likely:
+    template: >-
+      Only {informative} levels of '{factor}' vary in every column of '{term}',
+      no more than its {dimension} random effects for each level, so a
+      singular fit is likely.
+    args:
+      informative: {source: statistic, name: informative_levels}
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+      dimension: {source: statistic, name: dimension}
+  adequate:
+    template: >-
+      {informative} of the {levels} levels of '{factor}' vary in every column
+      of '{term}', which has {dimension} random effects for each level.
+    args:
+      informative: {source: statistic, name: informative_levels}
+      levels: {source: statistic, name: levels}
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+      dimension: {source: statistic, name: dimension}
+remedies:
+  - id: simplify_term
+    description: >-
+      Reduce the term along the plan's ladder, removing correlations before
+      variances and terms that few levels inform before the others.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [structure.cluster_sizes, structure.within_between]
+references:
+  - kind: decision
+    citation: 02-decisions.md, Q3
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-07, with
+      the verifier's condition that the bound J - 1 needs fixed-effect
+      counterparts for the term's columns.
+catalogue: [L1-07]

@@ -1,0 +1,35 @@
+{
+  "vocabulary": "0.1.0",
+  "variables": {
+    "y1": {"role": "outcome", "measurement": "continuous"},
+    "y2": {"role": "outcome", "measurement": "binary", "event_level": "yes"},
+    "y3": {"role": "outcome", "measurement": "binomial", "trials": "n3"},
+    "y4": {
+      "role": "outcome",
+      "measurement": "count",
+      "exposure": {"column": "log_t4", "scale": "log"}
+    },
+    "y5": {"role": "outcome", "measurement": "bounded_score", "bounds": [1, 7]},
+    "y6": {"role": "outcome", "measurement": "ordinal"},
+    "y7": {"role": "outcome", "measurement": "positive_duration"},
+    "y1_lag": {"role": "outcome_derived", "derived_from": ["y1"]},
+    "a": {"role": "assigned"},
+    "b": {"role": "baseline_covariate", "measurement": "continuous"},
+    "tv": {"role": "time_varying_covariate"},
+    "pa": {"role": "post_assignment_covariate"},
+    "m": {"role": "mediator"},
+    "t": {"role": "time"},
+    "blk": {"role": "block"},
+    "w": {"role": "weight"},
+    "off": {"role": "offset"},
+    "ex": {"role": "exclusion_flag"},
+    "pid": {"role": "id"},
+    "n3": {"role": "auxiliary"},
+    "log_t4": {"role": "auxiliary"}
+  },
+  "estimands": [
+    {"id": "e1", "term": "a", "kind": "total_effect", "outcome": "y1"},
+    {"id": "e2", "term": "a", "kind": "direct_effect", "focal": false, "outcome": "y2"},
+    {"id": "e3", "term": "b:tv", "kind": "association", "focal": false, "outcome": "y7"}
+  ]
+}

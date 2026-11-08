@@ -1,0 +1,145 @@
+# R CMD check of the R package in r/. The quick job runs on every push to main
+# and every pull request that touches the package or the shared artefacts it vendors. The full
+# matrix of 02-decisions.md (Q10) runs when started by hand and nightly.
+name: R-CMD-check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'r/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - '.github/workflows/R-CMD-check.yaml'
+  pull_request:
+    paths:
+      - 'r/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - '.github/workflows/R-CMD-check.yaml'
+  workflow_dispatch:
+  schedule:
+    - cron: '23 2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The runners' clocks need no check against a time server.
+  _R_CHECK_SYSTEM_CLOCK_: false
+
+jobs:
+  quick:
+    name: Ubuntu, R release
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # check-r-package turns CRAN's incoming checks off unless
+    # _R_CHECK_CRAN_INCOMING_ is set, and this job checks the package as CRAN
+    # would. The remote incoming checks would report a new submission and,
+    # while the repository is private, invalid URLs. The development version
+    # 0.0.0.9000 has a large component by convention. The full matrix runs
+    # without the incoming checks.
+    env:
+      _R_CHECK_CRAN_INCOMING_: true
+      _R_CHECK_CRAN_INCOMING_REMOTE_: false
+      _R_CHECK_CRAN_INCOMING_SKIP_LARGE_VERSION_: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The incoming checks need pandoc to check README.md and NEWS.md.
+      - uses: r-lib/actions/setup-pandoc@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+          working-directory: r
+      - uses: r-lib/actions/check-r-package@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          working-directory: r
+          args: 'c("--no-manual", "--as-cran")'
+          error-on: '"note"'
+
+  # Scheduled runs are paid for while the repository is private, and macOS
+  # minutes count tenfold, so the scheduled full matrix runs only once the
+  # repository is public. The payload of a scheduled event may lack the
+  # repository object. This job then reads the visibility from the API, and it
+  # is skipped whenever the payload states it.
+  visibility:
+    name: Repository visibility
+    if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      public: ${{ steps.read.outputs.public }}
+    steps:
+      - id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "public=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.private | not')" >> "$GITHUB_OUTPUT"
+
+  full:
+    name: ${{ matrix.config.name }}
+    needs: visibility
+    if: >-
+      !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' &&
+      (toJSON(github.event.repository.private) == 'false' ||
+      needs.visibility.outputs.public == 'true')))
+    runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {name: 'Ubuntu, R-devel', os: ubuntu-latest, r: 'devel', http-user-agent: 'release'}
+          - {name: 'Ubuntu, R release', os: ubuntu-latest, r: 'release'}
+          - {name: 'Ubuntu, R oldrel-1', os: ubuntu-latest, r: 'oldrel-1'}
+          # The declared floor. It resolves to R 4.2.3.
+          - {name: 'Ubuntu, R 4.2', os: ubuntu-latest, r: '4.2'}
+          - {name: 'Windows, R release', os: windows-latest, r: 'release'}
+          - {name: 'macOS, R release', os: macos-latest, r: 'release'}
+          - {name: 'Ubuntu, R release, without Suggests', os: ubuntu-latest, r: 'release', depends-only: 'true'}
+          - {name: 'Ubuntu, R release, LC_ALL=C', os: ubuntu-latest, r: 'release', locale: 'C'}
+          - {name: 'Ubuntu, R release, lme4 1.1-35.1', os: ubuntu-latest, r: 'release', lme4: '1.1-35.1'}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          extra-packages: ${{ matrix.config.lme4 && format('any::rcmdcheck, lme4@{0}', matrix.config.lme4) || 'any::rcmdcheck' }}
+          needs: check
+          working-directory: r
+      - name: Confirm the lme4 version
+        if: matrix.config.lme4
+        env:
+          LME4: ${{ matrix.config.lme4 }}
+        run: Rscript -e 'stopifnot(packageVersion("lme4") == Sys.getenv("LME4"))'
+      - name: Confirm the C locale
+        if: matrix.config.locale
+        env:
+          LC_ALL: ${{ matrix.config.locale }}
+        run: Rscript -e 'stopifnot(!l10n_info()[["UTF-8"]])'
+      - uses: r-lib/actions/check-r-package@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        env:
+          _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.depends-only || 'false' }}
+          LC_ALL: ${{ matrix.config.locale }}
+        with:
+          working-directory: r
+          args: 'c("--no-manual", "--as-cran")'
+          error-on: '"warning"'

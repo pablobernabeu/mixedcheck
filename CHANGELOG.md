@@ -1,6 +1,6 @@
 # Changelog
 
-Notable changes to the design of mixedcheck are recorded here, in the format of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+Notable changes to the design of mixedcheck and to its shared specification are recorded here, in the format of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Changes to the packages are recorded in [r/NEWS.md](r/NEWS.md) and [python/CHANGELOG.md](python/CHANGELOG.md).
 
 ## Unreleased
 
@@ -10,6 +10,7 @@ Notable changes to the design of mixedcheck are recorded here, in the format of 
 - The [decision record](docs/design/02-decisions.md) answers the ten questions, marks each answer 'Decided', 'Provisional' or 'Maintainer' and defines the conventions shared by both packages: six status fields, a hash taxonomy with keyed commitments for person-level data, two JSON profiles and the handling of UTF-8 and NFC.
 - The [evidence for the decisions](docs/design/evidence/decisions/README.md) is the frozen record of the November 2026 research reports, their verifiers and a consistency critic: a 27-model engine benchmark, simulations, declaration schemas, a pathology-zoo prototype, SLURM templates and a cost model.
 - The [execution plan](docs/design/03-execution-plan.md) turns the decisions into gated milestones, from the repository skeleton (M0) to GLMM support (M8), with validation on ARC, risks and open checks.
+- The repository skeleton of milestone M0. The R package in r/ and the Python package in python/ return the versions of the shared specification through `spec_versions()`. spec/ holds those versions and the list of shared artefacts, which spec/tools/vendor.py copies byte for byte into both packages and checks against their sources. GitHub Actions check both packages and the vendored copies, and the repository gains governance files, a citation file and a [provenance log](docs/provenance.md).
 
 ### Changed
 
@@ -18,6 +19,7 @@ Notable changes to the design of mixedcheck are recorded here, in the format of 
 - The roadmap returns lognormal models to version 1.2 and makes zero-inflated and hurdle models candidates for version 2. The separation check runs in M2 as an exploratory T2 audit, and the shared view model and privacy filter move into M2. V7 includes an engine conformance study whose regenerated parity tiers gate 1.0.
 - A rung that an engine cannot express is reported as not_available with its reason. The unprotected back-off is available only by explicit opt-in, and the first 0.x release ships neither it nor protected AIC. Point-level detail appears only in internal mode. Only a Rust-based engine can become the supported Python engine, and gpboost may serve only as an engine-specific adapter.
 - Each topic is stated fully in one document and referred to from the others. The decision record owns the decisions and their evidence, the execution plan owns sequencing, environments, risks and open checks, and the evidence README describes the evidence workflow.
+- The execution plan declares each R Import when the code first uses it and each Python extra with its first optional dependency. In place of the LF line endings of Q7, Git's line-ending conversion is turned off for the shared artefacts, so that fixtures can keep deliberate CRLF cases, and the vendoring check rejects CR characters in spec/ sources. The nightly full matrix runs only once the repository is public.
 - The design documents, the READMEs and the review catalogue were revised for plain British English, with paragraphs regrouped by topic and status values written as their defined identifiers.
 
 ### Fixed

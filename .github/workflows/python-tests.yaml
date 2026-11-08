@@ -1,0 +1,177 @@
+# Tests of the Python package in python/. The quick jobs run on every push to
+# main and every pull request that touches the package or the shared artefacts it vendors. The
+# full matrix of 02-decisions.md (Q10) runs when started by hand and nightly.
+name: python-tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'python/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'ruff.toml'
+      - '.github/workflows/python-tests.yaml'
+  pull_request:
+    paths:
+      - 'python/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'ruff.toml'
+      - '.github/workflows/python-tests.yaml'
+  workflow_dispatch:
+  schedule:
+    - cron: '41 2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # uv provides the interpreters and the lowest-direct resolution. Dependabot
+  # does not update this pin.
+  UV_VERSION: '0.13.7'
+
+jobs:
+  ruff:
+    name: ruff
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The rule selection is in python/pyproject.toml, which ruff.toml extends
+      # for the vendoring script in spec/tools/.
+      - name: Lint the package and the vendoring script
+        run: pipx run ruff check python spec/tools
+
+  quick:
+    name: ${{ matrix.name }}
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: 'Python 3.11, lowest direct', python: '3.11', resolution: 'lowest-direct'}
+          - {name: 'Python 3.15, latest', python: '3.15', resolution: 'highest', build: true}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        run: pipx install "uv==$UV_VERSION"
+      - name: Install the package and its test group
+        working-directory: python
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+          RESOLUTION: ${{ matrix.resolution }}
+        run: |
+          uv venv --python "$PYTHON_VERSION" "$RUNNER_TEMP/venv"
+          uv pip install --python "$RUNNER_TEMP/venv" --resolution "$RESOLUTION" --group test .
+          uv pip list --python "$RUNNER_TEMP/venv"
+      # The package is installed from a built wheel, so the tests check the
+      # vendored files that an installation receives.
+      - name: Run the tests
+        working-directory: python
+        run: '"$RUNNER_TEMP/venv/bin/python" -m pytest'
+      - name: Build the sdist and wheel and check their contents
+        if: matrix.build
+        run: |
+          uv build --out-dir "$RUNNER_TEMP/dist" python
+          python3 - "$RUNNER_TEMP/dist" <<'PY'
+          import sys, tarfile, zipfile
+          from pathlib import Path
+
+          dist = Path(sys.argv[1])
+          package = Path("python/src/mixedcheck")
+          vendored = sorted(
+              path.relative_to(package).as_posix()
+              for name in ("_spec", "_fixtures")
+              for path in (package / name).rglob("*")
+              if path.is_file()
+          )
+          (sdist,) = dist.glob("*.tar.gz")
+          (wheel,) = dist.glob("*.whl")
+          with tarfile.open(sdist) as archive:
+              in_sdist = {name.split("/", 1)[-1] for name in archive.getnames()}
+          with zipfile.ZipFile(wheel) as archive:
+              in_wheel = set(archive.namelist())
+          missing = [f"{sdist.name}: src/mixedcheck/{name}" for name in vendored
+                     if f"src/mixedcheck/{name}" not in in_sdist]
+          missing += [f"{wheel.name}: mixedcheck/{name}" for name in vendored
+                      if f"mixedcheck/{name}" not in in_wheel]
+          if "LICENSE" not in in_sdist:
+              missing.append(f"{sdist.name}: LICENSE")
+          if not any(name.endswith(".dist-info/licenses/LICENSE") for name in in_wheel):
+              missing.append(f"{wheel.name}: the licence")
+          sys.exit("\n".join(["Missing from the distributions:", *missing]) if missing else 0)
+          PY
+          uv tool run --from twine twine check --strict "$RUNNER_TEMP"/dist/*
+
+  # Scheduled runs are paid for while the repository is private, so the
+  # scheduled full matrix runs only once the repository is public. The payload
+  # of a scheduled event may lack the repository object. This job then reads
+  # the visibility from the API, and it is skipped whenever the payload states
+  # it.
+  visibility:
+    name: Repository visibility
+    if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      public: ${{ steps.read.outputs.public }}
+    steps:
+      - id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "public=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.private | not')" >> "$GITHUB_OUTPUT"
+
+  full:
+    name: ${{ matrix.name }}
+    needs: visibility
+    if: >-
+      !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' &&
+      (toJSON(github.event.repository.private) == 'false' ||
+      needs.visibility.outputs.public == 'true')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: 'Python 3.11, latest', python: '3.11', resolution: 'highest'}
+          - {name: 'Python 3.12, latest', python: '3.12', resolution: 'highest'}
+          - {name: 'Python 3.13, latest', python: '3.13', resolution: 'highest'}
+          - {name: 'Python 3.14, latest', python: '3.14', resolution: 'highest'}
+          - {name: 'Python 3.15, latest', python: '3.15', resolution: 'highest'}
+          - {name: 'Python 3.11, lowest direct', python: '3.11', resolution: 'lowest-direct'}
+          # pandas 3 infers a new string dtype, so pandas 2.3 is tested as
+          # well while it is within SPEC 0.
+          - {name: 'Python 3.13, latest with pandas 2.3', python: '3.13', resolution: 'highest', pin: 'pandas>=2.3,<3'}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        run: pipx install "uv==$UV_VERSION"
+      - name: Install the package and its test group
+        working-directory: python
+        env:
+          PYTHON_VERSION: ${{ matrix.python }}
+          RESOLUTION: ${{ matrix.resolution }}
+          PIN: ${{ matrix.pin }}
+        run: |
+          uv venv --python "$PYTHON_VERSION" "$RUNNER_TEMP/venv"
+          uv pip install --python "$RUNNER_TEMP/venv" --resolution "$RESOLUTION" --group test . ${PIN:+"$PIN"}
+          uv pip list --python "$RUNNER_TEMP/venv"
+      - name: Run the tests
+        working-directory: python
+        run: '"$RUNNER_TEMP/venv/bin/python" -m pytest'

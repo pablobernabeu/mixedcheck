@@ -1,0 +1,9 @@
+# Ruff settings for the Python files outside python/, which are the vendoring
+# script and its tests in spec/tools/. Ruff resolves its configuration by
+# walking up from each file, so without this file those scripts would get
+# ruff's defaults, which change between releases. Extending the package's
+# settings holds both trees to one rule set.
+extend = "python/pyproject.toml"
+# The scripts under docs/ are part of the frozen design evidence and are not
+# linted.
+extend-exclude = ["docs"]

@@ -1,0 +1,63 @@
+[build-system]
+# hatchling 1.27 or later writes the PEP 639 licence metadata (License-Expression).
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mixedcheck"
+dynamic = ["version"]
+description = "Design audits and diagnostics for mixed-effects models."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Pablo Bernabeu", email = "pcbernabeu@gmail.com" }]
+keywords = ["mixed-effects models", "multilevel models", "study design", "model diagnostics"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Topic :: Scientific/Engineering :: Mathematics",
+]
+# The SPEC 0 floors (02-decisions.md, Q10).
+dependencies = ["numpy>=2.3", "pandas>=2.3", "scipy>=1.15"]
+
+[project.urls]
+Repository = "https://github.com/pablobernabeu/lmecheck"
+Issues = "https://github.com/pablobernabeu/lmecheck/issues"
+Changelog = "https://github.com/pablobernabeu/lmecheck/blob/main/python/CHANGELOG.md"
+
+[dependency-groups]
+test = ["pytest>=8.0"]
+
+[tool.hatch.version]
+path = "src/mixedcheck/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/mixedcheck", "tests", "CHANGELOG.md"]
+
+[tool.hatch.build.targets.wheel]
+# Hatchling includes the non-Python files under the package directory, which
+# carries the vendored _spec/ files into the wheel.
+packages = ["src/mixedcheck"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+# The declared floor, so that ruff never proposes syntax that Python 3.11 cannot run.
+target-version = "py311"
+src = ["src"]
+
+[tool.ruff.lint]
+# An explicit set, so that a change in ruff's default selection cannot change
+# what CI enforces.
+# E/W pycodestyle, F pyflakes, I import order, B bugbear, UP pyupgrade.
+select = ["E", "F", "W", "I", "B", "UP"]

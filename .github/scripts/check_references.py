@@ -64,6 +64,9 @@ AUTHORS = re.compile(
     rf"(?:^|(?<=[.:;] ))(?P<list>{AUTHOR}(?:, {AUTHOR})*(?:,? & {AUTHOR})?"
     rf"(?:, \. \. \. {AUTHOR})?)(?P<editors> \(Eds?\.\))?\.?$"
 )
+# The pages of a paper in proceedings, which follow the title of the
+# proceedings without a volume.
+PROCEEDINGS = re.compile(r", (?P<pages>[A-Za-z]?\d+[\u2013-][A-Za-z]?\d+)\.?$")
 ONE_AUTHOR = re.compile(rf"(?P<family>{FAMILY}), {INITIALS}")
 SOURCE = re.compile(
     r", (?P<volume>\d+)(?:\((?P<issue>[^)]+)\))?"
@@ -132,11 +135,14 @@ def parse(location: str, text: str, doi: str) -> Reference:
         start = max(before.rfind(". ", 0, len(before) - 1), before.rfind(": "))
         reference.organisation = before[start + 2 if start >= 0 else 0 :].rstrip(".")
         reference.text = text[start + 2 if start >= 0 else 0 :]
-    source = SOURCE.search(text[year.end() :].strip())
+    tail = text[year.end() :].strip()
+    source = SOURCE.search(tail)
     if source:
         reference.volume = source.group("volume")
         reference.issue = source.group("issue")
         reference.pages = source.group("pages")
+    elif proceedings := PROCEEDINGS.search(tail):
+        reference.pages = proceedings.group("pages")
     return reference
 
 

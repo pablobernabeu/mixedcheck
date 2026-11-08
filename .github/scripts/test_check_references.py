@@ -264,6 +264,22 @@ class ComparisonTests(unittest.TestCase):
             ],
         )
 
+    def test_pages_of_a_paper_in_proceedings(self):
+        (paper,) = references_in(
+            "Clinger, W. D. (1990). How to read floating point numbers accurately. Proceedings "
+            "of the ACM SIGPLAN 1990 Conference on Programming Language Design and "
+            "Implementation, 92\u2013101. https://doi.org/10.1145/93542.93557\n"
+        )
+        self.assertEqual((paper.volume, paper.pages), (None, "92\u2013101"))
+        record = {
+            "type": "proceedings-article",
+            "title": ["How to read floating point numbers accurately"],
+            "page": "92-101",
+            "author": [{"family": "Clinger"}],
+            "issued": {"date-parts": [[1990]]},
+        }
+        self.assertEqual(cr.compare(paper, record), [])
+
     def test_pages_that_crossref_records_only_in_part(self):
         first_page = dict(ALBERT_RECORD, page="1")
         self.assertEqual(cr.compare(self.reference(), first_page), [])

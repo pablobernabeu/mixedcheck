@@ -12,7 +12,10 @@ CSV files and JSON documents of the evidence that give a reference in a
 column or member 'apa' or 'apa_reference' with its DOI in 'doi_or_url'. It
 asks the Crossref REST API for each DOI and reports every field in which the
 reference differs from Crossref's record. A DOI that Crossref does not hold,
-such as a DataCite DOI of arXiv or Zenodo, is listed without being checked.
+such as a DataCite DOI of arXiv or Zenodo, is listed without being checked, and
+so are the pages of a record that gives none. crossref-exceptions.json lists
+the fields of records that are known to be wrong, with the reason for each,
+and those fields are not compared.
 
 The evidence in docs/design/evidence/ is frozen, and corrections to it are
 recorded in its README, so differences found there are reported without
@@ -44,6 +47,13 @@ from typing import Any
 
 API = "https://api.crossref.org/works/"
 FROZEN = "docs/design/evidence/"
+# Fields in which a Crossref record is known to be wrong, checked against the
+# publication itself, with the reason for each.
+EXCEPTIONS: dict[str, set[str]] = {}
+for _entry in json.loads(
+    (Path(__file__).with_name("crossref-exceptions.json")).read_text(encoding="utf-8")
+)["exceptions"]:
+    EXCEPTIONS.setdefault(_entry["doi"].lower(), set()).add(_entry["field"])
 DOI_URL = re.compile(r"https?://(?:dx\.)?doi\.org/(10\.\d{4,9}/\S+)", re.IGNORECASE)
 ANY_URL = re.compile(r"https?://\S+")
 YEAR = re.compile(r"\((?P<year>\d{4})[a-z]?(?:, [A-Z][a-z]+(?: \d{1,2})?)?\)\.")
@@ -251,9 +261,13 @@ def compare(reference: Reference, record: dict[str, Any]) -> list[str]:
             problems.append(
                 f"{name}: the reference gives '{ours or ''}', Crossref '{theirs or ''}'"
             )
+    # Pages are compared only where Crossref records them. Some publishers
+    # record only the first page, which then has to match.
     pages = dashes(reference.pages or "").removeprefix("Article ")
     theirs = dashes(record.get("page") or record.get("article-number") or "")
-    if (pages or journal) and pages != theirs:
+    if "-" not in theirs and pages.split("-")[0] == theirs:
+        theirs = pages
+    if theirs and pages != theirs:
         problems.append(
             f"pages: the reference gives '{reference.pages or ''}', Crossref '{theirs}'"
         )
@@ -264,7 +278,13 @@ def compare(reference: Reference, record: dict[str, Any]) -> list[str]:
 def compare_authors(reference: Reference, people: list[dict[str, Any]]) -> list[str]:
     persons = [person.get("family") or person.get("name") or "" for person in people]
     if reference.families is None:
-        named = [person["name"] for person in people if "name" in person and "family" not in person]
+        # Crossref may add a country to an organisation, as in 'National
+        # Institute of Standards and Technology (US)'.
+        named = [
+            re.sub(r"\s*\([^)]*\)$", "", person["name"])
+            for person in people
+            if "name" in person and "family" not in person
+        ]
         if len(named) != len(people) or not all(
             folded(name) in folded(reference.organisation or "") for name in named
         ):
@@ -335,7 +355,12 @@ def check(
         if record is None:
             sorted_references["absent"].append(reference)
             continue
-        reference.problems = compare(reference, record)
+        excepted = EXCEPTIONS.get(key, set())
+        reference.problems = [
+            problem
+            for problem in compare(reference, record)
+            if problem.split(":")[0] not in excepted
+        ]
         sorted_references["differ" if reference.problems else "agree"].append(reference)
     return sorted_references
 

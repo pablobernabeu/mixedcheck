@@ -253,6 +253,8 @@ class ComparisonTests(unittest.TestCase):
         )
         record = {"type": "report", "title": ["Secure Hash Standard (SHS)"]}
         self.assertEqual(cr.compare(nist, record), [])
+        record["author"] = [{"name": "National Institute of Standards and Technology (US)"}]
+        self.assertEqual(cr.compare(nist, record), [])
         record["author"] = [{"family": "Dang"}]
         self.assertEqual(
             cr.compare(nist, record),
@@ -262,8 +264,37 @@ class ComparisonTests(unittest.TestCase):
             ],
         )
 
+    def test_pages_that_crossref_records_only_in_part(self):
+        first_page = dict(ALBERT_RECORD, page="1")
+        self.assertEqual(cr.compare(self.reference(), first_page), [])
+        no_pages = {key: value for key, value in ALBERT_RECORD.items() if key != "page"}
+        self.assertEqual(cr.compare(self.reference(), no_pages), [])
+        other_page = dict(ALBERT_RECORD, page="2")
+        self.assertEqual(
+            cr.compare(self.reference(), other_page),
+            ["pages: the reference gives '1\u201310', Crossref '2'"],
+        )
+
 
 class CheckTests(unittest.TestCase):
+    def test_known_errors_of_crossref_are_not_compared(self):
+        (rfc,) = references_in(
+            "Bryan, P., Zyp, K., & Nottingham, M. (Eds.). (2013). JavaScript Object Notation "
+            "(JSON) Pointer (RFC 6901). Internet Engineering Task Force. "
+            "https://doi.org/10.17487/RFC6901\n"
+        )
+        record = {
+            "type": "report",
+            "title": ["JavaScript Object Notation (JSON) Pointer"],
+            "editor": [{"family": "Bryan"}, {"family": "Nottingham"}],
+            "published": {"date-parts": [[2013, 4]]},
+        }
+        self.assertEqual([p.split(":")[0] for p in cr.compare(rfc, record)], ["authors"])
+        results = cr.check([rfc], lambda doi: record)
+        self.assertEqual(results["agree"], [rfc])
+        record["published"] = {"date-parts": [[2014]]}
+        self.assertEqual(cr.check([rfc], lambda doi: record)["differ"], [rfc])
+
     def test_the_exit_status_ignores_the_frozen_evidence(self):
         wrong = dict(ALBERT_RECORD, volume="99")
         (current,) = references_in(ALBERT + "\n")

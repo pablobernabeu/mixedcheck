@@ -14,10 +14,10 @@ Three status values are used. 'Decided' means the evidence settles the question.
 | Q4 Declarations | Optional by default and required for confirmatory goals, outcome-blind and preregistration exports, and trial features. Canonical JSON with JSON Schema, RFC 8785 hashing and a Frictionless table subset | Decided |
 | Q5 Reports | A results object, a self-contained static HTML report and an optional engine-free .qmd export. One privacy filter with shareable output by default, and WCAG 2.2 AA | Decided, privacy settings: maintainer |
 | Q6 Dependencies | Independent computation, engines in Suggests with the availability guard in the generic, opt-in external cross-checks and no package split | Decided |
-| Q7 Names and layout | mixedcheck in both languages, chosen by the maintainer, in a monorepo with vendored shared artefacts | Decided, name subject to the registry checks |
+| Q7 Names and layout | mixedcheck in both languages, chosen by the maintainer with lmecheck as the fallback, in a monorepo with vendored shared artefacts | Decided, name provisional until the registry checks |
 | Q8 Domains and corpus | Nested education data and crossed designs drive the defaults, and a four-layer corpus is built around a simulated pathology zoo | Decided |
-| Q9 Validation and papers | Preregistered validation on ARC, a Stage 1 Registered Report on the ladder study and a JOSS paper for the software | Decided, venue facts provisional, paper route: maintainer |
-| Q10 Versions and licence | R ≥ 4.2.0, Python ≥ 3.11 with SPEC 0 floors, MIT for everything that ships, with clean-room implementation | Decided, copyright holder: maintainer |
+| Q9 Validation and papers | Preregistered validation on ARC, a Stage 1 Registered Report on the ladder study and a JOSS paper for the software | Decided, venue facts provisional, paper route: maintainer, at P1 |
+| Q10 Versions and licence | R ≥ 4.2.0, Python ≥ 3.11 with SPEC 0 floors, MIT for everything that ships, with clean-room implementation | Decided |
 
 Further choices within these questions are listed, each with a recommended default, under 'Decisions for the maintainer' before the references, for the maintainer to settle or confirm.
 
@@ -263,7 +263,7 @@ One privacy filter in the shared view model applies to everything that leaves th
 
 A banner states that shareable output reduces disclosure risk without making the report anonymous data. Point-level detail appears only in an internal mode, which needs an explicit argument, carries a banner and a file suffix, and writes its point-level figures as PNG. All parameters are stored in the registry and recorded in the results.
 
-The settings follow the confirmed defaults of the ACRO output-checking tool (a threshold of 10, a dominance rule of (2, 0.90), rounding to base 5 and zeros treated as disclosive). Applying the dominance rule to the rows of a bin is this project's adaptation. The export lists the counts behind each statistic for output checkers. GDPR Recital 26 treats pseudonymised data as personal data. The settings stay with the maintainer until they have been checked against UK data-protection law, the primary UK guidance, the advice of Oxford's data protection officer and the rules of data providers (03-execution-plan.md, Open checks).
+The settings follow the confirmed defaults of the ACRO output-checking tool (a threshold of 10, a dominance rule of (2, 0.90), rounding to base 5 and zeros treated as disclosive). Applying the dominance rule to the rows of a bin is this project's adaptation. The export lists the counts behind each statistic for output checkers. GDPR Recital 26 treats pseudonymised data as personal data. The maintainer adopted these settings as the defaults on 8 November 2026. They are to be checked against UK data-protection law and the primary UK output-checking guidance before 1.0 (03-execution-plan.md, Open checks), and the rules of each data provider apply on top of them whenever its data are analysed.
 
 In the plot experiments run for this record (evidence/decisions/C), an SVG scatter plot yielded all 300 points, and a 100-dpi PNG yielded the five most extreme residuals to within 0.04 to 0.26 units. Rasterising therefore offers no protection.
 
@@ -306,7 +306,7 @@ The maintainer chose mixedcheck in both languages on 8 November 2026: the CRAN p
 
 CRAN names are permanent, so the name should fit the eventual scope, which extends beyond linear models to GLMMs. 'lme' and 'lmm' signal linear models only, and 'lme' also evokes `nlme::lme`, which 1.x does not cover. 'mix' suggests mixture models or MCMC mixing. 'audit' fits Stream B but undersells the diagnostics and reports.
 
-`pak::pkg_name_check()` and an R-universe search in the local session must confirm the name before the first release. The repository is to be renamed mixedcheck before it goes public, together with Oxford's approval and the settling of the copyright holder, because going public is a public release of its contents. Renaming keeps the repository's history. No placeholder is uploaded to PyPI, because PEP 541 prohibits name squatting.
+`pak::pkg_name_check()` and an R-universe search must confirm the name before the repository goes public. They run as a GitHub Actions job, because the runners can reach CRAN and R-universe. Once M0 is merged and the checks pass, the repository is renamed mixedcheck and made public (03-execution-plan.md, M0). Renaming keeps the repository's history. No placeholder is uploaded to PyPI, because PEP 541 prohibits name squatting.
 
 The project is one monorepo:
 
@@ -321,7 +321,7 @@ The project is one monorepo:
 | paper/ | the JOSS paper |
 | docs/ | the design documents and specifications |
 
-Every shared artefact is vendored byte-identically into r/inst/ and python/src/mixedcheck/: the registry, the schemas, the Mustache templates and CSS, the zoo fixtures and the conformance corpora. CI compares the SHA-256 of each vendored copy with its source in spec/ or fixtures/ and fails on any mismatch. A .gitattributes file keeps these files with LF line endings, so that the hashes also match in Windows checkouts.
+Every shared artefact is vendored byte-identically into r/inst/ and python/src/mixedcheck/: the registry, the schemas, the Mustache templates and CSS, the zoo fixtures and the conformance corpora. CI compares the SHA-256 of each vendored copy with its source in spec/ or fixtures/ and fails on any mismatch. A .gitattributes file turns off Git's line-ending conversion for these files, so that the hashes also match in Windows checkouts. The vendoring check rejects CR characters in spec/ sources, and fixtures keep their deliberate CRLF cases (03-execution-plan.md, M0).
 
 Every install path supports subdirectories: remotes and pak references, pip's `#subdirectory=` and R-universe's `subdir` field. PyPI Trusted Publishing builds from python/. The two packages carry their own versions with language-prefixed tags (r-v*, py-v*) and share one Zenodo concept DOI. They are released together whenever the registry's minor version changes, and patch releases of either package may go out independently.
 
@@ -394,13 +394,13 @@ CI runs these jobs:
 - one job under LC_ALL=C
 - one job with lme4 1.1-35.1
 
-`diagnose()` accepts lme4 ≥ 1.1-35, but results from versions below 2.1-0 carry the outside_validated_range status. Rungs that need `cs()` or `diag()`, and every GLMM feature, require lme4 ≥ 2.1-0. lme4 2.x needs headers from Matrix 1.5-0 or later, which R 4.2.0 and 4.2.1 do not bundle, and current Matrix requires R 4.4. Stream A with lme4 2.x on R 4.2 therefore needs either R 4.2.2 or later (R 4.2.2 bundles Matrix 1.5-1) or an archived Matrix between 1.5-0 and 1.6-5. glmmTMB, pbkrtest and afex cannot currently be installed from source below R 4.5, because of Deriv. The R 4.2 CI job, which resolves to 4.2.3, therefore checks core features without engines. The R floor rises only when a dependency or a feature requires it, within the five-version window.
+`diagnose()` accepts lme4 ≥ 1.1-35, but results from versions below 2.1-0 carry the outside_validated_range status. Rungs that need `cs()` or `diag()`, and every GLMM feature, require lme4 ≥ 2.1-0. lme4 2.x needs headers from Matrix 1.5-0 or later, which R 4.2.0 and 4.2.1 do not bundle, and current Matrix requires R 4.4. Stream A with lme4 2.x on R 4.2 therefore needs either R 4.2.2 or later (R 4.2.2 bundles Matrix 1.5-1, as CRAN's directory of its recommended packages, src/contrib/4.2.2/Recommended, shows) or an archived Matrix between 1.5-0 and 1.6-5. glmmTMB, pbkrtest and afex cannot currently be installed from source below R 4.5, because of Deriv. The R 4.2 CI job, which resolves to 4.2.3, therefore checks core features without engines. The R floor rises only when a dependency or a feature requires it, within the five-version window.
 
 The Python package declares `requires-python = ">=3.11"`. The rule is the oldest CPython version still receiving security fixes at the first release, but no lower than the numpy and scipy floors need. Python 3.10 reached end of life on 1 October 2026. 3.11 receives security fixes until about October 2027, after which the floor becomes 3.12.
 
 Core dependency floors follow SPEC 0 at release time (Mueller et al., 2020). They are currently numpy ≥ 2.3, scipy ≥ 1.15 and pandas ≥ 2.3. The statsmodels extra requires statsmodels ≥ 0.15.0. CI tests the latest resolution on Python 3.11 to 3.15 and the lowest direct resolution on 3.11, the declared minimum. The floor releases of numpy, scipy and pandas ship wheels for 3.11 to 3.13 but not for 3.14 or 3.15. CI also covers both pandas 2.3 and 3.x while 2.3 remains within SPEC 0, because pandas 3 infers a new string dtype.
 
-Both packages, and everything else that ships (registry, schemas and simulated fixtures), are MIT-licensed. The external-data corpus in the monorepo keeps its own CC0, CC BY or CC BY-SA licences, marked per directory. R uses 'MIT + file LICENSE' with a two-line stub giving the year and copyright holder. Python uses the PEP 639 licence expression with the full text. The two licence files are kept separate.
+Both packages, and everything else that ships (registry, schemas and simulated fixtures), are MIT-licensed. The external-data corpus in the monorepo keeps its own CC0, CC BY or CC BY-SA licences, marked per directory. The maintainer holds the copyright. R uses 'MIT + file LICENSE' with a two-line stub giving the year and copyright holder. Python uses the PEP 639 licence expression with the full text. The two licence files are kept separate.
 
 Running GPL-2, GPL-3, AGPL-3 or LGPL dependencies does not conflict with an MIT package. The R FAQ states that the GPL restricts only the distribution of R or of programs containing its code, and the FSF lists the Expat (MIT) licence as GPL-compatible (to be confirmed on gnu.org). The network clause of the AGPL-3 binds only modified versions. CRAN distributes many permissive packages with GPL-family dependencies, 25 in a sample of 171.
 
@@ -408,14 +408,14 @@ Code is never copied or translated from GPL or AGPL packages. Algorithms are imp
 
 ## Decisions for the maintainer
 
-The following choices rest with the maintainer, each with a recommended default. The copyright holder, repository visibility, the paper route and the privacy settings are open, and the package name is settled (Q7). The other rows restate decisions recorded under Q1, Q2, Q3, Q8 and Q10 for the maintainer to confirm.
+The following choices rest with the maintainer. On 8 November 2026, the maintainer chose the package name, subject to the registry checks (Q7), and settled the copyright holder, repository visibility and the privacy settings. The paper route stays open until P1, with a recommended default. The other rows restate decisions recorded under Q1, Q2, Q3, Q8 and Q10 for the maintainer to confirm.
 
-| Choice | Recommended default |
+| Choice | Decision or recommended default |
 |---|---|
-| Copyright holder and approval for open-source release | Whatever Oxford's intellectual-property statute and research-support guidance require, settled before the repository goes public (Q10) |
-| Repository visibility | Public, under the name mixedcheck, as soon as Oxford's approval and the copyright holder are settled. The six months of public history JOSS requires start only then (Q7) |
-| First paper and gating of 1.0 | A Stage 1 Registered Report on the ladder study after M3 and M3b, with V1, V2 and V7 under an OSF preregistration that gates 1.0 without waiting for review (Q9) |
-| Privacy settings | The shareable defaults of Q5 (k = 10 members of the disclosure unit, dominance (2, 0.90), shareable files by default, detail only in internal mode, and exact counts for non-person units, parameters and df), confirmed with the data protection officer and data providers before 1.0 |
+| Copyright holder | The maintainer, as LICENSE states (Q10) |
+| Repository visibility | Renamed mixedcheck and made public once M0 is merged and the name checks pass (Q7 and 03-execution-plan.md, M0). The six months of public history JOSS requires start only then (Q9) |
+| First paper and gating of 1.0 | Recommended: a Stage 1 Registered Report on the ladder study after M3 and M3b, with V1, V2 and V7 under an OSF preregistration that gates 1.0 without waiting for review. Settled at P1, with the H0 results in hand (Q9) |
+| Privacy settings | The shareable defaults of Q5 (k = 10 members of the disclosure unit, dominance (2, 0.90), shareable files by default, detail only in internal mode, and exact counts for non-person units, parameters and df), adopted on 8 November 2026 and checked against the UK guidance before 1.0 (Q5) |
 | Python route for designs statsmodels cannot express | statsmodels and bring-your-own estimates, with not_available naming the R and bring-your-own routes (Q1, Q3) |
 | Terminal state when the protected rung fails | 'No confirmatory model' in both languages, plus CR2 for nested designs in R (Q3) |
 | Oldest supported engines | lme4 ≥ 1.1-35 with an outside_validated_range status below 2.1-0, and lme4 ≥ 2.1-0 for structured rungs and GLMMs (Q10) |

@@ -12,6 +12,7 @@ on:
       - 'fixtures/**'
       - '.github/workflows/R-CMD-check.yaml'
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - 'r/**'
       - 'spec/**'
@@ -35,7 +36,7 @@ env:
 jobs:
   quick:
     name: Ubuntu, R release
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'labeled')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # check-r-package turns CRAN's incoming checks off unless
@@ -92,6 +93,7 @@ jobs:
     needs: visibility
     if: >-
       !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.label.name == 'full-ci') ||
       (github.event_name == 'schedule' &&
       (toJSON(github.event.repository.private) == 'false' ||
       needs.visibility.outputs.public == 'true')))

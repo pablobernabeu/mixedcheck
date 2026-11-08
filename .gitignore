@@ -1,0 +1,20 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+*.Rcheck/
+mixedcheck_*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+/python/build/
+/python/dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Operating systems
+.DS_Store
+Thumbs.db

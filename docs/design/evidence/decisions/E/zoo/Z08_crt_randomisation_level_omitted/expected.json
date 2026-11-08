@@ -1,0 +1,25 @@
+{
+ "data_sha256": "98d72f7a9c57f78ec4867d728ebbe6b06794bbfd7985b43256dc17eea486babe",
+ "findings": [
+  {
+   "check": "assignment.unit_in_random_part",
+   "note": "declared randomisation unit 'class' carries no random effect; school-only model rejected a true null in 31.7% of 300 replicates in the review simulation",
+   "status": "flag"
+  },
+  {
+   "blocks": 4,
+   "check": "assignment.design_df",
+   "randomised_clusters": 24
+  }
+ ],
+ "fixture": "Z08_crt_randomisation_level_omitted",
+ "generator": {
+  "J": 4,
+  "K": 6,
+  "contaminated_units": [],
+  "n": 20,
+  "seed": 20261107,
+  "var_class": 0.15,
+  "var_school": 0.2
+ }
+}

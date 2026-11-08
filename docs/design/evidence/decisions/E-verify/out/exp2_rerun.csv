@@ -1,0 +1,13 @@
+scenario,parameter,p_R1_returns_true_unit,n_rep,mcse
+"S1 school CRT, row miscoding rate",0.0,1.0,2000,0.0
+"S1 school CRT, row miscoding rate",0.0005,0.547,2000,0.0111
+"S1 school CRT, row miscoding rate",0.001,0.271,2000,0.0099
+"S1 school CRT, row miscoding rate",0.005,0.002,2000,0.001
+"S2 individual randomisation in families, n families",10,0.9185,2000,0.0061
+"S2 individual randomisation in families, n families",20,0.991,2000,0.0021
+"S2 individual randomisation in families, n families",50,1.0,2000,0.0
+"S2 individual randomisation in families, n families",200,1.0,2000,0.0
+"S3 class randomisation ignoring school, classes per school",1,1.0,2000,0.0
+"S3 class randomisation ignoring school, classes per school",2,0.999,2000,0.0007
+"S3 class randomisation ignoring school, classes per school",3,1.0,2000,0.0
+"S4 stepped wedge, 10 schools x 5 periods",0,0.0,2000,0.0

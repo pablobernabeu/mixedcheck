@@ -1,0 +1,6 @@
+"what","design","n_obs","fit_s","comp_s","ratio","note"
+"allFit","nested J10",50,0.034,0.73,21.4705882352941,"5 optimisers ran: bobyqa,Nelder_Mead,nlminbwrap,nloptwrap.NLOPT_LN_NELDERMEAD,nloptwrap.NLOPT_LN_BOBYQA"
+"allFit","nested J30",600,0.014,0.684,48.8571428571428,"5 optimisers ran: bobyqa,Nelder_Mead,nlminbwrap,nloptwrap.NLOPT_LN_NELDERMEAD,nloptwrap.NLOPT_LN_BOBYQA"
+"satterthwaite","2x2 S24 I16",384,1.036,1.091,1.0530888030888,"fit without derivs 0.35 s; ratio to that 3.15; singular=TRUE"
+"kenward_roger","2x2 S24 I16",384,1.036,24.747,23.8870656370656,"ratio to fit without derivs 71.52"
+"satterthwaite","2x2 S48 I32",1536,4.294,6.06,1.41127154168607,"fit without derivs 1.93 s; ratio to that 3.14; singular=FALSE"

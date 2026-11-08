@@ -1,0 +1,2 @@
+check_full.log:Status: 1 WARNING, 1 NOTE
+check_depsonly.log:Status: 1 WARNING, 1 NOTE

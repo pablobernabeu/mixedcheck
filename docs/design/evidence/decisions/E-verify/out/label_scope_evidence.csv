@@ -1,0 +1,5 @@
+"dataset","outer","inner","attribute","restart_share","n_multi","share_attr_varies","note"
+"mlmRev::Exam","school","student","sex",0,322,0.8354,"student labels: min label per school ranges 1-757; schools whose labels are exactly 1..k: 0 of 65"
+"mlmRev::Exam","school","student","vr (school-level band)",NA,322,0.8354,""
+"afex::fhch2010","id","item","frequency",NA,600,0,""
+"afex::fhch2010","id","item","length",NA,600,0,""

@@ -1,0 +1,12 @@
+suppressPackageStartupMessages(library(lme4))
+dd <- commandArgs(TRUE)[1]
+cr <- read.csv(file.path(dd, "crossed.csv")); cb <- read.csv(file.path(dd, "crossedbig.csv"))
+tm <- function(f, k = 3) median(sapply(seq_len(k), function(i) system.time(f())[["elapsed"]]))
+f0 <- y ~ cond + (1 | subj) + (0 + cond | subj) + (1 | item) + (0 + cond | item)
+f1 <- y ~ cond + (1 + cond | subj) + (1 + cond | item)
+cat("lme4", as.character(packageVersion("lme4")), "\n")
+cat("crossed_zcp_ML      ", tm(function() lmer(f0, cr, REML = FALSE)), "s\n")
+cat("crossed_zcp_REML    ", tm(function() lmer(f0, cr, REML = TRUE)), "s\n")
+cat("crossedbig_zcp_REML ", tm(function() lmer(f0, cb, REML = TRUE)), "s\n")
+cat("crossed_REML (corr) ", tm(function() lmer(f1, cr)), "s\n")
+cat("crossedbig_REML     ", tm(function() lmer(f1, cb)), "s\n")

@@ -1,0 +1,9 @@
+# The shared artefacts are hashed byte for byte, so Git must never convert
+# their line endings, in any checkout. Fixtures include deliberate CRLF and BOM
+# cases, and the vendoring check rejects CR characters in spec/ sources.
+spec/** -text
+fixtures/** -text
+r/inst/spec/** -text
+r/inst/fixtures/** -text
+python/src/mixedcheck/_spec/** -text
+python/src/mixedcheck/_fixtures/** -text

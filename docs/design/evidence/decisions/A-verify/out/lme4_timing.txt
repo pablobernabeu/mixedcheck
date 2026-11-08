@@ -1,0 +1,6 @@
+lme4 1.1.35.1 
+crossed_zcp_ML       0.113 s
+crossed_zcp_REML     0.117 s
+crossedbig_zcp_REML  0.86 s
+crossed_REML (corr)  0.191 s
+crossedbig_REML      1.333 s

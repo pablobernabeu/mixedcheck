@@ -1,0 +1,79 @@
+# Checks that the package name is free in the registries where the packages
+# will be published (02-decisions.md, Q7). It runs when started by hand or when
+# the label 'name-check' is added to a pull request, because the cloud sessions
+# cannot reach CRAN, R-universe or Bioconductor.
+name: name-check
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: Package name to check
+        default: mixedcheck
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Registries
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'name-check'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PKG: ${{ inputs.name || 'mixedcheck' }}
+    steps:
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          packages: any::pak, any::jsonlite
+      # pak's report also covers name sentiment and dictionary meanings, which
+      # inform the choice without deciding it.
+      - name: pak::pkg_name_check()
+        shell: Rscript {0}
+        run: print(pak::pkg_name_check(Sys.getenv("PKG")))
+      # The decisive checks: no current or archived CRAN package, no
+      # Bioconductor or R-universe package and no PyPI or conda-forge
+      # distribution of that name, compared case-insensitively where the
+      # registry is.
+      - name: Registries
+        shell: Rscript {0}
+        run: |
+          options(timeout = 300)
+          pkg <- Sys.getenv("PKG")
+          low <- tolower(pkg)
+          status <- function(url) {
+            h <- curlGetHeaders(url)
+            attr(h, "status")
+          }
+          taken <- character()
+          ap <- rownames(available.packages(repos = "https://cloud.r-project.org"))
+          if (low %in% tolower(ap)) taken <- c(taken, "CRAN (current)")
+          # The full Archive listing is too large to download within the
+          # timeout, so the archive is queried for the name itself. pak's
+          # report above covers other letter cases.
+          if (status(paste0("https://cloud.r-project.org/src/contrib/Archive/", pkg, "/")) != 404)
+            taken <- c(taken, "CRAN (archived)")
+          bioc <- rownames(available.packages(repos = c(
+            "https://bioconductor.org/packages/release/bioc",
+            "https://bioconductor.org/packages/release/data/annotation",
+            "https://bioconductor.org/packages/release/data/experiment")))
+          if (low %in% tolower(bioc)) taken <- c(taken, "Bioconductor")
+          ru <- jsonlite::fromJSON(paste0("https://r-universe.dev/api/search?q=", pkg, "&limit=100"))
+          hits <- ru$results$Package
+          if (low %in% tolower(hits)) taken <- c(taken, "R-universe")
+          if (status(paste0("https://pypi.org/pypi/", low, "/json")) != 404)
+            taken <- c(taken, "PyPI")
+          for (p in c(low, paste0("r-", low)))
+            if (status(paste0("https://api.anaconda.org/package/conda-forge/", p)) != 404)
+              taken <- c(taken, paste("conda-forge", p))
+          if (length(taken)) {
+            stop("'", pkg, "' is taken on: ", paste(taken, collapse = ", "))
+          }
+          cat("'", pkg, "' is free on CRAN (current and archived), Bioconductor, ",
+              "R-universe, PyPI and conda-forge.\n", sep = "")

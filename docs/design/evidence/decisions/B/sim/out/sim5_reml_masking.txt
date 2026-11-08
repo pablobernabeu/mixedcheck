@@ -1,0 +1,3 @@
+REML: max |d theta| = 0.00103 ; max |d REMLcrit| = 0.000168 ; singular flag identical in 99.875 % of fits; warning status identical in 99.875 %
+REML: max |(beta_masked - beta) - b_mask| = 3.33e-14 
+ML:   max |d theta| = 0.00114 ; max |d deviance| = 3.01e-05 ; singular flag identical in 99.75 %

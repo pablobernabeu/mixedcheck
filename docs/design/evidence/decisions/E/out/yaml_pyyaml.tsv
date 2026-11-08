@@ -1,0 +1,25 @@
+yes_word	bool	True
+no_word	bool	False
+y_letter	str	'y'
+n_letter	str	'n'
+on_word	bool	True
+off_word	bool	False
+country_NO	bool	False
+na_token	str	'NA'
+tilde	NoneType	None
+null_word	NoneType	None
+empty	NoneType	None
+zero_padded_id	int	7
+leading_zero_08	str	'08'
+version_like	float	2026.1
+exp_no_dot	str	'1e3'
+exp_with_dot	str	'1.0e3'
+dot_five	float	0.5
+hex	int	31
+underscore_int	int	1000
+comma_int	str	'1,000'
+sexagesimal	int	750
+date_like	date	datetime.date(2026, 11, 7)
+plus_one	int	1
+inf	float	inf
+quoted_no	str	'no'

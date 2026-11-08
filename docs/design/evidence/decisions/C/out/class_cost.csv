@@ -1,0 +1,12 @@
+"model","fit_sec","sim250_sec","singular_lme4","n_warn_or_msg","first_msg","sim_error","cpu_h_grid_simresid","cpu_h_grid_boot200"
+"gauss_lmer",0.173,0.043,FALSE,0,"","",1.4,231.8
+"gauss_tmb",0.389,0.067,NA,0,"","",3,521.3
+"bern_glmer",1.387,0.046,TRUE,1,"boundary (singular) fit: see help('isSingular')
+","",9.6,1858.6
+"bern_tmb",0.684,0.094,NA,1,"Model convergence problem; singular convergence (7). See vignette('troubleshooting'), help('diagnose')","",5.2,916.6
+"pois_glmer",1.421,0.043,FALSE,0,"","",9.8,1904.1
+"nb2_tmb",1.634,0.168,NA,1,"Model convergence problem; singular convergence (7). See vignette('troubleshooting'), help('diagnose')","",12,2189.6
+"beta_tmb",1.276,0.117,NA,0,"","",9.3,1709.8
+"zip_tmb",0.479,0.14,NA,0,"","",4.1,641.9
+"ar1_nlme",0.021,NA,NA,0,"","models with ""corStruct"" and/or ""varFunc"" objects not allowed",NA,28.1
+"ar1_tmb",0.304,0.057,NA,1,"Model convergence problem; non-positive-definite Hessian matrix. See vignette('troubleshooting')","",2.4,407.4

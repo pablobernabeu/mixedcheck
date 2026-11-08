@@ -1,0 +1,17 @@
+name	cran	bioc	pypi_exact	pypi_similar	conda_forge	cf_feedstock
+lme4	True	False			r-lme4	r-lme4-feedstock
+glmmTMB	True	False			r-glmmtmb	r-glmmtmb-feedstock
+afex	True	False			r-afex	r-afex-feedstock
+lmm	True	False		imm		
+limma	True	True	limma			
+statsmodels	False	False	statsmodels		statsmodels	statsmodels-feedstock
+mixedlm	False	False	mixedlm			
+glmm	True	False	glmm			
+rgdal	True	False			r-rgdal	r-rgdal-feedstock
+performance	True	False			performance,r-performance	performance-feedstock,r-performance-feedstock
+mixedup	False	False				
+lmerTest	True	False			r-lmertest	r-lmertest-feedstock
+mixdiagnostics	False	False				
+MIXDIAGNOSTICS	False	False				
+checkmate	True	False	checkmate		checkmate,r-checkmate	checkmate-feedstock,r-checkmate-feedstock
+lmecheck-x	False	False				

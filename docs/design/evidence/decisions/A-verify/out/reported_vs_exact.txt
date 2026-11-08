@@ -1,0 +1,6 @@
+glmm LMM max |reported - exact| 3.987224772572517e-09 | GLMM [('cbpp_laplace', '8.5e-14'), ('cbpp_agq25', '5.7e-14'), ('owls_pois', '7.3e-12'), ('owls_pois_agq25', '3.6e-12'), ('binxd_laplace', '1.8e-12')]
+mixedlm LMM max |reported - exact| 4.3655745685100555e-11 | GLMM [('cbpp_laplace', '0.0e+00'), ('cbpp_agq25', '5.7e-14'), ('owls_pois', '0.0e+00'), ('owls_pois_agq25', '-9.1e-13'), ('binxd_laplace', '-1.6e-12')]
+cbpp_laplace glmmTMB/lme4 SE ratio [1.0054, 1.0115, 1.0118, 1.0128]
+owls_pois glmmTMB/lme4 SE ratio [1.0005, 1.0015, 1.0014, 1.0015]
+binxd_laplace glmmTMB/lme4 SE ratio [1.0016, 1.0087]
+cbpp glmm SE / glmmTMB SE: [1. 1. 1. 1.]

@@ -1,0 +1,30 @@
+{
+ "data_sha256": "7fd168e4c213bc80c530878c71a5f9182f076ef650935f3a8b1a80c18a917713",
+ "findings": [
+  {
+   "J": 80,
+   "check": "structure.cluster_sizes",
+   "factor": "family",
+   "note": "singletons kept; only clusters with n >= 2 separate tau2 from sigma2",
+   "pairs": 29,
+   "singletons": 42,
+   "status": "info",
+   "triples": 9
+  },
+  {
+   "check": "structure.informative_clusters_for_slope",
+   "clusters_with_n_ge_2": 38,
+   "term": "(1 + x | family)"
+  }
+ ],
+ "fixture": "Z11_families_singletons",
+ "generator": {
+  "families": 80,
+  "seed": 20261107,
+  "size_probs": [
+   0.55,
+   0.35,
+   0.1
+  ]
+ }
+}

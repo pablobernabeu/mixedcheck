@@ -1,0 +1,27 @@
+sleep_REML           best    1743.628272 | gaps: lme4 1.5e-09, glmmTMB 1.6e-10, glmm 1.8e-12, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0050, mixedlm=0.0559 | lme4(A) 0.0129999999999999
+pen_REML             best     330.860589 | gaps: lme4 8.5e-09, glmmTMB 1.9e-11, glmm 3.3e-12, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0008, mixedlm=0.0880 | lme4(A) 0.0129999999999999
+pastes_REML          best     246.990746 | gaps: lme4 3.7e-13, glmmTMB 1.9e-11, glmm 4.5e-10, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0007, mixedlm=0.0639 | lme4(A) 0.0129999999999999
+crossed_REML         best   25833.226524 | gaps: lme4 9.0e-07, glmmTMB 5.0e-09, glmm 1.1e-09, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0330, mixedlm=0.0506 | lme4(A) 0.195
+crossed_zcp_REML     best   25834.845325 | gaps: lme4 4.6e-09, glmmTMB 3.6e-12, glmm 1.7e-09, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0231, mixedlm=0.0921 | lme4(A) 0.119
+school_REML          best   14103.669460 | gaps: lme4 2.8e-07, glmmTMB 5.7e-10, glmm 7.3e-11, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0072, mixedlm=0.0088 | lme4(A) 0.054000000000002
+nearsing_REML        best     140.920619 | gaps: lme4 5.4e-10, glmmTMB 5.7e-07, glmm 0.0e+00, mixedlm 2.8e-14 | conv glmm=True, mixedlm=True | warm s: glmm=0.0049, mixedlm=0.0967 | lme4(A) 0.0120000000000005
+weighted_REML        best     866.772894 | gaps: lme4 0.0e+00, glmmTMB 7.4e+02, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0005, mixedlm=0.0319 | lme4(A) 0.0120000000000005
+sleep_ML             best    1751.939344 | gaps: lme4 2.6e-08, glmmTMB 5.1e-10, glmm 3.5e-11, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0006, mixedlm=0.0721 | lme4(A) 0.012
+pen_ML               best     332.188349 | gaps: lme4 1.3e-11, glmmTMB 6.6e-12, glmm 0.0e+00, mixedlm 3.4e-13 | conv glmm=True, mixedlm=True | warm s: glmm=0.0007, mixedlm=0.0800 | lme4(A) 0.012
+pastes_ML            best     247.994466 | gaps: lme4 4.7e-10, glmmTMB 4.5e-13, glmm 3.2e-12, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0006, mixedlm=0.0640 | lme4(A) 0.0120000000000005
+crossed_ML           best   25842.389791 | gaps: lme4 4.1e-08, glmmTMB 7.1e+00, glmm 9.6e-10, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0204, mixedlm=0.0881 | lme4(A) 0.202999999999999
+crossed_zcp_ML       best   25844.022577 | gaps: lme4 4.8e-08, glmmTMB 4.8e-08, glmm 5.1e-11, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0189, mixedlm=0.1679 | lme4(A) 0.113
+school_ML            best   14099.816146 | gaps: lme4 3.8e-07, glmmTMB 2.3e-10, glmm 4.4e-11, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0070, mixedlm=0.1120 | lme4(A) 0.0489999999999995
+nearsing_ML          best     136.686508 | gaps: lme4 7.4e-11, glmmTMB 7.4e-07, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0048, mixedlm=0.1044 | lme4(A) 0.0120000000000005
+weighted_ML          best     862.542455 | gaps: lme4 0.0e+00, glmmTMB 7.4e+02, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0006, mixedlm=0.0400 | lme4(A) 0.0110000000000028
+sleep_zcp_ML         best    1752.003255 | gaps: lme4 4.7e-09, glmmTMB 4.5e-10, glmm 0.0e+00, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0007, mixedlm=0.1198 | lme4(A) 0.0129999999999999
+school_zcp_ML        best   14105.931039 | gaps: lme4 1.5e-07, glmmTMB 3.0e-10, glmm 1.1e-11, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0068, mixedlm=0.0960 | lme4(A) 0.0429999999999993
+nearsing_zcp_ML      best     136.828819 | gaps: lme4 2.8e-14, glmmTMB 1.2e-08, glmm 2.8e-14, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0047, mixedlm=0.0479 | lme4(A) 0.0120000000000005
+crossedbig_REML      best  128829.799637 | gaps: lme4 9.7e-08, glmmTMB 8.4e-08, glmm 5.5e-09, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.4068, mixedlm=0.4326 | lme4(A) 1.353
+crossedbig_zcp_REML  best  128833.980659 | gaps: lme4 2.6e-07, glmmTMB 1.3e-08, glmm 4.5e-10, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.2731, mixedlm=1.0497 | lme4(A) 0.866
+cbpp_laplace         best     184.052564 | gaps: lme4 8.7e-06, glmmTMB 7.5e-12, glmm 0.0e+00, mixedlm 5.2e-12 | conv glmm=True, mixedlm=True | warm s: glmm=0.0052, mixedlm=0.0785 | lme4(A) 0.0510000000000002
+cbpp_agq25           best     183.966738 | gaps: lme4 3.4e-09, glmm 2.8e-12, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0022, mixedlm=0.1163 | lme4(A) 0.048
+owls_pois            best    5202.775993 | gaps: lme4 8.7e-09, glmmTMB 2.9e-11, glmm 0.0e+00, mixedlm 2.6e-11 | conv glmm=True, mixedlm=True | warm s: glmm=0.0070, mixedlm=0.1401 | lme4(A) 0.0670000000000002
+owls_pois_agq25      best    5202.745210 | gaps: lme4 4.6e-09, glmm 0.0e+00, mixedlm 5.9e-11 | conv glmm=True, mixedlm=True | warm s: glmm=0.0167, mixedlm=0.3701 | lme4(A) 0.110999999999997
+binxd_laplace        best    1421.658680 | gaps: lme4 3.5e-05, glmmTMB 3.3e-09, glmm 3.4e-11, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0483, mixedlm=0.2609 | lme4(A) 0.296
+jq_REML              best     187.345167 | gaps: lme4 1.0e-08, glmmTMB 1.4e-02, glmm 5.7e-14, mixedlm 0.0e+00 | conv glmm=True, mixedlm=True | warm s: glmm=0.0009, mixedlm=0.3362 | lme4(A) 0.0129999999999999

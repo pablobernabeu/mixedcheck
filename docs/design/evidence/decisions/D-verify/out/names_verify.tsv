@@ -1,0 +1,23 @@
+name	cran_raw	cran_lsremote	bioc_lsremote	pypi_json	pypi_exact	pypi_too_similar	pypi_edit1	conda	cf_feedstock
+lmecheck	404	False	False	404					
+lmmcheck	404	False	False	404			llm-check,lsmcheck,mmcheck		
+mixedcheck	404	False	False	404					
+mmcheck	404	False	False	200	mmcheck		amcheck,dmcheck,mc-check,mcheck,mdcheck,mlcheck,mscheck,smcheck		
+lmmdiag	404	False	False	404			lmdiag		
+mixeddiag	404	False	False	404					
+lmmaudit	404	False	False	404			llmaudit		
+mixedaudit	404	False	False	404					
+glmmcheck	404	False	False	404					
+mlmcheck	404	False	False	404			llm-check,mlcheck,mmcheck		
+mixdiag	404	False	False	404					
+mixDiagnostics	404	False	False	404					
+mixedlint	404	False	False	404					
+lmmdx	404	False	False	404			lmhdx		
+mixeddx	404	False	False	404					
+lme4	200	True	False	404			LWE4,lme,lmem,lmer	r-lme4	r-lme4-feedstock
+LME4	200	True	False	404			LWE4,lme,lmem,lmer	r-lme4	r-lme4-feedstock
+rgdal	200	True	False	404			GDAL,ridal	r-rgdal	r-rgdal-feedstock
+limma	200	True	True	200	limma		Rimma,dimma,imma,lemma,lima,limmat		
+imm	404	False	False	200	imm		FMM,GMM,IMD,IMMP,M-M,OMM,WMM,aimm		
+lmm	200	True	False	404		imm	FMM,GMM,LAM,LMMH,M-M,OMM,WMM,amm		
+glmm	200	True	False	200	glmm		GMM,GPMM,Glem,clmm,glam,gldm,glfm,glhmm		

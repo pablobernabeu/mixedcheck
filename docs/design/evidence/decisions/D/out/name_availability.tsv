@@ -1,0 +1,31 @@
+name	cran	bioc	pypi_exact	pypi_similar	conda_forge	cf_feedstock
+lmecheck	False	False				
+lmmcheck	False	False				
+mixedcheck	False	False				
+mmcheck	False	False	mmcheck			
+lmmdiag	False	False				
+mixeddiag	False	False				
+lmmaudit	False	False				
+mixedaudit	False	False				
+glmmcheck	False	False				
+glmmaudit	False	False				
+mlmcheck	False	False				
+lmeaudit	False	False				
+lmediag	False	False				
+mixdiag	False	False				
+mixDiagnostics	False	False				
+mixedlint	False	False				
+lmmlint	False	False				
+mixedspec	False	False				
+lmmspec	False	False				
+remcheck	False	False				
+ranefcheck	False	False				
+mmaudit	False	False				
+mixedreport	False	False				
+lmmreport	False	False				
+mixedmodelcheck	False	False				
+mixedmodels	False	False				
+mixeddx	False	False				
+lmmdx	False	False				
+multilevelcheck	False	False				
+merdiag	False	False				

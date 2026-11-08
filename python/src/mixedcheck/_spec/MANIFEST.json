@@ -1,0 +1,7 @@
+{
+  "source": "spec",
+  "algorithm": "sha256",
+  "files": {
+    "versions.json": "b0cf46543474fa71751587ec6648d732215a07d67ac97811c2f7e1ed3fc3f93f"
+  }
+}

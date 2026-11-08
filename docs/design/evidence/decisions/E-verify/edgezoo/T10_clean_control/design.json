@@ -1,0 +1,1 @@
+{"schema_version": "0.1.0", "table": {"fields": [{"name": "id", "type": "string"}, {"name": "s", "type": "string"}, {"name": "y", "type": "number"}], "missingValues": [""]}}

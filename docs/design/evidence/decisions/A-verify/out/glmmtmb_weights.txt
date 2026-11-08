@@ -1,0 +1,7 @@
+lme4 1.1.35.1 glmmTMB 1.1.8 
+mean weight 5.313433 
+lme4 weights: sigma 2.0561  -2logL 862.5425  beta 3.6219 2.0435
+glmmTMB weights: sigma 0.8496  -2logL 3731.3612  beta 3.6177 2.052
+glmmTMB dispformula offset(-0.5*log w): exp(betadisp) 2.2283  -2logL 877.6907  beta 3.6093 2.0556
+glmmTMB dispformula offset(-1.0*log w): exp(betadisp) 4.2276  -2logL 862.5425  beta 3.6219 2.0435
+glmmTMB on rows replicated w times: sigma 0.8496  -2logL 3731.3612  beta 3.6177 2.052

@@ -1,0 +1,5 @@
+C: C a b | ref: C | Sys.getlocale(LC_COLLATE): C | ICU: TRUE 
+C.UTF-8: a b C | ref: a | Sys.getlocale(LC_COLLATE): C.UTF-8 | ICU: TRUE 
+en_US.UTF-8: C a b | ref: C | Sys.getlocale(LC_COLLATE): C | ICU: TRUE 
+en_GB.UTF-8: C a b | ref: C | Sys.getlocale(LC_COLLATE): C | ICU: TRUE 
+python sorted: ['C', 'a', 'b'] | pandas Categorical: ['C', 'a', 'b'] | np.unique: [np.str_('C'), np.str_('a'), np.str_('b')]

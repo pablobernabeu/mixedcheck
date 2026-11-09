@@ -14,7 +14,7 @@ These cases test `audit()`, the entry point of Stream B that M2 implements in bo
 | sample.json | 11 | sample.raw_vs_analysis: complete tables, rows dropped through predictors, weights and sample columns, factors that lose levels, new singletons and emptied reference levels |
 | structure.json | 55 | the six structure checks: label incidence, evidence on the scope of repeated labels, aliased factors, level sizes, within and between status and connectivity |
 
-The corpus has one file for each prefix of the check identifiers, structure.json, identifiability.json, design.json, sample.json, labels.json, keys.json, assignment.json and outcome.json, each holding the cases of the checks with that prefix, and privacy.json for the privacy filter. Every file is listed in spec/vendoring.json, so that the packages' tests read it from the installed package, and in parity/corpora.json with the kind 'audit'.
+The corpus has one file for each prefix of the check identifiers, structure.json, identifiability.json, design.json, sample.json, labels.json, keys.json, assignment.json and outcome.json, each holding the cases of the checks with that prefix, and privacy.json for the privacy filter. Every file is listed in spec/vendoring.json, so that the packages' tests read it from their copies of the corpora, and in parity/corpora.json with the kind 'audit'.
 
 ## Format
 

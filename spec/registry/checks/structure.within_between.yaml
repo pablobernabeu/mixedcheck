@@ -66,6 +66,7 @@ statistics:
       matched with terms (declarations.md, estimands).
   icc:
     kind: real
+    internal_only: true
     definition: >-
       For a term with one kept column whose variables are all numeric, the
       ANOVA intraclass correlation of the column across the levels,
@@ -78,7 +79,10 @@ statistics:
       is absent for other terms and when the column is constant over the
       design sample, compared by value, and 'NaN' when J is 1, when N equals
       J or when the denominator is 0, so that its absence depends on no
-      count of levels or rows (privacy.md, Steps).
+      count of levels or rows (privacy.md, Steps). With within_share and the
+      rows of the design sample, it gives back J and the sum of the squared
+      level sizes, which are integers, so a shareable document never writes
+      it.
   within_share:
     kind: real
     definition: >-

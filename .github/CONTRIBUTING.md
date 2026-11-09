@@ -52,6 +52,12 @@ python3 spec/tools/compile_registry.py           # write spec/compiled/registry.
 python3 spec/tools/compile_registry.py --check   # report whether it matches its sources
 ```
 
+A change to the registry changes its hash, which the documents of the results
+corpus record, and with them the results file hashes that their sidecars
+record. `python3 spec/tools/rehash_results.py` replaces both wherever the corpus
+records them and runs the vendoring script, and `--check` reports whether the
+corpus is up to date.
+
 The files in `spec/` must have LF line endings and no byte-order mark, and
 `check` fails on any carriage return or byte-order mark there. It also rejects
 an artefact whose name R CMD build would leave out of the R package or R CMD

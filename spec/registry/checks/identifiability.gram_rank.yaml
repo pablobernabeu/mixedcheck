@@ -23,6 +23,10 @@ availability:
   - reason: too_large
     condition: Z has more than max_z_columns columns.
     parameter: max_z_columns
+  - reason: too_large
+    condition: >-
+      The random terms have more than max_parameters covariance parameters.
+    parameter: max_parameters
 statistics:
   parameters:
     kind: count
@@ -40,9 +44,15 @@ statistics:
       eigenvalues of C at or below rank_tolerance. For the gaussian family
       class, let X be the fixed-effects columns that the sequential rule keeps,
       P = I - X(X'X)^-1 X', Z the random-effects matrix of the IR on the design
-      sample, D the residual basis, which is I without weights and diag(1/w)
-      for weights w, and W = Z'PZ. For other family classes, W = Z'Z, and the
-      residual and the weights are left out. Each covariance parameter k has a
+      sample with each column of a random term, in every level, divided by its
+      largest absolute value over the design sample unless it is 0 in every
+      row, D the residual basis, which is I without weights and diag(m/w) for
+      weights w with m the smallest weight, diag(1/w) divided by its largest
+      element, and W = Z'PZ. For other family classes, W = Z'Z, and the
+      residual and the weights are left out. The divisions keep the products
+      below from overflowing or underflowing, and they change M to SMS for a
+      diagonal matrix S with positive elements, which leaves C, the vanishing
+      test and the verdict unchanged. Each covariance parameter k has a
       symmetric basis matrix A_k over the columns of Z: 1 at the diagonal
       position of the column in every level of the term's factor for a
       variance, and 1 at the two positions of the pair of columns in every
@@ -119,11 +129,27 @@ parameters:
   max_z_columns:
     value: 5000
     definition: >-
-      The largest number of columns of Z for which the check runs, which keeps
-      the dense matrix W below 200 MB.
+      The largest number of columns of Z for which the check runs. With
+      max_parameters, it bounds the time of the check, which grows with the
+      square of the number of columns of Z times the square of the largest
+      number of columns of a random term. The check holds W in blocks, the
+      elements between two random terms for a few of the levels of one of
+      them at a time, so that its memory does not grow with the square of the
+      number of columns of Z.
     sources:
       - kind: convention
         citation: Set by this project for registry 0.1.0.
+  max_parameters:
+    value: 500
+    definition: >-
+      The largest number of covariance parameters of the random terms, the
+      residual variance left out, for which the check runs. A random term
+      with 31 columns has 496.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0 with max_z_columns, so that
+          the check takes seconds rather than minutes at both limits.
 decision:
   rules:
     - finding: consequential

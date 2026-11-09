@@ -220,16 +220,17 @@ test_that("the members that M2 added name what exists, of the kind required", {
     "/statistics/shared_labels/resolved_by/1/name"
   )))
 
-  # A part of a total of another count class (E4024), beside the ratio of
-  # the two (E4021), and a noun for an argument that does not show a count
-  # (E4024).
+  # Parts and totals of another count class (E4024), beside the ratio of
+  # two counts of different classes (E4021), and a noun for an argument that
+  # does not show a count (E4024).
   document <- registry
   document$entries[[i]]$statistics$shared_labels$count_class <- "person"
   document$entries[[i]]$messages$no_change$args$attributes$noun <- list("attribute", "attributes")
-  check(document, paste0(c("4024 ", "4024 ", "4021 "), prefix, c(
+  check(document, paste0(c("4024 ", "4024 ", "4021 ", "4024 "), prefix, c(
     "/messages/no_change/args/attributes/noun",
     "/statistics/changing_labels/part_of",
-    "/statistics/changing_share"
+    "/statistics/changing_share",
+    "/statistics/shared_labels/part_of"
   )))
 })
 

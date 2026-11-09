@@ -15,7 +15,10 @@ This directory is the source of the artefacts that the R and Python packages sha
 - `tools/test_formula_corpus.py` checks the formula corpus in fixtures/conformance/formulas/: the format of its cases, the declarations, every expected IR against `schemas/ir.schema.json` and its recorded hash, and every expected issue against `errors.json`.
 - `tools/test_documents.py` checks that the JSON examples of [docs/spec/documents.md](../docs/spec/documents.md), a results document, its sidecar, a finding and a file of estimates, are valid under `schemas/results.schema.json` and `schemas/estimates.schema.json`, and the length and results file hash that documents.md states for the results document.
 - `tools/test_canonicaliser_corpora.py` checks the corpora of the canonicaliser in fixtures/conformance/ (json/, numbers/, unicode/, hash/ and hmac/): the format of their cases, every hash, digest, NFC form, order, decimal string and number serialisation, and every expected issue against `errors.json`. Under Python 3.11 with the oracles of fixtures/conformance/tools/requirements.txt, it also checks that the corpora equal what fixtures/conformance/tools/make_canonicaliser_corpora.py writes.
-- `tools/vendor.py` copies the listed artefacts into the packages and checks the copies. It uses the Python standard library only.
+- `tools/test_audit_corpus.py` checks the audit corpus in fixtures/conformance/audits/: its files and their listing in its README, `vendoring.json` and parity/corpora.json, the members and inputs of every case, the declarations against `schemas/declaration.schema.json`, the checks against the compiled registry, every expected finding against the schema of a finding and its registry entry, the order of the findings, the invariants of a shareable document and every expected issue against `errors.json`.
+- `tools/test_results_corpus.py` checks the results corpus in fixtures/conformance/results/: its files and their listing in its README, `vendoring.json` and parity/corpora.json, the members and inputs of every case, every expected issue against `errors.json` with the location its code requires, and the validity of every document that expects no issue against `schemas/results.schema.json`.
+- `tools/rehash_results.py` brings the results corpus in fixtures/conformance/results/ up to date after a change to the compiled registry, whose hash its documents record: it replaces the registry hash and the results file hashes wherever the corpus records them and then runs `tools/vendor.py sync`. `tools/test_rehash_results.py` tests it.
+- `tools/vendor.py` copies the listed artefacts into the packages and checks the copies. It uses the Python standard library only, and `tools/test_vendor.py` tests it.
 
 ## Vendoring
 
@@ -23,6 +26,7 @@ Each artefact listed in `vendoring.json` is copied byte for byte from spec/ into
 
 ```bash
 python3 spec/tools/compile_registry.py   # after editing spec/registry/, compile the registry first
+python3 spec/tools/rehash_results.py     # then update the hashes that the results corpus records
 python3 spec/tools/vendor.py sync    # write the copies and the manifests
 python3 spec/tools/vendor.py check   # change nothing, and exit with status 1 on any problem
 python3 -m unittest discover -s spec/tools -v   # test the scripts and the error catalogue

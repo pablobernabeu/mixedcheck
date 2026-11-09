@@ -17,11 +17,8 @@ audit_data <- function() {
 # Runs audit() at the time 0 in internal mode with the example key.
 audit_at_zero <- function(data = audit_data(), formula = "y ~ x + (1 | subject)", ...,
                           privacy = "internal", key = audit_key, time = "0") {
-  old <- Sys.getenv("MIXEDCHECK_TIME", unset = NA)
-  Sys.setenv(MIXEDCHECK_TIME = time)
-  on.exit(if (is.na(old)) Sys.unsetenv("MIXEDCHECK_TIME") else
-    Sys.setenv(MIXEDCHECK_TIME = old), add = TRUE)
-  do.call(audit, c(list(data, formula), list(...), list(privacy = privacy, key = key)))
+  with_audit_time(do.call(audit, c(list(data, formula), list(...),
+                                   list(privacy = privacy, key = key))), time)
 }
 
 audit_issue <- function(...) {
@@ -170,7 +167,7 @@ test_that("MIXEDCHECK_TIME sets every time of a run, and other values are refuse
 })
 
 test_that("a run without a key creates one from a secure source", {
-  skip_on_os("windows")
+  skip_without_key_source()
   results <- audit_at_zero(key = NULL)
   key <- results$sidecar$keys[[1L]]
   expect_match(key$key, "^[0-9a-f]{64}$")
@@ -194,6 +191,16 @@ test_that("without /dev/urandom, keys come from openssl, or E1312 without it", {
   expect_false(identical(first$key, second$key))
   expect_identical(first$key_id, commitment_key_id(first$key))
   expect_match(audit_at_zero(key = NULL)$sidecar$keys[[1L]]$key, "^[0-9a-f]{64}$")
+})
+
+test_that("a /dev/urandom that cannot be read falls back to openssl", {
+  local_mocked_bindings(platform_type = function() "unix", urandom_bytes = function() NULL)
+  local_mocked_bindings(package_installed = function(package) FALSE)
+  expect_identical(tryCatch(new_commitment_key(), mixedcheck_error = function(e) e$issues[[1L]]$code),
+                   "E1312")
+  skip_if_not_installed("openssl")
+  local_mocked_bindings(package_installed = function(package) TRUE)
+  expect_match(new_commitment_key()$key, "^[0-9a-f]{64}$")
 })
 
 test_that("the access log records each outcome column read at each tier", {
@@ -261,6 +268,77 @@ test_that("E5011 takes the places of E2007 in order, and E6069 the columns that 
                "'w'")
   expect_match(audit_issue(data = data, formula = "y ~ x + offset(w)",
                            declaration = declaration)$message, "'w'")
+  # The response is an outcome whatever the declaration says: as the weights
+  # column, a key column or a unit column, and an outcome-derived sample
+  # column, are refused, whereas the response as a sample column is left
+  # out of the IR's sample columns (ir.md, Samples).
+  data <- audit_data()
+  data$z <- data$y
+  expect_match(audit_issue(data = data, weights = "y")$message, "'y'")
+  key_declaration <- list(vocabulary = "0.1.0", observation = list(key = list("trial", "y")))
+  expect_match(audit_issue(data = data, declaration = key_declaration)$message, "'y'")
+  unit_declaration <- list(vocabulary = "0.1.0",
+                           units = list(list(name = "p", columns = list("y"), role = "participant")))
+  expect_match(audit_issue(data = data, formula = "y ~ x",
+                           declaration = unit_declaration)$message, "'y'")
+  derived <- list(vocabulary = "0.1.0", variables = list(
+    y = list(role = "outcome"), z = list(role = "outcome_derived", derived_from = list("y"))
+  ))
+  expect_match(audit_issue(data = data, declaration = derived, sample_columns = "z")$message,
+               "'z'")
+  expect_null(audit_issue(data = data, sample_columns = "y"))
+  assigned <- list(vocabulary = "0.1.0",
+                   units = list(list(name = "subject", columns = list("subject"))),
+                   assignment = list(list(column = "y", unit = "subject", randomised = TRUE)))
+  expect_match(audit_issue(data = data, declaration = assigned)$message, "'y'")
+})
+
+test_that("documents depend on no option, and a run leaves options and the generator alone", {
+  data <- data.frame(k = c(1, 2, 0, 1, 3, 2, 0, 2), n = c(3, 3, 2, 4, 4, 5, 2, 3),
+                     x = c(0.5, 1.25, 2, 3.5, 4, 5.75, 6, 7.5), s = rep(c("a", "b", "c", "d"), 2))
+  declaration <- list(vocabulary = "0.1.0", variables = list(
+    k = list(role = "outcome", measurement = "binomial", trials = "n")
+  ))
+  run <- function(tier) {
+    arguments <- list(data = data, formula = "k ~ x + (1 | s)", declaration = declaration)
+    if (tier != "T0") {
+      arguments <- c(arguments, list(outcome_access = tier, reason = "Look.",
+                                     exploratory = tier == "T2"))
+    }
+    canonical_bytes(do.call(audit_at_zero, arguments)$document, "data")
+  }
+  tiers <- if (requireNamespace("lpSolve", quietly = TRUE)) c("T1", "T2") else "T1"
+  expected <- lapply(tiers, run)
+  old <- options(OutDec = ",", digits = 3, scipen = 100, warn = 2)
+  on.exit(options(old), add = TRUE)
+  local_seed(3)
+  seed <- .Random.seed
+  before <- options()
+  expect_identical(lapply(tiers, run), expected)
+  expect_identical(.Random.seed, seed)
+  expect_identical(options(), before)
+})
+
+test_that("names outside ASCII give the same document in a C locale", {
+  # 'g' with U+00FC, and the ASCII text that a C locale writes for it, which
+  # names that are translated to the native encoding would merge.
+  accented <- intToUtf8(c(103L, 252L))
+  escaped <- "g<U+00FC>"
+  size <- intToUtf8(c(71L, 114L, 246L, 223L, 101L))
+  data <- data.frame(y = seq(1, 6, length.out = 60), x = rep(1:6, 10),
+                     a = sprintf("l%02d", rep(1:20, 3)), b = rep(c("p", "q", "r"), 20))
+  data$x[c(5L, 17L)] <- 3.5
+  names(data) <- c("y", size, accented, escaped)
+  formula <- paste0("y ~ `", size, "` + (1 | `", accented, "`) + (1 | `", escaped, "`)")
+  expected <- canonical_bytes(audit_at_zero(data, formula)$document, "data")
+  old <- Sys.getlocale("LC_CTYPE")
+  on.exit(Sys.setlocale("LC_CTYPE", old), add = TRUE)
+  Sys.setlocale("LC_CTYPE", "C")
+  expect_no_warning(results <- audit_at_zero(data, formula))
+  expect_identical(canonical_bytes(results$document, "data"), expected)
+  checks <- vapply(results$document$findings, function(finding) finding$check, "")
+  expect_identical(sum(checks == "structure.cluster_sizes"), 2L)
+  expect_true("structure.label_incidence" %in% checks)
 })
 
 test_that("the family class follows the family or the declared measurement", {

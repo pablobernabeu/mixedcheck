@@ -63,8 +63,8 @@
   file hash, the commitment keys and, from the data of the run, the
   commitments to the data file, the analysis table and the outcome columns.
   `write_results()` writes a results document as its canonical bytes and its
-  internal sidecar, under file names that show the privacy mode. The tests run
-  every case of the results corpus.
+  internal sidecar, whose file names must show the privacy mode (E7010). The
+  tests run every case of the results corpus.
 
 * The tests of the vendored registry apply the rules on registry entries that
   M2 added, among them E4022 to E4024.
@@ -73,10 +73,9 @@
   [registry](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/registry.md)
   on the design of a model and returns a results object, in the steps of the
   [execution plan](https://github.com/pablobernabeu/lmecheck/blob/main/docs/design/03-execution-plan.md)
-  (M2): the arguments, the declaration, the data, the IR, the family class,
-  the samples, the checks, the privacy filter, the access log with keyed
-  commitments to the outcome columns read and the inputs. It refuses a run
-  with E5011, E6069, E7007, E7008 or E7009, and the environment variable
+  (M2), with an access log that commits to every outcome column read. The
+  outcome-blind checks never read the response, its trials or a declared
+  outcome column, and a run that would gives E6069. The environment variable
   MIXEDCHECK_TIME fixes its times. Among the checks are the identifiability
   of the covariance parameters from the rank of their Gram matrix, the
   connected components of two crossed grouping factors, the generalised
@@ -95,6 +94,7 @@
 * `design_matrices()` refuses events or trials of a response with a trials
   column that are not integers with 0 <= events <= trials (E6078).
 
-* Where /dev/urandom does not exist, as on Windows, `new_commitment_key()`
-  creates a key with `openssl::rand_bytes()` when openssl is installed, so
-  that E1312 arises only without it. openssl joins the Suggests.
+* Where /dev/urandom does not exist, as on Windows, or cannot be read,
+  `new_commitment_key()` creates a key with `openssl::rand_bytes()` when
+  openssl is installed, so that E1312 arises only without it. openssl joins
+  the Suggests.

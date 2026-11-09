@@ -45,10 +45,10 @@ assignment_applies <- function(found) {
 }
 
 # The checks of the prefix assignment are not available without an
-# assignment block (declarations.md, assignment).
+# assignment block (declarations.md, assignment), or when every entry of the
+# block counts as absent.
 assignment_block_missing <- function(run) {
-  is.null(run$declaration[["assignment"]]) ||
-    declaration_inferred(run$declaration, "/assignment")
+  !length(assignment_elements(run$declaration))
 }
 
 # assignment.constant_within_unit: the levels of the unit within which the
@@ -106,7 +106,9 @@ audit_check_assignment_unit_in_random_part <- function(run, entry, elements) {
 # assignment.design_df: the degrees of freedom between the levels of the unit
 # after the fixed effects, J + rank(X_d) - rank(X) on the rows of the
 # assignment, where X_d is X with the first row of each level subtracted from
-# the level's rows, and the declared blocks that the fixed part leaves out.
+# the level's rows and the columns constant within the levels up to rounding
+# set to 0 (level_differences()), and the declared blocks that the fixed part
+# leaves out.
 audit_check_assignment_design_df <- function(run, entry, elements) {
   if (assignment_block_missing(run)) {
     return(check_unavailable("declaration_missing"))
@@ -121,8 +123,7 @@ audit_check_assignment_design_df <- function(run, entry, elements) {
       return(NULL)
     }
     x <- run$x[match(found$rows, run$design), , drop = FALSE]
-    first <- match(seq_len(found$count), found$unit)
-    within <- x - x[first[found$unit], , drop = FALSE]
+    within <- level_differences(x, found$unit, found$count)
     design_df <- found$count + sum(sequential_rule(within)) - sum(sequential_rule(x))
     blocks <- Filter(function(block) {
       !is.null(units[[block]]) &&

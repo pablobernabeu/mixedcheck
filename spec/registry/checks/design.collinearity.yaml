@@ -37,16 +37,18 @@ statistics:
       columns of the main-effect terms, T are the kept columns of this term,
       O the other kept columns and the determinant of an empty matrix is 1. It
       is computed as the product over the columns j of T of (a_j / b_j)^2,
-      which equals the ratio of determinants: the columns are centred, with
-      means summed exactly and divided once as ir.md (Centring) computes
-      means, and scaled to unit Euclidean length, b_j is the norm of the
-      residual of column j after orthogonal projection onto the columns of O
-      and the earlier columns of T, in that order, and a_j the norm of its
-      residual after projection onto the earlier columns of T alone, each
-      computed as the sequential rule computes residuals (ir.md). Its relative
-      error grows with its value, as for any method, so the two packages
-      compare it within a tolerance that grows with it (conventions.md,
-      Comparison across languages).
+      which equals the ratio of determinants: the columns are divided by
+      their largest absolute values, so that no sum or product of their
+      values overflows or underflows, centred, with means summed exactly and
+      divided once as ir.md (Centring) computes means, and scaled to unit
+      Euclidean length, b_j is the norm of the residual of column j after
+      orthogonal projection onto the columns of O and the earlier columns of
+      T, in that order, and a_j the norm of its residual after projection
+      onto the earlier columns of T alone, each computed as the sequential
+      rule computes residuals (ir.md). Its relative error grows with its
+      value, as for any method, so the two packages compare it within a
+      tolerance that grows with it (conventions.md, Comparison across
+      languages).
   gvif_per_df:
     kind: real
     definition: >-

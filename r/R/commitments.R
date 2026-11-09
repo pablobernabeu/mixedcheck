@@ -15,7 +15,7 @@
 run_data <- function(data, declaration) {
   table_block <- declaration[["table"]]
   fields <- table_block[["fields"]]
-  if (is.character(data) && length(data) == 1L && !is.na(data)) {
+  if (is_string(data)) {
     bytes <- read_input_bytes(data)
     return(list(table = model_table(parse_table_bytes(bytes, table_block), fields), file = bytes))
   }

@@ -37,9 +37,12 @@ statistics:
   columns:
     kind: count
     count_class: non_person
+    internal_only: true
     definition: >-
       The number of fixed-effects columns of the analysis sample that the
-      sequential rule keeps, the columns of the linear programs.
+      sequential rule keeps, the columns of the linear programs. Beside the
+      kept columns of the design sample, it would show that the rows without
+      an outcome emptied a cell of the predictors.
   events:
     kind: count
     count_class: person
@@ -70,22 +73,39 @@ statistics:
       s = -1 when k is below n. The first linear program maximises the sum over
       observations of s x'b subject to s x'b >= 0 for every observation and
       -1 <= b_j <= 1 for every coefficient. The second maximises t subject to
-      s x'b >= t for every observation, the same bounds on b and t <= 1. In R,
-      each program is solved with lpSolve::lp() with scale = 0, since the
-      columns are already scaled, and b_j = c_j - 1 with 0 <= c_j <= 2 as the
-      solver's variables. In Python, it is solved with
+      s x'b >= t for every observation, the same bounds on b and t <= 1. A
+      program of bounds below adds g'b >= f, with g the sum over observations
+      of s x and f a floor, to the constraints of the first, and maximises
+      b_j or -b_j. In R, each program is solved with lpSolve::lp() with scale
+      = 0, since the columns are already scaled, through its dual. For a
+      program that maximises c'b, or t for the second, the dual minimises the
+      sum over coefficients of w+_j + w-_j, minus f r for a program of bounds
+      and plus z for the second, over y_i for each observation, w+_j, w-_j, r
+      and z, all at least 0, subject to w+_j - w-_j - (sum over observations
+      of y_i s x_ij) - r g_j = c_j for each coefficient, with c = 0 for the
+      second, and, for the second, the sum of the y_i plus z = 1. b is the
+      vector of the dual values of the constraints of the coefficients, which
+      lp() returns with compute.sens = 1. The dual has one constraint for
+      each coefficient, and one more for the second program, whatever the
+      number of observations. When lp() reports no optimum for the dual, or
+      its b is not verified, the program itself is solved, with b_j = b+_j -
+      b-_j and 0 <= b+_j, b-_j <= 1 as the solver's variables, the upper
+      bounds written as constraints. In Python, each program is solved with
       scipy.optimize.linprog() with method 'highs-ds' and the options
-      primal_feasibility_tolerance and dual_feasibility_tolerance set to 1e-9.
-      A solution is verified when the solver reports an optimum and every u =
-      s x'b, computed from the returned b in double arithmetic, is at least
-      minus feasibility_tolerance. A verified solution with some u below
-      minus residue_tolerance meets the constraints only within the
+      primal_feasibility_tolerance and dual_feasibility_tolerance set to
+      1e-9. A solution is verified when the solver reports an optimum and
+      every u = s x'b, computed from the returned b in double arithmetic, is
+      at least minus feasibility_tolerance. A verified solution with some u
+      below minus residue_tolerance meets the constraints only within the
       feasibility tolerance, and a solver can reach a large optimum through
       such a violation on data that no b other than 0 separates in exact
       arithmetic, so the finding is then near_threshold, whichever program
-      it solves. Values of u between minus residue_tolerance and 0 are
-      rounding residues of the solver's arithmetic and leave the finding
-      clear. The verdict is complete
+      it solves. Values of u between minus residue_tolerance and 0 leave the
+      finding clear. They are the rounding residues of the solver's
+      arithmetic where the exact value is 0, or the violation that data whose
+      events and non-events overlap by less than about residue_tolerance on
+      the scaled columns allow, which the check then reports as separated.
+      The verdict is complete
       when the verified margin of the second program is above
       separation_tolerance, quasi otherwise when the verified optimum of the
       first is above separation_tolerance, and none otherwise. When
@@ -169,21 +189,26 @@ parameters:
     value: 0.00000000001
     definition: >-
       The amount by which a value u of a verified solution may fall below 0
-      without making the finding near_threshold. A solver returns values such
-      as c_j = 1.0000000000002 for a coefficient whose exact value is 0, which
-      leave rounding residues in u that say nothing about the data, whereas a
+      without making the finding near_threshold. A value of u computed in
+      double arithmetic from a returned b can fall a little below 0 where its
+      exact value is 0, which says nothing about the data, whereas a
       violation through which a solver reaches a large optimum on data that
       no b other than 0 separates is as large as the gap in the data, such as
-      the values -1e-8 and -1e-9 of the review of feasibility_tolerance.
+      the values -1e-8 and -1e-9 of the review of feasibility_tolerance. Data
+      whose gap on the scaled columns is below this value can therefore be
+      reported as separated with the status clear.
     sources:
       - kind: convention
         citation: >-
           Set by this project for registry 0.1.0. In M2b-2, lpSolve with scale
-          = 0 returned, on the audit-corpus cases audits-outcome-028, 029 and
-          031, solutions whose smallest u lay between -3.4e-13 and 0 where the
-          exact value is 0, and on overlapping data of 40 to 2,000 rows
-          smallest values of u down to -5e-12, each less than half of this
-          parameter in absolute value.
+          = 0 and the variables c_j = b_j + 1 returned, on the audit-corpus
+          cases audits-outcome-028, 029 and 031, solutions whose smallest u
+          lay between -3.4e-13 and 0 where the exact value is 0, and on
+          overlapping data of 40 to 2,000 rows smallest values of u down to
+          -5e-12. Through the dual, it left smallest values of u down to
+          -2.6e-13 on the programs of 84 generated tables of 200 to 160,000
+          observations, each less than half of this parameter in absolute
+          value.
   involvement_tolerance:
     value: 0.00001
     proximity_factor: 10

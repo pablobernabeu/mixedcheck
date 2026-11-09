@@ -297,6 +297,20 @@
           }
         ]
       }
+    },
+    {
+      "id": "results-shareable-018",
+      "description": "constant_share written with the class person while its numerator constant_levels, a by_unit count, is left out: a ratio has the class of its numerator and denominator, so the numerator counts as a person count that is not written, and stage 5 reports E7024, since the ratio and the written denominator multi_row_levels would give it back.",
+      "document": "shareable/018.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7024",
+            "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a person count behind it is suppressed or below the minimum count.",
+            "pointer": "/findings/0/statistics/constant_share/value"
+          }
+        ]
+      }
     }
   ]
 }

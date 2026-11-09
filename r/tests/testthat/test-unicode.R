@@ -15,7 +15,7 @@ test_that("the first ill-formed sequence is found by decoding from the start", {
 })
 
 test_that("the validator agrees with R's validUTF8() on random bytes", {
-  set.seed(20261108)
+  local_seed(20261108)
   candidates <- c(0x00:0x7F, 0x80:0xBF, 0xC0:0xC3, 0xDF:0xE1, 0xEC:0xEE, 0xEF:0xF1, 0xF3:0xF5,
                   0xFE, 0xFF)
   samples <- lapply(seq_len(2000L), function(i) {

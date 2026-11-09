@@ -88,6 +88,48 @@ test_that("structure.id_scope_evidence keeps an attribute constant within 99% of
   expect_identical(found$status$finding$value, "detectable_inconsequential")
 })
 
+test_that("the checks of a pair of columns read the rows in which both are present", {
+  # Four classes crossed with two schools, a class-level attribute a and a
+  # 17th row of c1 without a school, in which a is 9. Over the rows of the
+  # pair, a is constant within c1 and changes for no shared label.
+  classes <- rep(c("c1", "c2", "c3", "c4"), each = 4L)
+  data <- data.frame(y = 1:17, class = c(classes, "c1"),
+                     school = c(rep(c("S1", "S1", "S2", "S2"), 4L), NA),
+                     a = c(match(classes, c("c1", "c2", "c3", "c4")), 9))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "campus", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), nested_in = "school", id_scope = "global",
+         role = "cluster")))
+  found <- structure_findings(data, "y ~ a + (1 | class)", "structure.id_scope_evidence",
+                              declaration = declaration)[[1L]]
+  values <- statistic_values(found)
+  expect_identical(values$attributes, list("a"))
+  expect_identical(values$changing_labels, 0)
+  expect_false(values$tied)
+  expect_identical(found$message$id, "no_change")
+  # Twenty classes of two pupils with a school missing in the first row: the
+  # class c01 has one pupil in the rows of the pair, so the counts of the
+  # levels of 'class' there are person counts, whereas over the design
+  # sample, which structure.cluster_sizes reads, they are not.
+  data <- data.frame(y = 1:40, class = rep(sprintf("c%02d", 1:20), each = 2L),
+                     school = c(NA, rep(c("S1", "S2"), 20L)[-1L]), pupil = sprintf("p%02d", 1:40))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), nested_in = "school", id_scope = "global",
+         role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "class", id_scope = "global",
+         role = "participant")))
+  incidence <- structure_findings(data, "y ~ 1 + (1 | class)", "structure.label_incidence",
+                                  declaration = declaration)[[1L]]
+  sizes <- structure_findings(data, "y ~ 1 + (1 | class)", "structure.cluster_sizes",
+                              declaration = declaration)[[1L]]
+  expect_identical(incidence$statistics$levels_first$value, 20)
+  expect_identical(incidence$statistics$levels_first$count_class, "person")
+  expect_identical(sizes$statistics$levels$value, 20)
+  expect_identical(sizes$statistics$levels$count_class, "non_person")
+})
+
 test_that("connected components agree with a breadth-first search", {
   components <- mixedcheck:::bipartite_components
   search <- function(a, b, count_a, count_b) {
@@ -110,7 +152,7 @@ test_that("connected components agree with a breadth-first search", {
     }
     found
   }
-  set.seed(9)
+  local_seed(9)
   for (trial in 1:50) {
     count_a <- sample(1:15, 1)
     count_b <- sample(1:15, 1)
@@ -158,7 +200,7 @@ test_that("structure.cluster_sizes takes the quantiles at positions ceil(J x p)"
 })
 
 test_that("the intraclass correlation follows its definition", {
-  set.seed(4)
+  local_seed(4)
   g <- sample(sprintf("g%d", 1:6), 40L, TRUE)
   x <- round(rnorm(40) + match(g, sort(unique(g))), 2)
   data <- data.frame(y = seq_along(x), x = x, g = g)
@@ -173,10 +215,4 @@ test_that("the intraclass correlation follows its definition", {
   n0 <- (40 - sum(sizes^2) / 40) / 5
   expect_equal(values$icc, (msb - msw) / (msb + (n0 - 1) * msw), tolerance = 1e-12)
   expect_equal(values$within_share, ssw / (ssb + ssw), tolerance = 1e-12)
-})
-
-test_that("every structure check has its function", {
-  ids <- grep("^structure[.]", names(registry_entries_by_id()), value = TRUE)
-  expect_length(ids, 6L)
-  expect_true(all(ids %in% implemented_checks()))
 })

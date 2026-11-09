@@ -1,8 +1,9 @@
 # The design checks, in the parts that the audit corpus cannot reach: the
 # generalised variance inflation factor against its definition as a ratio of
 # determinants on designs of more terms and levels, the condition number and
-# standard deviations against base R, empty cells of three factors and the
-# estimands that /provenance/inferred marks.
+# standard deviations against base R, these values at extreme magnitudes,
+# empty cells of three factors and the estimands that /provenance/inferred
+# marks.
 
 design_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -19,7 +20,7 @@ design_values <- function(finding) {
 # A design of 60 rows with two correlated numeric predictors, a factor of
 # four levels and a factor of three levels.
 collinear_data <- function(seed) {
-  set.seed(seed)
+  local_seed(seed)
   n <- 60
   a <- sample(c("A1", "A2", "A3", "A4"), n, replace = TRUE)
   b <- sample(c("B1", "B2", "B3"), n, replace = TRUE)
@@ -64,7 +65,7 @@ test_that("design.collinearity does not change with the contrasts or the order o
 })
 
 test_that("design.scale_disparity agrees with base R's standard deviations and condition number", {
-  set.seed(3)
+  local_seed(3)
   data <- data.frame(y = rnorm(50), x1 = rnorm(50, sd = 20), x2 = runif(50) / 50,
                      d = rbinom(50, 1, 0.5), a = rep(c("A", "B"), 25))
   found <- design_findings(data, "y ~ x1 * x2 + d + a", "design.scale_disparity")[[1L]]
@@ -78,6 +79,35 @@ test_that("design.scale_disparity agrees with base R's standard deviations and c
   x <- sweep(x, 2L, sqrt(colSums(x^2)), "/")
   expect_equal(values$condition_number, kappa(x, exact = TRUE), tolerance = 1e-10)
   expect_identical(found$message$id, "disparate")
+})
+
+test_that("design.collinearity and design.scale_disparity hold at extreme magnitudes", {
+  # Each column is divided by its largest absolute value before any sum or
+  # product, so that columns near 1e300 or 1e-300 give the values of the
+  # same data at unit scale, multiplied by the scale for the standard
+  # deviations.
+  local_seed(21)
+  z <- rnorm(40L)
+  base <- data.frame(y = rnorm(40L), x = z + rnorm(40L), z = z, g = rep(sprintf("g%d", 1:8), 5L))
+  findings <- function(data) {
+    results <- audit(data, "y ~ x + z + (1 | g)", privacy = "internal", key = design_key)
+    found <- Filter(function(finding) finding$check %in% c("design.collinearity",
+                                                           "design.scale_disparity"),
+                    results$document$findings)
+    lapply(found, design_values)
+  }
+  reference <- findings(base)
+  for (scale in c(1e-300, 1e-100, 1e100, 1e300)) {
+    data <- base
+    data$x <- base$x * scale
+    found <- findings(data)
+    for (i in 1:2) {
+      expect_equal(found[[i]]$gvif, reference[[i]]$gvif, tolerance = 1e-12, label = paste(scale, i))
+    }
+    expect_equal(found[[3L]]$condition_number, reference[[3L]]$condition_number, tolerance = 1e-12)
+    deviation <- if (scale > 1) found[[3L]]$sd_largest else found[[3L]]$sd_smallest
+    expect_equal(deviation / scale, column_sd(base$x), tolerance = 1e-12, label = paste(scale))
+  }
 })
 
 test_that("design.rank_deficiency counts empty cells of factors only", {
@@ -123,7 +153,7 @@ test_that("an estimand that /provenance/inferred lists counts as absent", {
 })
 
 test_that("the residuals of the sequential rule are the norms it compares", {
-  set.seed(5)
+  local_seed(5)
   x <- cbind(rnorm(30), rnorm(30), 0, rnorm(30))
   x <- cbind(x, x[, 1L] + 2 * x[, 2L])
   found <- sequential_residuals(x)
@@ -137,11 +167,10 @@ test_that("the residuals of the sequential rule are the norms it compares", {
   expect_lt(found$residual[5L], 1e-12)
 })
 
-test_that("every design check has its function, and an entry without one is an internal error", {
-  ids <- grep("^design[.]", names(registry_entries_by_id()), value = TRUE)
-  expect_length(ids, 3L)
-  expect_true(all(ids %in% implemented_checks()))
-  expect_identical(implemented_checks(), names(registry_entries_by_id()))
+test_that("every check of the registry has its function, and an entry without one is an internal error", {
+  ids <- names(registry_entries_by_id())
+  expect_length(ids, 24L)
+  expect_true(all(vapply(ids, function(id) !is.null(check_implementation(id)), NA)))
   run <- new.env()
   run$family_class <- "gaussian"
   entry <- registry_entry("design.rank_deficiency")

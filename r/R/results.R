@@ -151,13 +151,23 @@ write_results <- function(results, path, sidecar) {
       raise_issue("E1315", pointer = found)
     }
   }
+  for (file in c(path, sidecar)) {
+    if (!dir.exists(dirname(file))) {
+      stop(sprintf("The directory of '%s' does not exist.", display_text(file)), call. = FALSE)
+    }
+  }
   bytes <- canonical_bytes(document, "data")
   hash <- hash_bytes(bytes)
   sidecar_value <- results[["sidecar"]]
   sidecar_value[["results_hash"]] <- hash
   sidecar_bytes <- canonical_bytes(sidecar_value, "data")
+  # The sidecar holds the only copy of the key, so a document whose sidecar
+  # cannot be written is removed.
   writeBin(bytes, path)
+  complete <- FALSE
+  on.exit(if (!complete) unlink(path), add = TRUE)
   writeBin(sidecar_bytes, sidecar)
+  complete <- TRUE
   invisible(hash)
 }
 

@@ -1,6 +1,7 @@
 # The identifiability checks, in the parts that the audit corpus cannot
-# reach: the Gram matrix against its definition on dense matrices, the
-# proximity band of rank_tolerance, the limit of max_z_columns, the budget
+# reach: the Gram matrix against its definition on dense matrices, at
+# extreme magnitudes and in chunks of levels, the proximity band of
+# rank_tolerance, the limits of max_z_columns and max_parameters, the budget
 # against the literal sequential rule and the rank of each level.
 
 identifiability_key <- paste(sprintf("%02x", 0:31), collapse = "")
@@ -55,7 +56,7 @@ gram_by_definition <- function(data, formula, weights = NULL, gaussian = TRUE) {
 }
 
 test_that("identifiability.gram_rank agrees with the Gram matrix of its definition", {
-  set.seed(7)
+  local_seed(7)
   formulas <- c("y ~ x + (1 + x | g)", "y ~ x + cond + (1 | g) + (0 + z | h)",
                 "y ~ 1 + (1 + x + z | g) + (1 | h)", "y ~ x + (1 | g) + (1 | g:h)",
                 "y ~ cond + (1 + cond | g)")
@@ -123,24 +124,104 @@ test_that("identifiability.gram_rank runs up to max_z_columns columns of Z", {
   expect_identical(found$statistics$vanishing_parameters$value, list("0 + z | g: var(z)"))
 })
 
-test_that("identifiability.df_budget equals the indicator columns that the sequential rule keeps", {
-  # The budget by its literal definition: the indicator columns of the
-  # levels that the sequential rule keeps after the kept fixed-effects
-  # columns of the terms up to each term.
-  literal <- function(data, formula) {
-    ir <- formula_ir(formula, data = data)
-    m <- design_matrices(ir, data)
-    indicators <- outer(match(data$g, sort(unique(data$g))), seq_along(unique(data$g)), "==") + 0
-    columns <- vapply(ir$fixed$columns, function(column) column$term + 1, 0)
-    budgets <- vapply(seq_along(ir$fixed$terms), function(t) {
-      x <- m$x[, columns <= t & !colnames(m$x) %in% m$x_dropped, drop = FALSE]
-      sum(mixedcheck:::sequential_rule(cbind(x, indicators))[ncol(x) + seq_len(ncol(indicators))])
-    }, 0)
-    terms <- vapply(ir$fixed$terms, function(term) term$name, "")
-    list(budget = budgets[length(budgets)],
-         consuming = as.list(terms[budgets < c(ncol(indicators), budgets[-length(budgets)])]))
+# The budget of identifiability.df_budget as the number of indicator columns
+# of the levels of 'g' that the sequential rule keeps after the kept
+# fixed-effects columns of the terms up to each term, which J - k + rank(X_d)
+# equals up to the tolerances, and the consuming terms that it gives.
+budget_by_indicators <- function(data, formula) {
+  ir <- formula_ir(formula, data = data)
+  m <- design_matrices(ir, data)
+  indicators <- outer(match(data$g, sort(unique(data$g))), seq_along(unique(data$g)), "==") + 0
+  columns <- vapply(ir$fixed$columns, function(column) column$term + 1, 0)
+  budgets <- vapply(seq_along(ir$fixed$terms), function(t) {
+    x <- m$x[, columns <= t & !colnames(m$x) %in% m$x_dropped, drop = FALSE]
+    sum(mixedcheck:::sequential_rule(cbind(x, indicators))[ncol(x) + seq_len(ncol(indicators))])
+  }, 0)
+  terms <- vapply(ir$fixed$terms, function(term) term$name, "")
+  list(budget = budgets[length(budgets)],
+       consuming = as.list(terms[budgets < c(ncol(indicators), budgets[-length(budgets)])]))
+}
+
+test_that("identifiability.gram_rank gives the same verdict at extreme magnitudes", {
+  # The columns of a random term and the inverse weights are divided by
+  # their largest absolute values before any product, so that values near
+  # 1e300 or 1e-300 give the findings of the same data at unit scale.
+  local_seed(20)
+  base <- data.frame(y = rnorm(40L), x = rnorm(40L), g = rep(sprintf("g%d", 1:8), 5L),
+                     w = rep(c(0.5, 1, 2, 4), 10L))
+  expected <- lapply(list(NULL, "w"), function(weights) {
+    identifiability_finding(base, "y ~ x + (1 + x | g)", "identifiability.gram_rank",
+                            weights = weights)
+  })
+  expect_identical(expected[[1L]]$statistics$verdict$value, "identified")
+  for (scale in c(1e-300, 1e-100, 1e100, 1e300)) {
+    data <- base
+    data$x <- base$x * scale
+    data$w <- base$w * scale
+    for (i in 1:2) {
+      weights <- if (i == 2L) "w"
+      found <- identifiability_finding(data, "y ~ x + (1 + x | g)", "identifiability.gram_rank",
+                                       weights = weights)
+      label <- paste(scale, !is.null(weights))
+      expect_identical(found$statistics$verdict$value, "identified", label = label)
+      expect_identical(found$statistics$rank$value, 4, label = label)
+      expect_equal(found$statistics$smallest_eigenvalue$value,
+                   expected[[i]]$statistics$smallest_eigenvalue$value, tolerance = 1e-9,
+                   label = label)
+    }
   }
-  set.seed(11)
+})
+
+test_that("identifiability.gram_rank sums the Gram matrix over chunks of levels", {
+  # Chunks of one or a few levels give the Gram matrix of a single chunk.
+  local_seed(5)
+  n <- 60L
+  data <- data.frame(y = rnorm(n), x = rnorm(n), z = rnorm(n), g = sample(sprintf("g%d", 1:7), n, TRUE),
+                     h = sample(sprintf("h%d", 1:5), n, TRUE))
+  for (formula in c("y ~ x + (1 + x | g) + (0 + z | h)", "y ~ x + (x | g) + (1 + z | h) + (1 | g:h)")) {
+    for (gaussian in c(TRUE, FALSE)) {
+      table <- run_data(data, NULL)$table
+      ir <- formula_ir(formula, data = data)
+      model <- design_model(ir, table, analysis = FALSE)
+      run <- new_run(NULL, table, ir, if (gaussian) "gaussian" else "other", "T0", model,
+                     design_build(ir, model, table))
+      scaled <- scaled_random_columns(run)
+      zq <- if (gaussian) {
+        as.matrix(Matrix::crossprod(scaled$z, qr.Q(qr(run$x[, run$x_kept, drop = FALSE]))))
+      }
+      bases <- covariance_bases(run)
+      whole <- gram_of_bases(scaled, zq, bases)
+      for (chunk in c(1, 7, 40)) {
+        found <- gram_of_bases(scaled, zq, bases, chunk = chunk)
+        expect_equal(found$gram, whole$gram, tolerance = 1e-12, label = paste(formula, chunk))
+        expect_equal(found$original, whole$original, tolerance = 1e-12)
+        expect_equal(found$traces, whole$traces, tolerance = 1e-12)
+      }
+    }
+  }
+})
+
+test_that("identifiability.gram_rank is not available above max_parameters", {
+  data <- data.frame(y = 1:12, x = c(1, 4, 2, 5, 3, 6, 2, 1, 4, 3, 6, 5), z = c(1:6, 6:1),
+                     g = rep(c("a", "b", "c"), 4L))
+  table <- run_data(data, NULL)$table
+  ir <- formula_ir("y ~ x + (1 + x + z | g)", data = data)
+  model <- design_model(ir, table, analysis = FALSE)
+  run <- new_run(NULL, table, ir, "gaussian", "T0", model, design_build(ir, model, table))
+  entry <- registry_entry("identifiability.gram_rank")
+  entry$parameters$max_parameters$value <- "5"
+  expect_identical(run_check(run, entry)[[1L]]$availability,
+                   list(value = "not_available", reason = "too_large", detail = "max_parameters"))
+  entry$parameters$max_parameters$value <- "6"
+  expect_true(run_check(run, entry)[[1L]]$available)
+  entry$parameters$max_z_columns$value <- "8"
+  expect_identical(run_check(run, entry)[[1L]]$availability,
+                   list(value = "not_available", reason = "too_large", detail = "max_z_columns"))
+})
+
+test_that("identifiability.df_budget equals the indicator columns that the sequential rule keeps", {
+  literal <- budget_by_indicators
+  local_seed(11)
   formulas <- c("y ~ x + b + (1 | g)", "y ~ x + s + b + (1 | g)", "y ~ g + (1 | g)",
                 "y ~ 0 + x + (1 | g)", "y ~ cond * b + (1 | g)", "y ~ s + x + (1 | g)")
   for (formula in formulas) {
@@ -157,8 +238,34 @@ test_that("identifiability.df_budget equals the indicator columns that the seque
   }
 })
 
+test_that("identifiability.df_budget sets to 0 a column of X_d constant within levels up to rounding", {
+  # wn differs from its level's value by one unit in the last place in some
+  # rows, wn2 by about 1e-9 and wn3 by 1e-4 relative to its scale, which the
+  # indicator columns do not absorb.
+  local_seed(6)
+  n <- 96L
+  data <- data.frame(y = rnorm(n), g = rep(sprintf("g%02d", 1:12), each = 8L), x = rnorm(n))
+  base <- rep(rnorm(12L, 10, 3), each = 8L)
+  f <- runif(n, 1, 3)
+  data$wn <- (base * f) / f
+  data$wn2 <- base + rnorm(n, sd = 1e-9)
+  data$wn3 <- base + rnorm(n, sd = 1e-3)
+  expect_true(any(data$wn != base))
+  for (formula in c("y ~ wn + x + (1 | g)", "y ~ wn2 + x + (1 | g)", "y ~ x + wn3 + (1 | g)",
+                    "y ~ wn * x + (1 | g)")) {
+    found <- identifiability_finding(data, formula, "identifiability.df_budget")
+    expected <- budget_by_indicators(data, formula)
+    expect_identical(found$statistics$budget$value, expected$budget, label = formula)
+    expect_identical(found$statistics$consuming_terms$value, expected$consuming, label = formula)
+  }
+  expect_identical(identifiability_finding(data, "y ~ wn + x + (1 | g)",
+                                           "identifiability.df_budget")$statistics$budget$value, 10)
+  expect_identical(identifiability_finding(data, "y ~ x + wn3 + (1 | g)",
+                                           "identifiability.df_budget")$statistics$budget$value, 11)
+})
+
 test_that("the rank of each level follows the sequential rule", {
-  set.seed(2)
+  local_seed(2)
   level <- sample(1:12, 60L, TRUE)
   values <- cbind(1, round(rnorm(60L)), sample(0:1, 60L, TRUE))
   values[level == 3L, 2L] <- 5
@@ -179,10 +286,4 @@ test_that("the rank of each level follows the sequential rule", {
                        full(v, difference))
     }
   }
-})
-
-test_that("every identifiability check has its function", {
-  ids <- grep("^identifiability[.]", names(registry_entries_by_id()), value = TRUE)
-  expect_length(ids, 4L)
-  expect_true(all(ids %in% implemented_checks()))
 })

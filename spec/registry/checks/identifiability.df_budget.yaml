@@ -31,22 +31,29 @@ statistics:
     resolved_by: [{source: scope, name: factor}]
     suppress_with: [levels]
     definition: >-
-      The number of indicator columns of the factor, one for each level in
-      level order, that the sequential rule keeps when it is applied to the
-      fixed-effects columns followed by the indicator columns. It is a number
-      of degrees of freedom, but it equals levels minus 1 when the intercept is
-      the only fixed effect that is constant within levels, so it takes the
-      count class of levels, so that it cannot give back a suppressed count of
-      levels (docs/spec/privacy.md).
+      J - k + rank(X_d), ranks by the sequential rule, where J is levels, k
+      the number of fixed-effects columns that the sequential rule keeps and
+      X_d those columns with the first row of each level of the factor, in
+      table order, subtracted from every row of the level, a column of X_d
+      being set to 0 as assignment.design_df states. In exact arithmetic, and
+      without that step, it equals the number of indicator columns of the
+      factor, one for each level, that the sequential rule keeps when it is
+      applied to the fixed-effects columns followed by the indicator columns.
+      It is a number of degrees of freedom, but it equals levels minus 1 when
+      the intercept is the only fixed effect that is constant within levels,
+      so it takes the count class of levels, so that it cannot give back a
+      suppressed count of levels (docs/spec/privacy.md).
   consuming_terms:
     kind: names
     definition: >-
       The fixed terms, the intercept included, in term order, whose kept
-      columns lower the budget: a term t is listed when the budget computed
-      from the fixed-effects columns of the terms up to and including t, with
-      the columns that the sequential rule keeps among them, is below the
-      budget computed from the terms before t, the budget of no terms being
-      the number of levels. The list is not empty when budget is below levels.
+      columns lower the budget: a term t is listed when the budget computed as
+      above from the kept fixed-effects columns of the terms up to and
+      including t is below the budget computed from the terms before t, the
+      budget of no terms being the number of levels. The sequential rule
+      treats each column in turn, so one application of it to X_d gives every
+      one of these budgets. The list is not empty when budget is below
+      levels.
 thresholds: {}
 parameters: {}
 decision:

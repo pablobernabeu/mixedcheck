@@ -237,7 +237,10 @@ child_pointer <- function(pointer, token) {
 # The type keywords that apply to a value unconditionally, in the order of
 # errors.md (Structural validation, rule 3): the schema's own, then those
 # reached through $ref, allOf and the branch of if that applies, recursively.
-unconditional_types <- function(bundle, value, node) {
+# The branch of each if is recorded in branches, in the order in which
+# apply_schema() meets the same ifs, so that each condition is evaluated
+# once for a value.
+unconditional_types <- function(bundle, value, node, branches) {
   schema <- node$schema
   if (!is.list(schema)) {
     return(list())
@@ -250,16 +253,18 @@ unconditional_types <- function(bundle, value, node) {
   if (!is.null(ref)) {
     target <- resolve_reference(bundle, ref, node$base)
     if (!target$ref %in% profile_definitions) {
-      found <- c(found, unconditional_types(bundle, value, target))
+      found <- c(found, unconditional_types(bundle, value, target, branches))
     }
   }
   for (sub in schema[["allOf"]]) {
-    found <- c(found, unconditional_types(bundle, value, schema_node(sub, node$base)))
+    found <- c(found, unconditional_types(bundle, value, schema_node(sub, node$base), branches))
   }
   if (!is.null(schema[["if"]])) {
     branch <- if (schema_valid(bundle, value, schema_node(schema[["if"]], node$base))) "then" else "else"
+    branches$found <- c(branches$found, branch)
     if (!is.null(schema[[branch]])) {
-      found <- c(found, unconditional_types(bundle, value, schema_node(schema[[branch]], node$base)))
+      found <- c(found, unconditional_types(bundle, value, schema_node(schema[[branch]], node$base),
+                                            branches))
     }
   }
   found
@@ -267,8 +272,9 @@ unconditional_types <- function(bundle, value, node) {
 
 # typed is TRUE for a node that apply_schema() reaches through $ref, allOf or
 # the branch of if: its unconditional types are among those of the node that
-# reached it, which the value already has, so they are not checked again.
-validate_schema_node <- function(bundle, value, node, pointer, typed = FALSE) {
+# reached it, which the value already has, so they are not checked again,
+# and its ifs take the branches that unconditional_types() recorded.
+validate_schema_node <- function(bundle, value, node, pointer, typed = FALSE, branches = NULL) {
   schema <- node$schema
   if (isTRUE(schema)) {
     return(list())
@@ -276,12 +282,17 @@ validate_schema_node <- function(bundle, value, node, pointer, typed = FALSE) {
   if (isFALSE(schema)) {
     return(list(raw_issue("E1423", pointer)))
   }
-  for (types in if (typed) list() else unconditional_types(bundle, value, node)) {
-    if (!any(vapply(types, function(type) has_json_type(value, type), NA))) {
-      return(list(raw_issue("E1401", pointer, list(expected = types, found = json_kind(value)))))
+  if (!typed) {
+    branches <- new.env(parent = emptyenv())
+    branches$found <- character(0)
+    branches$used <- 0L
+    for (types in unconditional_types(bundle, value, node, branches)) {
+      if (!any(vapply(types, function(type) has_json_type(value, type), NA))) {
+        return(list(raw_issue("E1401", pointer, list(expected = types, found = json_kind(value)))))
+      }
     }
   }
-  apply_schema(bundle, value, node, pointer)
+  apply_schema(bundle, value, node, pointer, branches)
 }
 
 # The title that E1406 and E1418 name: the node's own, or that of the first
@@ -297,7 +308,7 @@ schema_title <- function(bundle, node) {
   if (is.list(schema) && !is.null(schema[["title"]])) schema[["title"]] else "value of the required form"
 }
 
-apply_schema <- function(bundle, value, node, pointer) {
+apply_schema <- function(bundle, value, node, pointer, branches) {
   schema <- node$schema
   base <- node$base
   issues <- list()
@@ -305,19 +316,21 @@ apply_schema <- function(bundle, value, node, pointer) {
   if (!is.null(ref)) {
     target <- resolve_reference(bundle, ref, base)
     if (!target$ref %in% profile_definitions) {
-      issues <- c(issues, validate_schema_node(bundle, value, target, pointer, typed = TRUE))
+      issues <- c(issues, validate_schema_node(bundle, value, target, pointer, typed = TRUE,
+                                               branches = branches))
       issues <- c(issues, definition_issues(bundle, value, target, pointer))
     }
   }
   for (sub in schema[["allOf"]]) {
     issues <- c(issues, validate_schema_node(bundle, value, schema_node(sub, base), pointer,
-                                             typed = TRUE))
+                                             typed = TRUE, branches = branches))
   }
   if (!is.null(schema[["if"]])) {
-    branch <- if (schema_valid(bundle, value, schema_node(schema[["if"]], base))) "then" else "else"
+    branches$used <- branches$used + 1L
+    branch <- branches$found[branches$used]
     if (!is.null(schema[[branch]])) {
       issues <- c(issues, validate_schema_node(bundle, value, schema_node(schema[[branch]], base),
-                                               pointer, typed = TRUE))
+                                               pointer, typed = TRUE, branches = branches))
     }
   }
   if (!is.null(schema[["enum"]]) &&

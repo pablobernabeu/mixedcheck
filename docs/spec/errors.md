@@ -188,7 +188,7 @@ The rules that defs.schema.json states in descriptions are checked with these co
 | Code | Name | Raised when |
 |---|---|---|
 | E1311 | hash_key_invalid | a supplied commitment key is not 64 lower-case hexadecimal digits |
-| E1312 | hash_key_unavailable | a key must be created and no secure source of random bytes is available, which only R can raise, where neither /dev/urandom nor the package openssl is available |
+| E1312 | hash_key_unavailable | a key must be created and no secure source of random bytes is available, which only R can raise, when /dev/urandom cannot be read and the package openssl is not installed |
 | E1313 | hash_key_not_found | verification needs a key that the sidecar does not hold |
 | E1314 | hash_commitment_mismatch | the data do not match a recorded commitment |
 | E1315 | hash_key_in_shareable | a writer of a shareable file finds a commitment key in it |

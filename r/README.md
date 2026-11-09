@@ -7,10 +7,9 @@ of the same name. Each component is built in R first.
 
 The package is in development and has not been released. So far it provides
 `spec_versions()`, which returns the versions of the shared specification
-installed with the package, the layer that every reader and writer of the
-package builds on, the data layer of the audits, which reads tables and
-builds the canonical model and its design matrices, the entry point of the
-audits and the validator and writer of results documents:
+installed with the package, and the functions below. They read and write the
+shared formats, read tables, build the canonical model and its design
+matrices, run the audits and write and validate their results:
 
 - `read_json_strict()` reads JSON in the hashable or data profile and reports
   the first problem with a stable code.
@@ -46,10 +45,11 @@ The functions that both packages provide have the same names and arguments.
 indices inside the IR count from 0 in both, and a missing value is `NA` in R
 and `None` in Python. The tests run every case of the JSON, number, Unicode,
 hash, HMAC, declaration, YAML, table, formula, results and audit corpora,
-the cases of the privacy filter in both modes. The
+with the cases of the privacy filter in both modes. The
 [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
 of the repository checks that both packages agree on every case of the
-corpora.
+corpora that both implement. The Python package does not implement the
+audits and results documents yet (M2b-3).
 
 ``` r
 library(mixedcheck)

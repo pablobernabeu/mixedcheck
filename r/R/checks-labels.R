@@ -36,12 +36,7 @@ label_columns <- function(run) {
   ir <- run$ir
   categorical <- names(Filter(function(p) p$kind == "categorical", ir$predictors))
   assigned <- vapply(assignment_elements(declaration), function(element) element$column, "")
-  variables <- declaration[["variables"]]
-  named <- as.character(names(variables))
-  roles <- named[vapply(seq_along(named), function(i) {
-    identical(variables[[i]][["role"]], "assigned") &&
-      !declaration_inferred(declaration, json_pointer(c("variables", named[i], "role")))
-  }, NA)]
+  roles <- role_columns(declaration, "assigned")
   found <- c(run$grouping_columns, categorical,
              comparison_form(as.character(c(observation_key_columns(declaration), assigned, roles))))
   outcome <- c(ir$response$variable, ir$response$trials,

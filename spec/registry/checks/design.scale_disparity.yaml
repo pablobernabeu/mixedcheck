@@ -35,9 +35,11 @@ statistics:
       The largest standard deviation of those columns, with denominator n - 1,
       where n is the number of rows of the design sample. The standard
       deviation of a column whose values are all equal, compared by value, is
-      0. That of any other column is computed from its mean, summed exactly and
-      divided once as ir.md (Centring) computes means, as the square root of
-      the sum of the squared differences from the mean, divided by n - 1.
+      0. That of any other column is M times the standard deviation of the
+      column divided by its largest absolute value M, which keeps the squares
+      from overflowing or underflowing, computed from its mean, summed exactly
+      and divided once as ir.md (Centring) computes means, as the square root
+      of the sum of the squared differences from the mean, divided by n - 1.
   sd_smallest:
     kind: real
     definition: The smallest of those standard deviations.
@@ -49,7 +51,11 @@ statistics:
     definition: >-
       The ratio of the largest to the smallest singular value of the matrix of
       the fixed-effects columns that the sequential rule keeps, the intercept
-      included, each scaled to unit Euclidean length.
+      included, each divided by its largest absolute value and then scaled to
+      unit Euclidean length. The relative error of the smallest singular
+      value grows with the condition number, whatever the method, so the two
+      packages compare it within a tolerance that grows with its value
+      (conventions.md, Comparison across languages).
 thresholds:
   ratio:
     statistic: sd_ratio

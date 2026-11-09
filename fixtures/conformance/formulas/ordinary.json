@@ -1492,6 +1492,261 @@
           "z": [[1, 0], [1, 0], [1, 0], [0, 1], [0, 1], [0, 1]]
         }
       }
+    },
+    {
+      "id": "ordinary-40",
+      "description": "The response named as a sample column is read already and is left out of the IR's sample columns, so the row whose response is missing stays in the design sample, in X and in the mean centring constant.",
+      "formula": "y ~ x",
+      "data": {"y": [null, 2, 3, 4], "x": [10, 0.25, 0.5, 1.25]},
+      "coding": {"x": {"centring": "mean"}},
+      "sample_columns": ["y"],
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {
+              "kind": "numeric",
+              "centring": {
+                "rule": "mean",
+                "sample": "design",
+                "constant": {"significant_digits": 6, "value": "3"}
+              }
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:47212f6f64e97eee1a7b0728e3a46a20605abe598c8022e9aa443dd08cae47d4",
+        "matrices": {"rows": [0, 1, 2, 3], "x": [[1, 7], [1, -2.75], [1, -2.5], [1, -1.75]], "x_dropped": []}
+      }
+    },
+    {
+      "id": "ordinary-41",
+      "description": "A row with 0 trials leaves the analysis sample but stays in the design sample, which gives the rows of X.",
+      "formula": "k ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "data": {"k": [1, 0, 2, 1], "n": [3, 0, 4, 2], "x": [1, 2, 3, 4]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "k", "transform": "identity", "trials": "n"}
+        },
+        "ir_hash": "sha256:21f72da72da4f25c4fa296e5b770fd1c790e1e1318f690ff2911385f05879380",
+        "matrices": {"rows": [0, 1, 2, 3], "x": [[1, 1], [1, 2], [1, 3], [1, 4]], "x_dropped": []}
+      }
+    },
+    {
+      "id": "ordinary-42",
+      "description": "A trials column that is also a predictor counts as read, so a row in which it is missing leaves the design sample and the mean centring constant.",
+      "formula": "k ~ n",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "data": {"k": [1, 2, 3], "n": [null, 4, 5]},
+      "coding": {"n": {"centring": "mean"}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "n": {
+              "kind": "numeric",
+              "centring": {
+                "rule": "mean",
+                "sample": "design",
+                "constant": {"significant_digits": 6, "value": "4.5"}
+              }
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "n", "variables": [{"variable": "n"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "n", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "k", "transform": "identity", "trials": "n"}
+        },
+        "ir_hash": "sha256:cfcac6716731966e4800c6bdf34f9de5a0644eb4d4c8ea3dbc9469e941133bcf",
+        "matrices": {"rows": [1, 2], "x": [[1, -0.5], [1, 0.5]], "x_dropped": []}
+      }
+    },
+    {
+      "id": "ordinary-43",
+      "description": "A number with an integral value counts as an integer, so significant_digits 6.0 gives the same IR as ordinary-17.",
+      "formula": "y ~ x",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 4]},
+      "coding": {"x": {"centring": "mean", "significant_digits": 6.0}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {
+              "kind": "numeric",
+              "centring": {
+                "rule": "mean",
+                "sample": "design",
+                "constant": {"significant_digits": 6, "value": "2.33333"}
+              }
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:1df4e23fb584d211b6a23ca30d158fd2d05e621437f814a12483d4f5365e03e9"
+      }
+    },
+    {
+      "id": "ordinary-44",
+      "description": "Categories given as objects give their values as levels, in declared order, and the first is the reference.",
+      "formula": "y ~ cond",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {
+              "name": "cond",
+              "type": "string",
+              "categories": [{"value": "B", "label": "second"}, {"value": "A", "label": "first"}]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["B", "A"],
+              "levels_source": "declared",
+              "contrast": "treatment",
+              "reference": "B"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[A]", "term": 1, "levels": {"cond": "A"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:375c28f109c57c68afc26818f7df7a74d3736d50264bdbc5c78618f843fbc78a"
+      }
+    },
+    {
+      "id": "ordinary-45",
+      "description": "The centring value '0' has 1 significant digit and leaves the column as it is.",
+      "formula": "y ~ x",
+      "data": {"y": [1.5, 2.25, 3], "x": [1, 2, 4]},
+      "coding": {"x": {"centring": "value", "value": "0"}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {
+              "kind": "numeric",
+              "centring": {"rule": "value", "constant": {"significant_digits": 1, "value": "0"}}
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:78c2725ba43f4f1dd003b7b66f717b9371062371e94cf5da82643453fdf6844e",
+        "matrices": {"rows": [0, 1, 2], "x": [[1, 1], [1, 2], [1, 4]], "x_dropped": []}
+      }
+    },
+    {
+      "id": "ordinary-46",
+      "description": "A response of integers without categories may have a declared event level, which the IR records as an integer.",
+      "formula": "k ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "k", "type": "integer"}, {"name": "x", "type": "number"}]},
+        "variables": {"k": {"role": "outcome", "measurement": "binary", "event_level": 1}}
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "k", "transform": "identity", "event_level": 1}
+        },
+        "ir_hash": "sha256:d2bc9bdfa464a01c0f76433f1ea715b2c85da2f273a51ef78d60e044a1607a90"
+      }
     }
   ]
 }

@@ -40,6 +40,10 @@ Changelog = "https://github.com/pablobernabeu/lmecheck/blob/main/python/CHANGELO
 
 [dependency-groups]
 test = ["pytest>=8.0"]
+# mypy with the type hints that numpy ships and the stubs of pandas and scipy,
+# which ship none, so that the hints of the package are checked against those
+# of its dependencies. CI installs the lowest versions, the declared floors.
+typing = ["mypy>=2.4.1", "numpy>=2.3", "pandas-stubs>=2.3", "scipy-stubs>=1.15"]
 
 [tool.hatch.version]
 path = "src/mixedcheck/__init__.py"

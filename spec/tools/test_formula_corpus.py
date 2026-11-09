@@ -62,6 +62,9 @@ CASE_MEMBERS = {
     "expected",
 }
 SAME_IR = re.compile(r"same IR as ([a-z_-]+-[0-9]{2})")
+SPECIAL_VALUES = {"NaN", "Infinity", "-Infinity"}
+# The codes that the builder of the design matrices reports for an IR.
+MATRIX_CODES = {"E6071", "E6072", "E6073", "E6077"}
 PLACEHOLDER = re.compile(r"\{([a-z_]+)\}")
 
 
@@ -118,6 +121,17 @@ def _kind(value: Any) -> str:
     return type(value).__name__
 
 
+def _column_kinds(column: list[Any]) -> set[str]:
+    """The kinds of the values of a data column. In a column with a number,
+    the strings 'NaN', 'Infinity' and '-Infinity' are the special values."""
+    kinds = {_kind(value) for value in column if value is not None}
+    if "number" in kinds:
+        specials = {value for value in column if isinstance(value, str)}
+        if specials <= SPECIAL_VALUES:
+            kinds.discard("str")
+    return kinds
+
+
 class FormulaCorpusTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -151,13 +165,22 @@ class FormulaCorpusTestCase(unittest.TestCase):
                 seen.add(case["id"])
                 expected = case["expected"]
                 self.assertIn(
-                    set(expected), ({"ir", "ir_hash"}, {"ir", "ir_hash", "matrices"}, {"issue"})
+                    set(expected),
+                    (
+                        {"ir", "ir_hash"},
+                        {"ir", "ir_hash", "matrices"},
+                        {"ir", "ir_hash", "issue"},
+                        {"issue"},
+                    ),
                 )
+                if "ir" in expected and "issue" in expected:
+                    self.assertIn("data", case)
+                    self.assertIn(expected["issue"]["code"], MATRIX_CODES)
                 if "data" in case:
                     lengths = {len(column) for column in case["data"].values()}
                     self.assertEqual(len(lengths), 1, "columns differ in length")
                     for column in case["data"].values():
-                        kinds = {_kind(value) for value in column if value is not None}
+                        kinds = _column_kinds(column)
                         self.assertEqual(len(kinds), 1, "a column mixes kinds or is all null")
 
     def test_declarations(self) -> None:

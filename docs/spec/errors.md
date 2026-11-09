@@ -356,6 +356,7 @@ The builder of the IR reports one issue, the first that its stages find, with a 
 | E6035 | formula_random_term_duplicate | a random term repeats an earlier one |
 | E6036 | formula_offset_duplicate | an offset repeats an earlier one |
 | E6037 | formula_empty_expression | an expression in parentheses leaves no term |
+| E6038 | formula_too_many_terms | an operator or a sum would give more than 10,000 terms |
 | E6051 | formula_unknown_column | a name is not a column of the data, or of the declared table without data |
 | E6052 | formula_column_type | a column has a kind that its use does not allow |
 | E6053 | formula_double_bar_categorical | a random term with '\|\|' contains a categorical column |
@@ -378,6 +379,10 @@ The builder of the IR reports one issue, the first that its stages find, with a 
 | E6071 | formula_log_not_positive | log() meets a value that is not positive |
 | E6072 | formula_weights_not_positive | a weight is not positive |
 | E6073 | formula_nonfinite_value | a numeric column that a sample reads holds NaN or an infinity |
+| E6074 | formula_level_label | a level of a categorical predictor contains a control character or a character that Unicode 14.0 does not assign |
+| E6075 | formula_too_many_columns | the fixed part or a random term would have more than 10,000 columns |
+| E6076 | formula_name_too_long | a name of the IR would have more than 10,000 characters |
+| E6077 | formula_nonfinite_result | a centring constant, a centred value or a product in the design matrices is not finite |
 | E6101 | formula_ir_inconsistent | an IR document differs from what its own predictors and terms define |
 
 ### results

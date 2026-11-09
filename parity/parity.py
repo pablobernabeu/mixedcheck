@@ -20,7 +20,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
+import struct
 import subprocess
 import sys
 import tempfile
@@ -66,7 +68,7 @@ def canonical_outcome(expected: dict[str, Any]) -> dict[str, Any]:
     return outcome
 
 
-def expected_parts(kind: str, case: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def expected_parts(kind: str, case: dict[str, Any]) -> dict[str, dict[str, Any] | None]:
     """The expected outcome of each part of a case, by the format of its
     corpus (fixtures/conformance/*/README.md)."""
     expected = case["expected"]
@@ -96,7 +98,108 @@ def expected_parts(kind: str, case: dict[str, Any]) -> dict[str, dict[str, Any]]
         if "issues" in expected:
             return {"value": {"issues": expected["issues"]}}
         return {"value": canonical_outcome(expected)}
+    if kind == "table":
+        return expected_table(case)
+    if kind == "formula":
+        return expected_formula(case)
     raise HarnessError(f"Unknown kind of corpus '{kind}'.")
+
+
+def double_bits(value: float) -> str:
+    """The 16 hexadecimal digits of the bits of a double, with negative zero
+    as zero."""
+    return struct.pack(">d", value + 0.0).hex()
+
+
+def real_value(value: Any) -> str:
+    """A number of a corpus as the runners write a double: the bits of the
+    nearest double, or 'NaN', 'Infinity' or '-Infinity' as the data profile
+    writes them."""
+    if isinstance(value, str):
+        return value
+    return double_bits(float(value))
+
+
+def expected_table(case: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The read table and, for a case with a formula, the samples
+    (fixtures/conformance/tables/README.md). A value of a number column is
+    compared by its bits, with negative zero as zero."""
+    expected = case["expected"]
+    if "issue" in expected:
+        return {"value": {"issues": [expected["issue"]]}}
+    columns = []
+    for column in expected["columns"]:
+        number = column["type"] == "number"
+        values = [
+            real_value(value) if number and value is not None else value
+            for value in column["values"]
+        ]
+        columns.append({"name": column["name"], "type": column["type"], "values": values})
+    parts: dict[str, dict[str, Any]] = {"value": {"columns": columns}}
+    if "formula" in case:
+        parts["samples"] = {
+            "design_sample": expected["design_sample"],
+            "analysis_sample": expected["analysis_sample"],
+        }
+    return parts
+
+
+def expected_formula(case: dict[str, Any]) -> dict[str, dict[str, Any] | None]:
+    """The IR with its hash and, for a case with matrices, the design
+    matrices, compared bit for bit, and the response, trials, offset and
+    weight vectors, which the corpus does not give and which are compared
+    across languages within the tolerance of real values, or, for a case with
+    an issue beside its IR, the issue that the design matrices report
+    (fixtures/conformance/formulas/README.md)."""
+    expected = case["expected"]
+    if "ir" not in expected:
+        return {"ir": {"issues": [expected["issue"]]}}
+    ir = canonical_json(expected["ir"])
+    digest = "sha256:" + hashlib.sha256(ir).hexdigest()
+    if digest != expected["ir_hash"]:
+        raise HarnessError(f"The IR of {case['id']} does not have its stated hash.")
+    parts: dict[str, dict[str, Any] | None] = {"ir": {"canonical": ir, "sha256": digest}}
+    if "issue" in expected:
+        # The issue that the design matrices report for the IR.
+        parts["matrices"] = {"issues": [expected["issue"]]}
+        return parts
+    matrices = expected.get("matrices")
+    if matrices is None:
+        return parts
+    rows = matrices["rows"]
+    widths = sum(len(term["columns"]) for term in expected["ir"]["random"])
+    parts["matrices"] = {
+        "rows": rows,
+        "x": [[real_value(value) for value in row] for row in matrices["x"]],
+        "x_columns": [column["name"] for column in expected["ir"]["fixed"]["columns"]],
+        "x_dropped": matrices["x_dropped"],
+        "z": [[real_value(value) for value in row] for row in matrices.get("z", [[]] * len(rows))],
+        "z_columns": matrices.get("z_columns", []),
+        "z_stored": len(rows) * widths,
+    }
+    parts["vectors"] = None
+    return parts
+
+
+def canonical_json(value: Any) -> bytes:
+    """The canonical bytes of RFC 8785 for a value without numbers other than
+    integers, such as an IR: members sorted by the UTF-16 code units of their
+    keys and strings escaped as RFC 8785 requires."""
+    if value is None or isinstance(value, bool):
+        return json.dumps(value).encode("ascii")
+    if isinstance(value, int):
+        if abs(value) > 2**53 - 1:
+            raise HarnessError(f"The integer {value} is outside the range of the profiles.")
+        return str(value).encode("ascii")
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False).encode("utf-8", "surrogatepass")
+    if isinstance(value, list):
+        return b"[" + b",".join(canonical_json(item) for item in value) + b"]"
+    if isinstance(value, dict):
+        keys = sorted(value, key=lambda key: key.encode("utf-16-be", "surrogatepass"))
+        members = [canonical_json(key) + b":" + canonical_json(value[key]) for key in keys]
+        return b"{" + b",".join(members) + b"}"
+    raise HarnessError(f"The canonical form of {value!r} is not computed by the harness.")
 
 
 def expected_artefacts(artefacts: list[str]) -> dict[tuple[str, str], dict[str, Any] | None]:
@@ -261,6 +364,42 @@ def words(items: list[str]) -> str:
     return ", ".join(items[:-1]) + " and " + items[-1]
 
 
+# Real values, the members under the key 'reals' of an outcome, are compared
+# within the tolerance of conventions.md (Comparison across languages).
+ABSOLUTE = 1e-12
+RELATIVE = 1e-9
+
+
+def real(value: str) -> float | str:
+    """A real value as a runner encodes it: the hexadecimal digits of the
+    bits of a double, or of 'NaN', 'Infinity' or '-Infinity'."""
+    shown = bytes.fromhex(value).decode("ascii")
+    if shown in ("NaN", "Infinity", "-Infinity"):
+        return shown
+    return float(struct.unpack(">d", bytes.fromhex(shown))[0])
+
+
+def reals_agree(x: str, y: str) -> bool:
+    a, b = real(x), real(y)
+    if isinstance(a, str) or isinstance(b, str):
+        return a == b
+    return math.fabs(a - b) <= ABSOLUTE + RELATIVE * max(math.fabs(a), math.fabs(b))
+
+
+def agree(a: Any, b: Any, reals: bool = False) -> bool:
+    """Whether two outcomes are the same: equal, except that real values
+    match within the tolerance."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(
+            agree(a[key], b[key], reals or key == "reals") for key in a
+        )
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(agree(x, y, reals) for x, y in zip(a, b, strict=True))
+    if reals and isinstance(a, str) and isinstance(b, str):
+        return reals_agree(a, b)
+    return type(a) is type(b) and a == b
+
+
 class Report:
     def __init__(self, runs: list[tuple[dict[str, Any], dict[tuple[Any, Any, Any], Any]]]) -> None:
         self.runs = runs
@@ -298,14 +437,14 @@ class Report:
         groups: list[tuple[dict[str, Any] | None, list[str]]] = []
         for name, outcome in outcomes.items():
             for found, names in groups:
-                if found == outcome:
+                if agree(found, outcome):
                     names.append(name)
                     break
             else:
                 groups.append((outcome, [name]))
         problems = []
         if expected is not None:
-            wrong = [name for name, outcome in outcomes.items() if outcome != expected]
+            wrong = [name for name, outcome in outcomes.items() if not agree(outcome, expected)]
             if wrong:
                 verb = "differs" if len(wrong) == 1 else "differ"
                 problems.append(f"{words(wrong)} {verb} from the expected outcome")
@@ -323,7 +462,7 @@ class Report:
             lines += ["expected:"] + [f"  {line}" for line in show(expected)]
         reference = expected if expected is not None else groups[0][0]
         for outcome, names in groups:
-            if expected is not None and outcome == expected:
+            if expected is not None and agree(outcome, expected):
                 lines.append(f"{words(names)}: as expected")
                 continue
             lines += [f"{words(names)}:"] + [f"  {line}" for line in show(outcome)]
@@ -476,12 +615,17 @@ def print_summary(rows: list[Row], runs: list[str]) -> None:
     pending = sum(row.cases for row in rows if row.pending)
     corpora = [row for row in active if row.name != FILES]
     files = [row for row in active if row.name == FILES]
+    waiting = (
+        f" {pending} cases wait for the milestone that implements what they test."
+        if pending
+        else ""
+    )
     print(
         f"\n{sum(row.cases for row in corpora)} cases were run, "
         f"{sum(row.shared for row in corpora)} of them in both languages, "
         f"with {sum(row.parts for row in corpora)} outcomes compared. "
-        f"The vendored files of spec/ gave {sum(row.parts for row in files)} outcomes. "
-        f"{pending} cases wait for the milestone that implements what they test."
+        f"The vendored files of spec/ gave {sum(row.parts for row in files)} outcomes."
+        f"{waiting}"
     )
 
 

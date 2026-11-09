@@ -7,9 +7,18 @@ import doctest
 import pytest
 
 import mixedcheck
-from mixedcheck import _declaration, _hash, _json_read, _json_write, _registry
+from mixedcheck import (
+    _declaration,
+    _design,
+    _formula_ir,
+    _hash,
+    _json_read,
+    _json_write,
+    _registry,
+    _table,
+)
 
-MODULES = [_declaration, _hash, _json_read, _json_write, _registry]
+MODULES = [_declaration, _design, _formula_ir, _hash, _json_read, _json_write, _registry, _table]
 
 
 @pytest.mark.parametrize("module", MODULES, ids=[module.__name__ for module in MODULES])

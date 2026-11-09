@@ -16,6 +16,7 @@ corpora with the package's own strict reader, as the package tests do.
 from __future__ import annotations
 
 import json
+import math
 import platform
 import struct
 import sys
@@ -33,11 +34,15 @@ from mixedcheck import (
     canonical_bytes,
     canonical_hash,
     commitment_key_id,
+    design_matrices,
+    design_samples,
+    formula_ir,
     hash_bytes,
     hash_file,
     keyed_commitment,
     read_json_strict,
     read_registry,
+    read_table,
     spec_versions,
     validate_declaration,
 )
@@ -291,6 +296,188 @@ def run_declaration(case: dict[str, Any], context: dict[str, Any]) -> dict[str, 
     return {"value": outcome_of(compute)}
 
 
+# Cases of tables/.
+
+
+def table_path(case: dict[str, Any], context: dict[str, Any]) -> str:
+    if "path" in case:
+        return str(context["directory"] / case["path"])
+    if case["file"] == "missing":
+        return str(context["scratch"] / "mixedcheck-no-such-file.csv")
+    if case["file"] == "directory":
+        return str(context["scratch"])
+    raise ValueError(f"Unknown file case '{case['file']}'.")
+
+
+def real_value(value: float) -> str:
+    """A double as the 16 hexadecimal digits of its bits, with negative zero
+    as zero, or as 'NaN', 'Infinity' or '-Infinity'."""
+    if math.isnan(value):
+        return "NaN"
+    if math.isinf(value):
+        return "Infinity" if value > 0 else "-Infinity"
+    return double_bits(value + 0.0)
+
+
+def real_values(values: Any) -> list[str]:
+    return [real_value(float(value)) for value in values]
+
+
+def column_value(value: Any) -> Any:
+    """A value of a column as the table corpus writes it, by its type: None
+    as null, strings and booleans as themselves, an int as an integer and a
+    float as its bits (real_value())."""
+    if value is None or isinstance(value, bool | int | str):
+        return value
+    if isinstance(value, float):
+        return real_value(value)
+    raise UnexpectedOutcome(f"a column holds a value of the type {type(value).__name__}")
+
+
+def table_columns(frame: Any) -> list[dict[str, Any]]:
+    """The columns of a DataFrame that read_table() returned, in order, each
+    with its name, its type and its values. Every column must have dtype
+    object, and the keys of attrs['types'] must be the column names."""
+    names = list(frame.columns)
+    types = frame.attrs.get("types")
+    if not isinstance(types, dict) or list(types) != names:
+        raise UnexpectedOutcome("attrs['types'] does not name the columns in order")
+    columns = []
+    for position, name in enumerate(names):
+        series = frame.iloc[:, position]
+        if series.dtype.kind != "O":
+            raise UnexpectedOutcome(f"the column '{name}' has the dtype {series.dtype}")
+        values = [column_value(value) for value in series.tolist()]
+        columns.append({"name": name, "type": types[name], "values": values})
+    return columns
+
+
+def rows_from_0(rows: Any) -> list[int]:
+    """Row positions, which Python counts from 0 as the corpora do."""
+    return [int(row) for row in rows]
+
+
+def run_table(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    path = table_path(case, context)
+    read: list[Any] = []
+
+    def columns() -> dict[str, Any]:
+        read.append(read_table(path, case.get("declaration")))
+        return {"columns": table_columns(read[0])}
+
+    outcomes = {"value": outcome_of(columns)}
+    if "formula" in case:
+
+        def samples() -> dict[str, Any]:
+            if not read:
+                raise UnexpectedOutcome("the table was not read")
+            ir = formula_ir(case["formula"], case.get("declaration"), read[0])
+            samples = design_samples(ir, read[0])
+            return {
+                "design_sample": rows_from_0(samples["design_sample"]),
+                "analysis_sample": rows_from_0(samples["analysis_sample"]),
+            }
+
+        outcomes["samples"] = outcome_of(samples)
+    return outcomes
+
+
+# Cases of formulas/.
+
+
+SPECIAL_VALUES = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+
+
+def formula_data_frame(data: dict[str, list[Any]]) -> Any:
+    """The DataFrame of a formula case, as read_table() returns a table: one
+    column of dtype object for each member of its data, with None for null
+    and the strings 'NaN', 'Infinity' and '-Infinity' of a column of numbers as
+    the special values."""
+    import pandas
+
+    columns = {}
+    for name, values in data.items():
+        numbers = any(isinstance(v, int | float) and not isinstance(v, bool) for v in values)
+        if numbers:
+            values = [SPECIAL_VALUES[v] if isinstance(v, str) else v for v in values]
+        columns[name] = pandas.Series(values, dtype=object)
+    return pandas.DataFrame(columns)
+
+
+def matrices_outcome(m: dict[str, Any]) -> dict[str, Any]:
+    """The design matrices as the formula corpus writes them, with the number
+    of entries that Z stores."""
+    from scipy import sparse
+
+    z = m["z"]
+    if not isinstance(z, sparse.csc_array):
+        raise UnexpectedOutcome("Z is not a scipy.sparse.csc_array")
+    described = m["z_columns"]
+    return {
+        "rows": rows_from_0(m["design_sample"]),
+        "x": [real_values(row) for row in m["x"].tolist()],
+        "x_columns": list(m["x_columns"]),
+        "x_dropped": list(m["x_dropped"]),
+        "z": [real_values(row) for row in z.toarray().tolist()],
+        "z_columns": [
+            {"term": int(term), "level": level, "column": column}
+            for term, level, column in zip(
+                described["term"].tolist(),
+                described["level"].tolist(),
+                described["column"].tolist(),
+                strict=True,
+            )
+        ],
+        "z_stored": int(z.nnz),
+    }
+
+
+def run_formula(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    data = formula_data_frame(case["data"]) if "data" in case else None
+    built: list[Any] = []
+
+    def ir() -> dict[str, Any]:
+        built.append(
+            formula_ir(
+                case["formula"],
+                case.get("declaration"),
+                data,
+                case.get("coding"),
+                case.get("weights"),
+                case.get("sample_columns"),
+            )
+        )
+        return canonical(built[0], "hashable")
+
+    outcomes = {"ir": outcome_of(ir)}
+    expected = case["expected"]
+    # The design matrices, or the issue that they report beside the IR.
+    if "matrices" not in expected and not ("ir" in expected and "issue" in expected):
+        return outcomes
+    matrices: list[dict[str, Any]] = []
+
+    def design() -> dict[str, Any]:
+        if not built:
+            raise UnexpectedOutcome("formula_ir() gave no IR")
+        matrices.append(design_matrices(built[0], data))
+        return matrices_outcome(matrices[0])
+
+    def vectors() -> dict[str, Any]:
+        if not matrices:
+            raise UnexpectedOutcome("design_matrices() gave no matrices")
+        names = ("response", "trials", "offset", "weights")
+        reals = {
+            name: None if matrices[0][name] is None else real_values(matrices[0][name])
+            for name in names
+        }
+        return {"reals": reals}
+
+    outcomes["matrices"] = outcome_of(design)
+    if "matrices" in expected:
+        outcomes["vectors"] = outcome_of(vectors)
+    return outcomes
+
+
 RUNNERS: dict[str, Callable[[dict[str, Any], dict[str, Any]], dict[str, dict[str, Any]]]] = {
     "json": run_json,
     "decimal": run_decimal,
@@ -301,6 +488,8 @@ RUNNERS: dict[str, Callable[[dict[str, Any], dict[str, Any]], dict[str, dict[str
     "hmac": run_hmac,
     "commitment": run_commitment,
     "declaration": run_declaration,
+    "table": run_table,
+    "formula": run_formula,
 }
 
 

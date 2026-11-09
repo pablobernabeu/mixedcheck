@@ -540,10 +540,7 @@ json_values <- function(lexed, structure, profile) {
   number_text <- lexed$word_text[lexed$word_index[numbers]]
   number_value <- numeric(0)
   if (length(numbers)) {
-    number_value <- as.double(jsonlite::parse_json(
-      paste0("[", paste(number_text, collapse = ","), "]"),
-      simplifyVector = TRUE
-    ))
+    number_value <- json_number_values(number_text)
     if (profile == "hashable") {
       number_code <- hashable_token_codes(number_text)
     } else {

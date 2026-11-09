@@ -294,6 +294,199 @@ run_declaration <- function(case, context) {
   }))
 }
 
+# Cases of tables/ ---------------------------------------------------------
+
+table_path <- function(case, context) {
+  if (!is.null(case[["path"]])) {
+    return(file.path(context$directory, case[["path"]]))
+  }
+  switch(case[["file"]],
+    missing = file.path(context$scratch, "mixedcheck-no-such-file.csv"),
+    directory = context$scratch,
+    stop("Unknown file case '", case[["file"]], "'.", call. = FALSE)
+  )
+}
+
+# Strings that a package function returned, which must be marked UTF-8 when
+# they are not ASCII.
+marked_strings <- function(x, what) {
+  unmarked <- !is.na(x) & Encoding(x) != "UTF-8" &
+    grepl("[^\\x01-\\x7F]", x, useBytes = TRUE, perl = TRUE)
+  if (any(unmarked)) {
+    unexpected(paste(what, "holds a string that is not marked UTF-8"))
+  }
+  x
+}
+
+# A double as the 16 hexadecimal digits of its bits, with negative zero as
+# zero, or as 'NaN', 'Infinity' or '-Infinity', and NA as null.
+real_value <- function(v) {
+  if (is.nan(v)) {
+    return("NaN")
+  }
+  if (is.na(v)) {
+    return(NULL)
+  }
+  if (is.infinite(v)) {
+    return(if (v > 0) "Infinity" else "-Infinity")
+  }
+  mixedcheck:::double_bits(v + 0)
+}
+
+real_values <- function(v) lapply(as.double(v), real_value)
+
+# The values of a column as the table corpus writes them, by the class of the
+# column: NA as null, strings and booleans as themselves, the doubles of an
+# integer column that are integers as integers and every other double as its
+# bits (real_value()).
+column_values <- function(values, type, name) {
+  if (is.character(values)) {
+    values <- marked_strings(values, paste0("the column '", name, "'"))
+    return(lapply(values, function(v) if (is.na(v)) NULL else v))
+  }
+  if (is.logical(values)) {
+    return(lapply(values, function(v) if (is.na(v)) NULL else v))
+  }
+  if (is.double(values)) {
+    return(lapply(values, function(v) {
+      if (identical(type, "integer") && is.finite(v) && v == round(v)) v + 0 else real_value(v)
+    }))
+  }
+  unexpected(paste0("the column '", name, "' is of class ", class(values)[1L]))
+}
+
+# The columns of a table that read_table() returned, in order, each with its
+# name, its type and its values. The names of the attribute 'types' must be
+# the column names.
+table_columns <- function(table) {
+  if (!is.data.frame(table)) {
+    unexpected("read_table() did not return a data frame")
+  }
+  names <- marked_strings(names(table), "the column names")
+  types <- attr(table, "types")
+  if (!is.character(types) || !identical(names(types), names)) {
+    unexpected("the attribute 'types' does not name the columns in order")
+  }
+  lapply(seq_along(table), function(j) {
+    list(name = names[j], type = unname(types[j]),
+         values = column_values(table[[j]], types[[j]], names[j]))
+  })
+}
+
+# Rows of the data as row positions counted from 0, as the corpora count them.
+rows_from_0 <- function(rows) as.list(as.integer(rows) - 1L)
+
+run_table <- function(case, context) {
+  path <- table_path(case, context)
+  table <- NULL
+  outcomes <- list(value = outcome_of(function() {
+    table <<- read_table(path, case[["declaration"]])
+    list(columns = table_columns(table))
+  }))
+  if (!is.null(case[["formula"]])) {
+    outcomes$samples <- outcome_of(function() {
+      if (is.null(table)) {
+        unexpected("the table was not read")
+      }
+      ir <- formula_ir(case[["formula"]], case[["declaration"]], table)
+      samples <- design_samples(ir, table)
+      list(design_sample = rows_from_0(samples$design_sample),
+           analysis_sample = rows_from_0(samples$analysis_sample))
+    })
+  }
+  outcomes
+}
+
+# Cases of formulas/ -------------------------------------------------------
+
+# The data frame of a formula case, as the package tests build it: one column
+# for each member of its data, numeric, character or logical, with NA for
+# null and the strings 'NaN', 'Infinity' and '-Infinity' of a numeric column
+# as the special values.
+formula_data_frame <- function(data) {
+  special <- c("NaN" = NaN, "Infinity" = Inf, "-Infinity" = -Inf)
+  columns <- lapply(data, function(values) {
+    present <- Filter(Negate(is.null), values)
+    # A column with a number is numeric, and its strings are special values.
+    if (any(vapply(present, is.numeric, NA))) {
+      return(vapply(values, function(v) {
+        if (is.null(v)) NA_real_ else if (is.character(v)) special[[v]] else v
+      }, 0))
+    }
+    if (is.character(present[[1L]])) {
+      return(vapply(values, function(v) if (is.null(v)) NA_character_ else v, ""))
+    }
+    vapply(values, function(v) if (is.null(v)) NA else v, NA)
+  })
+  frame <- list2DF(unname(columns))
+  names(frame) <- names(data)
+  frame
+}
+
+matrix_rows <- function(m) {
+  lapply(seq_len(nrow(m)), function(i) real_values(m[i, , drop = TRUE]))
+}
+
+# The design matrices as the formula corpus writes them, with the number of
+# entries that Z stores.
+matrices_outcome <- function(m) {
+  if (!methods::is(m$z, "dgCMatrix")) {
+    unexpected("Z is not a dgCMatrix")
+  }
+  if (!identical(as.character(colnames(m$x)), m$x_columns)) {
+    unexpected("the column names of X are not x_columns")
+  }
+  described <- m$z_columns
+  list(
+    rows = rows_from_0(m$design_sample),
+    x = matrix_rows(m$x),
+    x_columns = as.list(marked_strings(m$x_columns, "x_columns")),
+    x_dropped = as.list(marked_strings(m$x_dropped, "x_dropped")),
+    z = matrix_rows(as.matrix(m$z)),
+    z_columns = lapply(seq_len(nrow(described)), function(i) {
+      list(term = described$term[i] - 1L,
+           level = marked_strings(described$level[i], "z_columns"),
+           column = marked_strings(described$column[i], "z_columns"))
+    }),
+    z_stored = length(m$z@x)
+  )
+}
+
+run_formula <- function(case, context) {
+  data <- if (!is.null(case[["data"]])) formula_data_frame(case[["data"]])
+  ir <- NULL
+  outcomes <- list(ir = outcome_of(function() {
+    ir <<- formula_ir(case[["formula"]], case[["declaration"]], data, case[["coding"]],
+                      case[["weights"]], as.character(unlist(case[["sample_columns"]])))
+    canonical(ir, "hashable")
+  }))
+  expected <- case[["expected"]]
+  # The design matrices, or the issue that they report beside the IR.
+  if (is.null(expected[["matrices"]]) && (is.null(expected[["ir"]]) || is.null(expected[["issue"]]))) {
+    return(outcomes)
+  }
+  matrices <- NULL
+  outcomes$matrices <- outcome_of(function() {
+    if (is.null(ir)) {
+      unexpected("formula_ir() gave no IR")
+    }
+    matrices <<- design_matrices(ir, data)
+    matrices_outcome(matrices)
+  })
+  if (is.null(expected[["matrices"]])) {
+    return(outcomes)
+  }
+  outcomes$vectors <- outcome_of(function() {
+    if (is.null(matrices)) {
+      unexpected("design_matrices() gave no matrices")
+    }
+    vectors <- lapply(matrices[c("response", "trials", "offset", "weights")],
+                      function(v) if (!is.null(v)) real_values(v))
+    list(reals = vectors)
+  })
+  outcomes
+}
+
 runners <- list(
   json = run_json,
   decimal = run_decimal,
@@ -303,7 +496,9 @@ runners <- list(
   section = run_section,
   hmac = run_hmac,
   commitment = run_commitment,
-  declaration = run_declaration
+  declaration = run_declaration,
+  table = run_table,
+  formula = run_formula
 )
 
 # Reads each vendored file of spec/ installed with the package in the data

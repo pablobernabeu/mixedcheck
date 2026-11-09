@@ -1648,6 +1648,14 @@
       "args": {}
     },
     {
+      "code": "E6038",
+      "name": "formula_too_many_terms",
+      "area": "formula",
+      "location": "offset",
+      "template": "The operator at {location} would give more than 10000 terms.",
+      "args": {}
+    },
+    {
       "code": "E6051",
       "name": "formula_unknown_column",
       "area": "formula",
@@ -1870,6 +1878,46 @@
       "area": "formula",
       "location": "none",
       "template": "The column '{column}' holds NaN or an infinity in a row that the model uses.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6074",
+      "name": "formula_level_label",
+      "area": "formula",
+      "location": "offset",
+      "template": "A level of the categorical column '{column}' at {location} contains a control character or a character that Unicode 14.0 does not assign, so the IR cannot hold it.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
+      "code": "E6075",
+      "name": "formula_too_many_columns",
+      "area": "formula",
+      "location": "none",
+      "template": "The {part} would have more than 10000 columns.",
+      "args": {
+        "part": "text"
+      }
+    },
+    {
+      "code": "E6076",
+      "name": "formula_name_too_long",
+      "area": "formula",
+      "location": "none",
+      "template": "The name '{name}' of the IR would have more than 10000 characters.",
+      "args": {
+        "name": "text"
+      }
+    },
+    {
+      "code": "E6077",
+      "name": "formula_nonfinite_result",
+      "area": "formula",
+      "location": "none",
+      "template": "A value computed for '{column}' is not finite.",
       "args": {
         "column": "text"
       }

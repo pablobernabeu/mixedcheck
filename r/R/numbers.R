@@ -448,6 +448,17 @@ format_number <- function(x) {
   format_numbers(as.double(x), FALSE)$text
 }
 
+# Converts number tokens, which match the number grammar of RFC 8259, to the
+# nearest doubles, rounding ties to even (conventions.md, Numbers). jsonlite's
+# parser rounds correctly, whereas as.numeric() does not.
+json_number_values <- function(tokens) {
+  if (!length(tokens)) {
+    return(numeric(0))
+  }
+  as.double(jsonlite::parse_json(paste0("[", paste(tokens, collapse = ","), "]"),
+                                 simplifyVector = TRUE))
+}
+
 # Classifies number tokens, which match the number grammar of RFC 8259, by the
 # rules of the hashable profile. Returns NA for an accepted token, or E1102 for
 # an integer outside the range, E1103 for a non-integer with more than 15

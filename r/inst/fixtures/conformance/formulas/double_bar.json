@@ -959,6 +959,19 @@
           "offset": 19
         }
       }
+    },
+    {
+      "id": "double-bar-22",
+      "description": "A coding entry with 'frozen' exactly true exempts its column from E6053 whatever else it holds, so the invalid contrast is reported with E6063.",
+      "formula": "y ~ (1 + a || g)",
+      "data": {"y": [1, 2, 3, 4], "a": ["A1", "A2", "A1", "A2"], "g": ["g1", "g1", "g2", "g2"]},
+      "coding": {"a": {"frozen": true, "contrast": "helmert"}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'a' has an unknown member, an invalid value or a missing value at 'contrast'."
+        }
+      }
     }
   ]
 }

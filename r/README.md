@@ -7,8 +7,9 @@ of the same name. Each component is built in R first.
 
 The package is in development and has not been released. So far it provides
 `spec_versions()`, which returns the versions of the shared specification
-installed with the package, and the layer that every reader and writer of the
-package builds on:
+installed with the package, the layer that every reader and writer of the
+package builds on and the data layer of the audits, which reads tables and
+builds the canonical model and its design matrices:
 
 - `read_json_strict()` reads JSON in the hashable or data profile and reports
   the first problem with a stable code.
@@ -22,14 +23,25 @@ package builds on:
   that `canonical_hash()` gives its declaration hash.
 - `read_registry()` returns the registry of checks installed with the
   package.
+- `read_table()` reads a CSV file with the strict table reader, under the
+  table block of a declaration or with the types inferred from the values,
+  and returns a data frame or the first problem with a stable code.
+- `formula_ir()` parses an lme4-style formula and builds the canonical IR of
+  the model, whose `canonical_hash()` is its IR hash, and
+  `design_matrices()` builds its design and analysis samples, X, the sparse
+  Z and the response, trials, offset and weight vectors. `design_samples()`
+  returns the two samples alone.
 
 The functions have the same names and arguments as in the Python package.
-The tests run every case of the JSON, number, Unicode, hash, HMAC, declaration
-and YAML corpora installed with the package, and the table and formula
-corpora wait for the table reader and formula parser of M2. The
+`design_matrices()` and `design_samples()` number rows, and
+`design_matrices()` random terms, from 1 in R and from 0 in Python, whereas
+indices inside the IR count from 0 in both, and a missing value is `NA` in R
+and `None` in Python. The tests run every case of the JSON, number, Unicode,
+hash, HMAC, declaration, YAML, table and formula corpora installed with the
+package. The
 [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
-of the repository checks that both packages give the same codes, canonical
-bytes and hashes for every case of these corpora.
+of the repository checks that both packages agree on every case of the
+corpora.
 
 ``` r
 library(mixedcheck)
@@ -39,6 +51,12 @@ rawToChar(canonical_bytes(value, "hashable"))
 canonical_hash(value, "hashable")
 declaration <- validate_declaration(list(vocabulary = "0.1.0", goal = "exploratory"))
 canonical_hash(declaration, "hashable")
+path <- tempfile(fileext = ".csv")
+writeBin(charToRaw("id,cond,rt\n1,A,512.5\n2,B,\n3,A,498\n4,B,530\n"), path)
+data <- read_table(path)
+ir <- formula_ir("rt ~ cond", data = data)
+canonical_hash(ir, "hashable")
+design_matrices(ir, data)$x
 ```
 
 It needs R 4.2.0 or later. To install it from a clone of the repository:

@@ -2000,6 +2000,26 @@ def keys() -> None:
         declaration=block(*two, primaryKey=["id"]),
         offset=15,
     )
+    case(
+        g,
+        "primary_duplicate_before_missing",
+        "The primary key is checked record by record, so a record that repeats an earlier "
+        "key is reported before a missing value in a later record.",
+        "E5009",
+        "id,y\na,1\na,2\n,3\n",
+        declaration=block(*two, primaryKey=["id"]),
+        offset=9,
+    )
+    case(
+        g,
+        "primary_missing_before_duplicate",
+        "The primary key is checked record by record, so a missing value is reported before "
+        "a repetition of an earlier key in a later record.",
+        "E5008",
+        "id,y\na,1\n,2\na,3\n",
+        declaration=block(*two, primaryKey=["id"]),
+        offset=9,
+    )
 
 
 def precedence() -> None:

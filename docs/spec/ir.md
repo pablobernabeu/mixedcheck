@@ -29,7 +29,7 @@ The IR does not hold the formula string, which a results document records separa
 
 ## Formula grammar
 
-A formula is a string of at most 10,000 characters (E6001). Locations in it are byte offsets into its UTF-8 encoding, counted from 0, as for every reader (conventions.md). In R, the string crosses an input boundary as conventions.md (Strings in R) describes.
+A formula is a string of at most 10,000 characters, each a Unicode code point (E6001). Locations in it are byte offsets into its UTF-8 encoding, counted from 0, as for every reader (conventions.md). In R, the string crosses an input boundary as conventions.md (Strings in R) describes.
 
 ### Tokens
 
@@ -60,7 +60,7 @@ call        = function name, "(", [ argument, { ",", argument } ], ")" ;
 argument    = sum, [ ( "|" | "||" ), sum ] ;
 ```
 
-The tokens are read from left to right, each by the first rule that can continue the formula. At the first token that cannot continue it, the parser reports E6013 if the token is '|' or '||', E6010 at the end of the input and E6011, naming the token, otherwise. So `y ~ x +` gives E6010 at byte 7, `y ~ x)` gives E6011 at ')' and `y ~ x | g` gives E6013 at '|'. A '(' that opens a 65th level of nesting, counting the parentheses of calls, gives E6021 at its offset.
+The tokens are read from left to right, each by the first rule that can continue the formula. At the first token that cannot continue it, the parser reports E6013 if the token is '|' or '||', E6010 at the end of the input and E6011, naming the token, otherwise. So `y ~ x +` gives E6010 at byte 7, `y ~ x)` gives E6011 at ')' and `y ~ x | g` gives E6013 at '|'. A '(' that opens a 65th level of nesting, counting the parentheses of calls, gives E6021 at its offset. The parser reports the first of these issues in the order of the tokens, so a '(' that opens a 65th level before a stray token gives E6021, and a stray token before it gives E6011.
 
 This grammar accepts more than the suite does, so that the rules below can report a precise code. The parenthesised `argument` with a bar is a random term, whose left-hand side is the sum before the bar and whose grouping is the sum after it.
 
@@ -69,9 +69,9 @@ This grammar accepts more than the suite does, so that the rules below can repor
 The parsed formula must also satisfy the rules below. Every violation is located at the offset of a token: a name, number or function name at its own token, a random term or parenthesised expression at its '(', an operator at its token and a sign at its token. When several rules are violated, the violation at the lowest offset is reported, and among violations at one offset, the one with the lowest code.
 
 - Response (E6012, at the first token of the response). The sum before '~', if there is one, is a single name without a sign, or log() of a single name.
-- Random terms (E6014). A random term is a summand of the sum after '~', not part of a product, interaction, power, parenthesised expression, call or the left-hand side of another random term.
+- Random terms (E6014). A random term is a summand of the sum after '~', added with '+' or written first without a sign, and not part of a product, interaction, power, parenthesised expression, call or the left-hand side of another random term. A subtracted random term is refused, since lme4 would add it.
 - Grouping (E6016). The grouping of a random term is a single summand without a sign, made of names joined by ':' and '/'. The violation is located at the first sign, operator other than ':' and '/', number, call or parenthesis in it.
-- Intercepts. A number that is a summand of the sum after '~', or of the left-hand side of a random term, must be '0' or '1' (E6006), and '- 0' is not allowed (E6015, at the sign). A number anywhere else, other than in the grouping of a random term, where the rule of Grouping alone applies, is either the exponent of '^', which must be an integer from 2 to 1000 written without leading zeros (E6006), or gives E6015 if it is '0' or '1' and E6006 otherwise. The exponent of '^' must be a number (E6006, at its first token).
+- Intercepts. A number that is a summand of the sum after '~', or of the left-hand side of a random term, must be '0' or '1' (E6006), and '- 0' is not allowed (E6015, at the sign). A number anywhere else, other than in the grouping of a random term, where the rule of Grouping alone applies, is either the exponent of '^', which must be an integer from 2 to 1000 written without leading zeros (E6006), or gives E6015 if it is '0' or '1' and E6006 otherwise. The exponent of '^' must be a number (E6006, at its first token, whose text is the argument {number}).
 - offset() (E6019, at its name). An offset is a summand of the sum after '~', added with '+' or written first without a sign, with one argument that is a single name or log() of a single name.
 - log() (E6020). log() appears only as the response or as the argument of offset(), with one argument that is a single name. When it is in such a place but its argument is not a single name, the rule of the response or of offset() applies instead.
 - Other functions. diag, cs, ar1, us, homdiag, homcs, hetcs, ou, toep, rr and propto, the covariance structures of lme4 2.x and glmmTMB, give E6018, because structured covariance terms are planned for version 1.3 (02-decisions.md, Q2). Every other function, such as I(), poly(), scale(), factor() or cbind(), gives E6017. A transformed predictor is added to the data as a column of its own.
@@ -92,7 +92,9 @@ Each sub-expression of a sum that is not an intercept, random term or offset eva
 - A parenthesised sum evaluates as a sum. If it leaves no term, E6037 is reported at its '('.
 - A sum is evaluated from left to right. It starts empty, '+' or no sign appends the terms of a summand that it does not yet hold, and '-' removes them. Each term that '-' removes must be present at that point, or E6031 is reported at the '-', naming the first absent term. So `y ~ a + b - a + a` gives `b` then `a`, and `y ~ -x + x` gives E6031.
 
-The fixed part is the evaluation of the sum after '~' without its intercepts, random terms and offsets. The left-hand side of each random term is evaluated in the same way, on its own. Each part is evaluated from left to right, each operand before the operator that combines it, so that a summand is evaluated before its sign is applied, and the evaluation of a part stops at its first issue, E6031 or E6037. So `y ~ x - (a - a)` gives E6037 at the inner '(' rather than E6031.
+No list of terms may hold more than 10,000 terms, so that a short formula cannot ask for an expansion that exhausts memory. Before an operator forms its terms, it counts them with repetitions: |A| × |B| for `A:B`, |A| + |B| + |A| × |B| for `A*B` and |A| + |B| for `A/B`, where |A| is the number of terms of A. `A^n` counts each interaction of its evaluation in turn, as for ':', from the second copy of A on. A count above 10,000 gives E6038 at the operator. A sum that would hold more than 10,000 terms once a summand is appended gives E6038 at the sign of that summand. So `y ~ x1*x2*…*x13` is accepted, with 8,191 terms, and `y ~ x1*x2*…*x14` gives E6038 at its last '*'.
+
+The fixed part is the evaluation of the sum after '~' without its intercepts, random terms and offsets. The left-hand side of each random term is evaluated in the same way, on its own. Each part is evaluated from left to right, each operand before the operator that combines it, so that a summand is evaluated before its sign is applied, and the evaluation of a part stops at its first issue, E6031, E6037 or E6038. So `y ~ x - (a - a)` gives E6037 at the inner '(' rather than E6031.
 
 ### Intercepts
 
@@ -110,7 +112,7 @@ Each written random term is expanded in three steps.
 
 1. Its left-hand side is evaluated with its intercept.
 2. Its grouping becomes one or more grouping factors. A factor is a set of grouping variables, written with ':', and '/' nests: for `f1/f2/…/fk`, the factors are f1, f1 ∪ f2 and so on to f1 ∪ … ∪ fk, so `(1 | school/class)` has the factors school and school:class. A variable that appears twice in one grouping gives E6033 at its second appearance. The variables of a factor keep the order in which they are written where the factor first arises, and a factor that arises again with the same variables, in any order, is the same factor with its first order.
-3. A left-hand side with neither an intercept nor a term gives E6034 at the term's '('. Otherwise, with '|', the term gives one random term for each factor, with the whole left-hand side. With '||', it gives, for each factor, the random term '1' if the left-hand side has an intercept, followed by one random term '0 + t' for each other term t of the left-hand side in term order. '||' applies only to numeric terms, since the indicators of a factor would duplicate the intercept (02-decisions.md, Q3). A categorical column in its left-hand side gives E6053 at its first appearance there, unless the coding argument freezes it as numeric contrast columns (Coding argument), which is checked with the kinds of columns (Kinds of columns and Errors). A term '0 + t' from '||' whose term t has a frozen factor and more than one column is split, once the levels are known and before the columns of random terms are checked, into one random term for each column of t, in column order, each with that column alone.
+3. A left-hand side with neither an intercept nor a term gives E6034 at the term's '('. Otherwise, with '|', the term gives one random term for each factor, with the whole left-hand side. With '||', it gives, for each factor, the random term '1' if the left-hand side has an intercept, followed by one random term '0 + t' for each other term t of the left-hand side in term order. '||' applies only to numeric terms, since the indicators of a factor would duplicate the intercept (02-decisions.md, Q3). A categorical column in its left-hand side gives E6053 at its first appearance there, including one in a summand that '-' removes, unless the coding argument freezes it as numeric contrast columns (Coding argument), which is checked with the kinds of columns (Kinds of columns and Errors). The exemption holds when the column's entry of the coding argument has `frozen` exactly true, whatever else the entry holds, so that pass 4 of the context then reports any invalid member of that entry. A term '0 + t' from '||' whose term t has a frozen factor and more than one column is split, once the levels are known and before the columns of random terms are checked, into one random term for each column of t, in column order, each with that column alone.
 
 Each written random term reports at most one issue of these steps, the first in their order, and a written term with an issue gives no random terms. A random term that has the same grouping factor, intercept and set of terms as an earlier one gives E6035 at the '(' of the written term that produces it. This is checked on the random terms of step 3, before any term of a frozen factor is split. The random terms of the IR are grouped by grouping factor, in the order in which each factor first arises, and within a factor in the order in which they arise. So `(1 | subject) + (1 | item) + (0 + x | subject)` gives the subject terms first, `(1 + x || g/h)` gives `1 | g`, `0 + x | g`, `1 | g:h` and `0 + x | g:h`, and, with 'a' frozen and coded by treatment contrasts with the levels A1, A2 and A3, `(1 + a || g)` gives `1 | g`, `0 + a[A2] | g` and `0 + a[A3] | g`.
 
@@ -120,7 +122,7 @@ Two random terms of the same grouping factor cannot share a column, since each b
 
 The response is the name before '~', with the transform 'identity', or the argument of log(), with the transform 'log'. A formula without a response, such as `~ x + (1 | g)`, has none. The response cannot appear anywhere after '~' (E6032, at its first appearance there).
 
-An offset is a numeric column added to the linear predictor as it is ('identity') or as its natural logarithm ('log'). The same column with the same transform twice gives E6036 at the later 'offset'. When the declaration gives the response an exposure (conventions.md, Declaration fields), the exposure is an offset: its logarithm for the scale 'raw' and the column itself for the scale 'log'. An offset of the exposure column in the formula must use that transform (E6057), and an exposure that the formula does not write is added. The offsets of the IR are listed in code-point order of their columns and then of their transforms ('identity' before 'log').
+An offset is a numeric column added to the linear predictor as it is ('identity') or as its natural logarithm ('log'). The same column with the same transform twice gives E6036 at the later 'offset'. When the declaration gives the response an exposure (conventions.md, Declaration fields), the exposure is an offset: its logarithm for the scale 'raw' and the column itself for the scale 'log'. An offset of the exposure column in the formula must use that transform (E6057, at the 'offset' of the offending offset), and an exposure that the formula does not write is added. The offsets of the IR are listed in code-point order of their columns and then of their transforms ('identity' before 'log').
 
 The weights are precision weights, named by the caller (Inputs and outputs). The declaration's role 'weight' does not make a column the weights.
 
@@ -139,7 +141,7 @@ Every name in the formula must be a column (E6051, at the first offending name).
 | none | strings | categorical | the distinct values of the table |
 | none | booleans | categorical | false, then true |
 
-`categoriesOrdered` does not change the coding, unlike R, which gives ordered factors polynomial contrasts. The distinct values of the table are those of all rows of the table as read, missing values excluded, so that a level that the design sample loses keeps its place and its reference level (Samples). Values are compared after NFC, and two values equal after NFC are one level, written in NFC (conventions.md, NFC). They are ordered by code point, so 'B' comes before 'a'.
+`categoriesOrdered` does not change the coding, unlike R, which gives ordered factors polynomial contrasts. The distinct values of the table are those of all rows of the table as read, missing values excluded, so that a level that the design sample loses keeps its place and its reference level (Samples). Values are compared after NFC, and two values equal after NFC are one level, written in NFC (conventions.md, NFC). The builder merges them without an issue, and the check labels.unicode_forms of the registry reports the merge. They are ordered by code point, so 'B' comes before 'a'.
 
 Each use of a column allows these kinds (E6052, at the offending name, naming its kind and the use). Every appearance of a name in a product of the fixed part or of a random term's left-hand side is a use as a predictor, including one in a summand that '-' removes. The message names the use exactly as the first column of the table writes it, and the column of an offset written with log() is named as the argument of log().
 
@@ -151,9 +153,9 @@ Each use of a column allows these kinds (E6052, at the offending name, naming it
 | a grouping variable | any |
 | an offset | numeric |
 
-A column that identifies persons cannot be a predictor (E6068, at the offending name), so that no IR, and no plan that holds IRs, lists the labels of persons as levels (02-decisions.md, Q4 and Q5). The columns that identify persons are those that the declaration gives the role 'id' and the label columns of the disclosure unit (conventions.md, Declaration fields), of every unit with the role 'participant' and of every unit nested in one of these, directly or through other units. Without a declaration, no column is known to identify persons. Other unit columns, such as those of schools or sites used as blocking factors, may be predictors.
+A column that identifies persons cannot be a predictor (E6068, at its first appearance as a predictor, including one in a summand that '-' removes), so that no IR, and no plan that holds IRs, lists the labels of persons as levels (02-decisions.md, Q4 and Q5). The columns that identify persons are those that the declaration gives the role 'id' and the label columns of the disclosure unit (conventions.md, Declaration fields), of every unit with the role 'participant' and of every unit nested in one of these, directly or through other units. Without a declaration, no column is known to identify persons. Other unit columns, such as those of schools or sites used as blocking factors, may be predictors.
 
-A response written with log() cannot have a declared event level, trials or exposure (E6054). The predictors of the IR are the columns that appear in a term of the fixed part or of a random term after expansion. A categorical predictor whose levels are unknown, because it has no declared categories and there are no data, gives E6055, and one with fewer than two levels gives E6056, each at its first appearance in a product. The trials and exposure columns that the declaration gives the response (E6065) and the weights column (E6066) must be numeric columns.
+A response written with log() cannot have a declared event level, trials or exposure (E6054, at the first token of the response, naming the first of event_level, trials and exposure that the declaration gives). The predictors of the IR are the columns that appear in a term of the fixed part or of a random term after expansion. A categorical predictor whose levels are unknown, because it has no declared categories and there are no data, gives E6055, and one with fewer than two levels gives E6056, each at its first appearance in a product, including one in a summand that '-' removes. A level that contains a control character (U+0000 to U+001F and U+007F to U+009F) or a code point that Unicode 14.0 does not assign gives E6074 at the same place, since a column name cannot hold the first (ir.schema.json, IR name) and the hashable profile cannot hold the second (conventions.md, NFC). The trials and exposure columns that the declaration gives the response (E6065) and the weights column (E6066) must be numeric columns.
 
 ## Coding
 
@@ -164,13 +166,13 @@ The coding argument is an object keyed by column name, compared after NFC. Each 
 | Member | Kind | Value | Default |
 |---|---|---|---|
 | contrast | categorical | 'treatment', 'sum' or 'simple' | 'treatment' |
-| reference | categorical | one of the levels: a string, an integer or a boolean, of the levels' type | the first level |
+| reference | categorical | a string, an integer or a boolean | the first level |
 | centring | numeric | 'none', 'mean' or 'value' | 'none' |
 | frozen | categorical | true or false | false |
 | significant_digits | numeric, with centring 'mean' | an integer from 1 to 15 | 6 |
 | value | numeric, with centring 'value', which requires it | a decimal string of at most 15 significant digits (conventions.md, Decimal strings and centring constants) | none |
 
-The entries are checked one at a time, in code-point order of their keys, and the first issue found is reported. For each key, these checks run in order:
+A number with an integral value, such as 2.0, counts as an integer for `reference` and `significant_digits`, and a boolean never does. The entries are checked one at a time, in code-point order of their keys, and the first issue found is reported. For each key, these checks run in order:
 
 1. A key that is not a predictor gives E6061.
 2. Every member, in code-point order, must be one of the six names above with a valid value. The first that is not gives E6063, naming it.
@@ -219,18 +221,18 @@ A numeric predictor is centred by its centring rule, wherever it appears, in the
 - value: the column minus a constant that the caller gives as a decimal string. The IR stores it as a decimal constant whose significant digits are those of the string as conventions.md (Decimal strings and centring constants) counts them, at least 1, so that '100' has 1 and '2.5' has 2.
 - mean: the column minus its mean over the design sample, rounded to the significant digits of the rule (conventions.md, Decimal strings and centring constants).
 
-The mean is computed so that both packages obtain the same double. The values of the design sample are summed exactly and the exact sum is rounded once to the nearest double, ties to even, as Python's math.fsum() does and as R does with an in-house exact summation (Shewchuk, 1997). That double is divided by the number of rows, rounded to the nearest double, and the result is rounded to k significant digits as conventions.md describes. For example, the values 0, 0.25 and 0.125 have the mean 0.125, which rounds to '0.12' with 2 significant digits. An empty design sample gives E6067.
+The mean is computed so that both packages obtain the same double. The values of the design sample are summed exactly and the exact sum is rounded once to the nearest double, ties to even, as Python's math.fsum() does and as R does with an in-house exact summation (Shewchuk, 1997). That double is divided by the number of rows, rounded to the nearest double, and the result is rounded to k significant digits as conventions.md describes. For example, the values 0, 0.25 and 0.125 have the mean 0.125, which rounds to '0.12' with 2 significant digits. An empty design sample gives E6067. An exact sum that rounds to an infinity, or a constant of a 'mean' or 'value' rule whose nearest double is not finite, gives E6077, naming the column.
 
-The fit uses the double nearest to the decimal constant, and the centred value of a row is its value minus that double, computed in double arithmetic. Without data, a 'mean' rule is stored with its significant digits and no constant, as for a plan written before the data are seen (conventions.md). The constant is computed and recorded with its sample when the data are available, which gives a new IR and a new IR hash.
+The fit uses the double nearest to the decimal constant, and the centred value of a row is its value minus that double, computed in double arithmetic. A centred value that is not finite gives E6077 when the design matrices are built (X). Without data, a 'mean' rule is stored with its significant digits and no constant, as for a plan written before the data are seen (conventions.md). The constant is computed and recorded with its sample when the data are available, which gives a new IR and a new IR hash.
 
 ## Samples
 
 The IR reads the columns it names: the response, the trials column, the predictors, the grouping variables, the offset columns and the weights column.
 
-- The design sample is the set of rows of the table in which no column that the IR reads is missing, other than the response and the trials column, and no column of `sample_columns` is missing. T0 checks and centring constants use it, since it reads nothing of the outcome (registry.md, Terms).
-- The analysis sample is the set of rows of the design sample in which the response is present and, when there is a trials column, the trials column is present and above 0. Rows with 0 trials leave the analysis sample and are reported (conventions.md, Declaration fields).
+- The design sample is the set of rows of the table in which no column that the IR reads is missing, other than the response and the trials column, and no column of the IR's `sample_columns` is missing. A column that the IR also reads in another role, as a predictor, grouping variable, offset or weights column, counts as read, so that a trials column that is also a predictor removes the rows in which it is missing. T0 checks and centring constants use the design sample, since it reads nothing of the outcome (registry.md, Terms).
+- The analysis sample is the set of rows of the design sample in which the response is present and, when there is a trials column, the trials column is present and either above 0 or not finite. Rows with 0 trials, or a negative number of trials, leave the analysis sample and are reported (conventions.md, Declaration fields), whereas NaN and the infinities stay and give E6073 (Response, offsets and weights).
 
-`sample_columns` holds the sample columns that the caller names, other than those that the IR reads already, in code-point order, so that one design sample has one representation. A sample column must be a column of the data, or a field of the table block without data (E6070). A plan names the columns that its ceiling reads as the sample columns of every rung, so that a rung that drops every term of a grouping factor keeps the design sample of the ceiling and its centring constants (documents.md, The design section).
+`sample_columns` holds the sample columns that the caller names, other than those that the IR reads already, in code-point order, so that one design sample has one representation. The design sample uses this list and not the caller's, so that naming the response or the trials column as a sample column changes neither the design sample nor the centring constants. A sample column must be a column of the data, or a field of the table block without data (E6070). A plan names the columns that its ceiling reads as the sample columns of every rung, so that a rung that drops every term of a grouping factor keeps the design sample of the ceiling and its centring constants (documents.md, The design section). The samples are determined before X, Z and the vectors, so a package can report them even when E6071 to E6073 or E6077 prevent the design matrices.
 
 Missing values are those of the table reader ([tables.md](tables.md)), with the declared missing values of each field. Levels of categorical predictors come from the table as read, not from a sample, so the coding stays the same in every sample. A level that a sample lacks gives a column that is 0 in every row of that sample, or columns that depend on the intercept when it is the reference level, and the sequential rule drops them (sample.raw_vs_analysis and design.rank_deficiency in the registry).
 
@@ -238,31 +240,31 @@ Missing values are those of the table reader ([tables.md](tables.md)), with the 
 
 ### X
 
-X has one row for each row of the sample, in the order of the table, and one column for each column of the fixed part, in column order. The value of a column in a row is 1 for '(Intercept)', and otherwise the product of the values of the term's variables in the term's order, multiplied from the left in double arithmetic, starting from the first:
+X has one row for each row of the design sample, in the order of the table, and one column for each column of the fixed part, in column order. The value of a column in a row is 1 for '(Intercept)', and otherwise the product of the values of the term's variables in the term's order, multiplied from the left in double arithmetic, starting from the first:
 
 - a numeric variable: its value, centred as above
 - a categorical variable coded by its contrast: the value of the contrast for the column's level and the row's level
 - a categorical variable coded by indicators: 1 if the row's level is the column's level and 0 otherwise
 
-A row's level is its value, after NFC for strings, and integer levels match numbers by value.
+A row's level is its value, after NFC for strings, and integer levels match numbers by value. Every value of X must be finite: the first column of X, in column order, that holds a value that is not finite, such as a product or a centred value beyond the largest double, gives E6077, naming the column.
 
 ### Z
 
-Z has one row for each row of the sample, in the order of the table. For each random term in IR order, it has J × q columns, where q is the number of the term's columns and J the number of levels of its grouping factor in the sample. The columns are ordered by level and, within a level, by the term's columns, so that the q columns of one level are adjacent. The value in a row is the value of the term's column, built as for X, if the row belongs to the level, and 0 otherwise.
+Z has one row for each row of the design sample, in the order of the table. For each random term in IR order, it has J × q columns, where q is the number of the term's columns and J the number of levels of its grouping factor in the design sample. The columns are ordered by level and, within a level, by the term's columns, so that the q columns of one level are adjacent. The value in a row is the value of the term's column, built as for X, if the row belongs to the level, and 0 otherwise. Once every column of X is checked, the first column of a random term, in IR order and then column order, that holds a value that is not finite gives E6077, naming the column of the random term.
 
-The levels of a grouping factor are the distinct combinations of the values of its variables in the rows of the sample, compared after NFC for strings. They are ordered by their first variable, then by the second and so on. Within one variable, numbers are ordered by value, strings by code point and booleans false before true. So the numeric labels 1, 2 and 10 keep that order, and the string labels 'i1', 'i10' and 'i2' keep theirs. A level is written as the labels of its variables joined by ':', with numbers written as conventions.md (Serialisation) writes them and booleans as 'true' and 'false', so that the level of school 'S1' and class '2' is 'S1:2'.
+The levels of a grouping factor are the distinct combinations of the values of its variables in the rows of the design sample, compared after NFC for strings. They are ordered by their first variable, then by the second and so on. Within one variable, numbers are ordered by value, strings by code point and booleans false before true. So the numeric labels 1, 2 and 10 keep that order, and the string labels 'i1', 'i10' and 'i2' keep theirs. Numbers are labelled as conventions.md (Serialisation) writes them and booleans as 'true' and 'false'. A level of a factor with one variable is written as its label. A level of a factor with several variables is written as their labels joined by ':', with each `\` and `:` in a label written as `\\` and `\:`, so that two levels never share a description. So the level of school 'S1' and class '2' is `S1:2`, and the level of the labels 'a:b' and 'c' is `a\:b:c`.
 
 ### Response, offsets and weights
 
-The response vector holds, for the analysis sample, the response itself for a numeric response with the transform 'identity', its natural logarithm for 'log' (E6071 for a value that is not positive), 1 and 0 for true and false for a boolean response and, for a categorical response with a declared event level, 1 where the value equals the event level after NFC and 0 otherwise. Without a declared event level, a categorical response has no response vector, and checks that need it report not_available with the reason declaration_missing (conventions.md, Declaration fields). The offset vector is the sum of the offsets in IR order, each added from the left, with the natural logarithm for the transform 'log' (E6071 for a value that is not positive). Weights must be positive (E6072). Logarithms are computed with the platform's log(), whose last bit can differ between platforms, so these vectors are compared within a tolerance and are not part of any hash.
+The response vector has one value for each row of the analysis sample. For a response with a declared event level, it holds 1 where the value equals the event level, after NFC for strings and by value for numbers, and 0 otherwise. The IR does not record whether a response of integers with a declared event level has declared categories, so the event level decides for every response that has one. Otherwise, the vector holds the response itself for a numeric response with the transform 'identity', its natural logarithm for 'log' (E6071 for a value that is not positive) and 1 and 0 for true and false for a boolean response. Without a declared event level, a categorical response has no response vector, and checks that need it report not_available with the reason declaration_missing (conventions.md, Declaration fields). The offset vector is the sum of the offsets in IR order, each added from the left, with the natural logarithm for the transform 'log' (E6071 for a value that is not positive). Weights must be positive (E6072). Logarithms are computed with the platform's log(), whose last bit can differ between platforms, so these vectors are compared within a tolerance and are not part of any hash.
 
-A number column can hold the non-finite values NaN, +∞ and −∞, which the table reader returns as values, not as missing values ([tables.md](tables.md), Field types). A non-finite value in a row of the design sample, in a numeric column that the IR reads other than the response and the trials column, gives E6073 when the builder computes a mean centring constant or the design matrices are built, and a non-finite value of the response or the trials column in a row of the analysis sample gives E6073 when the response vector is built.
+A number column can hold the non-finite values NaN, +∞ and −∞, which the table reader returns as values, not as missing values ([tables.md](tables.md), Field types). A non-finite value in a row of the design sample, in a numeric column that the IR reads other than the response and the trials column, gives E6073 when the builder computes the mean centring constant of that column or when the design matrices are built, and a non-finite value of the response or the trials column in a row of the analysis sample gives E6073 when the response vector is built.
 
 ## Sequential rule for aliased columns
 
 The sequential rule decides which columns of an ordered set depend on earlier ones. lme4 drops the later member of each exact dependency in model-matrix order, whereas a greedy pivoted QR can drop a different column (01-design-review.md), so both packages apply this rule wherever the registry refers to it.
 
-Given columns v1, …, vp of n rows, in order, the rule considers each in turn. A column whose Euclidean norm is 0 is dropped. Otherwise, let r be the residual of the column after orthogonal projection onto the span of the columns kept so far. The column is kept if the norm of r exceeds τ times the norm of the column, with τ = 1e-7, and dropped otherwise. The rank of the set by the sequential rule is the number of columns kept.
+Given columns v1, …, vp of n rows, in order, the rule considers each in turn. A column whose values are all 0 is dropped. Otherwise, the column is divided by its largest absolute value, which changes neither its span nor the test below and keeps the squares in its norm from overflowing or underflowing. Let r be the residual of the scaled column after orthogonal projection onto the span of the columns kept so far. The column is kept if the norm of r exceeds τ times the norm of the scaled column, with τ = 1e-7, and dropped otherwise. The rank of the set by the sequential rule is the number of columns kept.
 
 The residual is computed against an orthonormal basis of the kept columns, built from their residuals, with two passes of Gram–Schmidt orthogonalisation or with Householder reflections. Either keeps the error of the computed residual near the rounding error of the column, so the two packages disagree only for a column whose relative residual lies within that error of τ. Exact dependencies, such as those of indicator columns and of empty cells, give relative residuals near 1e-16, far below τ.
 
@@ -272,17 +274,19 @@ A random term with q columns has an unstructured covariance matrix with q varian
 
 ## Names
 
-Names in the IR are formed as follows. Every column name in the IR is written in NFC, as the hashable profile requires, whatever form the data or the formula use. A variable is written as its column name when the name is a bare name of the grammar that is not a reserved word, and between backquotes otherwise.
+Names in the IR are formed as follows. Every column name in the IR is written in NFC, as the hashable profile requires, whatever form the data or the formula use. In the name of a term, a grouping factor or a random term, a variable is written as its column name when the name is a bare name of the grammar that is not a reserved word, and between backquotes otherwise. The name of a predictor or of a column uses the column name as it is.
 
 | Name of | Form | Examples |
 |---|---|---|
 | a predictor or grouping variable | the column name | `cond`, `reaction time` |
 | a term | '(Intercept)', or its variables in their order joined by ':', each written as above and, when it carries a level, followed by the level's label in square brackets | `(Intercept)`, `cond:x`, `` `word frequency` ``, `a[A2]:x` |
-| a column | '(Intercept)', or the components for the term's variables joined by ':', each the column name for a numeric variable and the column name followed by the level's label in square brackets for a categorical one | `cond[B]:x`, `wave[1]`, `flag[true]` |
+| a column | '(Intercept)', or the components for the term's variables joined by ':', each the column name as it is, without backquotes, for a numeric variable and the column name followed by the level's label in square brackets for a categorical one | `cond[B]:x`, `wave[1]`, `flag[true]`, `word frequency` |
 | a grouping factor | its variables in order, joined by ':', each written as above | `school:class` |
 | a random term | '1' or '0' for its intercept, then ' + ' and each other term of its left-hand side in term order, then ' \| ' and its grouping factor | `1 + cond \| subject`, `0 + x \| g`, `1 \| school:class`, `0 + a[A2] \| g` |
 
 The label of a level is the string itself, an integer in decimal digits and a boolean as 'true' or 'false'. A column of a categorical variable is named after its level whatever the coding, so `cond[B]` holds the treatment, sum or simple contrast for level B, or its indicator. Two columns of the fixed part, or of one random term, with the same name give E6059.
+
+Neither the fixed part nor a random term may have more than 10,000 columns, and no name of the IR may have more than 10,000 characters, as ir.schema.json requires of an IR name. The builder counts the columns of the fixed part and of each random term before it forms them, before any term of a frozen factor is split, and reports E6075 for the first that would have more, the fixed part first and then the random terms in IR order. Once the IR is assembled, the first name, in the order of the canonical serialisation of the IR, that has more than 10,000 characters gives E6076.
 
 ## The IR document
 
@@ -356,21 +360,23 @@ The builder reports one issue: the first that its stages find, in this order.
 
 1. Length: E6001.
 2. Tokens: the lexical issue at the lowest offset (E6002 to E6007), then E6008 when there is no '~'.
-3. Syntax: the first token that cannot continue the formula (E6010, E6011, E6013), or E6021.
+3. Syntax: the first, in the order of the tokens, of a token that cannot continue the formula (E6010, E6011, E6013) and a '(' that opens a 65th level of nesting (E6021).
 4. Structure: the violation at the lowest offset, then the lowest code (E6006, E6012 to E6020).
-5. Expansion: the issue at the lowest offset, then the lowest code, among those that the rules of Expansion find (E6031 to E6037).
+5. Expansion: the issue at the lowest offset, then the lowest code, among those that the rules of Expansion find (E6031 to E6038).
 6. Context, in passes. Each pass reports its first issue, by offset and then code for located codes, and by code-point order of the column, then code, for the others. A pass runs only when the passes before it found nothing.
    1. Columns: E6051.
    2. Uses: E6052, E6053, E6054 and E6068.
    3. Declared columns, weights and sample columns: E6065 for the trials column, then for the exposure column, then E6066, then E6070 for the first sample column, in the caller's order, that is not a column.
    4. Coding: E6061, E6063 and E6062, in the order that the coding argument sets out above, which replaces the order by column and then code.
-   5. Levels: E6055 and E6056.
+   5. Levels: E6055, E6056 and E6074.
    6. Reference levels: E6064, by predictor in code-point order.
    7. Exposure: E6057.
-   8. Columns of random terms: E6058, then E6059 for the fixed part and then each random term in IR order.
-   9. Centring: E6067 and then E6073, by predictor in code-point order.
+   8. Size: E6075 for the fixed part and then each random term in IR order, before the terms of frozen factors are split.
+   9. Columns of random terms: E6058, then E6059 for the fixed part and then each random term in IR order.
+   10. Centring: E6067, E6073 and then E6077, by predictor in code-point order.
+   11. Names: E6076, for the first name in the order of the canonical serialisation of the IR.
 
-Terms of frozen factors are split after pass 7. The builder of the design matrices reports E6071 to E6073, a Stream B run reports E6069 before its T0 checks (registry.md, Tier and inputs), and a validator of IR documents E6101. Messages are rendered as errors.md describes. The argument {intercept} of E6015 is the number, '0' or '1', or '- 0' however the sign and the number are spaced. The argument {use} of E6052 is one of 'the response', 'the argument of log()', 'a predictor' and 'an offset'. The argument {term} of E6031 and E6035 is the name of the term as Names forms it.
+Terms of frozen factors are split after pass 8. The builder of the design matrices reports E6071 to E6073 and E6077, the first in this order: E6073 for a column of the design sample, by column in code-point order, E6077 for a column of X and then of Z, E6071 for each offset with the transform 'log', in IR order, E6072, E6073 for the response and then for the trials column in the analysis sample, and E6071 for a response written with log(). A Stream B run reports E6069 before its T0 checks (registry.md, Tier and inputs), and a validator of IR documents E6101. Messages are rendered as errors.md describes. The argument {intercept} of E6015 is the number, '0' or '1', or '- 0' however the sign and the number are spaced. The argument {use} of E6052 is one of 'the response', 'the argument of log()', 'a predictor' and 'an offset'. The argument {term} of E6031 and E6035 is the name of the term as Names forms it.
 
 | Code | Name | Raised when |
 |---|---|---|
@@ -401,6 +407,7 @@ Terms of frozen factors are split after pass 7. The builder of the design matric
 | E6035 | formula_random_term_duplicate | a random term repeats an earlier one |
 | E6036 | formula_offset_duplicate | an offset repeats an earlier one |
 | E6037 | formula_empty_expression | an expression in parentheses leaves no term |
+| E6038 | formula_too_many_terms | an operator or a sum would give more than 10,000 terms |
 | E6051 | formula_unknown_column | a name is not a column of the data, or of the declared table without data |
 | E6052 | formula_column_type | a column has a kind that its use does not allow |
 | E6053 | formula_double_bar_categorical | a random term with '\|\|' contains a categorical column |
@@ -423,6 +430,10 @@ Terms of frozen factors are split after pass 7. The builder of the design matric
 | E6071 | formula_log_not_positive | log() meets a value that is not positive |
 | E6072 | formula_weights_not_positive | a weight is not positive |
 | E6073 | formula_nonfinite_value | a numeric column that a sample reads holds NaN or an infinity |
+| E6074 | formula_level_label | a level of a categorical predictor contains a control character or a character that Unicode 14.0 does not assign |
+| E6075 | formula_too_many_columns | the fixed part or a random term would have more than 10,000 columns |
+| E6076 | formula_name_too_long | a name of the IR would have more than 10,000 characters |
+| E6077 | formula_nonfinite_result | a centring constant, a centred value or a product in the design matrices is not finite |
 | E6101 | formula_ir_inconsistent | an IR document differs from what its own predictors and terms define |
 
 ## Differences from R and lme4
@@ -435,9 +446,11 @@ The grammar is that of lme4 formulas. The term expansion, the order of terms and
 - A factor whose coding is frozen keeps its contrast in every term, so that '||' can split it into uncorrelated terms for its contrast columns. R and lme4 would expand it into indicators.
 - A column that identifies persons cannot be a predictor, so that the IR never lists the labels of persons.
 - Column names put the level in square brackets, `cond[B]`, where R writes `condB`, and sum-coded columns are named after their levels, where R numbers them.
+- The levels of a grouping factor of several variables are the distinct combinations of their values. R and lme4 paste the labels with ':', which merges combinations such as ('a', 'b:c') and ('a:b', 'c').
 - Random terms keep the order of the formula, grouped by factor. lme4 orders them by the number of levels of their grouping factor, which depends on the data, and writes a nested factor inner first, as `class:school` for `school/class`.
 - '||' with a categorical column is an error. lme4 1.1-35.1 expands `(1 + f || g)` to `(1 | g) + (0 + f | g)`, which is not identified (01-design-review.md), and the default of lme4 2.x differs again.
-- Removing an absent term, '- 0', a duplicate random term, a column shared by two random terms of one factor, a repeated grouping variable and a parenthesised expression that removes all its terms are errors. R and lme4 accept them.
+- Removing an absent term, '- 0', a subtracted random term, which lme4 adds, a duplicate random term, a column shared by two random terms of one factor, a repeated grouping variable and a parenthesised expression that removes all its terms are errors. R and lme4 accept them.
+- A part with more than 10,000 terms or columns and a name of more than 10,000 characters are errors, where R and lme4 try to build them.
 - Functions other than offset() and log() are not evaluated, and one-sided formulas are allowed, since T0 audits need no response.
 
 ## References

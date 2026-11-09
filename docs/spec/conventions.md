@@ -53,7 +53,7 @@ NFC applies in three ways:
 
 1. Every string and key of a document in the hashable profile must be normalisable (E1208) and already in NFC (E1203). Readers and writers never normalise a document. They refuse it, so that a hash always covers the bytes the user wrote and never depends on the Unicode version of either package.
 2. Two identifiers or two labels are equal when their NFC forms are the same sequence of code points. A string that is not normalisable stands for itself in such a comparison, compared code point by code point. There is no case folding, no compatibility mapping (NFKC) and no trimming of white space. This is how declared column names are matched with the columns of the data, and declared category values and event levels with values in the data.
-3. Distinct strings of one set that are equal after NFC, such as two spellings of one label in a column, are treated as one and the merge is reported, never split silently. W1251 reports it unless the component's own specification defines a code.
+3. Distinct strings of one set that are equal after NFC, such as two spellings of one label in a column, are treated as one and the merge is reported, never split silently. W1251 reports it unless the component's own specification defines a code or names a check of the registry that reports it, as ir.md does for the levels of a column.
 
 ### Order
 

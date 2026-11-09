@@ -110,16 +110,17 @@ design_matrices <- function(ir, data) {
     }
   }
   values <- design_variable_values(model, table, design)
-  x <- matrix(0, nrow = length(design), ncol = length(ir$fixed$columns))
   fixed_names <- vapply(ir$fixed$columns, function(column) column$name, "")
   # E6077 for the first column of X, then of Z, with a value that is not
-  # finite.
-  for (k in seq_along(ir$fixed$columns)) {
-    x[, k] <- design_column_values(ir$fixed$terms, ir$fixed$columns[[k]], values, length(design))
-    if (any(!is.finite(x[, k]))) {
+  # finite. Each column is checked before it is written into X.
+  x <- vapply(seq_along(ir$fixed$columns), function(k) {
+    column <- design_column_values(ir$fixed$terms, ir$fixed$columns[[k]], values, length(design))
+    if (any(!is.finite(column))) {
       raise_issue("E6077", list(column = fixed_names[k]))
     }
-  }
+    column
+  }, numeric(length(design)))
+  dim(x) <- c(length(design), length(fixed_names))
   colnames(x) <- fixed_names
   z <- design_z(ir, model, table, design, values)
   kept <- sequential_rule(x)
@@ -409,11 +410,21 @@ design_z <- function(ir, model, table, rows, values) {
                stringsAsFactors = FALSE)
   columns$term <- as.integer(columns$term)
   rownames(columns) <- NULL
-  matrix <- Matrix::sparseMatrix(
-    i = unlist(i_all, use.names = FALSE) %||% integer(0),
-    j = unlist(j_all, use.names = FALSE) %||% integer(0),
-    x = unlist(x_all, use.names = FALSE) %||% numeric(0),
-    dims = c(n, start)
+  # The dgCMatrix is built from its slots, so that every entry is stored,
+  # zero or not, whatever Matrix version is installed: the entries sorted by
+  # column, with the rows of each column in increasing order, which a stable
+  # sort by column keeps, since each column takes its entries from one
+  # column of a term in row order.
+  i <- unlist(i_all, use.names = FALSE) %||% integer(0)
+  j <- unlist(j_all, use.names = FALSE) %||% integer(0)
+  order_by_column <- order(j, method = "radix")
+  matrix <- methods::new(
+    "dgCMatrix",
+    i = i[order_by_column] - 1L,
+    p = c(0L, cumsum(tabulate(j, nbins = start))),
+    x = (unlist(x_all, use.names = FALSE) %||% numeric(0))[order_by_column],
+    Dim = c(n, start),
+    Dimnames = list(NULL, NULL)
   )
   list(matrix = matrix, columns = columns)
 }
@@ -513,47 +524,64 @@ design_response <- function(ir, model, table, analysis) {
 # by its largest absolute value, so that its squares neither overflow nor
 # underflow, and dropped when the norm of its residual after orthogonal
 # projection onto the columns kept so far is at most tolerance times its
-# norm. The residual is computed against an orthonormal basis of the kept
-# columns with two passes of Gram-Schmidt. When there are more than twice as
-# many rows as scaled columns, each column is first replaced by Q'v, its
-# coordinates in the orthonormal Q of the Householder QR of LAPACK that qr()
-# computes. Q'v keeps every norm and inner product up to an error near the
-# rounding error of the column, and the passes then work on as many rows as
-# there are columns, so that the costly work is one QR in compiled code
-# rather than a projection of every column onto all n rows of the basis.
-# Returns whether each column is kept.
+# norm. The steps, which sequential_rule() in the Python package follows one
+# by one:
+#
+# 1. One pass over the columns finds the largest absolute value of each and
+#    divides the column by it, which gives the scaled columns V of the
+#    columns that are not all 0.
+# 2. When there are more than twice as many rows as columns in V, V is
+#    replaced by Q'V, its coordinates in the orthonormal factor Q of the
+#    Householder QR with column pivoting of LAPACK's DGEQP3, which
+#    qr(LAPACK = TRUE) calls: the triangular factor R, with its columns put
+#    back in the order of V. Q'V keeps every norm and inner product up to an
+#    error near the rounding error of the column, and the next step then
+#    works on as many rows as there are columns.
+# 3. Each column of V in turn is projected out of an orthonormal basis of
+#    the columns kept so far with two passes of Gram-Schmidt, and when its
+#    residual is kept, the residual divided by its norm joins the basis.
+#    Norms and inner products are computed with crossprod() and %*%, which
+#    call BLAS, as numpy.dot() and @ do in Python.
+#
+# The two packages call the same LAPACK routine and BLAS operations on the
+# same values, so that they differ only in the rounding of their BLAS and
+# LAPACK. Returns whether each column is kept.
 sequential_rule <- function(x, tolerance = 1e-7) {
   n <- nrow(x)
   p <- ncol(x)
   kept <- logical(p)
-  largest <- numeric(p)
-  for (j in seq_len(p)) {
-    if (n) {
-      largest[j] <- max(abs(x[, j]))
-    }
+  if (!n || !p) {
+    return(kept)
   }
+  largest <- numeric(p)
+  v <- vapply(seq_len(p), function(j) {
+    column <- x[, j]
+    largest[j] <<- max(abs(column))
+    if (largest[j] > 0) column / largest[j] else column
+  }, numeric(n))
+  dim(v) <- c(n, p)
   candidates <- which(largest > 0)
   if (!length(candidates)) {
     return(kept)
   }
-  v <- x[, candidates, drop = FALSE]
-  for (k in seq_along(candidates)) {
-    v[, k] <- v[, k] / largest[candidates[k]]
+  if (length(candidates) < p) {
+    v <- v[, candidates, drop = FALSE]
   }
-  if (n > 2L * ncol(v)) {
+  if (n > 2L * length(candidates)) {
     decomposition <- qr(v, LAPACK = TRUE)
     v <- qr.R(decomposition)[, order(decomposition$pivot), drop = FALSE]
+    rm(decomposition)
   }
   basis <- matrix(0, nrow(v), 0L)
   for (k in seq_along(candidates)) {
     r <- v[, k]
-    norm_v <- sqrt(sum(r * r))
+    norm_v <- sqrt(drop(crossprod(r)))
     if (ncol(basis)) {
       for (pass in 1:2) {
         r <- r - drop(basis %*% crossprod(basis, r))
       }
     }
-    norm_r <- sqrt(sum(r * r))
+    norm_r <- sqrt(drop(crossprod(r)))
     if (norm_r > tolerance * norm_v) {
       kept[candidates[k]] <- TRUE
       basis <- cbind(basis, r / norm_r)

@@ -473,8 +473,10 @@ def test_a_part_has_at_most_10000_columns_and_a_name_at_most_10000_characters():
         "The fixed part would have more than 10000 columns.",
     )
     issue = issue_of(formula_ir, "y ~ (0 + a:b:c | g)", data=data.assign(g=labels))
-    assert issue["code"] == "E6075"
-    assert issue["message"].startswith("The random term '0 + a:b:c | g' would have")
+    assert (issue["code"], issue["message"]) == (
+        "E6075",
+        "The random term '0 + a:b:c | g' would have more than 10000 columns.",
+    )
     names = list("abcdefhijk")
     long = "y ~ (" + "*".join(names) + " | g)"
     declaration = numeric_declaration(names)
@@ -514,6 +516,20 @@ def test_centring_constants_that_are_not_finite_are_refused():
     assert issue_of(formula_ir, "y ~ x", numeric_declaration(["x"]), coding=coding)["code"] == (
         "E6077"
     )
+
+
+def test_centring_reports_every_code_of_one_predictor_before_those_of_the_next():
+    coding: dict[str, Any] = {"a": {"centring": "mean"}, "b": {"centring": "mean"}}
+    data = pd.DataFrame({"y": [1.0, 2.0], "a": [1.7e308, 1.7e308], "b": [1.0, math.nan]})
+    issue = issue_of(formula_ir, "y ~ b + a", data=data, coding=coding)
+    assert (issue["code"], issue["message"]) == ("E6077", "A value computed for 'a' is not finite.")
+    # The design sample is empty, so 'b' alone would give E6067.
+    data = pd.DataFrame(
+        {"y": [1.0, 2.0], "a": [1.0, 2.0], "b": [1.0, None], "s": [None, 1.0]}, dtype=object
+    )
+    coding["a"] = {"centring": "value", "value": "1" + "0" * 309}
+    issue = issue_of(formula_ir, "y ~ a + b", data=data, coding=coding, sample_columns=["s"])
+    assert (issue["code"], issue["message"]) == ("E6077", "A value computed for 'a' is not finite.")
 
 
 def test_integral_numbers_count_as_integers_in_the_coding_argument():

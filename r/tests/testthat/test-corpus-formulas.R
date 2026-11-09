@@ -41,6 +41,10 @@ expect_corpus_matrices <- function(ir, data, expected, label) {
     column = vapply(columns, function(column) column$column, ""),
     stringsAsFactors = FALSE
   ), label = paste(label, "columns of Z"))
+  # One stored entry for each row and each column of a random term, zero or
+  # not (ir.md, Z).
+  widths <- sum(vapply(ir$random, function(term) length(term$columns), 0L))
+  expect_identical(length(m$z@x), length(rows) * widths, label = paste(label, "entries of Z"))
 }
 
 run_formula_case <- function(case) {
@@ -81,14 +85,14 @@ for (file in formula_files) {
   })
 }
 
-test_that("the formula corpus holds 246 cases, 33 with matrices and 7 with their issue", {
+test_that("the formula corpus holds 250 cases, 33 with matrices and 9 with their issue", {
   cases <- unlist(lapply(formula_files, function(file) corpus_cases("formulas", file)),
                   recursive = FALSE)
-  expect_length(cases, 246L)
+  expect_length(cases, 250L)
   expect_identical(sum(vapply(cases, function(case) {
     !is.null(case[["expected"]][["matrices"]])
   }, NA)), 33L)
   expect_identical(sum(vapply(cases, function(case) {
     !is.null(case[["expected"]][["ir"]]) && !is.null(case[["expected"]][["issue"]])
-  }, NA)), 7L)
+  }, NA)), 9L)
 })

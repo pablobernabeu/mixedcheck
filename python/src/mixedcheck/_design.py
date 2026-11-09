@@ -72,9 +72,9 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
         - ``design_sample`` and ``analysis_sample``: the positions of the rows
           of ``data`` in each sample, as for ``DataFrame.iloc``, in numpy
           int64 arrays counted from 0. The R package counts them from 1.
-        - ``x``: a two-dimensional numpy float64 array with one row for each
-          row of the design sample and one column for each column of the
-          fixed part.
+        - ``x``: a two-dimensional numpy float64 array in column-major order,
+          as R stores a matrix, with one row for each row of the design
+          sample and one column for each column of the fixed part.
         - ``x_columns``: the names of the columns of ``x``, in order, as the
           IR names them.
         - ``x_dropped``: the names of the columns of ``x`` that the sequential
@@ -161,14 +161,17 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
             raise_issue("E6073", {"column": key})
     values = design_variable_values(model, table, design)
     columns = value["fixed"]["columns"]
-    x = np.zeros((len(design), len(columns)), dtype=np.float64)
+    # Column-major, as in R, so that each column is contiguous when it is
+    # written and when the sequential rule reads it.
+    x = np.empty((len(design), len(columns)), dtype=np.float64, order="F")
     fixed_names = [column["name"] for column in columns]
     # E6077 for the first column of X, then of Z, with a value that is not
-    # finite.
+    # finite. Each column is checked before it is written into X.
     for k, column in enumerate(columns):
-        x[:, k] = design_column_values(value["fixed"]["terms"], column, values, len(design))
-        if not bool(np.isfinite(x[:, k]).all()):
+        computed = design_column_values(value["fixed"]["terms"], column, values, len(design))
+        if not bool(np.isfinite(computed).all()):
             raise_issue("E6077", {"column": fixed_names[k]})
+        x[:, k] = computed
     z, z_columns = design_z(model, table, design, values)
     kept = sequential_rule(x)
     offset = None
@@ -650,34 +653,69 @@ def sequential_rule(x: Array, tolerance: float = 1e-7) -> list[bool]:
     divided by its largest absolute value, so that its squares neither
     overflow nor underflow, and dropped when the norm of its residual after
     orthogonal projection onto the columns kept so far is at most
-    ``tolerance`` times its norm. The residual is computed against an
-    orthonormal basis of the kept columns with two passes of classical
-    Gram-Schmidt. The basis is allocated once, in column-major order, so that
-    the kept columns form one contiguous block that is never copied. Returns
-    whether each column is kept.
+    ``tolerance`` times its norm. The steps are those of sequential_rule() in
+    the R package, one by one:
+
+    1. The largest absolute value of each column is found, and each column
+       that is not all 0 is divided by it, which gives the scaled columns V.
+    2. When there are more than twice as many rows as columns in V, V is
+       replaced by Q'V, its coordinates in the orthonormal factor Q of the
+       Householder QR with column pivoting of LAPACK's DGEQP3, which
+       ``scipy.linalg.qr(pivoting=True)`` calls as R's
+       ``qr(LAPACK = TRUE)`` does: the triangular factor R, with its columns
+       put back in the order of V. Q'V keeps every norm and inner product up
+       to an error near the rounding error of the column, and the next step
+       then works on as many rows as there are columns.
+    3. Each column of V in turn is projected out of an orthonormal basis of
+       the columns kept so far with two passes of Gram-Schmidt, and when its
+       residual is kept, the residual divided by its norm joins the basis.
+       Norms and inner products are computed with ``numpy.dot()`` and ``@``,
+       which call BLAS, as ``crossprod()`` and ``%*%`` do in R.
+
+    The two packages call the same LAPACK routine and BLAS operations on the
+    same values, so that they differ only in the rounding of their BLAS and
+    LAPACK. Returns whether each column is kept.
     """
     import numpy as np
+    from scipy import linalg
 
     n, p = x.shape
-    kept: list[bool] = []
-    basis = np.empty((n, p), dtype=np.float64, order="F")
+    kept = [False] * p
+    if n == 0 or p == 0:
+        return kept
+    # The largest of the largest value and the negated smallest value is the
+    # largest absolute value, found without a copy of X.
+    largest = np.maximum(x.max(axis=0), -x.min(axis=0))
+    candidates = np.flatnonzero(largest > 0)
+    m = len(candidates)
+    if m == 0:
+        return kept
+    v = np.empty((n, m), dtype=np.float64, order="F")
+    for k, j in enumerate(candidates.tolist()):
+        np.divide(x[:, j], largest[j], out=v[:, k])
+    if n > 2 * m:
+        # mode='raw' returns the same m x m factor R from the same call to
+        # DGEQP3 as mode='r', without the n x m array of the triangle padded
+        # with zeros that mode='r' returns. V is column-major, so that DGEQP3
+        # overwrites it in place.
+        _, r_factor, pivot = linalg.qr(
+            v, overwrite_a=True, mode="raw", pivoting=True, check_finite=False
+        )
+        v = np.asfortranarray(r_factor[:, np.argsort(pivot)])
+    basis = np.empty((v.shape[0], m), dtype=np.float64, order="F")
     k = 0
-    for j in range(p):
-        largest = float(np.abs(x[:, j]).max()) if n else 0.0
-        if largest == 0:
-            kept.append(False)
-            continue
-        v = x[:, j] / largest
-        norm_v = math.sqrt(float(np.dot(v, v)))
-        r = v
+    for j in range(m):
+        r = v[:, j]
+        norm_v = math.sqrt(float(np.dot(r, r)))
         if k:
+            # The kept columns are one contiguous block of the column-major
+            # basis, used without a copy.
             q = basis[:, :k]
             for _ in range(2):
                 r = r - q @ (q.T @ r)
         norm_r = math.sqrt(float(np.dot(r, r)))
-        keep = norm_r > tolerance * norm_v
-        kept.append(keep)
-        if keep:
+        if norm_r > tolerance * norm_v:
+            kept[int(candidates[j])] = True
             basis[:, k] = r / norm_r
             k += 1
     return kept

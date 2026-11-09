@@ -52,8 +52,8 @@
   with the columns that the sequential rule drops, the sparse Z as a
   `Matrix::dgCMatrix` and the response, trials, offset and weight vectors.
   `design_samples()` returns the two samples alone, even when
-  `design_matrices()` refuses the values of the rows. Matrix joins the
-  Imports, and lme4 joins the Suggests as a test oracle.
+  `design_matrices()` refuses the values of the rows. Matrix and methods join
+  the Imports, and lme4 joins the Suggests as a test oracle.
 
 * The tests run every case of the formula corpus from the installed package,
   with the design matrices of the cases that give them, and the design and

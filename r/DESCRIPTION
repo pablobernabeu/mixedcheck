@@ -18,6 +18,7 @@ Imports:
     cli (>= 3.2.0),
     jsonlite,
     Matrix (>= 1.4-1),
+    methods,
     utf8 (>= 1.2.4)
 Suggests:
     lme4,

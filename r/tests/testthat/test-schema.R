@@ -131,9 +131,13 @@ test_that("uniqueItems compares canonical forms in time proportional to the item
   schema <- list(`$id` = "urn:test:unique", type = "array", uniqueItems = TRUE)
   bundle <- new_schema_bundle(c(unname(schema_bundle()$schemas), list(schema)))
   keys <- lapply(seq_len(5000L), function(i) list("school", paste0("pupil", i), i %% 3))
+  # About 0.6 s, 0.7 s with a CPU-bound process on every core and 3 s with
+  # four other jobs, each running BLAS on four threads, on four cores. The
+  # bound is seven times the latter, so that a loaded machine does not fail
+  # the test.
   elapsed <- system.time(issues <- schema_issues(keys, "urn:test:unique", bundle))[["elapsed"]]
   expect_identical(issues, list())
-  expect_lt(elapsed, 5)
+  expect_lt(elapsed, 20)
   repeated <- c(keys[1:3], list(list("school", "pupil1", 1), list(b = list(1), a = 2),
                                 list(a = 2, b = list(1))))
   issues <- finish_issues(schema_issues(repeated, "urn:test:unique", bundle))

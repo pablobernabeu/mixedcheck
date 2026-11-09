@@ -118,6 +118,22 @@ def test_the_matrices_report_their_problems_in_the_order_of_ir_md():
     assert issue_code(design_matrices, formula_ir("y ~ x + (1 | g)", data=data), data) == "E6073"
 
 
+def test_e6071_for_an_offset_and_e6072_apply_to_rows_whose_response_is_missing():
+    data = pd.DataFrame(
+        {
+            "y": pd.Series([1.0, None, 3.0], dtype=object),
+            "x": [1.0, 2.0, 3.0],
+            "e": [1.0, 0.0, 2.0],
+            "w": [1.0, 0.0, 1.0],
+        }
+    )
+    ir = formula_ir("y ~ x + offset(log(e))", data=data)
+    assert design_samples(ir, data)["analysis_sample"].tolist() == [0, 2]
+    assert issue_code(design_matrices, ir, data) == "E6071"
+    ir = formula_ir("y ~ x", data=data, weights="w")
+    assert issue_code(design_matrices, ir, data) == "E6072"
+
+
 def test_z_stores_one_entry_for_each_row_and_column_of_a_term_zero_or_not():
     data = pd.DataFrame(
         {
@@ -141,6 +157,25 @@ def test_z_stores_one_entry_for_each_row_and_column_of_a_term_zero_or_not():
     ]
     assert m["z_columns"]["term"].tolist() == [0] * 6 + [1] * 6
     assert m["z"].toarray()[0].tolist() == [0.0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+
+
+def test_a_random_slope_of_0_keeps_its_stored_entry_in_z():
+    # The slope of level 'a' is 0 in both of its rows and that of level 'b' in
+    # its first row. scipy keeps explicit zeros, from scipy 1.15 on.
+    data = pd.DataFrame(
+        {
+            "y": [1.0, 2, 3, 4],
+            "x": [0.0, 0, 0, 3],
+            "g": pd.Series(["a", "a", "b", "b"], dtype=object),
+        }
+    )
+    z = design_matrices(formula_ir("y ~ x + (1 + x | g)", data=data), data)["z"]
+    assert isinstance(z, sparse.csc_array)
+    assert z.nnz == z.shape[0] * 2
+    assert z.indptr.tolist() == [0, 2, 4, 6, 8]
+    assert z.indices.tolist() == [0, 1, 0, 1, 2, 3, 2, 3]
+    assert z.data.tolist() == [1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 3.0]
+    assert z.count_nonzero() == 5
 
 
 def test_grouping_labels_compare_strings_after_nfc_in_code_point_order():
@@ -219,6 +254,7 @@ def test_x_multiplies_centred_values_and_contrasts_from_the_left():
     coding = {"x": {"centring": "value", "value": "0.3"}, "a": {"contrast": "simple"}}
     m = design_matrices(formula_ir("y ~ x:a", data=data, coding=coding), data)
     centred = [value - 0.3 for value in data["x"]]
+    assert m["x"].flags.f_contiguous
     assert m["x_columns"] == ["(Intercept)", "x:a[A1]", "x:a[A2]", "x:a[A3]"]
     # 'a' is coded by indicators in x:a, since no earlier term holds 'x'.
     indicator = [1.0 if a == "A1" else 0.0 for a in data["a"]]
@@ -257,9 +293,12 @@ def test_formula_ir_and_design_matrices_are_fast_on_10000_rows():
 
 
 def test_the_sequential_rule_is_fast_for_a_factor_of_300_levels():
-    # About 1.2 s, and 4 to 7 s on 100,000 rows, where copying the basis for
-    # every column took 46 s. The bound is loose, so that a slow machine does
-    # not fail the test.
+    # About 0.6 s, and 1 to 2 s on 100,000 rows, where projecting every
+    # column onto a basis of n rows took 3 s. The threads of OpenBLAS in the
+    # QR compete with other processes, so the test takes about 5 s with a
+    # CPU-bound process on every core and 13 s with four other jobs, each
+    # running BLAS on four threads, on four cores. The bound is nine times
+    # the latter, so that a loaded machine does not fail the test.
     n = 30000
     rows = np.arange(n)
     data = pd.DataFrame(
@@ -274,7 +313,48 @@ def test_the_sequential_rule_is_fast_for_a_factor_of_300_levels():
     elapsed = time.perf_counter() - start
     assert m["x"].shape == (n, 301)
     assert m["x_dropped"] == []
-    assert elapsed < 10
+    assert elapsed < 120
+
+
+def test_the_sequential_rule_gives_the_same_columns_after_the_reduction_by_qr():
+    # The same columns as in the R package's test. Of the 13 columns, 12 are
+    # not all 0, so that the columns are reduced by QR on more than 24 rows
+    # and used as they are on 24 rows or fewer.
+    index = np.arange(1, 201, dtype=np.float64)
+    a = np.sin(index)
+    b = np.cos(3 * index)
+    f = np.array(["A", "B", "C"])[index.astype(np.int64) % 3]
+    sign = np.resize([1.0, -1.0], 200)
+    x = np.column_stack(
+        [
+            np.ones(200),
+            a,
+            np.zeros(200),
+            b,
+            a + 2 * b,
+            f == "A",
+            f == "B",
+            f == "C",
+            (f == "C") * 1e-12,
+            a * (f == "A"),
+            3 * a - 1,
+            b + sign * 1e-6,
+            b + sign * 1e-9,
+        ]
+    ).astype(np.float64)
+    expected = [True, True, False, True, False, True, True, False, False, True, False, True, False]
+    assert sequential_rule(x) == expected
+    assert sequential_rule(x[:25]) == expected
+    assert sequential_rule(x[:24]) == expected
+    assert sequential_rule(x[:, [0, 1, 4, 3]]) == [True, True, True, False]
+    # Relative residuals of 2e-7 and 5e-8 against the columns 1 and a, on 200
+    # rows, which are reduced.
+    base = np.column_stack([np.ones(200), a])
+    e = sign - base @ np.linalg.lstsq(base, sign, rcond=None)[0]
+    e = e / math.sqrt(float(e @ e))
+    w = a / math.sqrt(float(a @ a))
+    assert sequential_rule(np.column_stack([base, w + 2e-7 * e])) == [True, True, True]
+    assert sequential_rule(np.column_stack([base, w + 5e-8 * e])) == [True, True, False]
 
 
 def test_the_sequential_rule_scales_each_column_by_its_largest_value():

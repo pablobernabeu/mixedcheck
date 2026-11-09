@@ -165,6 +165,7 @@ audit_check_structure_id_scope_evidence <- function(run, entry, elements) {
     statistics <- list(
       labels_column = if (reverse) second else first,
       context_column = if (reverse) first else second,
+      levels = if (reverse) found$values$levels_second else found$values$levels_first,
       shared_labels = reported$shared,
       attributes = reported$attributes,
       tied = has_forward && has_backward && forward$changing > 0 && backward$changing > 0

@@ -35,12 +35,7 @@ focal_terms <- function(run) {
   terms <- run$ir$fixed$terms
   response <- run$ir$response$variable
   has_variables <- vapply(terms, function(term) length(term$variables) > 0L, NA)
-  variables <- declaration[["variables"]]
-  declared <- as.character(names(variables))
-  outcomes <- declared[vapply(seq_along(variables), function(i) {
-    identical(variables[[i]][["role"]], "outcome") &&
-      !declaration_inferred(declaration, path_pointer("variables", declared[i], "role"))
-  }, NA)]
+  outcomes <- role_columns(declaration, "outcome")
   counting <- FALSE
   wanted <- list()
   estimands <- declaration[["estimands"]]
@@ -91,7 +86,7 @@ empty_cells <- function(run) {
   for (term in run$ir$fixed$terms) {
     names <- vapply(term$variables, function(v) v$variable, "")
     categorical <- vapply(names, function(name) {
-      identical(run$ir$predictors[[name]]$kind, "categorical")
+      identical(named_member(run$ir$predictors, name)$kind, "categorical")
     }, NA)
     if (length(names) < 2L || !all(categorical)) {
       next
@@ -143,12 +138,15 @@ audit_check_design_collinearity <- function(run, entry, elements) {
   })
 }
 
-# The columns centred by their means, each summed exactly and divided once as
-# ir.md (Centring) computes means, and scaled to unit Euclidean length.
+# The columns divided by their largest absolute values, so that no sum or
+# product of their values overflows or underflows, centred by their means,
+# each summed exactly and divided once as ir.md (Centring) computes means,
+# and scaled to unit Euclidean length.
 unit_centred_columns <- function(x) {
   n <- nrow(x)
   for (j in seq_len(ncol(x))) {
-    centred <- x[, j] - exact_sum(x[, j]) / n
+    scaled <- x[, j] / max(abs(x[, j]))
+    centred <- scaled - exact_sum(scaled) / n
     x[, j] <- centred / sqrt(drop(crossprod(centred)))
   }
   x
@@ -184,7 +182,8 @@ audit_check_design_scale_disparity <- function(run, entry, elements) {
   }
   kept <- run$x[, run$x_kept, drop = FALSE]
   for (j in seq_len(ncol(kept))) {
-    kept[, j] <- kept[, j] / sqrt(drop(crossprod(kept[, j])))
+    column <- kept[, j] / max(abs(kept[, j]))
+    kept[, j] <- column / sqrt(drop(crossprod(column)))
   }
   singular <- svd(kept, nu = 0L, nv = 0L)$d
   statistics$condition_number <- max(singular) / min(singular)
@@ -193,13 +192,16 @@ audit_check_design_scale_disparity <- function(run, entry, elements) {
 }
 
 # The standard deviation of a column with denominator n - 1: 0 when its
-# values are all equal, and otherwise the square root of the sum of the
-# squared differences from its mean, summed exactly and divided once, over
-# n - 1.
+# values are all equal, and otherwise M times the square root of the sum of
+# the squared differences from the mean of the column divided by its largest
+# absolute value M, the mean summed exactly and divided once, over n - 1, so
+# that no square overflows or underflows.
 column_sd <- function(x) {
   if (all(x == x[1L])) {
     return(0)
   }
   n <- length(x)
-  sqrt(sum((x - exact_sum(x) / n)^2) / (n - 1))
+  largest <- max(abs(x))
+  scaled <- x / largest
+  largest * sqrt(sum((scaled - exact_sum(scaled) / n)^2) / (n - 1))
 }

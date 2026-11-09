@@ -38,8 +38,8 @@ test_that("HMAC-SHA-256 handles keys around the block size", {
 })
 
 test_that("new_commitment_key() creates a key from the system and leaves R's generator alone", {
-  skip_on_os("windows")
-  set.seed(1)
+  skip_without_key_source()
+  local_seed(1)
   before <- .Random.seed
   key <- new_commitment_key()
   expect_identical(.Random.seed, before)

@@ -45,7 +45,11 @@ test_that("the exact sums of groups equal the exact sum of each group", {
   groups <- rep(seq_along(values), lengths(values))
   expect_identical(sums(unlist(values), groups, length(values)),
                    vapply(values, exact_sum, 0))
-  set.seed(5)
+  # Groups of one value, which take the value without limbs, beside groups
+  # of several values and a group of zeros.
+  expect_identical(sums(c(0.1, 0.2, 0.3, 5, 0, -2^-1074), c(1, 2, 2, 4, 3, 5), 5L),
+                   c(0.1, exact_sum(c(0.2, 0.3)), 0, 5, -2^-1074))
+  local_seed(5)
   for (trial in 1:20) {
     x <- rnorm(200) * 10^sample(-200:200, 200, TRUE)
     x <- c(x, -x[1:50])

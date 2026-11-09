@@ -38,7 +38,7 @@ privacy_filter <- function(run, findings, key) {
     if (!isTRUE(finding$available)) {
       return(finding)
     }
-    privacy_decision(privacy_absent(privacy_within(finding, k)))
+    privacy_decision(privacy_absent(privacy_within(finding, k)), run, k)
   })
   pseudonyms <- privacy_pseudonyms(findings, key)
   findings <- lapply(findings, privacy_render, pseudonyms = pseudonyms)
@@ -100,10 +100,13 @@ privacy_minimum_rules <- function(finding, k) {
 }
 
 # Step 3: every person count still written that is below k, 0 included,
-# support.rows and support.contributors.distinct among them.
+# support.rows and support.contributors.distinct among them, other than a
+# minimum or a maximum, which step 4 suppresses whatever its value, so that
+# its detail does not show on which side of k it lies.
 privacy_small_counts <- function(finding, k) {
   names <- Filter(function(name) {
-    privacy_person(finding, name) && finding$values[[name]] < k
+    p <- finding$statistics[[name]]$quantile[["p"]]
+    privacy_person(finding, name) && finding$values[[name]] < k && !isTRUE(p %in% c("0", "1"))
   }, names(finding$values))
   finding <- privacy_suppress(finding, names, "min_count")
   for (member in c("rows", "distinct")) {
@@ -191,12 +194,13 @@ privacy_within <- function(finding, k) {
 # Step 7: the rules across findings (privacy.md, Across findings). The
 # samples are the table, the design sample, the analysis sample when the run
 # read the outcome and the rows that a finding reads when they are not its
-# entry's sample, the rows of an assignment or of a pair of columns. Rule 1
-# compares each sample with the next smaller one, and such rows with the
-# design sample, rule 2 compares the levels of an item with its levels with
-# one and with two or more rows, and rule 3 suppresses the counts that equal
-# a suppressed quantity. Each suppresses the written counts concerned with
-# the detail 'secondary'.
+# entry's sample, the rows of an assignment or of a pair of columns, which
+# count as the design or the analysis sample when they hold the same rows.
+# Rule 1 compares every two samples one of which holds the other's rows,
+# rule 2 compares the levels of an item with its levels with one and with two
+# or more rows, and rule 3 suppresses the counts that equal a suppressed
+# quantity. Each suppresses the written counts concerned with the detail
+# 'secondary'.
 privacy_across <- function(run, findings, k) {
   available <- vapply(findings, function(finding) isTRUE(finding$available), NA)
   if (!any(available)) {
@@ -206,6 +210,7 @@ privacy_across <- function(run, findings, k) {
   if (!is.null(run$analysis)) {
     samples$analysis <- run$analysis
   }
+  main <- names(samples)
   finding_samples <- character(length(findings))
   for (i in which(available)) {
     finding <- findings[[i]]
@@ -217,26 +222,59 @@ privacy_across <- function(run, findings, k) {
     }
     finding_samples[i] <- sample
   }
-  comparisons <- list(list(larger = "table", smaller = "design", loser = "table"))
-  if (!is.null(samples$analysis)) {
-    comparisons[[2L]] <- list(larger = "design", smaller = "analysis", loser = "design")
-  }
-  for (name in grep("^rows ", names(samples), value = TRUE)) {
-    comparisons[[length(comparisons) + 1L]] <- list(larger = "design", smaller = name,
-                                                    loser = name)
-  }
   items <- privacy_items(run, findings[available])
   quantities <- lapply(samples, function(rows) {
     support <- rows_support(run, rows)
     list(rows = length(rows), contributors = support$distinct,
          items = lapply(items, function(codes) privacy_item_quantities(run, codes, rows)))
   })
-  marks <- privacy_quantity_marks(quantities, comparisons, k)
+  crossed <- list()
+  for (i in which(available)) {
+    finding <- findings[[i]]
+    if (finding$check == "structure.label_incidence" &&
+        identical(finding$values[["relation"]], "crossed")) {
+      crossed[[length(crossed) + 1L]] <- list(
+        sample = finding_samples[i],
+        combinations = privacy_item_index(items, finding$items[["combinations"]]),
+        first = privacy_item_index(items, finding$items[["levels_first"]]),
+        second = privacy_item_index(items, finding$items[["levels_second"]])
+      )
+    }
+  }
+  marks <- privacy_quantity_marks(quantities, privacy_comparisons(samples, main), crossed, k)
+  factor_items <- vapply(run$factors, function(keys) {
+    privacy_item_index(items, list(value_codes(run, keys)))
+  }, 0L)
   for (i in which(available)) {
     findings[[i]] <- privacy_across_finding(run, findings[[i]], finding_samples[i], items,
-                                            quantities, marks)
+                                            factor_items, quantities, marks)
   }
   findings
+}
+
+# The comparisons of rule 1: every two samples one of which holds the
+# other's rows, as the larger and the smaller, the table before the design
+# sample and the design sample before the analysis sample when they hold the
+# same rows, with the sample that loses its value. The rows of an assignment
+# or of a pair lose against the table, the design sample and the analysis
+# sample, and otherwise the larger sample loses.
+privacy_comparisons <- function(samples, main) {
+  comparisons <- list()
+  for (a in seq_along(samples)) {
+    for (b in seq_along(samples)) {
+      larger <- samples[[a]]
+      smaller <- samples[[b]]
+      if (a == b || length(smaller) > length(larger) ||
+          (length(smaller) == length(larger) && b < a) || !all(smaller %in% larger)) {
+        next
+      }
+      pair <- names(samples)[c(a, b)]
+      loser <- if (pair[1L] %in% main && !pair[2L] %in% main) pair[2L] else pair[1L]
+      comparisons[[length(comparisons) + 1L]] <- list(larger = pair[1L], smaller = pair[2L],
+                                                      loser = loser)
+    }
+  }
+  comparisons
 }
 
 # The items whose quantities the rules across findings compare: the grouping
@@ -245,9 +283,7 @@ privacy_across <- function(run, findings, k) {
 # level codes of every row of the table. Items that divide the rows into the
 # same levels are one item.
 privacy_items <- function(run, findings) {
-  candidates <- lapply(names(run$factors), function(factor) {
-    value_codes(run, run$factors[[factor]])
-  })
+  candidates <- lapply(run$factors, function(keys) value_codes(run, keys))
   for (unit in names(declared_units(run$declaration))) {
     candidates[[length(candidates) + 1L]] <-
       value_codes(run, unit_label_columns(run$declaration, unit))
@@ -277,8 +313,7 @@ privacy_item_codes <- function(item) {
   }
   level <- as.numeric(item[[1L]])
   if (length(item) == 2L) {
-    second <- as.numeric(item[[2L]])
-    level <- level * (max(c(second, 0), na.rm = TRUE) + 1) + second
+    level <- pair_codes(level, as.numeric(item[[2L]]))
   }
   present <- !is.na(level)
   codes <- rep(NA_integer_, length(level))
@@ -300,8 +335,15 @@ privacy_item_quantities <- function(run, codes, rows) {
 # logical members rows and contributors and, for each item, levels,
 # levels_with_two_rows and levels_with_one_row. A quantity of an item is
 # compared when the item's counts of levels resolve as person counts in the
-# sample that loses its value, and rule 2 applies to such items only.
-privacy_quantity_marks <- function(quantities, comparisons, k) {
+# sample that loses its value, and rule 2 applies to such items only. When
+# rule 1 suppresses the levels of the combinations of two columns that
+# structure.label_incidence finds crossed in a sample in which the levels of
+# both columns stay written, their product gives the value back, so the
+# levels of the combinations in the other sample of each comparison that
+# suppressed them are suppressed too. crossed lists such pairs, each with its
+# sample and the positions of the items of the combinations and of the two
+# columns.
+privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
   measures <- c("levels", "levels_with_two_rows", "levels_with_one_row")
   marks <- lapply(quantities, function(sample) {
     list(rows = FALSE, contributors = FALSE,
@@ -310,10 +352,12 @@ privacy_quantity_marks <- function(quantities, comparisons, k) {
          }))
   })
   close <- function(a, b) a - b >= 0 && a - b < k
+  lost <- list()
   for (comparison in comparisons) {
     larger <- quantities[[comparison$larger]]
     smaller <- quantities[[comparison$smaller]]
     loser <- comparison$loser
+    other <- if (loser == comparison$larger) comparison$smaller else comparison$larger
     for (member in c("rows", "contributors")) {
       if (close(larger[[member]], smaller[[member]])) {
         marks[[loser]][[member]] <- TRUE
@@ -326,7 +370,26 @@ privacy_quantity_marks <- function(quantities, comparisons, k) {
       for (measure in measures[1:2]) {
         if (close(larger$items[[i]][[measure]], smaller$items[[i]][[measure]])) {
           marks[[loser]]$items[[i]][[measure]] <- TRUE
+          if (measure == "levels") {
+            lost[[length(lost) + 1L]] <- list(sample = loser, other = other, item = i)
+          }
         }
+      }
+    }
+  }
+  for (pair in crossed) {
+    sample <- pair$sample
+    written <- function(i) {
+      item <- quantities[[sample]]$items[[i]]
+      !marks[[sample]]$items[[i]][["levels"]] && (!item$person || item$levels >= k)
+    }
+    if (anyNA(unlist(pair)) || !marks[[sample]]$items[[pair$combinations]][["levels"]] ||
+        !written(pair$first) || !written(pair$second)) {
+      next
+    }
+    for (found in lost) {
+      if (found$sample == sample && found$item == pair$combinations) {
+        marks[[found$other]]$items[[found$item]][["levels"]] <- TRUE
       }
     }
   }
@@ -352,12 +415,24 @@ privacy_quantity_marks <- function(quantities, comparisons, k) {
 # measure a suppressed quantity, and then the counts that measure no
 # quantity, are not of class non_person and equal a suppressed quantity of
 # the sample.
-privacy_across_finding <- function(run, finding, sample, items, quantities, marks) {
+privacy_across_finding <- function(run, finding, sample, items, factor_items, quantities,
+                                   marks) {
   own <- finding$entry[["sample"]]
   for (member in c("rows", "distinct")) {
     quantity <- if (member == "rows") "rows" else "contributors"
     if (marks[[own]][[quantity]] && !member %in% names(finding$support_suppressed)) {
       finding$support_suppressed[member] <- "secondary"
+    }
+  }
+  # With the basis grouping_factors, the distinct contributors are the levels
+  # of the factors with the fewest levels, and measure them.
+  if (identical(finding$support$basis, "grouping_factors") &&
+      !"distinct" %in% names(finding$support_suppressed)) {
+    for (i in factor_items[!is.na(factor_items)]) {
+      if (quantities[[own]]$items[[i]]$levels == finding$support$distinct &&
+          marks[[own]]$items[[i]][["levels"]]) {
+        finding$support_suppressed["distinct"] <- "secondary"
+      }
     }
   }
   defined <- finding$entry[["statistics"]]
@@ -449,8 +524,8 @@ privacy_absent <- function(finding) {
 # Step 9: a finding of tier T1 or T2 is suppressed as a whole when a person
 # count or ratio that a rule of its decision reads, in the rule that held or
 # a rule before it, or in any rule when none held, is suppressed, and a
-# finding of outcome.separation when its kept columns number at most two.
-privacy_decision <- function(finding) {
+# finding of outcome.separation by the rules of privacy.md (Decisions).
+privacy_decision <- function(finding, run, k) {
   if (!finding$tier %in% c("T1", "T2")) {
     return(finding)
   }
@@ -460,11 +535,31 @@ privacy_decision <- function(finding) {
   hidden <- vapply(names, function(name) {
     privacy_person(finding, name, ratio = TRUE) && name %in% names(finding$suppressed)
   }, NA)
-  if (any(hidden) ||
-      (finding$check == "outcome.separation" && isTRUE(finding$values[["columns"]] <= 2))) {
+  if (any(hidden) || (finding$check == "outcome.separation" && privacy_separation(finding, run, k))) {
     finding$whole <- TRUE
   }
   finding
+}
+
+# Whether the filter suppresses a finding of outcome.separation as a whole
+# beyond the rule on its decision: when the design sample has at most two
+# kept columns, kept of design.rank_deficiency or 0 without its finding, and,
+# for the class binomial, when the rows with k = 0, with k = n or with both
+# classes, which the rows of the analysis sample, events and non_events give
+# back, number fewer than k, 0 included.
+privacy_separation <- function(finding, run, k) {
+  required <- run$results[["design.rank_deficiency"]]
+  kept <- if (length(required)) required[[1L]]$values$kept else 0
+  if (kept <= 2) {
+    return(TRUE)
+  }
+  if (run$family_class != "binomial") {
+    return(FALSE)
+  }
+  rows <- finding$support$rows
+  events <- finding$values$events
+  non_events <- finding$values$non_events
+  any(c(rows - events, rows - non_events, events + non_events - rows) < k)
 }
 
 # --- Steps 10 and 11 ----------------------------------------------------------------------

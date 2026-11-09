@@ -298,7 +298,7 @@ The availability guard sits in the generic. It reads the package that defines th
 
 The lme4 formula grammar is parsed in-house in both languages. reformulas, which is GPL-3 and has compiled dependencies, is used only as a test oracle in Suggests. The HTML template renderer is an in-house Mustache subset, tested against the language-independent Mustache specification tests.
 
-Suggests also holds yaml, lmerTest, pbkrtest, clubSandwich, glmmTMB, afex, performance, insight, DHARMa, lpSolve, ggplot2, rsvg, quarto and testthat, and the packages whose datasets the R examples use. The Python package mirrors this structure. numpy, pandas and scipy are in the core. statsmodels, one Rust engine, PyYAML and matplotlib are extras. The not_available vocabulary is the same in both languages.
+Suggests also holds yaml, lmerTest, pbkrtest, clubSandwich, glmmTMB, afex, performance, insight, DHARMa, lpSolve, openssl (for commitment keys where /dev/urandom does not exist), ggplot2, rsvg, quarto and testthat, and the packages whose datasets the R examples use. The Python package mirrors this structure. numpy, pandas and scipy are in the core. statsmodels, one Rust engine, PyYAML and matplotlib are extras. The not_available vocabulary is the same in both languages.
 
 ## Q7. Names and repository
 

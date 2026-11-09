@@ -219,8 +219,9 @@ ir_input <- function(ir) {
   if (length(raw)) {
     signal_issues(finish_issues(raw))
   }
-  for (name in names(value$predictors)) {
-    centring <- value$predictors[[name]]$centring
+  for (i in seq_along(value$predictors)) {
+    name <- names(value$predictors)[i]
+    centring <- value$predictors[[i]]$centring
     if (identical(centring$rule, "mean") && is.null(centring$constant)) {
       stop(sprintf(paste0("The centring of '%s' has no constant. Build the IR with ",
                           "formula_ir() and the data first."), display_text(name)),
@@ -244,8 +245,9 @@ design_model <- function(ir, table, analysis = TRUE) {
     j
   }
   predictors <- ir$predictors
-  for (key in names(predictors)) {
-    p <- predictors[[key]]
+  for (i in seq_along(predictors)) {
+    key <- names(predictors)[i]
+    p <- predictors[[i]]
     j <- column(key)
     wanted <- if (p$kind == "numeric") "number" else if (is.character(p$levels[[1L]])) "string" else
       if (is.logical(p$levels[[1L]])) "boolean" else "number"
@@ -310,8 +312,9 @@ design_rows <- function(table, keys) {
 # row's level among its levels. A value outside the levels is refused.
 design_variable_values <- function(model, table, rows) {
   keys <- names(model$predictors)
-  values <- lapply(keys, function(key) {
-    p <- model$predictors[[key]]
+  values <- lapply(seq_along(keys), function(i) {
+    key <- keys[i]
+    p <- model$predictors[[i]]
     v <- table$values[[model$column(key)]][rows]
     if (p$kind == "numeric") {
       rule <- p$centring$rule
@@ -344,14 +347,14 @@ design_column_values <- function(terms, column, values, rows) {
   result <- NULL
   for (variable in term$variables) {
     key <- variable$variable
-    v <- values[[key]]
+    v <- named_member(values, key)
     if (!is.null(variable$coding)) {
-      level <- column$levels[[key]]
+      level <- named_member(column$levels, key)
       if (is.null(level)) {
         stop(sprintf("The column '%s' of the IR gives no level of '%s'.",
                      display_text(column$name), display_text(key)), call. = FALSE)
       }
-      v <- level_values(v, variable$coding, level, attr(values, "predictors")[[key]])
+      v <- level_values(v, variable$coding, level, named_member(attr(values, "predictors"), key))
     }
     result <- if (is.null(result)) v else result * v
   }
@@ -547,6 +550,9 @@ design_response <- function(ir, model, table, analysis) {
 
 # --- The sequential rule ----------------------------------------------------------
 
+# The tolerance tau of the sequential rule (ir.md, Sequential rule).
+sequential_tolerance <- 1e-7
+
 # The sequential rule for aliased columns (ir.md, Sequential rule): each
 # column in turn is dropped when its values are all 0. Otherwise it is divided
 # by its largest absolute value, so that its squares neither overflow nor
@@ -574,7 +580,7 @@ design_response <- function(ir, model, table, analysis) {
 # The two packages call the same LAPACK routine and BLAS operations on the
 # same values, so that they differ only in the rounding of their BLAS and
 # LAPACK. Returns whether each column is kept.
-sequential_rule <- function(x, tolerance = 1e-7) {
+sequential_rule <- function(x, tolerance = sequential_tolerance) {
   sequential_residuals(x, tolerance)$kept
 }
 
@@ -583,7 +589,7 @@ sequential_rule <- function(x, tolerance = 1e-7) {
 # projection onto the columns kept before it, 0 for a column whose values are
 # all 0. design.collinearity takes the residuals of its columns from here, so
 # that they are computed as the rule computes them.
-sequential_residuals <- function(x, tolerance = 1e-7) {
+sequential_residuals <- function(x, tolerance = sequential_tolerance) {
   n <- nrow(x)
   p <- ncol(x)
   kept <- logical(p)
@@ -682,15 +688,29 @@ exact_sum <- function(x) {
 # so that the time grows with the values and not with the groups times the
 # values.
 exact_group_sums <- function(x, groups, count) {
-  limb_count <- 72L
-  base <- 2^32
   nonzero <- x != 0
   x <- x[nonzero]
   groups <- groups[nonzero]
   result <- numeric(count)
-  if (!length(x)) {
-    return(result)
+  # The sum of a single value is the value, so only the groups with two or
+  # more values take limbs, and a factor with one level per row costs no
+  # more than the values.
+  sizes <- tabulate(groups, nbins = count)
+  single <- sizes[groups] == 1L
+  result[groups[single]] <- x[single]
+  several <- which(sizes >= 2L)
+  if (length(several)) {
+    result[several] <- exact_sums_of_groups(x[!single], match(groups[!single], several),
+                                            length(several))
   }
+  result
+}
+
+# exact_group_sums() for groups that each hold at least one value.
+exact_sums_of_groups <- function(x, groups, count) {
+  limb_count <- 72L
+  base <- 2^32
+  result <- numeric(count)
   parts <- double_parts(x)
   chunk <- 2^19
   totals <- lapply(c(FALSE, TRUE), function(negative) {
@@ -740,9 +760,13 @@ exact_group_sums <- function(x, groups, count) {
     high <- larger[cbind(wide, t)]
     middle <- larger[cbind(wide, t - 1L)]
     low <- larger[cbind(wide, t - 2L)]
-    below <- vapply(seq_along(wide), function(i) {
-      t[i] > 3L && any(larger[wide[i], seq_len(t[i] - 3L)] > 0)
-    }, NA)
+    # Whether a limb below the three highest is not 0, from the lowest limb
+    # that is not 0.
+    lowest <- rep(limb_count + 1L, count)
+    for (k in rev(seq_len(limb_count))) {
+      lowest[larger[, k] > 0] <- k
+    }
+    below <- lowest[wide] <= t - 3L
     # The bit length b of the highest limb, and the s = 53 - b bits taken
     # from the limbs below it.
     b <- floor(log2(high)) + 1

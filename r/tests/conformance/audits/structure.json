@@ -605,6 +605,7 @@
               "attributes": {"kind": "names", "value": []},
               "context_column": {"kind": "names", "value": ["school"]},
               "labels_column": {"kind": "names", "value": ["class"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -736,6 +737,7 @@
               "attributes": {"kind": "names", "value": []},
               "context_column": {"kind": "names", "value": ["subject"]},
               "labels_column": {"kind": "names", "value": ["item"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 1, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -772,6 +774,7 @@
               "changing_share": {"kind": "ratio", "value": 0.6666666666666666, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["school"]},
               "labels_column": {"kind": "names", "value": ["pupil"]},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 3, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -808,6 +811,7 @@
               "changing_share": {"kind": "ratio", "value": 0.25, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["school"]},
               "labels_column": {"kind": "names", "value": ["pupil"]},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 4, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -843,6 +847,7 @@
               "changing_share": {"kind": "ratio", "value": 0, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["item"]},
               "labels_column": {"kind": "names", "value": ["subject"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -878,6 +883,7 @@
               "changing_share": {"kind": "ratio", "value": 1, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["subject"]},
               "labels_column": {"kind": "names", "value": ["item"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
               "tied": {"kind": "boolean", "value": true}
             },
@@ -914,6 +920,7 @@
               "changing_share": {"kind": "ratio", "value": 0, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["subject"]},
               "labels_column": {"kind": "names", "value": ["item"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -949,6 +956,7 @@
               "changing_share": {"kind": "ratio", "value": 0.6666666666666666, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["school"]},
               "labels_column": {"kind": "names", "value": ["pupil"]},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 3, "count_class": "person"},
               "tied": {"kind": "boolean", "value": true}
             },
@@ -985,6 +993,7 @@
               "changing_share": {"kind": "ratio", "value": 0, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["pupil"]},
               "labels_column": {"kind": "names", "value": ["school"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },
@@ -1027,6 +1036,7 @@
               "changing_share": {"kind": "ratio", "value": 0.5, "count_class": "person"},
               "context_column": {"kind": "names", "value": ["school"]},
               "labels_column": {"kind": "names", "value": ["pupil"]},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
               "shared_labels": {"kind": "count", "value": 4, "count_class": "person"},
               "tied": {"kind": "boolean", "value": false}
             },

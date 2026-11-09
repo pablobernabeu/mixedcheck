@@ -43,14 +43,26 @@ statistics:
   context_column:
     kind: names
     definition: The other column of the pair in the reported direction.
+  levels:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: statistic, name: labels_column}]
+    measures: levels
+    definition: >-
+      The number of labels of the labels column in the rows of the design
+      sample in which both columns are present, labels being compared by
+      value (registry.md, Terms), which structure.label_incidence counts as
+      levels_first or levels_second.
   shared_labels:
     kind: count
     count_class: by_unit
     resolved_by: [{source: statistic, name: labels_column}]
+    part_of: levels
     definition: >-
       The number of labels of the labels column that occur with more than one
-      label of the context column in the design sample, labels being compared
-      by value (registry.md, Terms).
+      label of the context column in the same rows, which
+      structure.label_incidence counts as first_in_several or
+      second_in_several, so that it is suppressed with them.
   attributes:
     kind: names
     definition: >-
@@ -59,14 +71,15 @@ statistics:
       other than the response, its trials column, the columns that the
       declaration gives the role outcome or outcome_derived and the two
       columns of the pair, so that sample columns enter only through a
-      declared role, which are constant within most combinations of a label of
-      the labels column and a label of the context column but not within every
-      label of the context column. With agreement written as m / 10^d, a
-      column is constant within most combinations when c times 10^d is at
-      least m times n in integer arithmetic, where n is the number of
-      combinations that occur in the design sample and c the number within
-      which its values are all equal. Values are compared by value
-      (registry.md, Terms), with missing values equal to each other.
+      declared role, which, in the rows of the design sample in which both
+      columns of the pair are present, are constant within most combinations
+      of a label of the labels column and a label of the context column but
+      not within every label of the context column. With agreement written as
+      m / 10^d, a column is constant within most combinations when c times
+      10^d is at least m times n in integer arithmetic, where n is the number
+      of combinations that occur in these rows and c the number within which
+      its values are all equal. Values are compared by value (registry.md,
+      Terms), with missing values equal to each other.
   changing_labels:
     kind: count
     count_class: by_unit
@@ -75,11 +88,12 @@ statistics:
     definition: >-
       The smallest number, over the candidate attributes, of shared labels
       for which the attribute takes more than one value in the rows of the
-      label. Attributes of a single unit are the attributes that can stay
-      constant across contexts, whereas an attribute of the combinations,
-      such as a condition assigned to each subject and item, changes for most
-      shared labels in both directions. It is absent when neither direction
-      has a candidate attribute.
+      label in which both columns of the pair are present. Attributes of a
+      single unit are the attributes that can stay constant across contexts,
+      whereas an attribute of the combinations, such as a condition assigned
+      to each subject and item, changes for most shared labels in both
+      directions. It is absent when neither direction has a candidate
+      attribute.
   changing_share:
     kind: ratio
     count_class: by_unit

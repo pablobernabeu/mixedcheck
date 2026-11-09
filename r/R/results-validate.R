@@ -98,15 +98,15 @@
 #' problem$issues[[1]]$message
 validate_results <- function(document, sidecar = NULL, data = NULL, declaration = NULL) {
   is_object <- inherits(document, "mixedcheck_results")
-  if (!is_object && !is_path(document) && !is_plain_list(document)) {
+  if (!is_object && !is_string(document) && !is_plain_list(document)) {
     stop(paste("'document' must be a file path, a value that read_json_strict() returns",
                "or a results object."), call. = FALSE)
   }
-  if (!is.null(sidecar) && !is_path(sidecar) && !is_plain_list(sidecar)) {
+  if (!is.null(sidecar) && !is_string(sidecar) && !is_plain_list(sidecar)) {
     stop("'sidecar' must be NULL, a file path or a value that read_json_strict() returns.",
          call. = FALSE)
   }
-  if (!is.null(data) && !is_path(data) && !is.data.frame(data)) {
+  if (!is.null(data) && !is_string(data) && !is.data.frame(data)) {
     stop("'data' must be NULL, a data frame or the path of a CSV file.", call. = FALSE)
   }
   if (!is.null(data) && is.null(sidecar) && !is_object) {
@@ -138,10 +138,6 @@ validate_results <- function(document, sidecar = NULL, data = NULL, declaration 
     }
   }
   invisible(if (is.character(input)) read$value else input)
-}
-
-is_path <- function(x) {
-  is.character(x) && length(x) == 1L && !is.na(x)
 }
 
 is_plain_list <- function(x) {
@@ -356,7 +352,7 @@ quantile_shown <- function(n, p, k) {
   m <- bn_from_digits(digits)
   power <- c(numeric(d %/% 7L), 10^(d %% 7L))
   smaller <- if (bn_compare(bn_add(m, m), power) <= 0L) m else bn_sub(power, m)
-  bn_compare(bn_mul(bn_from_double(n), smaller), bn_mul(bn_from_double(k), power)) >= 0L
+  bn_compare(bn_mul(bn_normalise(n), smaller), bn_mul(bn_normalise(k), power)) >= 0L
 }
 
 # A big integer from a string of decimal digits.
@@ -365,11 +361,6 @@ bn_from_digits <- function(digits) {
   ends <- rev(seq.int(count, 1L, by = -7L))
   limbs <- as.numeric(substring(digits, pmax(ends - 6L, 1L), ends))
   bn_normalise(rev(limbs))
-}
-
-# A big integer from a non-negative integer-valued double below 2^53.
-bn_from_double <- function(x) {
-  bn_normalise(x)
 }
 
 # The product of two big integers. Each limb product is below 10^14, and the
@@ -470,7 +461,7 @@ results_registry_issues <- function(d) {
         add("E7041", paste0(at, "/count_class"), list(expected = list(defined[["count_class"]])))
       }
       if (shareable && identical(defined[["kind"]], "ratio") && !is.null(statistic[["value"]]) &&
-          ratio_hides_count(statistics, entry, defined, k)) {
+          ratio_hides_count(statistics, entry, defined, statistic[["count_class"]], k)) {
         add("E7024", paste0(at, "/value"))
       }
     }
@@ -481,12 +472,15 @@ results_registry_issues <- function(d) {
 # Whether the numerator or the denominator of a ratio, as the entry names
 # them, is a person count of the finding that is not written or is below k.
 # A part that the finding leaves out is a person count when the entry gives
-# it that class.
-ratio_hides_count <- function(statistics, entry, defined, k) {
+# it the class person, or the class by_unit and the ratio, whose class is
+# that of its parts, is written with the class person.
+ratio_hides_count <- function(statistics, entry, defined, ratio_class, k) {
   for (part in c(defined[["numerator"]], defined[["denominator"]])) {
     statistic <- statistics[[part]]
     person <- if (is.null(statistic)) {
-      identical(entry[["statistics"]][[part]][["count_class"]], "person")
+      class <- entry[["statistics"]][[part]][["count_class"]]
+      identical(class, "person") ||
+        (identical(class, "by_unit") && identical(ratio_class, "person"))
     } else {
       identical(statistic[["kind"]], "count") && identical(statistic[["count_class"]], "person")
     }
@@ -607,10 +601,22 @@ sidecar_verification_issues <- function(sidecar, document, results_hash, data, d
       response <- tryCatch(formula_response_key(formula), mixedcheck_error = function(e) NA)
       response_known <- !identical(response, NA)
     }
+    # The digest of a message under a key, computed once for each pair of a
+    # message and a key, since every tier of the access log commits to the
+    # same columns.
+    computed <- list()
     for (item in commitments) {
       commitment <- item$commitment
       found <- match(commitment[["key_id"]], key_ids)
       if (is.na(found)) {
+        next
+      }
+      memo <- paste(commitment[["covers"]], found, item$column %||% "", sep = "\001")
+      at <- match(memo, names(computed))
+      if (!is.na(at)) {
+        if (!identical(computed[[at]], commitment[["digest"]])) {
+          issues <- c(issues, list(new_issue("E1314", pointer = item$pointer)))
+        }
         next
       }
       message <- switch(commitment[["covers"]],
@@ -626,9 +632,10 @@ sidecar_verification_issues <- function(sidecar, document, results_hash, data, d
         },
         outcome_column = outcome_column_message(run$table, declaration, item$column)
       )
-      if (is.null(message) ||
-          !identical(hmac_sha256(hex_to_raw(keys[[found]][["key"]]), message),
-                     commitment[["digest"]])) {
+      digest <- if (!is.null(message)) hmac_sha256(hex_to_raw(keys[[found]][["key"]]), message)
+      computed[[length(computed) + 1L]] <- digest %||% NA_character_
+      names(computed)[length(computed)] <- memo
+      if (!identical(digest, commitment[["digest"]])) {
         issues <- c(issues, list(new_issue("E1314", pointer = item$pointer)))
       }
     }

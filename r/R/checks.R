@@ -69,8 +69,9 @@ check_element <- function(statistics, rules = logical(0), assessability = logica
 }
 
 # A check that is not available, for the first availability rule of the
-# entry with this reason. detail is needed only for capability_missing, whose
-# rule names no capability.
+# entry with this reason or, for too_large, for the rule whose parameter is
+# detail when it is given. detail is needed otherwise only for
+# capability_missing, whose rule names no capability.
 check_unavailable <- function(reason, detail = NULL) {
   structure(list(reason = reason, detail = detail), class = "mixedcheck_check_unavailable")
 }
@@ -102,13 +103,13 @@ new_run <- function(declaration, table, ir, family_class, tier, model, built) {
   run$z_columns <- built$z_columns
   run$offset <- built$offset
   run$weights <- built$weights
-  factors <- empty_object()
-  for (term in ir$random) {
-    if (is.null(factors[[term$factor]])) {
-      factors[[term$factor]] <- unlist(term$grouping)
-    }
-  }
-  run$factors <- factors
+  # Names of columns and factors are looked up with match(), which compares
+  # them in UTF-8, since `[[`, assign() and get() translate a name to the
+  # native encoding, which merges distinct names under LC_ALL=C.
+  first <- !duplicated(vapply(ir$random, function(term) term$factor, ""))
+  factors <- lapply(ir$random[first], function(term) unlist(term$grouping))
+  names(factors) <- vapply(ir$random[first], function(term) term$factor, "")
+  run$factors <- if (length(factors)) factors else empty_object()
   run$grouping_columns <- unique(unlist(lapply(ir$random, function(term) unlist(term$grouping))))
   run$results <- list()
   run$outcome_reads <- list()
@@ -140,13 +141,14 @@ column_index <- function(run, key) {
 # The codes of the values of one column in every row of the table, compared
 # by value as the table reader compares keys (registry.md, Terms): strings
 # after NFC, numbers by value with NaN equal to NaN and negative zero equal
-# to zero, and booleans by value. A missing value has the code NA.
+# to zero, and booleans by value. A missing value has the code NA. The cache
+# holds them by the column's position, which needs no translation.
 column_codes <- function(run, key) {
-  cached <- run$cache[[paste0("codes:", key)]]
+  j <- column_index(run, key)
+  cached <- run$cache[[paste0("codes:", j)]]
   if (!is.null(cached)) {
     return(cached)
   }
-  j <- column_index(run, key)
   values <- run$table$values[[j]]
   if (is.character(values)) {
     values <- comparison_form(values)
@@ -154,7 +156,7 @@ column_codes <- function(run, key) {
   missing <- run$table$missing[[j]]
   codes <- match(values, unique(values[!missing]))
   codes[missing] <- NA_integer_
-  assign(paste0("codes:", key), codes, envir = run$cache)
+  assign(paste0("codes:", j), codes, envir = run$cache)
   codes
 }
 
@@ -177,14 +179,19 @@ value_codes <- function(run, keys, rows = NULL, missing_level = FALSE) {
   if (is.null(rows)) combined else combined[rows]
 }
 
-# The grouping factors of the IR, by name, in the order in which they first
-# arise, with the keys of their columns.
+# The column keys of one grouping factor of the IR.
 factor_keys <- function(run, factor) {
-  keys <- run$factors[[factor]]
+  keys <- named_member(run$factors, factor)
   if (is.null(keys)) {
     internal_error(sprintf("the IR has no grouping factor '%s'.", display_text(factor)))
   }
   keys
+}
+
+# The member of a named list with a name, compared in UTF-8, or NULL.
+named_member <- function(x, name) {
+  i <- match(name, names(x))
+  if (is.na(i)) NULL else x[[i]]
 }
 
 # --- The declaration ----------------------------------------------------------------
@@ -335,12 +342,15 @@ grouping_column_pairs <- function(run, pair, pairs_of) {
   found[!duplicated(keys)]
 }
 
-# The entries of the assignment block that do not count as absent.
+# The entries of the assignment block that do not count as absent: an entry
+# counts as absent when it, its column or its unit is inferred.
 assignment_elements <- function(declaration) {
   assignment <- declaration[["assignment"]]
   found <- list()
   for (i in seq_along(assignment)) {
-    if (!declaration_inferred(declaration, path_pointer("assignment", i - 1L))) {
+    entry <- path_pointer("assignment", i - 1L)
+    pointers <- c(entry, paste0(entry, c("/column", "/unit")))
+    if (!any(vapply(pointers, declaration_inferred, NA, declaration = declaration))) {
       found[[length(found) + 1L]] <- list(column = assignment[[i]][["column"]],
                                           unit = assignment[[i]][["unit"]])
     }
@@ -471,18 +481,30 @@ levels_of_full_rank <- function(values, level, count, among = rep(TRUE, count),
   full
 }
 
+# X_d of assignment.design_df and identifiability.df_budget: the columns of
+# x with the first row of each level, in table order, subtracted from every
+# row of the level, and a column set to 0 when its largest absolute value is
+# at most the tolerance of the sequential rule times that of the same column
+# of x, so that a column constant within the levels up to rounding adds
+# nothing to the rank of X_d, as the indicator columns of the levels would
+# absorb it.
+level_differences <- function(x, level, count) {
+  first <- match(seq_len(count), level)
+  differences <- x - x[first[level], , drop = FALSE]
+  for (j in seq_len(if (nrow(x)) ncol(x) else 0L)) {
+    if (max(abs(differences[, j])) <= sequential_tolerance * max(abs(x[, j]))) {
+      differences[, j] <- 0
+    }
+  }
+  differences
+}
+
 # --- Running the checks ---------------------------------------------------------------
 
 # The function of a check, or NULL for an identifier without one.
 check_implementation <- function(id) {
   get0(paste0("audit_check_", chartr(".", "_", id)), envir = environment(check_implementation),
        mode = "function", inherits = FALSE)
-}
-
-# The identifiers of the checks of the registry that have a function.
-implemented_checks <- function() {
-  ids <- names(registry_entries_by_id())
-  ids[vapply(ids, function(id) !is.null(check_implementation(id)), NA)]
 }
 
 # The checks that a run of a tier runs, in ascending order of identifier
@@ -579,7 +601,10 @@ run_check <- function(run, entry) {
 # field, with {outcome} standing for the escaped name of the response, the
 # package or the parameter that holds the limit.
 unavailable_finding <- function(run, entry, reason, detail = NULL) {
-  rules <- Filter(function(rule) identical(rule[["reason"]], reason), entry[["availability"]])
+  rules <- Filter(function(rule) {
+    identical(rule[["reason"]], reason) &&
+      (reason != "too_large" || is.null(detail) || identical(rule[["parameter"]], detail))
+  }, entry[["availability"]])
   if (!length(rules)) {
     internal_error(sprintf("%s has no availability rule '%s'.", entry[["id"]], reason))
   }
@@ -739,11 +764,6 @@ decision_thresholds <- function(entry) {
   unique(unlist(lapply(entry[["decision"]][["rules"]], function(rule) unlist(rule[["thresholds"]]))))
 }
 
-# The double nearest to a decimal string.
-decimal_value <- function(text) {
-  json_number_values(text)
-}
-
 # Whether the finding is near_threshold: a real statistic within the
 # proximity band of a threshold that a rule of the decision names, a value
 # compared with a parameter that has a proximity factor within its band, or
@@ -759,8 +779,9 @@ finding_near_threshold <- function(entry, values, element) {
     if (is.null(band) || is.null(s)) {
       next
     }
-    t <- decimal_value(threshold[["value"]])
-    width <- decimal_value(band[["absolute"]]) + decimal_value(band[["relative"]]) * abs(t)
+    t <- json_number_values(threshold[["value"]])
+    width <- json_number_values(band[["absolute"]]) +
+      json_number_values(band[["relative"]]) * abs(t)
     if (isTRUE(abs(s - t) <= width)) {
       return(TRUE)
     }
@@ -771,8 +792,8 @@ finding_near_threshold <- function(entry, values, element) {
       internal_error(sprintf("the parameter '%s' of %s has no proximity factor.", name,
                              entry[["id"]]))
     }
-    t <- decimal_value(entry[["parameters"]][[name]][["value"]])
-    f <- decimal_value(factor)
+    t <- json_number_values(entry[["parameters"]][[name]][["value"]])
+    f <- json_number_values(factor)
     s <- abs(element$proximity[[name]])
     if (any(s >= t / f & s <= t * f, na.rm = TRUE)) {
       return(TRUE)
@@ -801,7 +822,7 @@ threshold_holds <- function(entry, name, values) {
     right <- parts$m * values[[statistic[["denominator"]]]]
   } else {
     left <- value
-    right <- decimal_value(threshold[["value"]])
+    right <- json_number_values(threshold[["value"]])
   }
   isTRUE(switch(threshold[["comparator"]],
     "<" = left < right,
@@ -853,9 +874,7 @@ rows_support <- function(run, rows) {
                 dominated = found$dominated, largest = found$largest))
   }
   if (length(run$factors)) {
-    found <- lapply(names(run$factors), function(factor) {
-      contributors(value_codes(run, run$factors[[factor]], rows))
-    })
+    found <- lapply(run$factors, function(keys) contributors(value_codes(run, keys, rows)))
     largest <- vapply(found, function(f) f$largest, 0)
     names(largest) <- names(run$factors)
     return(list(rows = n, basis = "grouping_factors",
@@ -925,8 +944,8 @@ item_codes <- function(run, reference, kind, scope, element, values) {
   if (length(held) != 1L) {
     internal_error(sprintf("the item of '%s' must be given with the statistic.", name))
   }
-  if (!is.null(run$factors[[held]])) {
-    return(value_codes(run, run$factors[[held]]))
+  if (held %in% names(run$factors)) {
+    return(value_codes(run, factor_keys(run, held)))
   }
   if (comparison_form(held) %in% run$table$keys) {
     return(value_codes(run, comparison_form(held)))
@@ -949,8 +968,7 @@ resolve_count_class <- function(run, items, rows) {
   }
   level <- items[[1L]][rows]
   if (length(items) == 2L) {
-    second <- items[[2L]][rows]
-    level <- level * (max(c(second, 0L), na.rm = TRUE) + 1) + second
+    level <- pair_codes(level, items[[2L]][rows])
   }
   member <- run$disclosure$codes[rows]
   present <- !is.na(level)
@@ -964,9 +982,10 @@ resolve_count_class <- function(run, items, rows) {
 }
 
 # One code for each pair of positive integer codes, exact in doubles while
-# the product of their largest values stays below 2^53.
+# the product of their largest values stays below 2^53, and NA for a pair
+# with a missing code.
 pair_codes <- function(first, second) {
-  first * (max(c(second, 0L)) + 1) + second
+  first * (max(c(second, 0), na.rm = TRUE) + 1) + second
 }
 
 # Step 11: the count class of each by_unit statistic of a finding, resolved
@@ -981,19 +1000,13 @@ resolve_finding_classes <- function(run, finding) {
       next
     }
     source <- name
-    defined <- finding$statistics[[name]]
-    if (defined$kind == "ratio") {
-      source <- read_registry_statistic(finding$check, name)[["numerator"]]
+    if (finding$statistics[[name]]$kind == "ratio") {
+      source <- finding$entry[["statistics"]][[name]][["numerator"]]
     }
     finding$statistics[[name]]$count_class <-
       resolve_count_class(run, finding$items[[source]], finding$rows)
   }
   finding
-}
-
-# The registry entry of a statistic of a check.
-read_registry_statistic <- function(check, name) {
-  registry_entries_by_id()[[check]][["statistics"]][[name]]
 }
 
 # --- Order and document form ----------------------------------------------------------------
@@ -1049,7 +1062,7 @@ document_finding <- function(finding) {
       written$count_class <- statistic$count_class
     }
     if (!is.null(statistic$quantile)) {
-      written$quantile <- list(p = decimal_value(statistic$quantile[["p"]]))
+      written$quantile <- list(p = json_number_values(statistic$quantile[["p"]]))
       n <- statistic$quantile[["n"]]
       if (!is.null(finding$values[[n]]) && !n %in% names(suppressed)) {
         written$quantile$n <- finding$values[[n]]

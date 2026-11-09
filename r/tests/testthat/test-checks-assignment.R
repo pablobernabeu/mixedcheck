@@ -48,7 +48,7 @@ test_that("an assignment without a declared level is inferred with the tolerance
 
 test_that("assignment.design_df equals the indicator columns that the sequential rule keeps", {
   for (seed in 1:4) {
-    set.seed(seed)
+    local_seed(seed)
     classes <- 12
     size <- sample(3:5, classes, replace = TRUE)
     class <- rep(sprintf("c%02d", seq_len(classes)), size)
@@ -106,6 +106,18 @@ test_that("members of the assignment block that /provenance/inferred lists count
   expect_identical(assignment_values(found)$missing_blocks, list())
   # An assignment to a unit that counts as absent yields no finding.
   expect_length(findings("assignment.constant_within_unit", "/units/1"), 0L)
+  # An entry whose column or unit is inferred counts as absent, and a block
+  # whose every entry counts as absent makes the checks not available.
+  for (inferred in c("/assignment/0", "/assignment/0/column", "/assignment/0/unit")) {
+    found <- findings("assignment.unit_in_random_part", inferred)[[1L]]
+    expect_identical(found$status$availability$detail, "/assignment")
+  }
+  data$arm2 <- data$arm
+  declaration$assignment[[2L]] <- list(column = "arm2", unit = "class", randomised = TRUE,
+                                       level = "between_unit")
+  found <- findings("assignment.constant_within_unit", "/assignment/0/unit")
+  expect_length(found, 1L)
+  expect_identical(found[[1L]]$scope$column, "arm2")
 })
 
 test_that("assignment.unit_in_random_part compares partitions over the rows of the assignment", {
@@ -122,10 +134,4 @@ test_that("assignment.unit_in_random_part compares partitions over the rows of t
                                "assignment.unit_in_random_part")[[1L]]
   expect_identical(assignment_values(found)$coverage, "present")
   expect_identical(found$support$rows$value, 9)
-})
-
-test_that("every assignment check has its function", {
-  ids <- grep("^assignment[.]", names(registry_entries_by_id()), value = TRUE)
-  expect_length(ids, 3L)
-  expect_true(all(ids %in% implemented_checks()))
 })

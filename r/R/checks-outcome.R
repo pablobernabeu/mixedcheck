@@ -210,7 +210,11 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   if (event_level_missing(run, outcome)) {
     return(check_unavailable("declaration_missing"))
   }
-  parameter <- function(name) decimal_value(entry[["parameters"]][[name]][["value"]])
+  # The solver is named whenever the check is available, also when it
+  # solves nothing, so that the list of packages shows nothing about the
+  # outcome (documents.md, Results document).
+  run$packages[["lpSolve"]] <- getNamespaceVersion("lpSolve")[[1L]]
+  parameter <- function(name) json_number_values(entry[["parameters"]][[name]][["value"]])
   tolerances <- list(separation = parameter("separation_tolerance"),
                      feasibility = parameter("feasibility_tolerance"),
                      residue = parameter("residue_tolerance"),
@@ -236,7 +240,6 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   proximity <- list()
   if (statistics$both_classes) {
     found <- separation_programs(a, tolerances)
-    run$packages[["lpSolve"]] <- getNamespaceVersion("lpSolve")[[1L]]
     statistics <- c(statistics, found$statistics)
     near <- found$near_threshold
     if (!is.null(statistics$bounds)) {
@@ -269,47 +272,41 @@ audit_check_outcome_separation <- function(run, entry, elements) {
 # gives it, and whether a verified solution makes the finding near_threshold.
 separation_programs <- function(a, tolerances) {
   p <- ncol(a)
-  near <- FALSE
-  # A verified solution: an optimum whose every u = s x'b, computed from the
-  # returned b, is at least minus the feasibility tolerance. One with some u
-  # below minus the residue tolerance makes the finding near_threshold.
-  verified <- function(found) {
-    if (found$status != 0L) {
-      return(NULL)
-    }
-    b <- found$solution[seq_len(p)] - 1
-    u <- if (p) drop(a %*% b) else numeric(nrow(a))
-    if (!isTRUE(all(u >= -tolerances$feasibility))) {
-      return(NULL)
-    }
-    if (any(u < -tolerances$residue)) {
-      near <<- TRUE
-    }
-    list(b = b, u = u)
-  }
-  # The solver's variables are c = b + 1, with 0 <= c_j <= 2, so that the
-  # constraint s x'b >= v is s x'c >= v + s x'1.
-  ones <- rowSums(a)
-  bounds_rows <- diag(1, p)
-  first_program <- function(objective, direction, extra = NULL, extra_rhs = NULL) {
-    verified(separation_solver(
-      direction, objective, rbind(a, bounds_rows, extra),
-      c(rep(">=", nrow(a)), rep("<=", p), rep(">=", length(extra_rhs))),
-      c(ones, rep(2, p), extra_rhs)
-    ))
-  }
   sums <- colSums(a)
+  near <- FALSE
+  # The verified solution of the program that maximises objective'b, or t
+  # with margin TRUE, subject to s x'b >= 0, or >= t, sums'b >= floor when
+  # floor is given and the bounds: the b of its dual, or of the program
+  # itself when the dual has no verified solution. A solution is verified
+  # when every u = s x'b is at least minus the feasibility tolerance, and
+  # one with some u below minus the residue tolerance makes the finding
+  # near_threshold. Without kept columns, b = () is the one solution and
+  # needs no solver.
+  solve <- function(objective, margin = FALSE, floor = NULL) {
+    if (!p) {
+      return(list(b = numeric(0), u = numeric(nrow(a))))
+    }
+    for (formulation in c("dual", "primal")) {
+      b <- separation_solver(formulation, a, objective, margin, sums, floor)
+      if (is.null(b)) {
+        next
+      }
+      u <- drop(a %*% b)
+      if (isTRUE(all(u >= -tolerances$feasibility))) {
+        if (any(u < -tolerances$residue)) {
+          near <<- TRUE
+        }
+        return(list(b = b, u = u))
+      }
+    }
+    NULL
+  }
   statistics <- list()
-  first <- first_program(sums, "max")
+  first <- solve(sums)
   if (!is.null(first)) {
     statistics$optimum <- exact_sum(first$u)
   }
-  second <- verified(separation_solver(
-    "max", c(numeric(p), 1),
-    rbind(cbind(a, -1), cbind(bounds_rows, numeric(p)), c(numeric(p), 1)),
-    c(rep(">=", nrow(a)), rep("<=", p), "<="),
-    c(ones, rep(2, p), 1)
-  ))
+  second <- solve(numeric(p), margin = TRUE)
   if (!is.null(second)) {
     statistics$margin <- min(1, second$u)
   }
@@ -325,14 +322,15 @@ separation_programs <- function(a, tolerances) {
   }
   if (statistics$verdict != "none") {
     # The optimal face: the constraints of the first program with a sum of
-    # s x'b of at least the optimum minus the separation tolerance.
-    floor <- statistics$optimum - tolerances$separation + sum(sums)
+    # s x'b of at least the optimum minus the separation tolerance. The
+    # smallest b_j maximises -b_j.
+    floor <- statistics$optimum - tolerances$separation
     bounds <- numeric(0)
     for (j in seq_len(p)) {
-      unit <- numeric(p)
-      unit[j] <- 1
-      for (direction in c("min", "max")) {
-        found <- first_program(unit, direction, sums, floor)
+      for (sign in c(-1, 1)) {
+        unit <- numeric(p)
+        unit[j] <- sign
+        found <- solve(unit, floor = floor)
         if (is.null(found)) {
           return(list(statistics = statistics, near_threshold = near))
         }
@@ -344,15 +342,53 @@ separation_programs <- function(a, tolerances) {
   list(statistics = statistics, near_threshold = near)
 }
 
-# One linear program solved by lpSolve::lp() with scale = 0, since the
-# columns are already scaled, and its variables bounded below by 0 as lp()
-# bounds them: the status, 0 for an optimum, and the solution.
-separation_solver <- function(direction, objective, constraints, directions, rhs) {
-  # A program without variables, the first for a model without kept columns,
-  # has the one solution b = (), which needs no solver.
-  if (!length(objective)) {
-    return(list(status = 0L, solution = numeric(0)))
+# One program of outcome.separation solved by lpSolve::lp() with scale = 0,
+# since the columns are already scaled: b for an optimum, NULL otherwise.
+# The program maximises objective'b, or t with margin TRUE, subject to
+# A b >= 0, or A b - t >= 0, sums'b >= floor when floor is given,
+# -1 <= b_j <= 1 and t <= 1, where A is a.
+# - 'dual': its dual, which minimises 1'(w+ + w-) - floor r + z over
+#   y, r, w+, w-, z >= 0 subject to w+ - w- - A'y - sums r = objective and,
+#   with margin TRUE, 1'y + z = 1, with r only when floor is given and z only
+#   with margin TRUE. Its p equality constraints have the dual values b,
+#   which lp() returns with compute.sens = 1. The program has one constraint
+#   for each coefficient, so that its basis has p or p + 1 rows whatever the
+#   number of observations.
+# - 'primal': the program itself in b = b+ - b- with 0 <= b+_j, b-_j <= 1,
+#   the upper bounds written as constraints, so that every right-hand side
+#   other than the bounds and floor is 0.
+separation_solver <- function(formulation, a, objective, margin, sums, floor) {
+  n <- nrow(a)
+  p <- ncol(a)
+  ident <- diag(1, p)
+  if (formulation == "dual") {
+    # The constraints in columns and the variables y, r, w+, w- and z in rows.
+    columns <- rbind(-a, if (!is.null(floor)) -sums, ident, -ident)
+    cost <- c(numeric(n), if (!is.null(floor)) -floor, rep(1, 2 * p))
+    rhs <- objective
+    if (margin) {
+      columns <- rbind(cbind(columns, c(rep(1, n), numeric(2 * p))), c(numeric(p), 1))
+      cost <- c(cost, 1)
+      rhs <- c(rhs, 1)
+    }
+    found <- lpSolve::lp("min", cost, columns, rep("=", length(rhs)), rhs,
+                         transpose.constraints = FALSE, scale = 0, compute.sens = 1)
+    return(if (found$status == 0L) found$duals[seq_len(p)] else NULL)
   }
-  found <- lpSolve::lp(direction, objective, constraints, directions, rhs, scale = 0)
-  list(status = as.integer(found$status), solution = found$solution)
+  rows <- rbind(cbind(a, -a), if (!is.null(floor)) c(sums, -sums),
+                cbind(ident, 0 * ident), cbind(0 * ident, ident))
+  directions <- c(rep(">=", n), if (!is.null(floor)) ">=", rep("<=", 2 * p))
+  rhs <- c(numeric(n), floor, rep(1, 2 * p))
+  gain <- c(objective, -objective)
+  if (margin) {
+    rows <- rbind(cbind(rows, c(rep(-1, n), numeric(2 * p))), c(numeric(2 * p), 1))
+    directions <- c(directions, "<=")
+    rhs <- c(rhs, 1)
+    gain <- c(gain, 1)
+  }
+  found <- lpSolve::lp("max", gain, rows, directions, rhs, scale = 0)
+  if (found$status != 0L) {
+    return(NULL)
+  }
+  found$solution[seq_len(p)] - found$solution[p + seq_len(p)]
 }

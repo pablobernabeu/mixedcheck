@@ -31,15 +31,15 @@ audit_check_sample_raw_vs_analysis <- function(run, entry, elements) {
     })
   })))
   reference_emptied <- keys[vapply(keys, function(key) {
-    key %in% contrasts && !any(reference_rows(run, key, categorical[[key]]$reference)[design])
+    reference <- named_member(categorical, key)$reference
+    key %in% contrasts && !any(reference_rows(run, key, reference)[design])
   }, NA)]
   factors <- names(run$factors)
-  losing <- factors[vapply(factors, function(factor) {
-    codes <- value_codes(run, run$factors[[factor]])
+  factor_codes <- lapply(run$factors, function(keys) value_codes(run, keys))
+  losing <- factors[vapply(factor_codes, function(codes) {
     !all(unique(codes[!is.na(codes)]) %in% codes[in_design])
   }, NA)]
-  singletons <- factors[vapply(factors, function(factor) {
-    codes <- value_codes(run, run$factors[[factor]])
+  singletons <- factors[vapply(factor_codes, function(codes) {
     in_table <- tabulate(codes)
     in_sample <- tabulate(codes[in_design], nbins = length(in_table))
     any(in_sample == 1L & in_table > 1L)

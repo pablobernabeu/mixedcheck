@@ -130,9 +130,10 @@ without a response, E1311 for a key of the wrong form, E1312 when no
 secure source of random bytes is available to create one, the error of
 \code{\link[=validate_declaration]{validate_declaration()}} or \code{\link[=read_table]{read_table()}}, E5011 for a column that the
 declaration names and the data lack, the error of \code{\link[=formula_ir]{formula_ir()}}, E6069
-for a predictor, grouping variable, offset, weights column or column of
-the observation key that is an outcome, is derived from one or holds the
-trials of the response, E7007 for a design sample, or at T1 and T2 an
+for a predictor, grouping variable, offset, weights column, sample
+column, column of the observation key, column of a declared unit or
+assigned column that is the response, holds its trials or is declared an
+outcome or derived from one, E7007 for a design sample, or at T1 and T2 an
 analysis sample, without rows, and the errors of \code{\link[=design_matrices]{design_matrices()}} for
 the values that the samples read. Arguments of the wrong type, a reason
 at T0, an \code{outcome_seen} that differs from the declaration, columns of

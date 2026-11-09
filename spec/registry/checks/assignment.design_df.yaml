@@ -40,19 +40,24 @@ statistics:
       J + rank(X_d) - rank(X), ranks by the sequential rule, where J is units,
       X the fixed-effects columns restricted to the rows of the assignment and
       X_d the same columns with the first row of each level of the unit, in
-      table order, subtracted from every row of the level. A combination of
-      the columns is constant within the levels exactly when X_d maps it to
-      0, so in exact arithmetic rank(X_d) is the rank of the columns centred
-      within the levels, and design_df equals the number of indicator columns
-      of the levels that the sequential rule keeps when it is applied to the
-      fixed-effects columns followed by the indicator columns, without
-      building the n by J indicator matrix. A column that is constant within
-      every level gives exact zeros in X_d, whereas centring it by level
-      means computed in floating point would leave residues, which the
-      sequential rule keeps once it divides the column by its largest
-      absolute value. The tolerance of the sequential rule applies to the
-      columns of X_d. It gives back units, so it takes the count class of
-      units.
+      table order, subtracted from every row of the level, a column of X_d
+      whose largest absolute value is at most 1e-7, the tolerance of the
+      sequential rule (ir.md, Sequential rule for aliased columns), times that
+      of the same column of X being then set to 0. A combination of the
+      columns is constant within the levels exactly when the subtraction maps
+      it to 0, so in exact arithmetic, and without that step, rank(X_d) is
+      the rank of the columns centred within the levels, and design_df equals
+      the number of indicator columns of the levels that the sequential rule
+      keeps when it is applied to the fixed-effects columns followed by the
+      indicator columns, without building the n by J indicator matrix. A
+      column that is constant within every level gives exact zeros in X_d,
+      whereas centring it by level means computed in floating point would
+      leave residues. A column that is constant within the levels only up to
+      rounding, such as one whose values within a level differ in the last
+      bit, leaves residues of that size, which the sequential rule would keep
+      once it divides the column by its largest absolute value, whereas the
+      indicator columns would absorb them, so the step sets the column to 0.
+      It gives back units, so it takes the count class of units.
   missing_blocks:
     kind: names
     definition: >-

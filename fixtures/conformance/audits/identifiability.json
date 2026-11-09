@@ -1090,6 +1090,35 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-identifiability-034",
+      "description": "z is constant within the levels of 'g' up to rounding: the first row of 'a' holds 0.30000000000000004, the double nearest to 0.1 + 0.2, and the other two the double nearest to 0.3, one bit apart. The column of z in X_d has the largest absolute value of about 5.6e-17, at most 1e-7 times 3.3, the largest absolute value of z, so it is set to 0 and rank(X_d) is 0, as the indicator columns of the levels would absorb it in the sequential rule: budget 4 - 2 + 0 = 2, with the intercept and z as consuming terms.",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "z": [0.30000000000000004, 0.3, 0.3, 0.7, 0.7, 0.7, 0.2, 0.2, 0.2, 3.3, 3.3, 3.3],
+        "g": ["a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d"]
+      },
+      "formula": "y ~ z + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'g' has 4 levels and 2 degrees of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 2, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)", "z"]},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

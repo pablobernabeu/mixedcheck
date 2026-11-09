@@ -6,19 +6,6 @@
 
 audit_corpus_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
-# Runs code with an environment variable set, and restores it afterwards.
-with_environment_variable <- function(name, value, code) {
-  set <- function(value) {
-    values <- list(value)
-    names(values) <- name
-    do.call(Sys.setenv, values)
-  }
-  old <- Sys.getenv(name, unset = NA)
-  set(value)
-  on.exit(if (is.na(old)) Sys.unsetenv(name) else set(old), add = TRUE)
-  force(code)
-}
-
 # The arguments of audit() for a case, in the given privacy mode.
 audit_case_arguments <- function(case, privacy) {
   args <- list(data = corpus_data_frame(case[["data"]]), formula = case[["formula"]])
@@ -38,15 +25,13 @@ audit_case_arguments <- function(case, privacy) {
 
 run_audit_case <- function(case, privacy) {
   args <- audit_case_arguments(case, privacy)
-  with_environment_variable("MIXEDCHECK_TIME", "0", capture_issues(function() {
-    do.call(audit, args)
-  }))
+  with_audit_time(capture_issues(function() do.call(audit, args)))
 }
 
 # Whether two real values match within the tolerance of conventions.md
-# (Comparison across languages), with its exceptions for design.collinearity
-# and outcome.separation. 'NaN', 'Infinity' and '-Infinity' match only
-# themselves.
+# (Comparison across languages), with its exceptions for design.collinearity,
+# design.scale_disparity and outcome.separation. 'NaN', 'Infinity' and
+# '-Infinity' match only themselves.
 reals_match <- function(x, y, check, name) {
   if (is.character(x) || is.character(y)) {
     return(identical(x, y))
@@ -54,6 +39,9 @@ reals_match <- function(x, y, check, name) {
   m <- max(abs(x), abs(y))
   if (check == "design.collinearity" && name %in% c("gvif", "gvif_per_df")) {
     return(abs(x - y) <= 1e-12 + max(1e-9, 1e-13 * m) * m)
+  }
+  if (check == "design.scale_disparity" && name == "condition_number") {
+    return(abs(x - y) <= 1e-12 + max(1e-9, 1e-14 * m) * m)
   }
   if (check == "outcome.separation") {
     tolerance <- 1e-6

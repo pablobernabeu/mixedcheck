@@ -44,12 +44,7 @@ audit_check_keys_duplicates <- function(run, entry, elements) {
 compared_key_columns <- function(run) {
   ir <- run$ir
   declaration <- run$declaration
-  variables <- declaration[["variables"]]
-  named <- as.character(names(variables))
-  roles <- named[vapply(seq_along(named), function(i) {
-    !is.null(variables[[i]][["role"]]) &&
-      !declaration_inferred(declaration, json_pointer(c("variables", named[i], "role")))
-  }, NA)]
+  roles <- role_columns(declaration)
   read <- c(
     names(ir$predictors),
     run$grouping_columns,

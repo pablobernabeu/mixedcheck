@@ -84,8 +84,9 @@ commitment_key_bytes <- function(key) {
 #' `new_commitment_key()` creates one from a cryptographically secure source
 #' of random bytes, never from R's random number generator, whose state it
 #' leaves unchanged: the operating system's generator through /dev/urandom on
-#' Unix-alikes and, where /dev/urandom does not exist, as on Windows,
-#' `openssl::rand_bytes()` when the package openssl is installed.
+#' Unix-alikes and, where /dev/urandom does not exist, as on Windows, or
+#' cannot be read, `openssl::rand_bytes()` when the package openssl is
+#' installed.
 #' `commitment_key_id()` returns the identifier of a key, the first 16
 #' hexadecimal digits of the SHA-256 digest of its 32 bytes, by which a
 #' verifier finds the key. Keys belong in the internal sidecar of a results
@@ -98,8 +99,8 @@ commitment_key_bytes <- function(key) {
 #'   variable MIXEDCHECK_TIME when it is set, as for [audit()].
 #'   `commitment_key_id()` returns a character string.
 #' @section Errors: A key of another form gives an error of class
-#'   `mixedcheck_error` with the code E1311. Without /dev/urandom and without
-#'   the package openssl, no secure source is available, so
+#'   `mixedcheck_error` with the code E1311. When /dev/urandom cannot be read
+#'   and the package openssl is not installed, no secure source is available, so
 #'   `new_commitment_key()` gives the code E1312, and a key must be supplied.
 #'   A value of MIXEDCHECK_TIME other than a whole number of seconds gives an
 #'   ordinary error.
@@ -128,24 +129,31 @@ package_installed <- function(package) {
 
 # 32 bytes from a cryptographically secure source (conventions.md, Keys):
 # /dev/urandom on Unix-alikes and openssl::rand_bytes() where /dev/urandom
-# does not exist, or E1312 when neither is available.
+# does not exist or cannot be read, or E1312 when neither is available.
 random_key_bytes <- function() {
   bytes <- NULL
   if (platform_type() == "unix" && file.exists("/dev/urandom")) {
-    # The connection is opened with raw = TRUE, since /dev/urandom is not a
-    # regular file.
-    connection <- tryCatch(file("/dev/urandom", "rb", raw = TRUE), error = function(e) NULL)
-    if (!is.null(connection)) {
-      bytes <- tryCatch(readBin(connection, "raw", n = 32L), error = function(e) NULL)
-      close(connection)
-    }
-  } else if (package_installed("openssl")) {
+    bytes <- urandom_bytes()
+  }
+  if ((!is.raw(bytes) || length(bytes) != 32L) && package_installed("openssl")) {
     bytes <- openssl::rand_bytes(32L)
   }
   if (!is.raw(bytes) || length(bytes) != 32L) {
     raise_issue("E1312")
   }
   as.raw(bytes)
+}
+
+# 32 bytes read from /dev/urandom, or NULL when it cannot be read. The
+# connection is opened with raw = TRUE, since /dev/urandom is not a regular
+# file.
+urandom_bytes <- function() {
+  connection <- tryCatch(file("/dev/urandom", "rb", raw = TRUE), error = function(e) NULL)
+  if (is.null(connection)) {
+    return(NULL)
+  }
+  on.exit(close(connection))
+  tryCatch(readBin(connection, "raw", n = 32L), error = function(e) NULL)
 }
 
 #' @rdname new_commitment_key

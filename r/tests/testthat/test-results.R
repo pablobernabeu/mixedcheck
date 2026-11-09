@@ -177,7 +177,17 @@ test_that("write_results() gives ordinary errors for arguments of the wrong type
     write_results(example_results("valid/002.json"), sidecar,
                   file.path(directory, ".", basename(sidecar)))
   })
+  # A sidecar in a missing directory: nothing is written, since the document
+  # would commit to a key that no file holds.
+  ordinary(function() {
+    write_results(results, path, file.path(directory, "missing", "audit.internal.json"))
+  })
   expect_length(list.files(directory), 0L)
+  # A sidecar that cannot be written, here because a directory has its name,
+  # takes the document with it.
+  dir.create(sidecar)
+  ordinary(function() suppressWarnings(write_results(results, path, sidecar)))
+  expect_false(file.exists(path))
 })
 
 test_that("validate_results() reads a document in memory and a results object", {
@@ -295,7 +305,7 @@ test_that("the quantile rule is exact in integer arithmetic", {
   expect_identical(30 * third, 10)
   expect_false(quantile_shown(30, third, 10))
   expect_true(quantile_shown(31, third, 10))
-  expect_identical(bn_compare(bn_mul(bn_from_digits("123456789012345678"), bn_from_double(2^52)),
+  expect_identical(bn_compare(bn_mul(bn_from_digits("123456789012345678"), bn_normalise(2^52)),
                               bn_from_digits("555999948992357940337780130316288")), 0L)
   expect_identical(bn_compare(bn_from_digits("10000000"), bn_from_digits("9999999")), 1L)
   expect_identical(bn_compare(bn_from_digits("12"), bn_from_digits("13")), -1L)

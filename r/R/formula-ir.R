@@ -583,7 +583,7 @@ formula_expand <- function(tree) {
   # The random terms, in the order in which they are written.
   factors <- list()
   factor_name <- function(key) {
-    paste(formula_variable_text(factors[[key]]), collapse = ":")
+    paste(formula_variable_text(named_member(factors, key)), collapse = ":")
   }
   produced <- list()
   written <- 0L
@@ -617,8 +617,9 @@ formula_expand <- function(tree) {
     for (k in seq_along(segments)) {
       keys <- unlist(segments[seq_len(k)])
       key <- term_key(keys)
-      if (is.null(factors[[key]])) {
-        factors[[key]] <- keys
+      if (!key %in% names(factors)) {
+        factors[[length(factors) + 1L]] <- keys
+        names(factors)[length(factors)] <- key
       }
       pieces <- if (double) {
         c(if (part$intercept) list(list(intercept = TRUE, terms = list())),
@@ -681,7 +682,7 @@ formula_expand <- function(tree) {
                                      factor_keys), method = "radix")]
   }
   produced <- lapply(produced, function(term) {
-    term$grouping <- factors[[term$factor]]
+    term$grouping <- named_member(factors, term$factor)
     term$factor_name <- factor_name(term$factor)
     term
   })
@@ -711,9 +712,9 @@ slash_segments <- function(node) {
 person_columns <- function(declaration) {
   keys <- character(0)
   variables <- declaration[["variables"]]
-  for (name in names(variables)) {
-    if (identical(variables[[name]][["role"]], "id")) {
-      keys <- c(keys, name)
+  for (i in seq_along(variables)) {
+    if (identical(variables[[i]][["role"]], "id")) {
+      keys <- c(keys, names(variables)[i])
     }
   }
   units <- declaration[["units"]]
@@ -759,11 +760,14 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
   field_keys <- comparison_form(vapply(fields, function(field) field[["name"]], ""))
   have_data <- !is.null(table)
   persons <- person_columns(declaration)
-  # The kind and levels of a column, or NULL when it is not a column.
+  # The kind and levels of a column, or NULL when it is not a column. The
+  # cache is looked up with match(), which compares keys in UTF-8, since
+  # `[[` translates them to the native encoding.
   column_cache <- list()
   column <- function(key) {
-    if (!is.null(column_cache[[key]])) {
-      return(column_cache[[key]])
+    cached <- named_member(column_cache, key)
+    if (!is.null(cached)) {
+      return(cached)
     }
     j <- NA_integer_
     if (have_data) {
@@ -801,7 +805,8 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
         info$levels <- as.list(sort_identifiers(unique(comparison_form(values))))
       }
     }
-    column_cache[[key]] <<- info
+    column_cache[[length(column_cache) + 1L]] <<- info
+    names(column_cache)[length(column_cache)] <<- key
     info
   }
   kind_of <- function(key) column(key)$kind

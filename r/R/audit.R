@@ -97,9 +97,10 @@
 #'   secure source of random bytes is available to create one, the error of
 #'   [validate_declaration()] or [read_table()], E5011 for a column that the
 #'   declaration names and the data lack, the error of [formula_ir()], E6069
-#'   for a predictor, grouping variable, offset, weights column or column of
-#'   the observation key that is an outcome, is derived from one or holds the
-#'   trials of the response, E7007 for a design sample, or at T1 and T2 an
+#'   for a predictor, grouping variable, offset, weights column, sample
+#'   column, column of the observation key, column of a declared unit or
+#'   assigned column that is the response, holds its trials or is declared an
+#'   outcome or derived from one, E7007 for a design sample, or at T1 and T2 an
 #'   analysis sample, without rows, and the errors of [design_matrices()] for
 #'   the values that the samples read. Arguments of the wrong type, a reason
 #'   at T0, an `outcome_seen` that differs from the declaration, columns of
@@ -438,21 +439,22 @@ declared_column_places <- function(declaration) {
     add(assignment[[i]][["column"]], "assignment", i - 1L, "column")
   }
   variables <- declaration[["variables"]]
-  columns <- sort(as.character(names(variables)), method = "radix")
-  for (column in columns) {
-    add(column, "variables", column)
+  columns <- as.character(names(variables))
+  ordered <- order(columns, method = "radix")
+  for (k in ordered) {
+    add(columns[k], "variables", columns[k])
   }
-  for (column in columns) {
-    derived <- variables[[column]][["derived_from"]]
+  for (k in ordered) {
+    derived <- variables[[k]][["derived_from"]]
     for (j in seq_along(derived)) {
-      add(derived[[j]], "variables", column, "derived_from", j - 1L)
+      add(derived[[j]], "variables", columns[k], "derived_from", j - 1L)
     }
   }
-  for (column in columns) {
-    add(variables[[column]][["trials"]], "variables", column, "trials")
+  for (k in ordered) {
+    add(variables[[k]][["trials"]], "variables", columns[k], "trials")
   }
-  for (column in columns) {
-    add(variables[[column]][["exposure"]][["column"]], "variables", column, "exposure", "column")
+  for (k in ordered) {
+    add(variables[[k]][["exposure"]][["column"]], "variables", columns[k], "exposure", "column")
   }
   estimands <- declaration[["estimands"]]
   for (i in seq_along(estimands)) {
@@ -495,34 +497,43 @@ declared_role_columns <- function(declaration, roles) {
   comparison_form(as.character(names(variables))[found])
 }
 
-# The trials column that the declaration gives the response of an IR, as the
-# IR records it, or NULL.
-ir_trials_column <- function(ir) {
-  ir$response$trials
+# The columns, as the declaration names them, to which it gives a role that
+# /provenance/inferred does not list, or one of the roles given.
+role_columns <- function(declaration, roles = NULL) {
+  variables <- declaration[["variables"]]
+  named <- as.character(names(variables))
+  named[vapply(seq_along(named), function(i) {
+    role <- variables[[i]][["role"]]
+    !is.null(role) && (is.null(roles) || role %in% roles) &&
+      !declaration_inferred(declaration, path_pointer("variables", named[i], "role"))
+  }, NA)]
 }
 
-# Step 6: E6069 for the first predictor, grouping variable, offset column,
-# weights column or column of the observation key that is an outcome, is
-# derived from one or holds the trials of the response (registry.md, Tier
-# and inputs). Predictors come in code-point order, grouping variables in the
-# order of the IR, then the offsets, the weights and the key in its declared
-# order.
+# Step 6: E6069 for the first column that the outcome-blind checks would
+# read and that is the response, its trials column or a column that the
+# declaration gives the role outcome or outcome_derived (registry.md, Tier
+# and inputs). The columns come in this order: the predictors in code-point
+# order, the grouping variables in the order of the IR, the offsets, the
+# weights, the sample columns of the IR, the key in its declared order, the
+# columns of the declared units and the assigned columns, each block in its
+# declared order and leaving out what counts as absent.
 outcome_blind_columns <- function(ir, declaration) {
   refused <- c(declared_role_columns(declaration, c("outcome", "outcome_derived")),
-               ir_trials_column(ir))
+               ir$response$variable, ir$response$trials)
   if (!length(refused)) {
     return(invisible())
   }
-  key <- observation_key_columns(declaration)
-  candidates <- c(
+  given <- c(
     sort_identifiers(as.character(names(ir$predictors))),
     unlist(lapply(ir$random, function(term) unlist(term$grouping))),
     vapply(ir$offsets, function(o) o$variable, ""),
-    ir$weights$variable
+    ir$weights$variable,
+    as.character(unlist(ir$sample_columns)),
+    observation_key_columns(declaration),
+    as.character(unlist(lapply(declared_units(declaration), function(unit) unit[["columns"]]))),
+    vapply(assignment_elements(declaration), function(a) a$column, "")
   )
-  given <- c(candidates, key)
-  forms <- c(candidates, comparison_form(as.character(key)))
-  found <- which(forms %in% refused)
+  found <- which(comparison_form(as.character(given)) %in% refused)
   if (length(found)) {
     raise_issue("E6069", list(column = given[found[1L]]))
   }
@@ -563,20 +574,24 @@ audit_family_class <- function(family, ir, declaration) {
 # --- The document -----------------------------------------------------------------
 
 # Step 13: one entry at T0 and, for each further tier that the run reached,
-# one entry for each outcome column that its checks read, the response and
-# then the trials column of a response that has one, each with its outcome
-# commitment and the reason. The time of each tier is the time at which its
-# checks started.
+# one entry for the response and then one for its trials column when the
+# IR's response has one, whether or not a check of the tier read them, each
+# with its outcome commitment, computed once for each column, and the
+# reason. The time of each tier is the time at which its checks started.
 access_log_entries <- function(run, arguments, times, data, declaration) {
   entries <- list(list(tier = "T0", time = times[["T0"]], mode = "outcome_blind"))
   reached <- tier_names[seq_len(match(run$tier, tier_names))][-1L]
   columns <- c(run$ir$response$variable, run$ir$response$trials)
+  if (length(reached)) {
+    commitments <- lapply(columns, function(column) {
+      outcome_commitment(data, declaration, column, arguments$key)
+    })
+  }
   for (tier in reached) {
-    for (column in columns) {
+    for (j in seq_along(columns)) {
       entries[[length(entries) + 1L]] <- list(
         tier = tier, time = times[[tier]], mode = "exploratory",
-        outcome = list(column = column,
-                       commitment = outcome_commitment(data, declaration, column, arguments$key)),
+        outcome = list(column = columns[j], commitment = commitments[[j]]),
         reason = arguments$reason
       )
     }
@@ -586,8 +601,8 @@ access_log_entries <- function(run, arguments, times, data, declaration) {
 }
 
 # software: the language, the version of R, the NFC library and the
-# packages whose results the findings use, such as the solver of
-# outcome.separation, which a check records in run$packages.
+# packages that the checks record in run$packages, such as the solver of
+# outcome.separation, which that check records whenever it is available.
 audit_software <- function(run) {
   software <- list(
     language = "R",

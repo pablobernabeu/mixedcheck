@@ -9,12 +9,8 @@ privacy_key <- paste(sprintf("%02x", 0:31), collapse = "")
 # Runs audit() at the time 0 in both modes with the example key, and checks
 # that the shareable document is valid.
 audit_both <- function(data, formula, ...) {
-  old <- Sys.getenv("MIXEDCHECK_TIME", unset = NA)
-  Sys.setenv(MIXEDCHECK_TIME = "0")
-  on.exit(if (is.na(old)) Sys.unsetenv("MIXEDCHECK_TIME") else
-    Sys.setenv(MIXEDCHECK_TIME = old), add = TRUE)
   run <- function(privacy) {
-    audit(data, formula, ..., privacy = privacy, key = privacy_key)
+    with_audit_time(audit(data, formula, ..., privacy = privacy, key = privacy_key))
   }
   shareable <- run("shareable")
   expect_silent(validate_results(shareable))
@@ -65,11 +61,7 @@ expect_message_falls_back <- function(finding, id) {
 
 test_that("shareable mode is the default and writes no commitment key", {
   data <- data.frame(y = 1:24 + 0.5, x = rep(1:12, 2), subject = rep(sprintf("s%02d", 1:12), 2))
-  old <- Sys.getenv("MIXEDCHECK_TIME", unset = NA)
-  Sys.setenv(MIXEDCHECK_TIME = "0")
-  on.exit(if (is.na(old)) Sys.unsetenv("MIXEDCHECK_TIME") else
-    Sys.setenv(MIXEDCHECK_TIME = old), add = TRUE)
-  results <- audit(data, "y ~ x + (1 | subject)", key = privacy_key)
+  results <- with_audit_time(audit(data, "y ~ x + (1 | subject)", key = privacy_key))
   expect_identical(results$document$privacy$mode, "shareable")
   expect_identical(capture.output(print(results))[1L], paste(
     "Shareable output: the privacy filter has reduced the risk of disclosure,",
@@ -293,6 +285,131 @@ test_that("the rows of a pair of columns are a sample of their own", {
   expect_identical(detail(shared, "levels_first"), "secondary")
 })
 
+test_that("nested samples other than the design sample are compared with each other", {
+  # 60 subjects of three rows, two of them assigned. z1 is missing for
+  # subjects 1 to 20 and z2 for subjects 1 to 15, so the units of z2, 45,
+  # minus those of z1, 40, would give back 5 subjects.
+  subject <- rep(sprintf("s%02d", 1:60), each = 3)
+  z1 <- rep(rep(c("a", "b"), 30), each = 3)
+  z2 <- rep(rep(c("c", "c", "d", "d"), 15), each = 3)
+  z1[subject <= "s20"] <- NA
+  z2[subject <= "s15"] <- NA
+  data <- data.frame(y = seq_along(subject) %% 7, x = seq_along(subject) %% 5,
+                     subject = subject, z1 = z1, z2 = z2)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant")
+  ), assignment = list(
+    list(column = "z1", unit = "subject", randomised = TRUE, level = "between_unit"),
+    list(column = "z2", unit = "subject", randomised = TRUE, level = "between_unit")
+  ))
+  found <- audit_both(data, "y ~ x + (1 | subject)", declaration = declaration)
+  first <- finding_of(found$shareable, "assignment.design_df", column = "z1")
+  second <- finding_of(found$shareable, "assignment.design_df", column = "z2")
+  expect_identical(written(first, "units"), 40)
+  expect_identical(detail(second, "units"), "secondary")
+  # The analysis sample within the rows of an assignment: the outcome is
+  # missing for subjects 1 to 20, so the 45 units of z2 minus the 40 levels
+  # of the analysis sample would give back 5 randomised subjects without an
+  # outcome.
+  data$y[subject <= "s20"] <- NA
+  declaration$assignment <- declaration$assignment[2L]
+  found <- audit_both(data, "y ~ x + (1 | subject)", declaration = declaration,
+                      family = "poisson", outcome_access = "T1", reason = "Loss.")
+  zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "subject")
+  assigned <- finding_of(found$shareable, "assignment.design_df", column = "z2")
+  expect_identical(written(zeros, "levels"), 40)
+  expect_identical(detail(assigned, "units"), "secondary")
+  # Rows of an assignment equal to the analysis sample count as the analysis
+  # sample, against which the design sample loses its value: z2 and the
+  # outcome are missing for subjects 1 to 5.
+  data$y <- seq_along(subject) %% 7
+  data$z2 <- rep(rep(c("c", "c", "d", "d"), 15), each = 3)
+  data$y[subject <= "s05"] <- NA
+  data$z2[subject <= "s05"] <- NA
+  found <- audit_both(data, "y ~ x + (1 | subject)", declaration = declaration,
+                      family = "poisson", outcome_access = "T1", reason = "Loss.")
+  assigned <- finding_of(found$shareable, "assignment.design_df", column = "z2")
+  budget <- finding_of(found$shareable, "identifiability.df_budget", factor = "subject")
+  expect_identical(written(assigned, "units"), 55)
+  expect_identical(detail(budget, "levels"), "secondary")
+})
+
+test_that("the contributors of the basis grouping_factors measure the levels of a factor", {
+  # Without a disclosure unit, the contributors are the levels of the factor
+  # with the fewest levels: 'g', with 20 levels in the design sample, where
+  # 'h' has 40. 'g' keeps 15 levels in the analysis sample, so its 20 levels
+  # in the design sample, which the contributors would give back, are
+  # suppressed.
+  n <- 80
+  counts <- rep(c(0, 1, 3, 2), 20)
+  counts[-c(1:15, 21, 23)] <- NA
+  data <- data.frame(count = counts, x = seq_len(n) %% 9,
+                     g = sprintf("g%02d", (seq_len(n) - 1) %% 20 + 1),
+                     h = sprintf("h%02d", (seq_len(n) + 1) %/% 2))
+  found <- audit_both(data, "count ~ x + (1 | g) + (1 | h)", family = "poisson",
+                      outcome_access = "T1", reason = "Zeros.")
+  sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "g")
+  other <- finding_of(found$shareable, "structure.cluster_sizes", factor = "h")
+  expect_identical(sizes$statistics$levels$availability$detail, "secondary")
+  expect_identical(written(other, "levels"), 40)
+  expect_identical(sizes$support$contributors$distinct$availability$detail, "secondary")
+})
+
+test_that("crossed columns do not give back a suppressed count of their combinations", {
+  # 12 levels of g crossed with 12 of h, two pupils in each combination but
+  # one, so that g and h count non-persons and their combinations persons.
+  # The outcome is missing in 5 combinations, whose count the design sample
+  # gives as 12 x 12 through the relation crossed, so the analysis sample
+  # loses its count of combinations.
+  cells <- expand.grid(g = sprintf("g%02d", 1:12), h = sprintf("h%02d", 1:12),
+                       stringsAsFactors = FALSE)
+  data <- cells[rep(seq_len(nrow(cells)), each = 2)[-1L], ]
+  data$pupil <- sprintf("p%03d", seq_len(nrow(data)))
+  data$count <- seq_len(nrow(data)) %% 4
+  data$x <- seq_len(nrow(data)) %% 7
+  lost <- paste(cells$g, cells$h)[c(10, 30, 50, 70, 90)]
+  data$count[paste(data$g, data$h) %in% lost] <- NA
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "pupil", columns = list("pupil"), role = "participant")
+  ))
+  found <- audit_both(data, "count ~ x + (1 | g) + (1 | h) + (1 | g:h)",
+                      declaration = declaration, family = "poisson", outcome_access = "T1",
+                      reason = "Zeros.")
+  incidence <- finding_of(found$shareable, "structure.label_incidence", first = "g",
+                          second = "h")
+  expect_identical(written(incidence, "relation"), "crossed")
+  expect_identical(written(incidence, "levels_first") * written(incidence, "levels_second"), 144)
+  expect_identical(detail(incidence, "combinations"), "secondary")
+  zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "g:h")
+  expect_identical(detail(zeros, "levels"), "secondary")
+})
+
+test_that("the labels that repeat do not give back the labels that occur once", {
+  # 25 class labels, 20 of which occur in two of 12 schools. The labels in
+  # several schools, 20, written beside the 25 labels of 'class', would give
+  # back the 5 that occur in one school, which part_of suppresses in both
+  # checks that count them.
+  combinations <- rbind(
+    data.frame(class = sprintf("c%02d", 1:20), school = sprintf("S%02d", (0:19 %% 12) + 1)),
+    data.frame(class = sprintf("c%02d", 1:20), school = sprintf("S%02d", ((5:24) %% 12) + 1)),
+    data.frame(class = sprintf("c%02d", 21:25), school = sprintf("S%02d", 1:5))
+  )
+  data <- combinations[rep(seq_len(nrow(combinations)), each = 2), ]
+  data$tx <- ave(seq_len(nrow(data)), data$class, data$school, FUN = function(i) i[1L] %% 3)
+  data$stype <- as.integer(substr(data$school, 2L, 3L)) %% 2
+  data$y <- seq_len(nrow(data)) %% 7
+  data$x <- seq_len(nrow(data)) %% 5
+  found <- audit_both(data, "y ~ x + tx + stype + (1 | school) + (1 | class)")
+  evidence <- finding_of(found$shareable, "structure.id_scope_evidence", first = "class",
+                         second = "school")
+  incidence <- finding_of(found$shareable, "structure.label_incidence", first = "class",
+                          second = "school")
+  expect_identical(written(evidence, "levels"), 25)
+  expect_identical(written(incidence, "levels_first"), 25)
+  expect_identical(detail(incidence, "first_in_several"), "secondary")
+  expect_identical(detail(evidence, "shared_labels"), "secondary")
+})
+
 test_that("counts that equal a suppressed quantity are suppressed", {
   # 15 subjects of two rows, the second outcome of two missing: the 15
   # levels of the design sample exceed the 15 of the analysis sample by 0,
@@ -410,6 +527,76 @@ test_that("the values of outcome.separation that locate a cell are never written
                       reason = "Separation.", exploratory = TRUE)
   shared <- finding_of(found$shareable, "outcome.separation")
   expect_identical(shared$status$availability$detail, "decision")
+})
+
+test_that("the software of a document does not show that an outcome class is empty", {
+  skip_if_not_installed("lpSolve")
+  # With 0 or 3 events in 200 rows, the finding of outcome.separation is
+  # suppressed as a whole, and the solver is named in both documents.
+  documents <- lapply(c(0, 3), function(events) {
+    data <- data.frame(y = c(rep(1, events), rep(0, 200 - events)), x = seq_len(200) %% 7,
+                       g = rep(sprintf("g%02d", 1:20), each = 10))
+    audit_both(data, "y ~ x + (1 | g)", family = "binomial", outcome_access = "T2",
+               reason = "Separation.", exploratory = TRUE)$shareable
+  })
+  for (document in documents) {
+    expect_identical(finding_of(document, "outcome.separation")$status$availability$detail,
+                     "decision")
+  }
+  expect_identical(documents[[1L]]$software, documents[[2L]]$software)
+  expect_identical(names(documents[[1L]]$software$packages), "lpSolve")
+})
+
+test_that("binomial events and non-events beside the rows do not give back small classes of rows", {
+  skip_if_not_installed("lpSolve")
+  # The rows with k = 0, with k = n and with both classes are the rows minus
+  # events, the rows minus non_events and their overlap.
+  declaration <- list(vocabulary = "0.1.0", variables = list(
+    k = list(role = "outcome", measurement = "binomial", trials = "n")))
+  run <- function(k) {
+    local_seed(3)
+    data <- data.frame(k = k, n = 5, x = round(rnorm(40), 3), z = round(rnorm(40), 3))
+    found <- audit_both(data, "k ~ x + z", declaration = declaration, outcome_access = "T2",
+                        reason = "Separation.", exploratory = TRUE)
+    list(internal = finding_of(found$internal, "outcome.separation"),
+         shareable = finding_of(found$shareable, "outcome.separation"))
+  }
+  for (k in list(c(rep(0, 3), rep(5, 12), rep(2, 25)), c(rep(0, 12), rep(5, 3), rep(2, 25)),
+                 c(rep(0, 15), rep(5, 25)))) {
+    found <- run(k)
+    expect_identical(c(written(found$internal, "events"), written(found$internal, "non_events")),
+                     as.double(c(sum(k > 0), sum(k < 5))))
+    expect_identical(found$shareable$status$availability$detail, "decision")
+  }
+  found <- run(c(rep(0, 12), rep(5, 12), rep(2, 16)))
+  expect_identical(found$shareable$status$availability$value, "available")
+  expect_identical(written(found$shareable, "verdict"), written(found$internal, "verdict"))
+  expect_identical(c(written(found$shareable, "events"), written(found$shareable, "non_events")),
+                   c(28, 28))
+})
+
+test_that("outcome.separation does not show that missing outcomes emptied a cell", {
+  skip_if_not_installed("lpSolve")
+  # The outcome is missing in the 3 rows with smoker 's2', which leaves 3
+  # kept columns in the analysis sample against 4 in the design sample, or
+  # in 3 rows with smoker 's1', which leaves 4 in both.
+  local_seed(5)
+  data <- data.frame(y = rbinom(40, 1, 0.5), x1 = round(rnorm(40), 3), x2 = round(rnorm(40), 3),
+                     smoker = c(rep("s2", 3), rep("s1", 37)))
+  shared <- lapply(list(1:3, c(4, 25, 30)), function(missing) {
+    data$y[missing] <- NA
+    found <- audit_both(data, "y ~ x1 + x2 + smoker", family = "binomial",
+                        outcome_access = "T2", reason = "Separation.", exploratory = TRUE)
+    expect_identical(written(finding_of(found$shareable, "design.rank_deficiency"), "kept"), 4)
+    internal <- finding_of(found$internal, "outcome.separation")
+    expect_identical(written(internal, "columns"), if (missing[1L] == 1) 3 else 4)
+    finding_of(found$shareable, "outcome.separation")
+  })
+  for (finding in shared) {
+    expect_identical(detail(finding, "columns"), "internal_only")
+    expect_identical(finding$status$availability$value, "available")
+  }
+  expect_identical(shared[[1L]]$status, shared[[2L]]$status)
 })
 
 # --- Pseudonyms ---------------------------------------------------------------------------

@@ -258,10 +258,24 @@ class ConformanceCorpora(VendorTestCase):
         self.assertEqual(run(self.root, "check").returncode, 0)
 
     def test_a_copy_left_in_the_installed_directory(self) -> None:
-        self.write(f"{R_FIXTURES}/conformance/json/cases.json", b'{"cases": []}\n')
-        self.assert_check_fails(f"{R_FIXTURES}/conformance/json/cases.json: not listed")
+        for target in (R_FIXTURES, PY_FIXTURES):
+            self.write(f"{target}/conformance/json/cases.json", b'{"cases": []}\n')
+        for target in (R_FIXTURES, PY_FIXTURES):
+            self.assert_check_fails(
+                f"{target}/conformance/json/cases.json: an old copy of "
+                "fixtures/conformance/json/cases.json, which is now vendored into "
+                f"{R_CONFORMANCE} and {PY_CONFORMANCE}"
+            )
         self.sync()
-        self.assertFalse((self.root / R_FIXTURES / "conformance").exists())
+        for target in (R_FIXTURES, PY_FIXTURES):
+            self.assertFalse((self.root / target / "conformance").exists())
+        self.assertEqual(run(self.root, "check").returncode, 0)
+
+    def test_an_unlisted_file_in_the_installed_directory_is_not_an_old_copy(self) -> None:
+        self.write(f"{R_FIXTURES}/conformance/json/other.json", b"{}\n")
+        self.assert_check_fails(
+            f"{R_FIXTURES}/conformance/json/other.json: not listed in spec/vendoring.json"
+        )
 
     def test_the_r_path_is_measured_in_the_test_directory(self) -> None:
         # mixedcheck/tests/conformance/ takes 29 bytes of the 100.
@@ -276,10 +290,13 @@ class ConformanceCorpora(VendorTestCase):
             f"entry {too_long!r} is longer than 100 bytes as a path in the R package's tarball"
         )
 
-    def test_manifest_of_the_corpora_cannot_be_listed(self) -> None:
-        entry = "fixtures/conformance/MANIFEST.json"
-        self.set_list(["spec/versions.json", entry])
-        self.assert_check_fails(f"entry {entry!r} would overwrite the vendored MANIFEST.json")
+    def test_manifests_of_the_fixtures_cannot_be_listed(self) -> None:
+        for entry in ("fixtures/MANIFEST.json", "fixtures/conformance/MANIFEST.json"):
+            with self.subTest(entry=entry):
+                self.set_list(["spec/versions.json", entry])
+                self.assert_check_fails(
+                    f"entry {entry!r} would overwrite the vendored MANIFEST.json"
+                )
 
 
 class InvalidList(VendorTestCase):

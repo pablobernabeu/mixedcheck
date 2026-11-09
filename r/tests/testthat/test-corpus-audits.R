@@ -57,7 +57,7 @@ message_texts_match <- function(a, b) {
   if (identical(a, b)) {
     return(TRUE)
   }
-  pattern <- "-?[0-9]+(\\.[0-9]+)?"
+  pattern <- "-?[0-9]+(\\.[0-9]+)?(e[+-][0-9]+)?"
   numbers_a <- regmatches(a, gregexpr(pattern, a))[[1L]]
   numbers_b <- regmatches(b, gregexpr(pattern, b))[[1L]]
   if (length(numbers_a) != length(numbers_b) ||
@@ -65,20 +65,54 @@ message_texts_match <- function(a, b) {
     return(FALSE)
   }
   differ <- numbers_a != numbers_b
-  places <- function(x) nchar(sub("^[^.]*\\.?", "", x))
-  units <- function(x) as.numeric(gsub(".", "", x, fixed = TRUE))
-  all(places(numbers_a[differ]) == places(numbers_b[differ]) &
-        abs(units(numbers_a[differ]) - units(numbers_b[differ])) == 1)
+  all(mapply(neighbouring_roundings, numbers_a[differ], numbers_b[differ]))
+}
+
+# Whether two numbers, in fixed or in scientific notation, are the
+# neighbouring roundings with the same number of decimal places on either
+# side of one rounding boundary. A carry out of the leading digit of a
+# mantissa makes 9.99e+20 and 1.00e+21 neighbours.
+neighbouring_roundings <- function(x, y) {
+  read <- function(text) {
+    parts <- strsplit(text, "e", fixed = TRUE)[[1L]]
+    list(places = nchar(sub("^[^.]*\\.?", "", parts[1L])),
+         units = as.numeric(gsub(".", "", parts[1L], fixed = TRUE)),
+         exponent = if (length(parts) > 1L) as.integer(parts[2L]) else NA_integer_)
+  }
+  x <- read(x)
+  y <- read(y)
+  if (x$places != y$places || is.na(x$exponent) != is.na(y$exponent)) {
+    return(FALSE)
+  }
+  if (is.na(x$exponent) || x$exponent == y$exponent) {
+    return(abs(x$units - y$units) == 1)
+  }
+  low <- if (x$exponent < y$exponent) x else y
+  high <- if (x$exponent < y$exponent) y else x
+  high$exponent - low$exponent == 1L && sign(low$units) == sign(high$units) &&
+    abs(low$units) == 10^(low$places + 1) - 1 && abs(high$units) == 10^low$places
 }
 
 # Compares one finding with its expected form: exactly, apart from the
 # values of real statistics, compared within the tolerance or bit for bit
 # for those that 'exact' lists, the message text, and, for a finding that is
-# near_threshold, the finding status and the message.
+# near_threshold in the expected findings or in the run, the finding status,
+# the message and threshold_proximity, and for outcome.separation also the
+# values that its solver decides (conventions.md, Comparison across
+# languages).
 expect_audit_finding <- function(actual, expected, exact, label) {
   check <- expected[["check"]]
-  near <- identical(expected[["status"]][["threshold_proximity"]][["value"]], "near_threshold")
-  reals <- names(Filter(function(s) s[["kind"]] %in% c("real", "reals"), expected[["statistics"]]))
+  near <- function(finding) {
+    identical(finding[["status"]][["threshold_proximity"]][["value"]], "near_threshold")
+  }
+  near <- near(expected) || near(actual)
+  solved <- if (near && check == "outcome.separation") {
+    c("verdict", "optimum", "margin", "bounds", "columns_involved")
+  } else {
+    character(0)
+  }
+  reals <- setdiff(names(Filter(function(s) s[["kind"]] %in% c("real", "reals"),
+                                expected[["statistics"]])), solved)
   strip <- function(finding) {
     for (name in intersect(reals, names(finding[["statistics"]]))) {
       finding[["statistics"]][[name]][["value"]] <- "real"
@@ -88,7 +122,9 @@ expect_audit_finding <- function(actual, expected, exact, label) {
     }
     if (near) {
       finding[["status"]][["finding"]] <- NULL
+      finding[["status"]][["threshold_proximity"]] <- NULL
       finding[["message"]] <- NULL
+      finding[["statistics"]][solved] <- NULL
     }
     finding
   }
@@ -169,3 +205,15 @@ for (file in c("assignment.json", "design.json", "identifiability.json", "keys.j
     })
   }
 }
+
+test_that("message texts match across one rounding boundary only", {
+  expect_true(message_texts_match("a factor of 1.25 here", "a factor of 1.26 here"))
+  expect_true(message_texts_match("a factor of 9.99 here", "a factor of 10.00 here"))
+  expect_true(message_texts_match("a factor of 2e+20 here", "a factor of 3e+20 here"))
+  expect_true(message_texts_match("a factor of 9.99e+20 here", "a factor of 1.00e+21 here"))
+  expect_false(message_texts_match("a factor of 1.25 here", "a factor of 1.27 here"))
+  expect_false(message_texts_match("a factor of 1.2 here", "a factor of 1.25 here"))
+  expect_false(message_texts_match("a factor of 9.98e+20 here", "a factor of 1.00e+21 here"))
+  expect_false(message_texts_match("a factor of 2e+20 here", "a factor of 2e+21 here"))
+  expect_false(message_texts_match("a factor of 1000000000000000 here", "a factor of 1e+15 here"))
+})

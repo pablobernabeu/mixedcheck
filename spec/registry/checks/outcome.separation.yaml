@@ -30,8 +30,8 @@ availability:
   - reason: declaration_missing
     condition: >-
       The family class is bernoulli, the outcome takes values other than 0 and
-      1, as numbers or logical values, in the analysis sample, and the
-      declaration gives no event level.
+      1, as numbers or logical values, in the analysis sample, and the IR
+      gives the response no event level (registry.md, Terms).
     pointer: /variables/{outcome}/event_level
 statistics:
   columns:
@@ -90,10 +90,14 @@ statistics:
       number of observations. When lp() reports no optimum for the dual, or
       its b is not verified, the program itself is solved, with b_j = b+_j -
       b-_j and 0 <= b+_j, b-_j <= 1 as the solver's variables, the upper
-      bounds written as constraints. In Python, each program is solved with
+      bounds written as constraints. It has one constraint for each
+      observation, and its time grows about as the power 1.7 of their number.
+      In Python, each program is solved through the same dual with
       scipy.optimize.linprog() with method 'highs-ds' and the options
       primal_feasibility_tolerance and dual_feasibility_tolerance set to
-      1e-9. A solution is verified when the solver reports an optimum and
+      1e-9, b being the first p elements of res.eqlin.marginals, and the
+      program itself with the same options when the dual has no verified
+      solution. A solution is verified when the solver reports an optimum and
       every u = s x'b, computed from the returned b in double arithmetic, is
       at least minus feasibility_tolerance. A verified solution with some u
       below minus residue_tolerance meets the constraints only within the
@@ -105,7 +109,15 @@ statistics:
       arithmetic where the exact value is 0, or the violation that data whose
       events and non-events overlap by less than about residue_tolerance on
       the scaled columns allow, which the check then reports as separated.
-      The verdict is complete
+      Conversely, on separated data whose margin on the scaled columns lies
+      below the solvers' tolerances, as when an outlier makes the other
+      values of its column small after scaling, one solver can return b = 0
+      and the verdict none, clear, where the other returns quasi through a
+      solution that is near_threshold, as conventions.md (Comparison across
+      languages) allows. Were that solution to meet the constraints within
+      residue_tolerance, both findings would be clear and their verdicts
+      would differ, which these tolerances do not exclude. The verdict is
+      complete
       when the verified margin of the second program is above
       separation_tolerance, quasi otherwise when the verified optimum of the
       first is above separation_tolerance, and none otherwise. When
@@ -140,7 +152,10 @@ statistics:
       first program, the set of b that meets its constraints with a sum of
       s x'b of at least optimum minus separation_tolerance, each found by a
       linear program solved and verified as above, as the pairs (smallest,
-      largest) laid out in one list. Both packages compare these values within
+      largest) laid out in one list. The programs run in column order, the
+      smallest before the largest, and stop at the first that has no verified
+      solution, so that the programs after it are not solved and cannot make
+      the finding near_threshold. Both packages compare these values within
       bound_tolerance. It is absent otherwise, or when one of these programs
       has no verified solution.
   columns_involved:

@@ -65,7 +65,7 @@ render_message_argument <- function(arg, entry, scope, values) {
         },
         ratio = ratio_text(values[[statistic[["numerator"]]]], values[[statistic[["denominator"]]]],
                            arg[["digits"]]),
-        real = fixed_decimal(value, arg[["digits"]]),
+        real = real_text(value, arg[["digits"]]),
         category = chartr("_", " ", value),
         names = , labels = names_text(value),
         internal_error(sprintf("a statistic of kind %s cannot be rendered.", statistic[["kind"]]))
@@ -130,28 +130,37 @@ point_digits <- function(text, digits) {
   paste0(substr(text, 1L, cut), ".", substring(text, cut + 1L))
 }
 
-# The exact binary value of a double rounded half to even to 'digits'
-# decimal places, as Python's f"{x:.{digits}f}" writes it, with a minus sign
-# only before a value that is not zero after rounding, or 'NaN', 'Infinity'
-# or '-Infinity'. The digits come from the in-house expansion of the double,
-# never from the C library (registry.md, Messages).
-fixed_decimal <- function(x, digits) {
+# A real statistic as a message renders it (registry.md, Messages): in
+# scientific notation when the double is finite and at least 1e15 in absolute
+# value, a bound that the double 10^15 holds exactly, in fixed notation when
+# it is finite and smaller, and as 'NaN', 'Infinity' or '-Infinity'
+# otherwise. 'digits' may hold several numbers of places, for each of which
+# the value is rendered from one expansion of the double.
+real_text <- function(x, digits) {
+  digits <- as.integer(digits)
   if (is.nan(x)) {
-    return("NaN")
+    return(rep("NaN", length(digits)))
   }
   if (is.infinite(x)) {
-    return(if (x > 0) "Infinity" else "-Infinity")
+    return(rep(if (x > 0) "Infinity" else "-Infinity", length(digits)))
   }
-  digits <- as.integer(digits)
   if (x == 0) {
-    return(point_digits("0", digits))
+    return(vapply(digits, function(d) point_digits("0", d), ""))
   }
   parts <- double_parts(x)
   exact <- scaled_digits(parts$m, parts$e, 1)
-  value <- exact$digits[[1L]]
-  # The value is value x 10^q, and its digits from the place 10^-digits on
-  # are dropped and rounded.
-  shift <- exact$q + digits
+  render <- if (abs(x) >= powers_of_ten[16L]) scientific_decimal else fixed_decimal
+  vapply(digits, function(d) render(exact$digits[[1L]], exact$q, parts$negative, d), "")
+}
+
+# The exact value of a non-zero double, held as its decimal digits 'value'
+# times 10^q, rounded half to even to 'digits' decimal places, as Python's
+# f"{x:.{digits}f}" writes it, with a minus sign only before a value that is
+# not zero after rounding. The digits come from the in-house expansion of the
+# double, never from the C library (registry.md, Messages).
+fixed_decimal <- function(value, q, negative, digits) {
+  # The digits from the place 10^-digits on are dropped and rounded.
+  shift <- q + digits
   if (shift >= 0L) {
     kept <- c(value, integer(shift))
   } else {
@@ -169,5 +178,39 @@ fixed_decimal <- function(x, digits) {
   zero <- !length(nonzero)
   kept <- if (zero) 0L else kept[nonzero[1L]:length(kept)]
   text <- point_digits(paste(kept, collapse = ""), digits)
-  if (parts$negative && !zero) paste0("-", text) else text
+  if (negative && !zero) paste0("-", text) else text
+}
+
+# The exact value of a non-zero double, held as its decimal digits 'value'
+# times 10^q, in scientific notation with its mantissa rounded half to even
+# to 'digits' decimal places, as Python's f"{x:.{digits}e}" writes it: the
+# mantissa, 'e', the sign of the exponent and at least two digits of the
+# exponent.
+scientific_decimal <- function(value, q, negative, digits) {
+  keep <- digits + 1L
+  # The leading digit has the exponent q + length(value) - 1, and the
+  # mantissa keeps 'keep' digits.
+  exponent <- as.integer(q) + length(value) - 1L
+  if (length(value) <= keep) {
+    kept <- c(value, integer(keep - length(value)))
+  } else {
+    kept <- value[seq_len(keep)]
+    next_digit <- value[keep + 1L]
+    more <- keep + 2L <= length(value) && any(value[(keep + 2L):length(value)] != 0L)
+    if (next_digit > 5L || (next_digit == 5L && (more || kept[keep] %% 2L == 1L))) {
+      kept <- digits_add_small(kept, 1L)
+      # A carry out of the leading digit, as from 9.99 to 10.00, adds a
+      # trailing zero, which moves to the exponent.
+      if (length(kept) > keep) {
+        kept <- kept[seq_len(keep)]
+        exponent <- exponent + 1L
+      }
+    }
+  }
+  mantissa <- paste(kept, collapse = "")
+  if (keep > 1L) {
+    mantissa <- paste0(substr(mantissa, 1L, 1L), ".", substring(mantissa, 2L))
+  }
+  text <- paste0(mantissa, "e", if (exponent < 0L) "-" else "+", sprintf("%02d", abs(exponent)))
+  if (negative) paste0("-", text) else text
 }

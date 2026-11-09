@@ -85,7 +85,7 @@ audit_check_identifiability_gram_rank <- function(run, entry, elements) {
   ), proximity = list(rank_tolerance = c(eigenvalues, ratio[is.finite(ratio)]))))
 }
 
-# The number of elements of the matrix V of gram_of_bases() above which the
+# The number of elements of a block of W in gram_of_bases() above which the
 # levels of a random term are split into chunks, 32 MB of doubles.
 gram_chunk_elements <- 2^22
 
@@ -156,63 +156,89 @@ covariance_bases <- function(run) {
 # each block of W between two of its columns (traces). For blocks (x, y) of
 # A_k and (u, v) of A_l, the trace adds the sum over the levels L and L' of
 # W[y_L, u_L'] W[v_L', x_L], the sum of the elements of W[y, u] times those
-# of W[x, v]. For two terms t and s, each block of W between a column of t
-# and a column of s, restricted to a chunk of the levels of s, is one column
-# of a matrix V, so that the sum of crossprod(V) over the chunks holds every
-# such sum. W is never held whole, and Z'Z is summed over the rows of each
-# pair of levels. The blocks of Z'Z within a term are diagonal, since each
-# row lies in one level.
+# of W[x, v]. For each random term t and each chunk of its levels, one
+# sparse product forms the rows of W at the chunk's columns of t and the
+# columns of t and of every term after it. For each such term s, the blocks
+# between a column of t and a column of s are then the columns of a matrix
+# V, so that the sum of crossprod(V) over the chunks holds every such sum,
+# and for two terms with one column each this sum is the sum of the squares
+# of the block, computed for all such terms s at once. W is never held
+# whole, and the time grows with the number of rows times the square of the
+# number of random terms. The blocks of Z'Z within a term are diagonal,
+# since each row lies in one level.
 gram_of_bases <- function(scaled, zq, bases, chunk = gram_chunk_elements) {
   positions <- scaled$positions
   terms <- scaled$terms
   count <- length(positions)
-  sums <- list()
+  z <- scaled$z
+  # The columns of Z of each term in level order and, within a level, in the
+  # order of the term's columns, with the term and the column of each.
+  widths <- lengths(positions)
+  columns <- lapply(positions, function(p) as.vector(t(do.call(cbind, p))))
+  owner <- rep(seq_len(count), lengths(columns))
+  within <- unlist(lapply(seq_len(count), function(t) {
+    rep(seq_len(widths[t]), length(positions[[t]][[1L]]))
+  }))
+  all_columns <- unlist(columns)
+  sums <- lapply(seq_len(count), function(t) {
+    lapply(seq_len(count), function(s) if (s >= t) matrix(0, widths[t] * widths[s], widths[t] * widths[s]))
+  })
   traces <- list()
   diagonals <- list()
   for (t in seq_len(count)) {
-    qt <- length(positions[[t]])
+    qt <- widths[t]
     jt <- terms[[t]]$count
+    values <- terms[[t]]$values
+    # The diagonal of each block of Z'Z within the term, in its own rows,
+    # and the trace of the block of W.
     traces[[t]] <- matrix(0, qt, qt)
     diagonals[[t]] <- list()
-    for (s in t:count) {
-      qs <- length(positions[[s]])
-      # The levels of s in chunks, so that V for a chunk holds at most about
-      # chunk elements, or the levels of t times q_t q_s.
-      per_chunk <- max(1L, floor(chunk / (jt * qt * qs)))
-      chunks <- split(seq_len(terms[[s]]$count),
-                      ceiling(seq_len(terms[[s]]$count) / per_chunk))
-      level_s <- terms[[s]]$level
-      sum_ts <- matrix(0, qt * qs, qt * qs)
-      for (chunk in chunks) {
-        rows <- which(level_s >= chunk[1L] & level_s <= chunk[length(chunk)])
-        cell <- (level_s[rows] - chunk[1L]) * jt + terms[[t]]$level[rows]
-        cells <- sort(unique(cell))
-        v <- matrix(0, jt * length(chunk), qt * qs)
+    for (d in seq_len(qt)) {
+      for (c in seq_len(qt)) {
+        product <- rowsum(values[, c] * values[, d], terms[[t]]$level, reorder = TRUE)[, 1L]
+        diagonals[[t]][[(d - 1L) * qt + c]] <- product
+        traces[[t]][c, d] <- sum(product) - if (is.null(zq)) 0 else
+          sum(zq[positions[[t]][[c]], , drop = FALSE] * zq[positions[[t]][[d]], , drop = FALSE])
+      }
+    }
+    later <- which(owner >= t)
+    later_owner <- owner[later]
+    single <- later_owner[widths[later_owner] == 1L]
+    single_columns <- later[widths[later_owner] == 1L]
+    several <- unique(later_owner[widths[later_owner] > 1L | qt > 1L])
+    z_later <- z[, all_columns[later], drop = FALSE]
+    zq_later <- if (is.null(zq)) NULL else zq[all_columns[later], , drop = FALSE]
+    # The levels of t in chunks, so that the rows of W for a chunk hold at
+    # most about chunk elements, or one level.
+    per_chunk <- max(1L, floor(chunk / (qt * length(later))))
+    for (part in split(seq_len(jt), ceiling(seq_len(jt) / per_chunk))) {
+      size <- length(part)
+      rows <- unlist(lapply(seq_len(qt), function(c) positions[[t]][[c]][part]))
+      b <- as.matrix(Matrix::crossprod(z[, rows, drop = FALSE], z_later))
+      if (!is.null(zq)) {
+        b <- b - tcrossprod(zq[rows, , drop = FALSE], zq_later)
+      }
+      if (qt == 1L && length(single)) {
+        squares <- rowsum(colSums(b[, match(single_columns, later), drop = FALSE]^2), single,
+                          reorder = FALSE)
+        for (i in seq_len(nrow(squares))) {
+          s <- as.integer(rownames(squares)[i])
+          sums[[t]][[s]] <- sums[[t]][[s]] + squares[i, 1L]
+        }
+      }
+      for (s in several) {
+        qs <- widths[s]
+        js <- terms[[s]]$count
+        of_s <- which(later_owner == s)
+        v <- matrix(0, size * js, qt * qs)
         for (d in seq_len(qs)) {
           for (c in seq_len(qt)) {
-            product <- rowsum(terms[[t]]$values[rows, c] * terms[[s]]$values[rows, d], cell,
-                              reorder = TRUE)[, 1L]
-            block <- if (is.null(zq)) {
-              numeric(nrow(v))
-            } else {
-              -tcrossprod(zq[positions[[t]][[c]], , drop = FALSE],
-                          zq[positions[[s]][[d]][chunk], , drop = FALSE])
-            }
-            dim(block) <- NULL
-            block[cells] <- block[cells] + product
-            if (s == t) {
-              # The diagonal of a block of Z'Z within a term, in its own rows.
-              traces[[t]][c, d] <- traces[[t]][c, d] + sum(block[cells])
-              index <- (d - 1L) * qt + c
-              diagonals[[t]][[index]] <- c(diagonals[[t]][index][[1L]], product)
-            }
-            v[, (d - 1L) * qt + c] <- block
+            v[, (d - 1L) * qt + c] <- b[(c - 1L) * size + seq_len(size), of_s[within[later[of_s]] == d]]
           }
         }
-        sum_ts <- sum_ts + crossprod(v)
-        rm(v)
+        sums[[t]][[s]] <- sums[[t]][[s]] + crossprod(v)
       }
-      sums[[paste(t, s)]] <- sum_ts
+      rm(b)
     }
   }
   # The sum of the elements of W[y, u] times those of W[x, v] for blocks a
@@ -220,13 +246,13 @@ gram_of_bases <- function(scaled, zq, bases, chunk = gram_chunk_elements) {
   # order, transposing both blocks when the term of a comes after that of b.
   element <- function(a, b) {
     if (a$term <= b$term) {
-      q <- length(positions[[a$term]])
-      sums[[paste(a$term, b$term)]][(b$column_x - 1L) * q + a$column_y,
-                                    (b$column_y - 1L) * q + a$column_x]
+      q <- widths[a$term]
+      sums[[a$term]][[b$term]][(b$column_x - 1L) * q + a$column_y,
+                               (b$column_y - 1L) * q + a$column_x]
     } else {
-      q <- length(positions[[b$term]])
-      sums[[paste(b$term, a$term)]][(a$column_y - 1L) * q + b$column_x,
-                                    (a$column_x - 1L) * q + b$column_y]
+      q <- widths[b$term]
+      sums[[b$term]][[a$term]][(a$column_y - 1L) * q + b$column_x,
+                               (a$column_x - 1L) * q + b$column_y]
     }
   }
   parameters <- length(bases$blocks)
@@ -244,7 +270,7 @@ gram_of_bases <- function(scaled, zq, bases, chunk = gram_chunk_elements) {
   }
   original <- vapply(bases$blocks, function(blocks) {
     diagonal <- diagonals[[blocks[[1L]]$term]]
-    q <- length(positions[[blocks[[1L]]$term]])
+    q <- widths[blocks[[1L]]$term]
     total <- 0
     for (a in blocks) {
       for (b in blocks) {
@@ -304,13 +330,12 @@ residual_gram <- function(run, bases, scaled, q, zq, traces) {
 }
 
 # identifiability.df_budget: the degrees of freedom between the levels of a
-# grouping factor that remain after the fixed effects, J - k + rank(X_d) for
-# the k kept fixed-effects columns X, where X_d is X with the first row of
-# each level subtracted from the level's rows and the columns constant
-# within the levels up to rounding set to 0 (level_differences()). A
-# combination of the columns of X lies in the span of the indicators exactly
-# when it is constant within levels, which X_d tests without the J indicator
-# columns.
+# grouping factor that remain after the fixed effects, J - k + r for the k
+# kept fixed-effects columns X and the within-level rank r of X
+# (within_level_rank()). A combination of the columns of X lies in the span
+# of the indicators exactly when it is constant within levels, which the
+# within-level rank tests without the J indicator columns, and the rank of
+# the columns of the terms up to each term gives the budget after it.
 audit_check_identifiability_df_budget <- function(run, entry, elements) {
   ir <- run$ir
   column_terms <- vapply(ir$fixed$columns, function(column) column$term + 1, 0)
@@ -321,7 +346,7 @@ audit_check_identifiability_df_budget <- function(run, entry, elements) {
     }
     levels <- factor_levels(run, element$factor)
     j <- levels$count
-    within <- sequential_rule(level_differences(run$x[, kept, drop = FALSE], levels$code, j))
+    within <- within_level_rank(run$x[, kept, drop = FALSE], levels$code, j)
     term_of <- column_terms[kept]
     budgets <- vapply(seq_along(ir$fixed$terms), function(t) {
       j - sum(term_of <= t) + sum(within[term_of <= t])
@@ -368,7 +393,7 @@ audit_check_identifiability_residual_confounding <- function(run, entry, element
     coded <- all(vapply(random[pattern], function(other) {
       all(vapply(other$terms, function(each) {
         all(vapply(each$variables, function(v) {
-          identical(predictors[[v$variable]]$kind, "categorical")
+          identical(named_member(predictors, v$variable)$kind, "categorical")
         }, NA))
       }, NA))
     }, NA))

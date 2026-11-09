@@ -186,6 +186,46 @@ test_that("a bound program without a verified solution leaves the bounds absent"
     "some coefficients diverge and their Wald statistics are unreliable."))
 })
 
+test_that("the bound programs stop at the first without a verified solution", {
+  skip_if_not_installed("lpSolve")
+  solver <- separation_solver
+  # The bound programs of 'separated()' minimise and maximise b_1 and then
+  # b_2. The program numbered 'failing' has no solution, and b = (1e-9, 0),
+  # which leaves u = -1e-9 for each non-event, answers the last, so that
+  # the finding is near_threshold only if the last is solved.
+  with_failure <- function(failing) {
+    programs <- 0L
+    calls <- character(0)
+    local_mocked_bindings(separation_solver = function(formulation, a, objective, margin, sums,
+                                                       floor) {
+      if (is.null(floor)) {
+        return(solver(formulation, a, objective, margin, sums, floor))
+      }
+      if (formulation == "dual") {
+        programs <<- programs + 1L
+      }
+      calls <<- c(calls, paste(programs, formulation))
+      if (programs == failing) NULL else if (programs == 4L) c(1e-9, 0) else
+        solver(formulation, a, objective, margin, sums, floor)
+    })
+    list(found = separation_finding(separated()), calls = calls)
+  }
+  for (failing in c(1L, 3L)) {
+    run <- with_failure(failing)
+    values <- outcome_statistics(run$found)
+    solved <- if (failing > 1L) paste(seq_len(failing - 1L), "dual")
+    expect_identical(run$calls, c(solved, paste(failing, c("dual", "primal"))), label = failing)
+    expect_identical(values$verdict, "complete")
+    expect_null(values$bounds)
+    expect_null(values$columns_involved)
+    expect_identical(run$found$status$threshold_proximity$value, "clear", label = failing)
+  }
+  # Solved, the last program makes the finding near_threshold.
+  run <- with_failure(5L)
+  expect_identical(run$found$status$threshold_proximity$value, "near_threshold")
+  expect_length(outcome_statistics(run$found)$bounds, 4L)
+})
+
 test_that("outcome.separation names lpSolve whenever it is available, and is not available without it", {
   skip_if_not_installed("lpSolve")
   packages <- list(lpSolve = getNamespaceVersion("lpSolve")[[1L]])
@@ -224,6 +264,26 @@ test_that("on 2,000 rows that only b = 0 separates, a violating solution is near
     expect_true(identical(values$verdict, "none") ||
                   found$status$threshold_proximity$value == "near_threshold", label = format(g))
   }
+})
+
+test_that("separated data whose margin an outlier compresses below the tolerances are near_threshold", {
+  skip_if_not_installed("lpSolve")
+  # 5,000 rows with y = 1 exactly when x1 > 0.5 x2, and x1 = 1e7 in the
+  # first row, which divides the other values of x1 by 1e7 or more. The
+  # verdict is quasi in exact arithmetic, and lpSolve reaches it through a
+  # solution that is near_threshold, where HiGHS through
+  # scipy.optimize.linprog() with method 'highs-ds' and tolerances 1e-9
+  # returns b = 0 and the verdict none, clear (conventions.md, Comparison
+  # across languages).
+  i <- seq_len(5000)
+  x1 <- (i * 7919) %% 10007 / 10007 - 0.5
+  x2 <- (i * 31337) %% 10009 / 10009 - 0.5
+  y <- as.numeric(x1 > 0.5 * x2)
+  x1[1L] <- 1e7
+  found <- outcome_findings(data.frame(y = y, x1 = x1, x2 = x2), "y ~ x1 + x2",
+                            "outcome.separation", tier = "T2", family = "binomial")[[1L]]
+  expect_identical(found$statistics$verdict$value, "quasi")
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
 })
 
 # Tables of the benchmark that chose the formulation of outcome.separation

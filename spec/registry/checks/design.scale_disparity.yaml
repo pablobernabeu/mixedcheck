@@ -52,10 +52,14 @@ statistics:
       The ratio of the largest to the smallest singular value of the matrix of
       the fixed-effects columns that the sequential rule keeps, the intercept
       included, each divided by its largest absolute value and then scaled to
-      unit Euclidean length. The relative error of the smallest singular
-      value grows with the condition number, whatever the method, so the two
-      packages compare it within a tolerance that grows with its value
-      (conventions.md, Comparison across languages).
+      unit Euclidean length. The singular values are those of that matrix
+      itself, computed by a backward-stable singular value decomposition such
+      as LAPACK's, through svd() in R and numpy.linalg.svd in Python, never
+      the square roots of the eigenvalues of its cross-product, whose error
+      grows with the square of the condition number. The relative error of
+      the smallest singular value then grows with the condition number, so
+      the two packages compare it within a tolerance that grows with its
+      value (conventions.md, Comparison across languages).
 thresholds:
   ratio:
     statistic: sd_ratio

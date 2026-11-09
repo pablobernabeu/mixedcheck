@@ -37,8 +37,9 @@
 #'
 #' The times of the run are UTC times truncated to whole seconds. When the
 #' environment variable MIXEDCHECK_TIME is set to a whole number of seconds
-#' since 1970-01-01T00:00:00Z, written in decimal digits, every time of the
-#' run is that time instead, so that a run can be repeated byte for byte.
+#' since 1970-01-01T00:00:00Z, written as one or more of the ASCII digits 0
+#' to 9 and nothing else, every time of the run is that time instead, so that
+#' a run can be repeated byte for byte.
 #'
 #' Shareable mode, the default, passes the findings through the privacy
 #' filter of the
@@ -362,11 +363,13 @@ run_time <- function() {
   if (!nzchar(value)) {
     return(floor(unclass(Sys.time())))
   }
-  digits <- sub("^0+(?=[0-9])", "", value, perl = TRUE)
-  # The last second of the year 9999, the last that a UTC timestamp can write.
-  if (!grepl("^[0-9]+$", value) || nchar(digits) > 12L || as.numeric(digits) > 253402300799) {
+  # Only the ASCII digits count, compared as bytes, whatever the locale. The
+  # last second of the year 9999 is the last that a UTC timestamp can write.
+  ascii <- grepl("^[0123456789]+$", value, useBytes = TRUE)
+  digits <- if (ascii) sub("^0+(?=[0-9])", "", value, perl = TRUE) else ""
+  if (!ascii || nchar(digits) > 12L || as.numeric(digits) > 253402300799) {
     stop(paste("The environment variable MIXEDCHECK_TIME must be a whole number of seconds",
-               "since 1970-01-01T00:00:00Z, written in decimal digits, up to the end of the",
+               "since 1970-01-01T00:00:00Z, written in the digits 0 to 9, up to the end of the",
                "year 9999."), call. = FALSE)
   }
   as.numeric(digits)

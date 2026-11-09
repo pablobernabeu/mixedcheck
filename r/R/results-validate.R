@@ -389,7 +389,7 @@ bn_compare <- function(a, b) {
 
 # Stage 5: W7090 for a document of another registry, and otherwise the rules
 # that compare each finding with the registry entry of its check (E7040 to
-# E7044) and, in a shareable document, E7024.
+# E7044 and E7025) and, in a shareable document, E7024.
 results_registry_issues <- function(d) {
   if (!identical(d[["inputs"]][["registry_hash"]], registry_hash())) {
     return(list(raw_issue("W7090", "/inputs/registry_hash")))
@@ -463,6 +463,16 @@ results_registry_issues <- function(d) {
       if (shareable && identical(defined[["kind"]], "ratio") && !is.null(statistic[["value"]]) &&
           ratio_hides_count(statistics, entry, defined, statistic[["count_class"]], k)) {
         add("E7024", paste0(at, "/value"))
+      }
+      # The n of a quantile is written only beside the count that the entry
+      # names as n, with its value, in every document.
+      n <- statistic[["quantile"]][["n"]]
+      count <- defined[["quantile"]][["n"]]
+      if (!is.null(n) && !is.null(count)) {
+        given <- statistics[[count]][["value"]]
+        if (!is.numeric(given) || length(given) != 1L || given != n) {
+          add("E7025", paste0(at, "/quantile/n"), list(count = count))
+        }
       }
     }
   }

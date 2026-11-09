@@ -580,16 +580,19 @@ sequential_tolerance <- 1e-7
 # The two packages call the same LAPACK routine and BLAS operations on the
 # same values, so that they differ only in the rounding of their BLAS and
 # LAPACK. Returns whether each column is kept.
-sequential_rule <- function(x, tolerance = sequential_tolerance) {
-  sequential_residuals(x, tolerance)$kept
+sequential_rule <- function(x, tolerance = sequential_tolerance, norms = NULL) {
+  sequential_residuals(x, tolerance, norms)$kept
 }
 
 # The sequential rule with the norms it computes: kept, whether each column
 # is kept, and residual, the norm of the residual of each scaled column after
 # projection onto the columns kept before it, 0 for a column whose values are
 # all 0. design.collinearity takes the residuals of its columns from here, so
-# that they are computed as the rule computes them.
-sequential_residuals <- function(x, tolerance = sequential_tolerance) {
+# that they are computed as the rule computes them. With norms, a column is
+# kept when the norm of its residual, in the units of x, exceeds tolerance
+# times its element of norms instead of tolerance times the norm of the
+# column (within_level_rank()).
+sequential_residuals <- function(x, tolerance = sequential_tolerance, norms = NULL) {
   n <- nrow(x)
   p <- ncol(x)
   kept <- logical(p)
@@ -627,6 +630,9 @@ sequential_residuals <- function(x, tolerance = sequential_tolerance) {
     }
     norm_r <- sqrt(drop(crossprod(r)))
     residual[candidates[k]] <- norm_r
+    if (!is.null(norms)) {
+      norm_v <- norms[candidates[k]] / largest[candidates[k]]
+    }
     if (norm_r > tolerance * norm_v) {
       kept[candidates[k]] <- TRUE
       basis <- cbind(basis, r / norm_r)
@@ -706,67 +712,139 @@ exact_group_sums <- function(x, groups, count) {
   result
 }
 
-# exact_group_sums() for groups that each hold at least one value.
+# exact_group_sums() for groups that each hold at least one value. Each value
+# m * 2^e adds amounts below 2^33 to the limbs l, l + 1 and l + 2 of base
+# 2^32 at its position l, counted from 2^-1074, and a group keeps only the
+# cells from l - 1 to l + 3 of each l among its values, so that memory grows
+# with the values. Without the cells l + 3 a carry would have no cell to go
+# to, and without the cells l - 1 the highest limb that is not 0 after a
+# borrow could fall between cells. Between two cells, a carry or a borrow
+# passes on unchanged.
 exact_sums_of_groups <- function(x, groups, count) {
-  limb_count <- 72L
   base <- 2^32
-  result <- numeric(count)
+  # The cells of a group lie at positions 0 to 66 and take the keys from
+  # (group - 1) * 72 on.
+  stride <- 72
   parts <- double_parts(x)
-  chunk <- 2^19
-  totals <- lapply(c(FALSE, TRUE), function(negative) {
-    sums <- matrix(0, count, limb_count)
-    chosen <- which(parts$negative == negative)
-    while (length(chosen)) {
-      at <- chosen[seq_len(min(length(chosen), chunk))]
-      chosen <- chosen[-seq_along(at)]
-      sums <- limbs_normalise_rows(sums + group_limbs(parts$m[at], parts$e[at], groups[at],
-                                                      count, limb_count))
-    }
-    sums
+  position <- parts$e + 1074
+  limb <- position %/% 32
+  shift <- 2^(position %% 32)
+  high <- floor(parts$m / base)
+  low <- parts$m - high * base
+  low_shifted <- low * shift
+  low_carry <- floor(low_shifted / base)
+  high_shifted <- high * shift
+  high_carry <- floor(high_shifted / base)
+  amounts <- list(low_shifted - low_carry * base, low_carry + high_shifted - high_carry * base,
+                  high_carry)
+  first <- (groups - 1) * stride + limb
+  rm(position, limb, shift, high, low, low_shifted, low_carry, high_shifted, high_carry)
+  # The cells, in ascending order of key, from the sorted keys of the l of
+  # each group: each start s adds the keys from s - 1, or from the key after
+  # the cells of the start below it, up to s + 3.
+  starts <- sort(unique(first))
+  from <- pmax(starts - (starts %% stride > 0), c(-1, starts[-length(starts)] + 4))
+  size <- as.integer(starts + 4 - from)
+  cells <- rep(from, size) + sequence(size) - 1
+  cell_count <- length(cells)
+  cell_group <- as.integer(cells %/% stride) + 1L
+  cell_position <- as.integer(cells - (cell_group - 1L) * stride)
+  previous <- c(FALSE, cell_group[-1L] == cell_group[-cell_count])
+  by_position <- split(seq_len(cell_count), cell_position)
+  start_cell <- cumsum(size) - size + as.integer(starts - from) + 1L
+  rm(from, size)
+  # The amounts of each cell, positive and negative apart, summed in parts
+  # of 17 and 16 bits, whose running sums over all values stay below 2^53.
+  slot <- start_cell[match(first, starts)] + parts$negative * cell_count
+  rm(first, starts, start_cell, parts)
+  order_of <- order(slot)
+  slot <- slot[order_of]
+  last <- c(slot[-1L] != slot[-length(slot)], TRUE)
+  slot <- slot[last]
+  sum_upper <- numeric(2 * cell_count)
+  sum_lower <- numeric(2 * cell_count)
+  for (k in 0:2) {
+    amount <- amounts[[k + 1L]][order_of]
+    upper <- floor(amount / 2^16)
+    lower <- cumsum(amount - upper * 2^16)[last]
+    upper <- cumsum(upper)[last]
+    at <- slot + k
+    sum_upper[at] <- sum_upper[at] + upper - c(0, upper[-length(upper)])
+    sum_lower[at] <- sum_lower[at] + lower - c(0, lower[-length(lower)])
+  }
+  rm(amounts, amount, upper, lower, at, order_of, slot, last)
+  totals <- lapply(0:1, function(negative) {
+    at <- negative * cell_count + seq_len(cell_count)
+    # sum_upper * 2^16 + sum_lower as a limb below 2^32 and a carry.
+    carried <- floor(sum_upper[at] / 2^16)
+    rest <- (sum_upper[at] - carried * 2^16) * 2^16 + sum_lower[at]
+    over <- floor(rest / base)
+    limbs_carry_cells(rest - over * base, carried + over, by_position, previous)$limb
   })
-  positive <- totals[[1L]]
-  negative <- totals[[2L]]
-  # The sign of each sum, from its highest limb that differs.
+  rm(sum_upper, sum_lower)
+  difference <- totals[[1L]] - totals[[2L]]
+  rm(totals)
+  result <- numeric(count)
+  nonzero <- which(difference != 0)
+  if (!length(nonzero)) {
+    return(result)
+  }
+  # The sign of each sum is the sign of its highest limb that differs. The
+  # cells are in ascending order of group and position.
+  ends <- function(cell) {
+    group <- cell_group[cell]
+    change <- group[-1L] != group[-length(group)]
+    list(first = cell[c(TRUE, change)], last = cell[c(change, TRUE)])
+  }
+  bounds <- ends(nonzero)
+  highest <- bounds$last
+  lowest <- bounds$first
   sign <- numeric(count)
-  for (k in rev(seq_len(limb_count))) {
-    open <- sign == 0
-    sign[open & positive[, k] > negative[, k]] <- 1
-    sign[open & positive[, k] < negative[, k]] <- -1
+  sign[cell_group[highest]] <- sign(difference[highest])
+  borrowed <- limbs_carry_cells(difference * sign[cell_group], numeric(cell_count),
+                                by_position, previous)
+  limbs <- borrowed$limb
+  carry <- borrowed$carry
+  rm(difference, borrowed)
+  # The highest limb that is not 0 lies in a cell, and the limb below a cell
+  # that is not one lies in a gap, all 1s after a borrow and 0 otherwise.
+  top <- ends(which(limbs > 0))$last
+  group <- cell_group[top]
+  t <- cell_position[top]
+  limb_below <- function(down) {
+    out <- numeric(length(top))
+    at <- t >= down
+    key_below <- cells[top[at]] - down
+    j <- findInterval(key_below, cells)
+    same <- j > 0L
+    same[same] <- cell_group[j[same]] == group[at][same]
+    exact <- same & cells[pmax(j, 1L)] == key_below
+    value <- numeric(length(j))
+    value[exact] <- limbs[j[exact]]
+    gap <- same & !exact
+    value[gap] <- ifelse(carry[j[gap]] < 0, base - 1, 0)
+    out[at] <- value
+    out
   }
-  larger <- positive
-  smaller <- negative
-  swap <- sign < 0
-  larger[swap, ] <- negative[swap, ]
-  smaller[swap, ] <- positive[swap, ]
-  borrow <- numeric(count)
-  for (k in seq_len(limb_count)) {
-    value <- larger[, k] - smaller[, k] - borrow
-    borrow <- as.numeric(value < 0)
-    larger[, k] <- value + borrow * base
-  }
-  top <- integer(count)
-  for (k in rev(seq_len(limb_count))) {
-    top[top == 0L & larger[, k] > 0] <- k
-  }
-  # Sums below 2^96 times 2^-1074, which no data reach in practice, are
+  high <- limbs[top]
+  middle <- limb_below(1L)
+  low <- limb_below(2L)
+  # Whether a limb below the three highest is not 0, which holds exactly when
+  # a difference below them is not 0.
+  below <- cell_position[lowest] < t - 2
+  # Sums below 2^64 times 2^-1074, which no data reach in practice, are
   # rounded one by one, since they can be subnormal.
-  small <- which(sign != 0 & top < 3L)
-  for (g in small) {
-    result[g] <- limbs_round(larger[g, ])
+  small <- which(t < 2)
+  for (i in small) {
+    result[group[i]] <- sign[group[i]] *
+      limbs_round(if (t[i] == 1) c(middle[i], high[i]) else high[i])
   }
-  wide <- which(sign != 0 & top >= 3L)
+  wide <- which(t >= 2)
   if (length(wide)) {
-    t <- top[wide]
-    high <- larger[cbind(wide, t)]
-    middle <- larger[cbind(wide, t - 1L)]
-    low <- larger[cbind(wide, t - 2L)]
-    # Whether a limb below the three highest is not 0, from the lowest limb
-    # that is not 0.
-    lowest <- rep(limb_count + 1L, count)
-    for (k in rev(seq_len(limb_count))) {
-      lowest[larger[, k] > 0] <- k
-    }
-    below <- lowest[wide] <= t - 3L
+    high <- high[wide]
+    middle <- middle[wide]
+    low <- low[wide]
+    sticky <- below[wide]
     # The bit length b of the highest limb, and the s = 53 - b bits taken
     # from the limbs below it.
     b <- floor(log2(high)) + 1
@@ -775,7 +853,6 @@ exact_sums_of_groups <- function(x, groups, count) {
     s <- 53 - b
     mantissa <- numeric(length(wide))
     round_bit <- logical(length(wide))
-    sticky <- below
     one <- s < 32
     if (any(one)) {
       unit <- 2^(32 - s[one])
@@ -804,44 +881,31 @@ exact_sums_of_groups <- function(x, groups, count) {
     }
     up <- round_bit & (sticky | mantissa %% 2 == 1)
     mantissa[up] <- mantissa[up] + 1
-    result[wide] <- sign[wide] * mantissa * 2^(32 * (t - 1) + b - 53 - 1074)
+    g <- group[wide]
+    result[g] <- sign[g] * mantissa * 2^(32 * t[wide] + b - 53 - 1074)
   }
   result
 }
 
-# The limbs of base 2^32 of the sums of m * 2^e of each group, before
-# carrying, as a matrix with one row for each group.
-group_limbs <- function(m, e, groups, count, limb_count) {
+# Carries the cells of exact_sums_of_groups() from the lowest position up:
+# value + carry is split into a limb in [0, 2^32) and a carry into the next
+# cell of its group, which adds to carry_out. A carry passes unchanged over
+# the positions between two cells. Returns the limbs and the carry out of
+# each cell.
+limbs_carry_cells <- function(value, carry_out, by_position, previous) {
   base <- 2^32
-  position <- e + 1074
-  limb <- position %/% 32
-  shift <- 2^(position %% 32)
-  high <- floor(m / base)
-  low <- m - high * base
-  low_shifted <- low * shift
-  low_carry <- floor(low_shifted / base)
-  high_shifted <- high * shift
-  high_carry <- floor(high_shifted / base)
-  cell <- as.integer(c(limb, limb + 1, limb + 1, limb + 2) * count + rep(groups, 4L))
-  amount <- c(low_shifted - low_carry * base, low_carry, high_shifted - high_carry * base,
-              high_carry)
-  sums <- rowsum(amount, cell, reorder = FALSE)
-  out <- numeric(count * limb_count)
-  out[as.integer(rownames(sums))] <- sums[, 1L]
-  dim(out) <- c(count, limb_count)
-  out
-}
-
-# Carries the limbs of each row of a matrix so that each lies in [0, 2^32).
-limbs_normalise_rows <- function(limbs) {
-  base <- 2^32
-  carry <- numeric(nrow(limbs))
-  for (k in seq_len(ncol(limbs))) {
-    value <- limbs[, k] + carry
-    carry <- floor(value / base)
-    limbs[, k] <- value - carry * base
+  limb <- value
+  carry <- numeric(length(value))
+  for (at in by_position) {
+    incoming <- numeric(length(at))
+    from <- previous[at]
+    incoming[from] <- carry[at[from] - 1L]
+    total <- value[at] + incoming
+    over <- floor(total / base)
+    limb[at] <- total - over * base
+    carry[at] <- carry_out[at] + over
   }
-  limbs
+  list(limb = limb, carry = carry)
 }
 
 # The limbs of base 2^32 of the sum of m * 2^e, before carrying.

@@ -300,6 +300,43 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-labels-008",
+      "description": "The data and declaration of audits-assignment-025: the entry of the assignment block counts as absent, since its unit class does, so its column arm holds no labels, and the only column that does is the grouping column class, whose levels each hold three pupils of the disclosure unit, so its counts resolve as non-person counts.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit"}],
+        "provenance": {"inferred": ["/units/1"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'class' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

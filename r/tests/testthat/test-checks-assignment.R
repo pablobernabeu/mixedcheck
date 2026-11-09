@@ -72,6 +72,29 @@ test_that("assignment.design_df equals the indicator columns that the sequential
   }
 })
 
+test_that("assignment.design_df does not change when a constant is added to a column", {
+  # Sessions of 30 classes on different days, each up to 60 seconds long,
+  # in seconds from 0 and from 1.7e9, near the Unix time of 2023.
+  local_seed(2)
+  class <- rep(sprintf("c%02d", 1:30), each = 8L)
+  seconds <- rep(sample(0:29), each = 8L) * 86400 + runif(240L, 0, 60)
+  for (origin in c(0, 1.7e9)) {
+    data <- data.frame(y = seq_along(class), arm = rep(rep(c("T", "C"), 15L), each = 8L),
+                       class = class, time = origin + seconds)
+    for (formula in c("y ~ arm + time + (1 | class)", "y ~ arm * time + (1 | class)")) {
+      found <- assignment_findings(data, formula, class_declaration(level = "between_unit"),
+                                   "assignment.design_df")[[1L]]
+      matrices <- design_matrices(formula_ir(formula, data = data), data)
+      indicators <- outer(data$class, sprintf("c%02d", 1:30), "==") * 1
+      kept <- sequential_rule(cbind(matrices$x, indicators))
+      expect_identical(assignment_values(found)$design_df,
+                       as.double(sum(kept[-seq_len(ncol(matrices$x))])),
+                       label = paste(origin, formula))
+      expect_identical(assignment_values(found)$design_df, 28, label = paste(origin, formula))
+    }
+  }
+})
+
 test_that("members of the assignment block that /provenance/inferred lists count as absent", {
   data <- data.frame(
     y = 1:12,
@@ -104,11 +127,11 @@ test_that("members of the assignment block that /provenance/inferred lists count
   expect_identical(assignment_values(found)$missing_blocks, list("school"))
   found <- findings("assignment.design_df", "/assignment/0/blocks")[[1L]]
   expect_identical(assignment_values(found)$missing_blocks, list())
-  # An assignment to a unit that counts as absent yields no finding.
-  expect_length(findings("assignment.constant_within_unit", "/units/1"), 0L)
-  # An entry whose column or unit is inferred counts as absent, and a block
-  # whose every entry counts as absent makes the checks not available.
-  for (inferred in c("/assignment/0", "/assignment/0/column", "/assignment/0/unit")) {
+  # An entry whose column or unit is inferred, or whose unit counts as
+  # absent, counts as absent, and a block whose every entry counts as absent
+  # makes the checks not available.
+  for (inferred in c("/assignment/0", "/assignment/0/column", "/assignment/0/unit", "/units/1",
+                     "/units/1/columns/0")) {
     found <- findings("assignment.unit_in_random_part", inferred)[[1L]]
     expect_identical(found$status$availability$detail, "/assignment")
   }
@@ -118,6 +141,17 @@ test_that("members of the assignment block that /provenance/inferred lists count
   found <- findings("assignment.constant_within_unit", "/assignment/0/unit")
   expect_length(found, 1L)
   expect_identical(found[[1L]]$scope$column, "arm2")
+  # An entry whose unit counts as absent yields no finding, and its column
+  # holds no labels unless something else makes it a label column.
+  declaration$assignment[[2L]]$unit <- "school"
+  found <- findings("assignment.constant_within_unit", "/units/0")
+  expect_length(found, 1L)
+  expect_identical(found[[1L]]$scope$column, "arm")
+  labels <- assignment_findings(data, "y ~ 1 + (1 | class)", declaration, "labels.unicode_forms")
+  expect_true("arm2" %in% vapply(labels, function(f) f$scope$column, ""))
+  declaration$provenance <- list(inferred = list("/units/0"))
+  labels <- assignment_findings(data, "y ~ 1 + (1 | class)", declaration, "labels.unicode_forms")
+  expect_false("arm2" %in% vapply(labels, function(f) f$scope$column, ""))
 })
 
 test_that("assignment.unit_in_random_part compares partitions over the rows of the assignment", {

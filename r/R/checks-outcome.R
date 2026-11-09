@@ -90,9 +90,12 @@ audit_check_outcome_boundary_shares <- function(run, entry, elements) {
   if (is.null(measurement)) {
     return(check_unavailable("declaration_missing"))
   }
-  bounds <- response_declared(run, "bounds")
-  if (measurement != "bounded_score" || is.null(bounds)) {
+  if (measurement != "bounded_score") {
     return(list(NULL))
+  }
+  bounds <- response_declared(run, "bounds")
+  if (is.null(bounds)) {
+    return(check_unavailable("declaration_missing", "/variables/{outcome}/bounds"))
   }
   outcome <- outcome_values(run, entry)
   if (outcome$type != "number") {
@@ -210,9 +213,10 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   if (event_level_missing(run, outcome)) {
     return(check_unavailable("declaration_missing"))
   }
-  # The solver is named whenever the check is available, also when it
-  # solves nothing, so that the list of packages shows nothing about the
-  # outcome (documents.md, Results document).
+  # The solver is named whenever the check passes its family filter and
+  # availability rules, also when it solves nothing and when the privacy
+  # filter suppresses its finding, so that the list of packages shows nothing
+  # about the outcome (documents.md, Results document).
   run$packages[["lpSolve"]] <- getNamespaceVersion("lpSolve")[[1L]]
   parameter <- function(name) json_number_values(entry[["parameters"]][[name]][["value"]])
   tolerances <- list(separation = parameter("separation_tolerance"),

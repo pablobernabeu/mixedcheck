@@ -152,8 +152,15 @@ test_that("MIXEDCHECK_TIME sets every time of a run, and other values are refuse
   expect_identical(vapply(document$access_log$entries, function(e) e$time, ""),
                    rep("2026-01-01T00:00:00Z", 2L))
   expect_identical(results$sidecar$keys[[1L]]$created, "2026-01-01T00:00:00Z")
-  for (value in c("-1", "1.5", "1e9", " 1", "253402300800", "abc")) {
+  # Only the ASCII digits 0 to 9 are digits, whatever Python's int() reads.
+  for (value in c("-1", "1.5", "1e9", " 1", "1 ", "+1", "1_0", "253402300800", "abc")) {
     expect_match(audit_error(time = value), "MIXEDCHECK_TIME must be a whole number", label = value)
+  }
+  if (l10n_info()[["UTF-8"]]) {
+    for (value in c("\u0663", "1\u0663", "\u00b2", "\uff11")) {
+      expect_match(audit_error(time = value), "MIXEDCHECK_TIME must be a whole number",
+                   label = value)
+    }
   }
   expect_identical(audit_at_zero(time = "0000253402300799")$document$created,
                    "9999-12-31T23:59:59Z")
@@ -377,19 +384,19 @@ test_that("printing an audit shows its banner and findings", {
 })
 
 test_that("messages render every kind of argument as registry.md describes", {
-  expect_identical(fixed_decimal(0.125, 2L), "0.12")
-  expect_identical(fixed_decimal(0.375, 2L), "0.38")
-  expect_identical(fixed_decimal(2.5, 0L), "2")
-  expect_identical(fixed_decimal(3.5, 0L), "4")
-  expect_identical(fixed_decimal(-0.04, 1L), "0.0")
-  expect_identical(fixed_decimal(-0.06, 1L), "-0.1")
-  expect_identical(fixed_decimal(0, 2L), "0.00")
-  expect_identical(fixed_decimal(1234.5678, 2L), "1234.57")
-  expect_identical(fixed_decimal(1e-30, 3L), "0.000")
-  expect_identical(fixed_decimal(1e21, 1L), "1000000000000000000000.0")
-  expect_identical(fixed_decimal(0.005, 2L), "0.01")
-  expect_identical(fixed_decimal(NaN, 2L), "NaN")
-  expect_identical(fixed_decimal(-Inf, 2L), "-Infinity")
+  expect_identical(real_text(0.125, 2L), "0.12")
+  expect_identical(real_text(0.375, 2L), "0.38")
+  expect_identical(real_text(2.5, 0L), "2")
+  expect_identical(real_text(3.5, 0L), "4")
+  expect_identical(real_text(-0.04, 1L), "0.0")
+  expect_identical(real_text(-0.06, 1L), "-0.1")
+  expect_identical(real_text(0, 2L), "0.00")
+  expect_identical(real_text(1234.5678, 2L), "1234.57")
+  expect_identical(real_text(1e-30, 3L), "0.000")
+  expect_identical(real_text(1e21, 1L), "1.0e+21")
+  expect_identical(real_text(0.005, 2L), "0.01")
+  expect_identical(real_text(NaN, 2L), "NaN")
+  expect_identical(real_text(-Inf, 2L), "-Infinity")
   expect_identical(ratio_text(23, 40, 0L), "58%")
   expect_identical(ratio_text(23, 80, 1L), "28.8%")
   expect_identical(ratio_text(1, 8, 0L), "12%")

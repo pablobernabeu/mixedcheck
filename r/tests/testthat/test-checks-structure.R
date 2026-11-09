@@ -216,3 +216,22 @@ test_that("the intraclass correlation follows its definition", {
   expect_equal(values$icc, (msb - msw) / (msb + (n0 - 1) * msw), tolerance = 1e-12)
   expect_equal(values$within_share, ssw / (ssb + ssw), tolerance = 1e-12)
 })
+
+test_that("the intraclass correlation is the same at extreme magnitudes", {
+  # The column is divided by its largest absolute value before any square,
+  # so that values near 1e300 or 1e-300 give the statistics of the same data
+  # at unit scale instead of NaN or an absent share.
+  local_seed(7)
+  g <- rep(sprintf("g%d", 1:6), each = 10L)
+  base <- data.frame(y = seq_along(g), x = rnorm(60L) + rep(rnorm(6L), each = 10L), g = g)
+  expected <- statistic_values(structure_findings(base, "y ~ x + (1 | g)",
+                                                  "structure.within_between")[[1L]])
+  for (scale in c(1e-310, 1e-200, 1e160, 1e300)) {
+    data <- base
+    data$x <- base$x * scale
+    values <- statistic_values(structure_findings(data, "y ~ x + (1 | g)",
+                                                  "structure.within_between")[[1L]])
+    expect_equal(values$within_share, expected$within_share, tolerance = 1e-12, label = scale)
+    expect_equal(values$icc, expected$icc, tolerance = 1e-12, label = scale)
+  }
+})

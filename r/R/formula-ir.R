@@ -188,11 +188,11 @@ coding_input <- function(coding) {
       names(entry) <- input_strings(names(entry), function(i) {
         json_pointer(c("coding", keys[k], names(entry)[i]))
       })
-      for (member in names(entry)) {
-        value <- entry[[member]]
+      for (m in seq_along(entry)) {
+        value <- entry[[m]]
         if (is.character(value) && length(value) == 1L && !is.na(value)) {
-          entry[[member]] <- input_strings(value, function(i) {
-            json_pointer(c("coding", keys[k], member))
+          entry[[m]] <- input_strings(value, function(i) {
+            json_pointer(c("coding", keys[k], names(entry)[m]))
           })
         }
       }
@@ -911,8 +911,10 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
   check_coding(coding, predictors)
   # Pass 5: levels.
   found <- list()
+  # Predictors are looked up with match(), since `[[` translates their keys
+  # to the native encoding (named_member()).
   for (key in predictor_keys) {
-    info <- predictors[[key]]
+    info <- named_member(predictors, key)
     if (info$kind == "categorical") {
       appearance <- first_use(key)
       if (is.null(info$levels)) {
@@ -927,7 +929,7 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
   first(found)
   # Pass 6: reference levels and the coding of each predictor.
   for (key in predictor_keys) {
-    info <- predictors[[key]]
+    info <- named_member(predictors, key)
     entry <- coding_entry(key)
     if (info$kind == "categorical") {
       reference <- entry[["reference"]]
@@ -947,7 +949,7 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
       info$digits <- entry[["significant_digits"]] %||% 6
       info$value_text <- entry[["value"]]
     }
-    predictors[[key]] <- info
+    named_member(predictors, key) <- info
   }
   # Pass 7: the exposure.
   offsets <- model$offsets
@@ -993,7 +995,7 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
     split <- term$double && !term$intercept && length(term$terms) == 1L &&
       length(part$columns) > 1L &&
       any(vapply(term$terms[[1L]], function(key) {
-        isTRUE(predictors[[key]]$frozen)
+        isTRUE(named_member(predictors, key)$frozen)
       }, NA))
     if (split) {
       for (p in seq_along(part$columns)) {
@@ -1049,7 +1051,7 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
     design <- design_rows(table, unique(c(read_keys, sample_keys)))
   }
   for (key in predictor_keys) {
-    info <- predictors[[key]]
+    info <- named_member(predictors, key)
     if (info$kind != "numeric") {
       next
     }
@@ -1071,7 +1073,8 @@ formula_context <- function(model, declaration, table, coding, weights, sample_c
     if (is.null(constant) || !is.finite(json_number_values(constant))) {
       raise_issue("E6077", list(column = key))
     }
-    predictors[[key]]$constant <- constant
+    info$constant <- constant
+    named_member(predictors, key) <- info
   }
   list(
     response = response,
@@ -1116,7 +1119,7 @@ check_coding <- function(coding, predictors) {
   for (k in order(coding$keys, method = "radix")) {
     key <- coding$keys[k]
     name <- coding$names[k]
-    info <- predictors[[key]]
+    info <- named_member(predictors, key)
     if (is.null(info)) {
       raise_issue("E6061", list(column = name))
     }
@@ -1191,9 +1194,9 @@ part_size <- function(intercept, terms, coding, predictors) {
   size <- as.double(intercept)
   for (i in seq_along(terms)) {
     width <- 1
-    for (variable in names(coding[[i]])) {
-      k <- length(predictors[[variable]]$levels)
-      width <- width * if (coding[[i]][[variable]] == "indicator") k else k - 1
+    for (v in seq_along(coding[[i]])) {
+      k <- length(named_member(predictors, names(coding[[i]])[v])$levels)
+      width <- width * if (coding[[i]][[v]] == "indicator") k else k - 1
     }
     size <- size + width
   }
@@ -1207,29 +1210,30 @@ part_coding <- function(intercept, terms, predictors) {
   coding <- lapply(terms, function(term) {
     out <- character(0)
     for (variable in term) {
-      if (predictors[[variable]]$kind == "categorical") {
-        out[[variable]] <- NA_character_
+      if (named_member(predictors, variable)$kind == "categorical") {
+        named_member(out, variable) <- NA_character_
       }
     }
     out
   })
   for (i in seq_along(terms)) {
     term <- terms[[i]]
-    for (variable in names(coding[[i]])) {
-      info <- predictors[[variable]]
+    for (v in seq_along(coding[[i]])) {
+      variable <- names(coding[[i]])[v]
+      info <- named_member(predictors, variable)
       others <- setdiff(term, variable)
       contrast <- info$frozen || !length(others) ||
         any(vapply(terms[seq_len(i - 1L)], function(earlier) all(others %in% earlier), NA))
-      coding[[i]][[variable]] <- if (contrast) "contrast" else "indicator"
+      coding[[i]][[v]] <- if (contrast) "contrast" else "indicator"
     }
   }
   if (!intercept) {
     done <- FALSE
     for (i in seq_along(terms)) {
       for (variable in terms[[i]]) {
-        info <- predictors[[variable]]
+        info <- named_member(predictors, variable)
         if (info$kind == "categorical" && !info$frozen) {
-          coding[[i]][[variable]] <- "indicator"
+          named_member(coding[[i]], variable) <- "indicator"
           done <- TRUE
           break
         }
@@ -1254,12 +1258,12 @@ part_columns <- function(intercept, terms, predictors,
     term <- terms[[i]]
     pieces <- list(list(names = character(0), levels = list()))
     for (variable in term) {
-      info <- predictors[[variable]]
+      info <- named_member(predictors, variable)
       if (info$kind == "numeric") {
         options <- list(list(name = variable, level = NULL))
       } else {
         chosen <- seq_along(info$levels)
-        if (coding[[i]][[variable]] == "contrast") {
+        if (named_member(coding[[i]], variable) == "contrast") {
           chosen <- chosen[chosen != info$reference]
         }
         options <- lapply(chosen, function(l) {
@@ -1272,7 +1276,7 @@ part_columns <- function(intercept, terms, predictors,
         for (piece in pieces) {
           levels <- piece$levels
           if (!is.null(option$level)) {
-            levels[[variable]] <- option$level
+            named_member(levels, variable) <- option$level
           }
           grown[[length(grown) + 1L]] <- list(names = c(piece$names, option$name),
                                               levels = levels)
@@ -1282,7 +1286,7 @@ part_columns <- function(intercept, terms, predictors,
     }
     for (piece in pieces) {
       labels <- vapply(term, function(variable) {
-        level <- piece$levels[[variable]]
+        level <- named_member(piece$levels, variable)
         if (is.null(level)) NA_character_ else level_label(level)
       }, "")
       columns[[length(columns) + 1L]] <- list(
@@ -1342,9 +1346,9 @@ ir_document <- function(model, context) {
         entry <- list(variable = variable)
         coding <- part$coding[[i]]
         if (variable %in% names(coding)) {
-          entry$coding <- coding[[variable]]
+          entry$coding <- named_member(coding, variable)
           if (!is.null(labels) && !is.na(labels[v])) {
-            entry$level <- part$levels[[1L]][[variable]]
+            entry$level <- named_member(part$levels[[1L]], variable)
           }
         }
         entry

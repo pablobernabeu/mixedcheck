@@ -69,9 +69,10 @@ check_element <- function(statistics, rules = logical(0), assessability = logica
 }
 
 # A check that is not available, for the first availability rule of the
-# entry with this reason or, for too_large, for the rule whose parameter is
-# detail when it is given. detail is needed otherwise only for
-# capability_missing, whose rule names no capability.
+# entry with this reason or, for too_large and declaration_missing, for the
+# rule whose parameter or pointer is detail when it is given. detail is
+# needed otherwise only for capability_missing, whose rule names no
+# capability.
 check_unavailable <- function(reason, detail = NULL) {
   structure(list(reason = reason, detail = detail), class = "mixedcheck_check_unavailable")
 }
@@ -188,22 +189,45 @@ factor_keys <- function(run, factor) {
   keys
 }
 
-# The member of a named list with a name, compared in UTF-8, or NULL.
+# The member of a named list or vector with a name, compared in UTF-8, or
+# NULL. `[[`, assign() and get() translate a name to the native encoding, so
+# that under LC_CTYPE=C a name holding U+00FC would find a member whose name
+# holds the text '<U+00FC>' in its place.
 named_member <- function(x, name) {
   i <- match(name, names(x))
   if (is.na(i)) NULL else x[[i]]
 }
 
+# Sets the member of a named list or vector with a name, compared in UTF-8,
+# or appends it.
+`named_member<-` <- function(x, name, value) {
+  i <- match(name, names(x))
+  if (is.na(i)) {
+    i <- length(x) + 1L
+    x[i] <- if (is.list(x)) list(value) else value
+    names(x)[i] <- name
+    return(x)
+  }
+  x[i] <- if (is.list(x)) list(value) else value
+  x
+}
+
 # --- The declaration ----------------------------------------------------------------
 
 # The declared units that do not count as absent, by name, each with its
-# position in the units block.
+# position in the units block. A unit counts as absent when it, its name, its
+# columns or one of its columns is inferred (registry.md, Terms).
 declared_units <- function(declaration) {
   units <- declaration[["units"]]
   found <- list()
   for (i in seq_along(units)) {
-    if (!declaration_inferred(declaration, path_pointer("units", i - 1L))) {
-      unit <- units[[i]]
+    unit <- units[[i]]
+    pointers <- c(path_pointer("units", i - 1L), path_pointer("units", i - 1L, "name"),
+                  path_pointer("units", i - 1L, "columns"),
+                  vapply(seq_along(unit[["columns"]]), function(j) {
+                    path_pointer("units", i - 1L, "columns", j - 1L)
+                  }, ""))
+    if (!any(vapply(pointers, declaration_inferred, NA, declaration = declaration))) {
       unit$index <- i
       found[[unit[["name"]]]] <- unit
     }
@@ -343,14 +367,17 @@ grouping_column_pairs <- function(run, pair, pairs_of) {
 }
 
 # The entries of the assignment block that do not count as absent: an entry
-# counts as absent when it, its column or its unit is inferred.
+# counts as absent when it, its column or its unit is inferred, or when its
+# unit counts as absent.
 assignment_elements <- function(declaration) {
   assignment <- declaration[["assignment"]]
+  units <- declared_units(declaration)
   found <- list()
   for (i in seq_along(assignment)) {
     entry <- path_pointer("assignment", i - 1L)
     pointers <- c(entry, paste0(entry, c("/column", "/unit")))
-    if (!any(vapply(pointers, declaration_inferred, NA, declaration = declaration))) {
+    if (!any(vapply(pointers, declaration_inferred, NA, declaration = declaration)) &&
+        !is.null(named_member(units, assignment[[i]][["unit"]]))) {
       found[[length(found) + 1L]] <- list(column = assignment[[i]][["column"]],
                                           unit = assignment[[i]][["unit"]])
     }
@@ -481,22 +508,40 @@ levels_of_full_rank <- function(values, level, count, among = rep(TRUE, count),
   full
 }
 
-# X_d of assignment.design_df and identifiability.df_budget: the columns of
-# x with the first row of each level, in table order, subtracted from every
-# row of the level, and a column set to 0 when its largest absolute value is
-# at most the tolerance of the sequential rule times that of the same column
-# of x, so that a column constant within the levels up to rounding adds
-# nothing to the rank of X_d, as the indicator columns of the levels would
-# absorb it.
-level_differences <- function(x, level, count) {
-  first <- match(seq_len(count), level)
-  differences <- x - x[first[level], , drop = FALSE]
+# The within-level rank of assignment.design_df and identifiability.df_budget
+# for the columns x that the sequential rule keeps: Q, the columns of x, each
+# divided by its largest absolute value, made orthonormal in column order by
+# two passes of Gram-Schmidt over the rows, and Q_d, Q with the first row of
+# each level, in table order, subtracted from every row of the level.
+# Returns whether the sequential rule keeps each column of Q_d when it
+# compares the norm of the column's residual with the tolerance times the
+# norm of the same column of Q, which is 1, instead of the norm of the column
+# of Q_d. A combination of the columns of x is constant within the levels
+# exactly when Q_d maps its coordinates to 0, so the number of columns kept
+# is the rank of x minus the dimension of the intersection of its span with
+# that of the indicator columns of the levels. Q leaves out of each column
+# what the columns before it explain, such as a constant added to the column
+# when the intercept comes first, so that the comparison with 1 does not
+# change with such a constant, and residues of rounding within the levels
+# stay near the rounding error of a unit vector.
+within_level_rank <- function(x, level, count) {
+  q <- x
   for (j in seq_len(if (nrow(x)) ncol(x) else 0L)) {
-    if (max(abs(differences[, j])) <= sequential_tolerance * max(abs(x[, j]))) {
-      differences[, j] <- 0
+    r <- x[, j] / max(abs(x[, j]))
+    if (j > 1L) {
+      basis <- q[, seq_len(j - 1L), drop = FALSE]
+      for (pass in 1:2) {
+        r <- r - drop(basis %*% crossprod(basis, r))
+      }
     }
+    norm <- sqrt(drop(crossprod(r)))
+    if (!(norm > 0)) {
+      internal_error("a column that the sequential rule keeps has no residual.")
+    }
+    q[, j] <- r / norm
   }
-  differences
+  first <- match(seq_len(count), level)
+  sequential_rule(q - q[first[level], , drop = FALSE], norms = rep(1, ncol(q)))
 }
 
 # --- Running the checks ---------------------------------------------------------------
@@ -603,7 +648,8 @@ run_check <- function(run, entry) {
 unavailable_finding <- function(run, entry, reason, detail = NULL) {
   rules <- Filter(function(rule) {
     identical(rule[["reason"]], reason) &&
-      (reason != "too_large" || is.null(detail) || identical(rule[["parameter"]], detail))
+      (reason != "too_large" || is.null(detail) || identical(rule[["parameter"]], detail)) &&
+      (reason != "declaration_missing" || is.null(detail) || identical(rule[["pointer"]], detail))
   }, entry[["availability"]])
   if (!length(rules)) {
     internal_error(sprintf("%s has no availability rule '%s'.", entry[["id"]], reason))

@@ -104,8 +104,9 @@ level, or none, gives gaussian.
 
 The times of the run are UTC times truncated to whole seconds. When the
 environment variable MIXEDCHECK_TIME is set to a whole number of seconds
-since 1970-01-01T00:00:00Z, written in decimal digits, every time of the
-run is that time instead, so that a run can be repeated byte for byte.
+since 1970-01-01T00:00:00Z, written as one or more of the ASCII digits 0
+to 9 and nothing else, every time of the run is that time instead, so that
+a run can be repeated byte for byte.
 
 Shareable mode, the default, passes the findings through the privacy
 filter of the

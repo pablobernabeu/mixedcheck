@@ -19,10 +19,17 @@ statistics:
   multi_row_levels:
     kind: count
     count_class: by_unit
-    definition: The number of levels of the factor with at least two rows in the analysis sample.
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels_with_two_rows
+    definition: >-
+      The number of levels of the factor with at least two rows in the
+      analysis sample. A level with one row is not counted, whatever its
+      number of trials.
   constant_levels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    part_of: multi_row_levels
     definition: >-
       The number of those levels within which the response vector of ir.md
       (Response, offsets and weights) takes one value, so that for a binary
@@ -66,14 +73,17 @@ decision:
   rules:
     - finding: consistent
       condition: multi_row_levels is 0.
+      statistics: [multi_row_levels]
       thresholds: []
       message: no_levels
     - finding: detectable_inconsequential
       condition: constant_share reaches many.
+      statistics: [constant_share]
       thresholds: [many]
       message: many
     - finding: detectable_inconsequential
       condition: constant_levels reaches any.
+      statistics: [constant_levels]
       thresholds: [any]
       message: some
   otherwise:
@@ -93,22 +103,30 @@ messages:
       factor: {source: scope, name: factor}
   many:
     template: >-
-      The outcome is constant within {constant} of the {levels} levels of
-      '{factor}' that have two or more rows ({share}). For a binary outcome,
-      this can push the standard deviation of the random intercept towards
-      very large values, and by-'{factor}' slopes rest on the other levels.
+      The outcome is constant within {constant} of the {levels} of '{factor}'
+      with two or more rows ({share}). For a binary outcome, this can push
+      the standard deviation of the random intercept towards very large
+      values, and by-'{factor}' slopes rest on the other levels.
+    fallback: >-
+      The outcome is constant within at least a quarter of the levels of
+      '{factor}' that have two or more rows. For a binary outcome, this can
+      push the standard deviation of the random intercept towards very large
+      values, and by-'{factor}' slopes rest on the other levels.
     args:
       constant: {source: statistic, name: constant_levels}
-      levels: {source: statistic, name: multi_row_levels}
+      levels: {source: statistic, name: multi_row_levels, noun: [level, levels]}
       factor: {source: scope, name: factor}
       share: {source: statistic, name: constant_share, digits: 0}
   some:
     template: >-
-      The outcome is constant within {constant} of the {levels} levels of
-      '{factor}' that have two or more rows.
+      The outcome is constant within {constant} of the {levels} of '{factor}'
+      with two or more rows.
+    fallback: >-
+      The outcome is constant within some of the levels of '{factor}' that
+      have two or more rows.
     args:
       constant: {source: statistic, name: constant_levels}
-      levels: {source: statistic, name: multi_row_levels}
+      levels: {source: statistic, name: multi_row_levels, noun: [level, levels]}
       factor: {source: scope, name: factor}
   none_constant:
     template: The outcome varies within every level of '{factor}' that has two or more rows.

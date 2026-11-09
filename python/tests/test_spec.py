@@ -2,6 +2,7 @@ import json
 from importlib.resources import files
 
 import pytest
+from corpus_helpers import CONFORMANCE
 
 import mixedcheck
 from mixedcheck._vendored import _read_versions, _vendored_problems
@@ -39,10 +40,13 @@ def test_read_versions_rejects_anything_but_an_object_of_strings(text):
         _read_versions(text, "versions.json")
 
 
-@pytest.mark.parametrize("name", ["_spec", "_fixtures"])
-def test_installed_vendored_files_match_their_manifest(name):
-    directory = files("mixedcheck") / name
-    if name == "_spec":
+@pytest.mark.parametrize("name", ["_spec", "_fixtures", "conformance"])
+def test_vendored_files_match_their_manifest(name):
+    if name == "conformance":
+        directory = CONFORMANCE
+    else:
+        directory = files("mixedcheck") / name
+    if name != "_fixtures":
         assert (directory / "MANIFEST.json").is_file()
     elif not directory.is_dir():
         pytest.skip(f"no {name} directory is installed")

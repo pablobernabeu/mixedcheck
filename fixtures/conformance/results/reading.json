@@ -1,0 +1,270 @@
+{
+  "description": "Stage 1 of validation: results documents that the strict reader refuses in the data profile, each with the one issue it reports, and the precedence of its stages.",
+  "cases": [
+    {
+      "id": "results-reading-001",
+      "description": "A document that starts with a byte-order mark: E1003, which has no location.",
+      "document": "reading/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-002",
+      "description": "A stray continuation byte 80 in the formula: E1201 at its own offset.",
+      "document": "reading/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3629.",
+            "offset": 3629
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-003",
+      "description": "A two-byte sequence cut short, the lead byte C3 followed by '\"': E1201 at the lead byte.",
+      "document": "reading/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3629.",
+            "offset": 3629
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-004",
+      "description": "The member 'created' written twice in the top-level object: E1029 at the second key.",
+      "document": "reading/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1029",
+            "message": "Duplicate key 'created' at byte 128.",
+            "offset": 128
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-005",
+      "description": "An empty file: E1021 at byte 0.",
+      "document": "reading/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 0.",
+            "offset": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-006",
+      "description": "A document cut off after 200 bytes, after a key and before its ':': E1021 at the end of the input.",
+      "document": "reading/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1021",
+            "message": "The JSON text ends unexpectedly at byte 200.",
+            "offset": 200
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-007",
+      "description": "A comma after the last finding: E1022 at the ']' found where a value was expected.",
+      "document": "reading/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 3371.",
+            "offset": 3371
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-008",
+      "description": "NaN written as a bare literal for a real statistic, where the data profile writes the string 'NaN': E1027.",
+      "document": "reading/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1027",
+            "message": "'NaN' at byte 2371 is not a JSON value.",
+            "offset": 2371
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-009",
+      "description": "A number that converts to an infinite double: E1105, naming the token as written.",
+      "document": "reading/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1105",
+            "message": "The number 1e400 at byte 2371 is too large to be held as a double.",
+            "offset": 2371
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-010",
+      "description": "A non-zero number that converts to zero: E1106.",
+      "document": "reading/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1106",
+            "message": "The number 2e-400 at byte 2371 is too small to be held as a double and would become zero.",
+            "offset": 2371
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-011",
+      "description": "A string with the escape \\u0000: E1202 at the string.",
+      "document": "reading/011.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1202",
+            "message": "The string at byte 4071 contains the character U+0000.",
+            "offset": 4071
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-012",
+      "description": "An empty key in a scope: E1109 at the key.",
+      "document": "reading/012.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1109",
+            "message": "Empty key at byte 303.",
+            "offset": 303
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-013",
+      "description": "A key with a character outside the Basic Multilingual Plane, written as a surrogate pair: E1108.",
+      "document": "reading/013.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1108",
+            "message": "The key at byte 303 contains a character outside the Basic Multilingual Plane.",
+            "offset": 303
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-014",
+      "description": "A string with an unpaired high surrogate escape: E1026 at the string.",
+      "document": "reading/014.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1026",
+            "message": "Unpaired surrogate escape in a string at byte 4071.",
+            "offset": 4071
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-015",
+      "description": "A raw tab inside a string: E1024 at the tab, with its code point.",
+      "document": "reading/015.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1024",
+            "message": "Unescaped control character U+0009 in a string at byte 4073.",
+            "offset": 4073
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-016",
+      "description": "A second JSON value after the document: E1023 at its first byte.",
+      "document": "reading/016.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1023",
+            "message": "Unexpected content after the JSON value at byte 4167.",
+            "offset": 4167
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-017",
+      "description": "Arrays nested 64 levels deep as the value of a statistic whose object lies at depth 5: E1030 at the '[' that opens depth 65.",
+      "document": "reading/017.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at byte 2430.",
+            "offset": 2430
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-018",
+      "description": "A duplicate key near the start and a trailing comma at the end: the syntax error at the end is reported, since syntax is checked before the values.",
+      "document": "reading/018.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1022",
+            "message": "Unexpected character '}' at byte 4181.",
+            "offset": 4181
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-reading-019",
+      "description": "A missing ':' near the start and a byte FF near the end: invalid UTF-8 is reported first, since the whole input is validated before it is parsed.",
+      "document": "reading/019.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4174.",
+            "offset": 4174
+          }
+        ]
+      }
+    }
+  ]
+}

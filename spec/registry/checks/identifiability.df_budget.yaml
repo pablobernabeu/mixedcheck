@@ -8,38 +8,52 @@ summary: >-
   indicator matrix of the factor. When it is 0, as when the factor is also a
   fixed effect or its levels are used up by level-constant covariates, the
   variance of its random intercept is not identified under REML. In balanced
-  designs it equals the denominator degrees of freedom for effects that are
-  constant within levels. It is computed by rank, never by counting columns,
-  because columns that vary within levels can combine into a direction that
-  does not.
+  random-intercept designs it equals the denominator degrees of freedom for
+  effects that are constant within levels. It is computed by rank, never by
+  counting columns, because columns that vary within levels can combine into a
+  direction that does not.
 reads: [formula, grouping_factors, predictors]
 fitted_model: false
 sample: design
 scope: grouping_factor
+applies_when: A random term of the factor has an intercept.
 availability: []
 statistics:
   levels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels
     definition: The number of levels of the factor in the design sample.
   budget:
     kind: count
-    count_class: non_person
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    suppress_with: [levels]
     definition: >-
       The number of indicator columns of the factor, one for each level in
       level order, that the sequential rule keeps when it is applied to the
-      fixed-effects columns followed by the indicator columns.
+      fixed-effects columns followed by the indicator columns. It is a number
+      of degrees of freedom, but it equals levels minus 1 when the intercept is
+      the only fixed effect that is constant within levels, so it takes the
+      count class of levels, so that it cannot give back a suppressed count of
+      levels (docs/spec/privacy.md).
   consuming_terms:
     kind: names
     definition: >-
-      The fixed terms, the intercept included, whose removal from the
-      fixed-effects columns raises budget, in term order.
+      The fixed terms, the intercept included, in term order, whose kept
+      columns lower the budget: a term t is listed when the budget computed
+      from the fixed-effects columns of the terms up to and including t, with
+      the columns that the sequential rule keeps among them, is below the
+      budget computed from the terms before t, the budget of no terms being
+      the number of levels. The list is not empty when budget is below levels.
 thresholds: {}
 parameters: {}
 decision:
   rules:
     - finding: consequential
       condition: budget is 0.
+      statistics: [budget]
       thresholds: []
       message: no_budget
   otherwise:
@@ -49,21 +63,28 @@ assessability: []
 messages:
   no_budget:
     template: >-
-      No degrees of freedom between levels of '{factor}' remain after the
-      fixed effects, since {terms} use up its {levels} levels, so the variance
-      of its random intercept is not identified under REML.
+      No degrees of freedom between the {levels} of '{factor}' remain after the
+      fixed effects, so the variance of its random intercept is not identified
+      under REML. Fixed terms that use up these levels: {terms}.
+    fallback: >-
+      No degrees of freedom between the levels of '{factor}' remain after the
+      fixed effects, so the variance of its random intercept is not identified
+      under REML. Fixed terms that use up these levels: {terms}.
     args:
       factor: {source: scope, name: factor}
       terms: {source: statistic, name: consuming_terms}
-      levels: {source: statistic, name: levels}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
   budget:
     template: >-
-      '{factor}' has {levels} levels and {budget} degrees of freedom between
-      levels after the fixed effects.
+      '{factor}' has {levels} and {budget} between levels after the fixed
+      effects.
+    fallback: >-
+      The privacy rules do not allow the levels of '{factor}' and the degrees
+      of freedom between them to be shown.
     args:
       factor: {source: scope, name: factor}
-      levels: {source: statistic, name: levels}
-      budget: {source: statistic, name: budget}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
+      budget: {source: statistic, name: budget, noun: [degree of freedom, degrees of freedom]}
 remedies:
   - id: remove_level_terms
     description: >-

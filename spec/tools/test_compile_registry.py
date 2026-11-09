@@ -360,7 +360,7 @@ class ValidatorTestCase(unittest.TestCase):
         entry["extra"] = True
         del entry["title"]
         entry["availability"] = [{"reason": "too_large", "condition": "x", "pointer": "/a"}]
-        entry["statistics"]["shared_labels"].pop("count_class")
+        entry["statistics"]["changing_share"].pop("count_class")
         self.assertEqual(
             self.issues(entry),
             [
@@ -378,8 +378,8 @@ class ValidatorTestCase(unittest.TestCase):
                 ),
                 (
                     "E1402",
-                    "/statistics/shared_labels",
-                    "The object at /statistics/shared_labels lacks the required member "
+                    "/statistics/changing_share",
+                    "The object at /statistics/changing_share lacks the required member "
                     "'count_class'.",
                 ),
                 ("E1405", "/tier", "The value at /tier must be 'T0', 'T1' or 'T2'."),
@@ -512,6 +512,7 @@ class RulesTestCase(unittest.TestCase):
                 ("E4004", "/decision/rules/1/thresholds/0"),
                 ("E4002", "/id"),
                 ("E4015", "/messages/no_change/args/shared/name"),
+                ("E4024", "/messages/no_change/args/shared/noun"),
                 ("E4014", "/messages/some_change/args/changing"),
                 ("E4008", "/messages/some_change/args/extra"),
                 ("E4004", "/messages/some_change/args/extra/name"),
@@ -525,6 +526,80 @@ class RulesTestCase(unittest.TestCase):
                 ("E4012", "/thresholds/most_change/value"),
                 ("E4011", "/thresholds/other"),
                 ("E4004", "/thresholds/unknown/statistic"),
+            ],
+        )
+
+    def test_references_of_m2(self) -> None:
+        # The members that M2 added: the statistics that a rule reads, the
+        # resolution of by_unit counts, quantiles, suppression with other
+        # statistics and parts of a total (E4004 and E4024).
+        entry = copy.deepcopy(self.entry)
+        statistics = entry["statistics"]
+        entry["decision"]["rules"][0]["statistics"] = ["attributes", "absent"]
+        statistics["shared_labels"]["resolved_by"] = [
+            {"source": "scope", "name": "factor"},
+            {"source": "statistic", "name": "changing_labels"},
+        ]
+        statistics["changing_labels"]["resolved_by"] = [{"source": "statistic", "name": "absent"}]
+        statistics["changing_labels"]["quantile"] = {"p": "0.5", "n": "changing_attribute"}
+        statistics["shared_labels"]["quantile"] = {"p": "0.5", "n": "absent"}
+        statistics["changing_share"]["suppress_with"] = ["absent"]
+        statistics["changing_labels"]["part_of"] = "absent"
+        statistics["shared_labels"]["part_of"] = "changing_attribute"
+        self.assertEqual(
+            self.codes(entry),
+            [
+                ("E4004", "/decision/rules/0/statistics/1"),
+                ("E4004", "/statistics/changing_labels/part_of"),
+                ("E4024", "/statistics/changing_labels/quantile/n"),
+                ("E4004", "/statistics/changing_labels/resolved_by/0/name"),
+                ("E4004", "/statistics/changing_share/suppress_with/0"),
+                ("E4024", "/statistics/shared_labels/part_of"),
+                ("E4004", "/statistics/shared_labels/quantile/n"),
+                ("E4004", "/statistics/shared_labels/resolved_by/0/name"),
+                ("E4024", "/statistics/shared_labels/resolved_by/1/name"),
+            ],
+        )
+
+    def test_fallback_templates(self) -> None:
+        # A message that renders a statistic that can be suppressed needs a
+        # fallback, which renders none of them (E4023), and a fallback names
+        # only arguments of its message (E4007, E4009).
+        entry = copy.deepcopy(self.entry)
+        messages = entry["messages"]
+        del messages["some_change"]["fallback"]
+        messages["no_change"]["fallback"] = "None of the {shared} labels changes. {nope} }"
+        messages["no_attribute"]["fallback"] = "No column of {labels_column} is constant."
+        self.assertEqual(
+            self.codes(entry),
+            [
+                ("E4023", "/messages/no_change"),
+                ("E4007", "/messages/no_change/fallback"),
+                ("E4009", "/messages/no_change/fallback"),
+                ("E4023", "/messages/some_change"),
+            ],
+        )
+
+    def test_agreement_is_shared(self) -> None:
+        first = copy.deepcopy(self.entry)
+        second = copy.deepcopy(self.entry)
+        second["id"] = "structure.other"
+        second["parameters"]["agreement"]["value"] = "0.95"
+        for entry in (first, second):
+            entry["links"] = {"requires": [], "explained_by": []}
+        found = cr.graph_issues([("/a", first), ("/b", second)], self.compiler.catalogue)
+        self.assertEqual(
+            [[(issue.code, issue.pointer, issue.message) for issue in issues] for issues in found],
+            [
+                [],
+                [
+                    (
+                        "E4022",
+                        "/b/parameters/agreement/value",
+                        "The parameter at /b/parameters/agreement/value must have the value "
+                        "'0.99' that other entries give the parameter of the same name.",
+                    )
+                ],
             ],
         )
 

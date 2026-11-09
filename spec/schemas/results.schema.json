@@ -157,7 +157,7 @@
           }
         },
         "data": {
-          "description": "Keyed commitments to the data, by what they cover: the bytes of the raw data file and the canonical analysis table (M2).",
+          "description": "Keyed commitments to the data, by what they cover: the bytes of the raw data file and the canonical analysis table (documents.md, Analysis table commitment).",
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
@@ -341,7 +341,7 @@
     },
     "statistic": {
       "title": "statistic",
-      "description": "The value of one statistic, with the kind of its registry entry (registry.md, Statistics and counts). A count or ratio has its count class, resolved to person or non_person for the finding. value is null exactly when the value was not written, and availability then says why, as privacy_suppressed does for a value that the privacy filter suppressed. quantile gives, for a statistic that is the p-quantile of n values, p and n, which the privacy filter uses (E7022). A minimum is the quantile 0 and a maximum the quantile 1.",
+      "description": "The value of one statistic, with the kind of its registry entry (registry.md, Statistics and counts). A count or ratio has its count class, resolved to person or non_person for the finding. value is null exactly when the value was not written, and availability then says why, as privacy_suppressed does for a value that the privacy filter suppressed. quantile gives, for a statistic that is the p-quantile of n values, p and, when the count that gives n is written in the finding, n, which the quantile rule uses (E7022). A minimum is the quantile 0 and a maximum the quantile 1.",
       "type": "object",
       "additionalProperties": false,
       "required": ["kind", "value"],
@@ -353,7 +353,7 @@
         "quantile": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["n", "p"],
+          "required": ["p"],
           "properties": {
             "p": {"type": "number", "minimum": 0, "maximum": 1},
             "n": {"type": "integer", "minimum": 0}
@@ -461,7 +461,7 @@
     },
     "support": {
       "title": "support",
-      "description": "The counts behind a finding that the privacy filter needs (02-decisions.md, Q5). rows is the number of rows of the sample the finding was computed from. contributors describes who supplied those rows. With basis disclosure_unit, a contributor is a member of the disclosure unit. With basis grouping_factors, used when there is no disclosure unit and the model has grouping factors, a contributor is a level of a grouping factor, distinct is the smallest number of levels over the grouping factors and largest_share the largest over them. With basis rows, used when there is neither, each row is a contributor. distinct is the number of distinct contributors, and largest_share is the share of the rows supplied by the dominance.contributors largest contributors, 0 when there are no rows. The basis must agree with /privacy/disclosure_unit and the model (E7006). rows and distinct are person counts.",
+      "description": "The counts behind a finding that the privacy filter needs (02-decisions.md, Q5). rows is the number of rows of the sample the finding was computed from. contributors describes who supplied those rows. With basis disclosure_unit, a contributor is a member of the disclosure unit. With basis grouping_factors, used when there is no disclosure unit and the model has grouping factors, a contributor is a level of a grouping factor, distinct is the smallest number of levels over the grouping factors and dominated is true when the dominance rule fails for some factor. With basis rows, used when there is neither, each row is a contributor. distinct is the number of distinct contributors, and dominated states whether the dominance.contributors largest contributors supply at least the dominance share of the rows, false when there are no rows. The basis must agree with /privacy/disclosure_unit and the model (E7006). rows and distinct are person counts.",
       "type": "object",
       "additionalProperties": false,
       "required": ["contributors", "rows"],
@@ -470,18 +470,18 @@
         "contributors": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["basis", "distinct", "largest_share"],
+          "required": ["basis", "distinct", "dominated"],
           "properties": {
             "basis": {"enum": ["disclosure_unit", "grouping_factors", "rows"]},
             "distinct": {"$ref": "#/$defs/reported_count"},
-            "largest_share": {"type": "number", "minimum": 0, "maximum": 1}
+            "dominated": {"type": "boolean"}
           }
         }
       }
     },
     "sidecar": {
       "title": "internal sidecar, version 0.1",
-      "description": "The internal sidecar that accompanies a written results document, in the data profile (docs/spec/documents.md, Internal sidecar). It never leaves the analyst's machine. It holds the hash of the results file it accompanies, the commitment keys, with unique identifiers (E7061) that match their keys (E1321), and the map from the pseudonyms of a shareable document to the labels they replace, with unique pseudonyms (E7060). Observation keys and the labels of predicted random effects follow with the milestones that write them (M2 and M5). sidecar_version is checked first (E1441).",
+      "description": "The internal sidecar that accompanies a written results document, in the data profile (docs/spec/documents.md, Internal sidecar). It never leaves the analyst's machine. It holds the hash of the results file it accompanies, the commitment keys, with unique identifiers (E7061) that match their keys (E1321), and the map from the pseudonyms of a shareable document to the labels they replace, with unique pseudonyms (E7060). The labels of predicted random effects, and any observation keys that its checks write, follow with M5, since no check of registry 0.1.0 writes them. sidecar_version is checked first (E1441).",
       "type": "object",
       "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/data_value"}],
       "additionalProperties": false,

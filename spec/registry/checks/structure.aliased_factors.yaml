@@ -4,13 +4,15 @@ title: Grouping factors with identical partitions
 tier: T0
 summary: >-
   Two grouping factors that divide the design sample into the same groups give
-  random effects with identical covariance bases, so only the sum of their
-  variances is identified, as with one class per school or a session
-  identifier that equals the subject identifier after rows are dropped. The
-  comparison uses the partitions and ignores the labels. For a factor nested
-  in another, the check reports how many levels of the coarser factor contain
-  more than one level of the finer factor, since the variance of the finer
-  factor rests on those levels alone.
+  random effects with identical covariance bases on the columns their random
+  terms share, so only the sum of those variances is identified, as with one
+  class per school or a session identifier that equals the subject identifier
+  after rows are dropped. Random terms of the two factors on different
+  columns can still be identified, which identifiability.gram_rank decides.
+  The comparison uses the partitions and ignores the labels. For a factor
+  nested in another, the check reports how many levels of the coarser factor
+  contain more than one level of the finer factor, since the variance of the
+  finer factor rests on those levels alone.
 reads: [formula, grouping_factors]
 fitted_model: false
 sample: design
@@ -25,6 +27,13 @@ statistics:
       of the other in the design sample, first_finer when every level of the
       first occurs with exactly one level of the second but not conversely,
       second_finer in the reverse case, and other otherwise.
+  shared_columns:
+    kind: boolean
+    definition: >-
+      Whether a random term of the first factor and a random term of the
+      second have a column in common: two columns with the same name, or two
+      columns whose values are equal, compared by value, in every row of the
+      design sample.
   finer:
     kind: names
     definition: The finer factor when partition is first_finer or second_finer, and no factor otherwise.
@@ -34,28 +43,48 @@ statistics:
   coarser_levels:
     kind: count
     count_class: by_unit
-    definition: The number of levels of the coarser factor, and 0 when there is none.
+    resolved_by: [{source: statistic, name: coarser}]
+    measures: levels
+    definition: The number of levels of the coarser factor, absent when there is none.
   informative_levels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: statistic, name: coarser}]
+    part_of: coarser_levels
     definition: >-
       The number of levels of the coarser factor that contain at least two
-      levels of the finer factor, and 0 when there is no coarser factor. Its
-      count class is that of the coarser factor.
+      levels of the finer factor, absent when there is no coarser factor.
+  rows:
+    kind: count
+    count_class: person
+    measures: design_rows
+    definition: The number of rows of the design sample.
   informative_rows:
     kind: count
     count_class: person
-    definition: The number of rows of the design sample in the levels that informative_levels counts.
+    part_of: rows
+    definition: >-
+      The number of rows of the design sample in the levels that
+      informative_levels counts, absent when there is no coarser factor. The
+      rows minus informative_rows are the rows of the other levels of the
+      coarser factor.
 thresholds: {}
 parameters: {}
 decision:
   rules:
     - finding: consequential
-      condition: partition is identical.
+      condition: partition is identical and shared_columns is true.
+      statistics: [partition, shared_columns]
       thresholds: []
       message: aliased
     - finding: consistent
+      condition: partition is identical.
+      statistics: [partition]
+      thresholds: []
+      message: same_groups
+    - finding: consistent
       condition: partition is first_finer or second_finer.
+      statistics: [partition]
       thresholds: []
       message: nested
   otherwise:
@@ -71,17 +100,30 @@ messages:
     args:
       first: {source: scope, name: first}
       second: {source: scope, name: second}
+  same_groups:
+    template: >-
+      '{first}' and '{second}' divide the design sample into the same groups,
+      but their random terms have no column in common, so
+      identifiability.gram_rank decides whether their variances are
+      identified.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
   nested:
     template: >-
-      {informative} of the {levels} levels of {coarser} contain two or more
-      levels of {finer}, with {rows} rows. The variance of {finer} separate
-      from that of {coarser} rests on these levels alone.
+      In {informative} of the {levels} of {coarser}, rows of two or more levels
+      of {finer} occur, with {rows} in these levels. The variance of {finer}
+      separate from that of {coarser} rests on these levels alone.
+    fallback: >-
+      {finer} is nested in {coarser}. The variance of {finer} separate from
+      that of {coarser} rests on the levels of {coarser} that contain two or
+      more levels of {finer}.
     args:
       informative: {source: statistic, name: informative_levels}
-      levels: {source: statistic, name: coarser_levels}
+      levels: {source: statistic, name: coarser_levels, noun: [level, levels]}
       coarser: {source: statistic, name: coarser}
       finer: {source: statistic, name: finer}
-      rows: {source: statistic, name: informative_rows}
+      rows: {source: statistic, name: informative_rows, noun: [row, rows]}
   distinct:
     template: >-
       '{first}' and '{second}' divide the design sample into different groups,

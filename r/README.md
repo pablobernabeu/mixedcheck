@@ -37,8 +37,7 @@ The functions have the same names and arguments as in the Python package.
 `design_matrices()` random terms, from 1 in R and from 0 in Python, whereas
 indices inside the IR count from 0 in both, and a missing value is `NA` in R
 and `None` in Python. The tests run every case of the JSON, number, Unicode,
-hash, HMAC, declaration, YAML, table and formula corpora installed with the
-package. The
+hash, HMAC, declaration, YAML, table and formula corpora. The
 [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
 of the repository checks that both packages agree on every case of the
 corpora.

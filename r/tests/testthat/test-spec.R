@@ -21,16 +21,16 @@ test_that("read_spec_versions() rejects anything but an object of strings", {
   }
 })
 
-test_that("the installed vendored files match their MANIFEST.json", {
+test_that("the vendored files match their MANIFEST.json", {
   spec <- system.file("spec", package = "mixedcheck")
   expect_true(nzchar(spec))
   expect_true(file.exists(file.path(spec, "MANIFEST.json")))
-  for (name in c("spec", "fixtures")) {
-    directory <- system.file(name, package = "mixedcheck")
-    if (nzchar(directory)) {
-      expect_identical(vendored_problems(directory), character(0), label = name)
-    }
+  expect_identical(vendored_problems(spec), character(0), label = "spec")
+  fixtures <- system.file("fixtures", package = "mixedcheck")
+  if (nzchar(fixtures)) {
+    expect_identical(vendored_problems(fixtures), character(0), label = "fixtures")
   }
+  expect_identical(vendored_problems(corpus_directory()), character(0), label = "conformance")
 })
 
 test_that("vendored_problems() names a changed, missing or unlisted file", {

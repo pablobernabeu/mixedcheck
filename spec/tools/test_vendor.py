@@ -23,6 +23,8 @@ R_SPEC = "r/inst/spec"
 PY_SPEC = "python/src/mixedcheck/_spec"
 R_FIXTURES = "r/inst/fixtures"
 PY_FIXTURES = "python/src/mixedcheck/_fixtures"
+R_CONFORMANCE = "r/tests/conformance"
+PY_CONFORMANCE = "python/tests/conformance"
 # A fixture with CRLF line endings and a byte-order mark, which must be copied
 # unchanged and must not trip the CR check, which covers spec/ only.
 CRLF_BOM = b"\xef\xbb\xbfid,y\r\n1,2\r\n"
@@ -223,6 +225,61 @@ class Mismatches(VendorTestCase):
         (self.root / R_FIXTURES / "MANIFEST.json").unlink()
         stderr = self.assert_check_fails("3 problem(s)")
         self.assertEqual(len(stderr.strip().splitlines()), 4)
+
+
+class ConformanceCorpora(VendorTestCase):
+    """The conformance corpora go into the test directories, not the installed ones."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.write("fixtures/conformance/json/cases.json", b'{"cases": []}\n')
+        self.set_list(
+            [
+                "spec/versions.json",
+                "fixtures/zoo/Z00/data.csv",
+                "fixtures/conformance/json/cases.json",
+            ]
+        )
+        self.sync()
+
+    def test_corpora_are_copied_into_the_test_directories(self) -> None:
+        source = (self.root / "fixtures/conformance/json/cases.json").read_bytes()
+        for target in (R_CONFORMANCE, PY_CONFORMANCE):
+            with self.subTest(target=target):
+                self.assertEqual((self.root / target / "json/cases.json").read_bytes(), source)
+                manifest = json.loads((self.root / target / "MANIFEST.json").read_text("utf-8"))
+                self.assertEqual(manifest["source"], "fixtures/conformance")
+                self.assertEqual(list(manifest["files"]), ["json/cases.json"])
+        for target in (R_FIXTURES, PY_FIXTURES):
+            with self.subTest(target=target):
+                self.assertFalse((self.root / target / "conformance").exists())
+                manifest = json.loads((self.root / target / "MANIFEST.json").read_text("utf-8"))
+                self.assertEqual(list(manifest["files"]), ["zoo/Z00/data.csv"])
+        self.assertEqual(run(self.root, "check").returncode, 0)
+
+    def test_a_copy_left_in_the_installed_directory(self) -> None:
+        self.write(f"{R_FIXTURES}/conformance/json/cases.json", b'{"cases": []}\n')
+        self.assert_check_fails(f"{R_FIXTURES}/conformance/json/cases.json: not listed")
+        self.sync()
+        self.assertFalse((self.root / R_FIXTURES / "conformance").exists())
+
+    def test_the_r_path_is_measured_in_the_test_directory(self) -> None:
+        # mixedcheck/tests/conformance/ takes 29 bytes of the 100.
+        fits = "fixtures/conformance/" + "a" * 66 + ".json"
+        too_long = "fixtures/conformance/" + "a" * 67 + ".json"
+        self.write(fits, b"{}\n")
+        self.set_list(["spec/versions.json", fits])
+        self.sync()
+        self.assertEqual(run(self.root, "check").returncode, 0)
+        self.set_list(["spec/versions.json", too_long])
+        self.assert_check_fails(
+            f"entry {too_long!r} is longer than 100 bytes as a path in the R package's tarball"
+        )
+
+    def test_manifest_of_the_corpora_cannot_be_listed(self) -> None:
+        entry = "fixtures/conformance/MANIFEST.json"
+        self.set_list(["spec/versions.json", entry])
+        self.assert_check_fails(f"entry {entry!r} would overwrite the vendored MANIFEST.json")
 
 
 class InvalidList(VendorTestCase):

@@ -19,7 +19,7 @@ This directory is the source of the artefacts that the R and Python packages sha
 
 ## Vendoring
 
-Each artefact listed in `vendoring.json` is copied byte for byte from spec/ into r/inst/spec/ and python/src/mixedcheck/_spec/, and from fixtures/ into r/inst/fixtures/ and python/src/mixedcheck/_fixtures/. Each of these directories also holds a MANIFEST.json of the SHA-256 digests of its files, which the packages' tests compare with the installed files. Edit the sources here or in fixtures/, never the copies, and then run, from the repository root:
+Each artefact listed in `vendoring.json` is copied byte for byte from spec/ into r/inst/spec/ and python/src/mixedcheck/_spec/, from fixtures/conformance/ into the test directories r/tests/conformance/ and python/tests/conformance/, and from the rest of fixtures/ into r/inst/fixtures/ and python/src/mixedcheck/_fixtures/. The conformance corpora are test material, so they are not installed with the packages, which also keeps the R package below the installed size at which R CMD check reports a NOTE. Each of these directories also holds a MANIFEST.json of the SHA-256 digests of its files, which the packages' tests compare with the copies. Edit the sources here or in fixtures/, never the copies, and then run, from the repository root:
 
 ```bash
 python3 spec/tools/compile_registry.py   # after editing spec/registry/, compile the registry first

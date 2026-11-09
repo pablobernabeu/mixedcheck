@@ -19,33 +19,41 @@ statistics:
   rows_raw:
     kind: count
     count_class: person
+    measures: table_rows
     definition: The number of rows of the table as read.
   rows_kept:
     kind: count
     count_class: person
+    measures: design_rows
+    suppress_with: [rows_dropped]
     definition: The number of rows of the design sample.
   rows_dropped:
     kind: count
     count_class: person
-    definition: rows_raw minus rows_kept.
+    suppress_with: [rows_kept]
+    definition: >-
+      rows_raw minus rows_kept. Either of the two is suppressed with the
+      other, so that the written rows_raw cannot give back a suppressed one.
   incomplete_columns:
     kind: names
     definition: >-
-      The columns that the IR reads, other than the response and its trials
-      column, and the sample columns of the IR that have a missing value in at
-      least one row of the table, in code-point order of their names.
+      The columns among those that the IR reads, other than the response and
+      its trials column, and the sample columns of the IR, that have a missing
+      value in at least one row of the table, in code-point order of their
+      names.
   emptied_factors:
     kind: names
     definition: >-
-      The categorical predictors of the fixed part with a level that occurs in
-      the table but not in the design sample, in code-point order of their
-      names.
+      The categorical predictors of the IR with a level that occurs in the
+      table but not in the design sample, in code-point order of their names.
   reference_emptied:
     kind: names
     definition: >-
-      The categorical predictors whose reference level, as ir.md fixes it,
-      occurs in the table but not in the design sample, in code-point order of
-      their names.
+      The categorical predictors of the IR that some term codes by contrasts
+      and whose reference level, as ir.md fixes it, has no row in the design
+      sample, whether it occurs in the table or only among the declared
+      categories, in code-point order of their names. A predictor coded by
+      indicators in every term has no reference level.
   factors_losing_levels:
     kind: names
     definition: >-
@@ -64,10 +72,12 @@ decision:
   rules:
     - finding: consequential
       condition: reference_emptied is not empty.
+      statistics: [reference_emptied]
       thresholds: []
       message: reference_emptied
     - finding: detectable_inconsequential
       condition: rows_dropped is above 0.
+      statistics: [rows_dropped]
       thresholds: []
       message: rows_dropped
   otherwise:
@@ -77,19 +87,26 @@ assessability: []
 messages:
   reference_emptied:
     template: >-
-      The reference level of {factors} has no rows left after {dropped} of
-      {raw} rows with missing values leave the design sample, so the
-      coefficients of these factors no longer compare with the declared
-      reference level.
+      Factors whose reference level has no rows in the design sample: {factors}.
+      Their coefficients no longer compare with the reference level. Rows of
+      the table that leave the design sample: {dropped} of {raw}.
+    fallback: >-
+      Factors whose reference level has no rows in the design sample: {factors}.
+      Their coefficients no longer compare with the reference level.
     args:
       factors: {source: statistic, name: reference_emptied}
       dropped: {source: statistic, name: rows_dropped}
       raw: {source: statistic, name: rows_raw}
   rows_dropped:
     template: >-
-      {dropped} of {raw} rows have a missing value in {columns} and leave the
-      design sample. Factors that lose a level: {emptied}. Grouping factors
-      that lose levels: {losing}. Grouping factors with new singletons:
+      Rows of the table that leave the design sample because of a missing
+      value in {columns}: {dropped} of {raw}. Factors that lose a level:
+      {emptied}. Grouping factors that lose levels: {losing}. Grouping factors
+      with new singletons: {singletons}.
+    fallback: >-
+      Some rows of the table leave the design sample because of a missing value
+      in {columns}. Factors that lose a level: {emptied}. Grouping factors that
+      lose levels: {losing}. Grouping factors with new singletons:
       {singletons}.
     args:
       dropped: {source: statistic, name: rows_dropped}
@@ -99,7 +116,10 @@ messages:
       losing: {source: statistic, name: factors_losing_levels}
       singletons: {source: statistic, name: new_singletons}
   complete:
-    template: All {raw} rows are complete in the columns that the model reads.
+    template: >-
+      Every row of the table is complete in the columns that the model reads
+      ({raw} in all).
+    fallback: Every row of the table is complete in the columns that the model reads.
     args:
       raw: {source: statistic, name: rows_raw}
 remedies:

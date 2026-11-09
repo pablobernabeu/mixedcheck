@@ -1,0 +1,363 @@
+{
+  "description": "The internal sidecar and its verification against the document: reading, version, structure and rules of the sidecar, the results file hash, missing keys and the commitments to the data file, the analysis table and the outcome column recomputed from the data and the declaration.",
+  "cases": [
+    {
+      "id": "results-sidecar-001",
+      "description": "An internal document of a T1 run on a CSV file with a declared observation key, with its sidecar: the sidecar is valid and records the hash of the file and the key of its commitments, so no issue.",
+      "document": "sidecar/file.json",
+      "sidecar": "sidecar/file_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-002",
+      "description": "The same document and sidecar with the data file and the declaration: the commitments to the bytes of the file, to the analysis table, ordered by the key 'pupil' and 'wave', and to the outcome column 'post' with its missing value all match, so no issue.",
+      "document": "sidecar/file.json",
+      "sidecar": "sidecar/file_sidecar.json",
+      "data": "sidecar/data.csv",
+      "declaration": "sidecar/declaration.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-003",
+      "description": "The document of the same run on a data frame, without a data file commitment, verified against the rows of the data in another order: the rows of both commitments are ordered by the key, so they match.",
+      "document": "sidecar/frame.json",
+      "sidecar": "sidecar/frame_sidecar.json",
+      "data": "sidecar/reordered.csv",
+      "declaration": "sidecar/declaration.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-004",
+      "description": "The data differ from those of the run in the predictor 'arm' of one row: the analysis table does not match (E1314), and the outcome column still does.",
+      "document": "sidecar/frame.json",
+      "sidecar": "sidecar/frame_sidecar.json",
+      "data": "sidecar/arm.csv",
+      "declaration": "sidecar/declaration.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1314",
+            "message": "The data do not match the commitment at /inputs/data/analysis_table.",
+            "pointer": "/inputs/data/analysis_table"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-005",
+      "description": "The data differ in the outcome of one row: the outcome column of the T1 entry does not match (E1314), and the analysis table, which leaves the outcome out, still does.",
+      "document": "sidecar/frame.json",
+      "sidecar": "sidecar/frame_sidecar.json",
+      "data": "sidecar/post.csv",
+      "declaration": "sidecar/declaration.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1314",
+            "message": "The data do not match the commitment at /access_log/entries/1/outcome/commitment.",
+            "pointer": "/access_log/entries/1/outcome/commitment"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-006",
+      "description": "A T0 run without a declaration on a data frame: the analysis table has no key and keeps the order of the table, and the data in that order match.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/nokey_sidecar.json",
+      "data": "sidecar/data.csv",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-007",
+      "description": "The same run verified against the rows in another order: without a key, the order of the rows is part of the analysis table, so E1314.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/nokey_sidecar.json",
+      "data": "sidecar/reordered.csv",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1314",
+            "message": "The data do not match the commitment at /inputs/data/analysis_table.",
+            "pointer": "/inputs/data/analysis_table"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-008",
+      "description": "The data of the run with CR LF line breaks: the table reader returns the same values, so the analysis table and the outcome column match, whereas the bytes of the file differ from those committed to (E1314 at the data file commitment).",
+      "document": "sidecar/file.json",
+      "sidecar": "sidecar/file_sidecar.json",
+      "data": "sidecar/crlf.csv",
+      "declaration": "sidecar/declaration.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1314",
+            "message": "The data do not match the commitment at /inputs/data/data_file.",
+            "pointer": "/inputs/data/data_file"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-009",
+      "description": "A run whose declaration has a table block in which '-99' is a missing value of 'post': verified with that declaration, the sentinel is read as a missing value, so the outcome column and the analysis table match those of the run, and so does the file.",
+      "document": "sidecar/sentinel.json",
+      "sidecar": "sidecar/sentinel_sidecar.json",
+      "data": "sidecar/sentinel.csv",
+      "declaration": "sidecar/declaration_table.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-010",
+      "description": "A sidecar whose results_hash is that of another file: E1321 at /results_hash.",
+      "document": "sidecar/file.json",
+      "sidecar": "sidecar/other_hash_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1321",
+            "message": "The hash at /results_hash does not match the content it covers.",
+            "pointer": "/results_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-011",
+      "description": "A sidecar without the key of the one commitment of the document: E1313, naming the key identifier.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/no_key_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1313",
+            "message": "No commitment key with the identifier '630dcd2966c43366' was found."
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-012",
+      "description": "A sidecar that holds a key of another run besides the key of the document: no issue.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/two_keys_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-013",
+      "description": "A sidecar that holds only a key of another run: E1313 for the key that the commitment names.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/wrong_key_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1313",
+            "message": "No commitment key with the identifier '630dcd2966c43366' was found."
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-014",
+      "description": "Besides the key of the document, a key whose identifier is not the first 16 hexadecimal digits of the SHA-256 of its bytes: E1321 at that key identifier.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/bad_key_id_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1321",
+            "message": "The hash at /keys/1/key_id does not match the content it covers.",
+            "pointer": "/keys/1/key_id"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-015",
+      "description": "The same key stored twice: E7061 at the second key identifier.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/duplicate_key_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E7061",
+            "message": "The key identifier '630dcd2966c43366' at /keys/1/key_id is already used by an earlier key.",
+            "pointer": "/keys/1/key_id"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-016",
+      "description": "A pseudonym that repeats an earlier one: E7060 at the third entry.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/duplicate_pseudonym_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E7060",
+            "message": "The pseudonym '#1' at /pseudonyms/2/pseudonym is already used by an earlier entry.",
+            "pointer": "/pseudonyms/2/pseudonym"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-017",
+      "description": "A sidecar of version 0.2.0: E1441 at /sidecar_version alone.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/version_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /sidecar_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/sidecar_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-018",
+      "description": "A sidecar without pseudonyms and with a key in upper-case hexadecimal: E1402 at the root and E1406 with the form 'commitment key', sorted by pointer.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/structure_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1402",
+            "message": "The object at (root) lacks the required member 'pseudonyms'.",
+            "pointer": ""
+          },
+          {
+            "code": "E1406",
+            "message": "The string at /keys/0/key is not a valid commitment key.",
+            "pointer": "/keys/0/key"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-019",
+      "description": "A key created on 31 April: E1406 with the form 'UTC timestamp'.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/april_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /keys/0/created is not a valid UTC timestamp.",
+            "pointer": "/keys/0/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-020",
+      "description": "A sidecar that starts with a byte-order mark: E1003.",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/bom_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-021",
+      "description": "A document with an access entry dated before the one before it (E7005) and a sidecar whose hash does not match it: the sidecar is not verified after an error in the document.",
+      "document": "sidecar/late_entry.json",
+      "sidecar": "sidecar/nokey_sidecar.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7005",
+            "message": "The time at /access_log/entries/1/time is earlier than the time of the entry before it.",
+            "pointer": "/access_log/entries/1/time"
+          }
+        ],
+        "sidecar_issues": []
+      }
+    },
+    {
+      "id": "results-sidecar-022",
+      "description": "A document produced with another registry (W7090) and a sidecar whose hash does not match it: a warning does not stop the verification, which reports E1321.",
+      "document": "sidecar/other_registry.json",
+      "sidecar": "sidecar/nokey_sidecar.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "W7090",
+            "message": "The registry hash at /inputs/registry_hash differs from the hash of the registry of this release, so the findings were not checked against registry entries.",
+            "pointer": "/inputs/registry_hash"
+          }
+        ],
+        "sidecar_issues": [
+          {
+            "code": "E1321",
+            "message": "The hash at /results_hash does not match the content it covers.",
+            "pointer": "/results_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-sidecar-023",
+      "description": "A sidecar without the key of the document's commitments whose results_hash belongs to another file: verification reports E1321 at /results_hash first and then E1313, without a location, once for the key identifier that the commitments name, in the order of documents.md (Internal sidecar).",
+      "document": "sidecar/nokey.json",
+      "sidecar": "sidecar/other_hash_no_key_sidecar.json",
+      "expected": {
+        "issues": [],
+        "sidecar_issues": [
+          {
+            "code": "E1321",
+            "message": "The hash at /results_hash does not match the content it covers.",
+            "pointer": "/results_hash"
+          },
+          {
+            "code": "E1313",
+            "message": "No commitment key with the identifier '630dcd2966c43366' was found."
+          }
+        ]
+      }
+    }
+  ]
+}

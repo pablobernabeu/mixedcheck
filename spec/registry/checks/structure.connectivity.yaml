@@ -4,41 +4,82 @@ title: Connectivity of two crossed grouping factors
 tier: T0
 summary: >-
   For two grouping factors that neither nest nor share a partition, such as
-  subjects and items, counts the connected groups of levels that rows link
+  subjects and items, counts the crossed groups of levels that rows link
   together. In a disconnected design, the two sets of random effects are
   compared only within each group, and a fixed term that is constant within
   every group is estimated only from the differences between the groups.
+  Groups that hold one level of either factor, as the schools of a design in
+  which a few pupils change school do, are nested rather than crossed and are
+  left to structure.label_incidence.
 reads: [formula, grouping_factors, predictors]
 fitted_model: false
 sample: design
 scope: grouping_factor_pair
-applies_when: For the pair, the statistic partition of structure.aliased_factors is other.
+applies_when: >-
+  For the pair, the statistic partition of structure.aliased_factors is
+  other, and some connected component, as components defines it, holds at
+  least two levels of each factor.
 availability: []
 statistics:
   components:
     kind: count
-    count_class: non_person
+    count_class: by_unit
+    resolved_by: [{source: scope, name: first}, {source: scope, name: second}]
     definition: >-
       The number of connected components of the graph whose vertices are the
       levels of the two factors and whose edges join two levels that occur
-      together in a row of the design sample.
+      together in a row of the design sample, counting only the components
+      that hold at least two levels of each factor, the crossed components.
   between_component_terms:
     kind: names
     definition: >-
-      The fixed terms other than the intercept, in term order, whose columns,
-      restricted to the rows of each component, have rank 0 by the sequential
-      rule after the component's first row is subtracted from every row, in
-      every component.
+      The fixed terms other than the intercept, in term order, that are
+      constant within the crossed components: those whose kept columns, the
+      columns that the sequential rule keeps when it is applied to the
+      fixed-effects columns, are constant within the crossed components with
+      the parameter agreement, pooled over the components as registry.md
+      (Terms) pools over the levels of a grouping factor.
+  exact:
+    kind: boolean
+    definition: >-
+      Whether every term of between_component_terms is exactly constant within
+      every crossed component, all rows of a component having one pattern of
+      its kept columns, and true when between_component_terms is empty. When
+      it is false, some term counts as constant only through the tolerance of
+      agreement, and its effect is still partly estimated within components.
 thresholds: {}
-parameters: {}
+parameters:
+  agreement:
+    value: 0.99
+    definition: >-
+      The share of the rows of the crossed components that must have the most
+      frequent pattern of their component for a term to count as constant
+      within the components (registry.md, Terms).
+    sources:
+      - kind: decision
+        citation: >-
+          02-decisions.md, Q4. A rule that required 99% agreement within
+          clusters, pooled over the rows of all clusters, recovered the school
+          level in 99.3 to 100% of 2,000 replicates with up to 0.5% of rows
+          miscoded (evidence/decisions/E-verify/scripts/exp2_tolerant.py, rule
+          R2).
 decision:
   rules:
     - finding: consequential
+      condition: >-
+        components is at least 2, between_component_terms is not empty and
+        exact is true.
+      statistics: [components, between_component_terms, exact]
+      thresholds: []
+      message: confounded
+    - finding: detectable_inconsequential
       condition: components is at least 2 and between_component_terms is not empty.
+      statistics: [components, between_component_terms]
       thresholds: []
       message: confounded
     - finding: detectable_inconsequential
       condition: components is at least 2.
+      statistics: [components]
       thresholds: []
       message: disconnected
   otherwise:
@@ -48,26 +89,35 @@ assessability: []
 messages:
   confounded:
     template: >-
-      '{first}' and '{second}' form {components} disconnected groups of levels,
-      and {terms} do not vary within these groups, so their effects rest only
-      on the differences between the groups.
+      '{first}' and '{second}' form {components} that no row links. Terms that,
+      as inferred from the data, do not vary within these groups, so that their
+      effects rest only or mainly on the differences between the groups:
+      {terms}.
+    fallback: >-
+      '{first}' and '{second}' form crossed groups of levels that no row links.
+      Terms that, as inferred from the data, do not vary within these groups,
+      so that their effects rest only or mainly on the differences between the
+      groups: {terms}.
     args:
       first: {source: scope, name: first}
       second: {source: scope, name: second}
-      components: {source: statistic, name: components}
+      components: {source: statistic, name: components, noun: [crossed group of levels, crossed groups of levels]}
       terms: {source: statistic, name: between_component_terms}
   disconnected:
     template: >-
-      '{first}' and '{second}' form {components} disconnected groups of levels,
+      '{first}' and '{second}' form {components} that no row links, so their
+      random effects are compared only within each group.
+    fallback: >-
+      '{first}' and '{second}' form crossed groups of levels that no row links,
       so their random effects are compared only within each group.
     args:
       first: {source: scope, name: first}
       second: {source: scope, name: second}
-      components: {source: statistic, name: components}
+      components: {source: statistic, name: components, noun: [crossed group of levels, crossed groups of levels]}
   connected:
     template: >-
-      '{first}' and '{second}' are connected: rows link every level to every
-      other level.
+      The crossed levels of '{first}' and '{second}' are connected: rows link
+      each of them to every other.
     args:
       first: {source: scope, name: first}
       second: {source: scope, name: second}

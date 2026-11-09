@@ -47,6 +47,24 @@
     {"file": "formulas/double_bar.json", "kind": "formula"},
     {"file": "formulas/offsets.json", "kind": "formula"},
     {"file": "formulas/malformed.json", "kind": "formula"},
-    {"file": "formulas/context.json", "kind": "formula"}
+    {"file": "formulas/context.json", "kind": "formula"},
+    {"file": "audits/assignment.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/design.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/identifiability.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/keys.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/labels.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/outcome.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/privacy.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/sample.json", "kind": "audit", "pending": "M2b"},
+    {"file": "audits/structure.json", "kind": "audit", "pending": "M2b"},
+    {"file": "results/reading.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/registry.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/rules.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/shareable.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/sidecar.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/stages.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/structure.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/valid.json", "kind": "results", "pending": "M2b"},
+    {"file": "results/version.json", "kind": "results", "pending": "M2b"}
   ]
 }

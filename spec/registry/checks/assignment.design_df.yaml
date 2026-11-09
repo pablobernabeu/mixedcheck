@@ -8,7 +8,7 @@ summary: >-
   number of assigned units minus the unit-level fixed parameters computed by
   rank. The information on an effect assigned to units grows with this number
   rather than with the number of rows. The check also names declared blocking
-  units that the formula leaves out, since blocking factors used in the
+  units that the fixed part leaves out, since blocking factors used in the
   assignment belong in the fixed part.
 reads: [declaration, formula, grouping_factors, predictors]
 fitted_model: false
@@ -16,8 +16,8 @@ sample: design
 scope: assignment
 applies_when: >-
   The assignment's level is between_unit, declared or inferred (registry.md,
-  Terms), and some level of the unit has at least two rows in the design
-  sample.
+  Terms), and some level of the unit has at least two rows of the
+  assignment.
 availability:
   - reason: declaration_missing
     condition: The declaration has no assignment block.
@@ -26,19 +26,33 @@ statistics:
   units:
     kind: count
     count_class: by_unit
-    definition: The number of levels of the assignment unit in the design sample.
+    resolved_by: [{source: scope, name: unit}]
+    measures: levels
+    definition: >-
+      The number of levels of the assignment unit (registry.md, Terms) in the
+      rows of the assignment.
   design_df:
     kind: count
-    count_class: non_person
+    count_class: by_unit
+    resolved_by: [{source: scope, name: unit}]
+    suppress_with: [units]
     definition: >-
-      The number of indicator columns of the levels of the unit, in level
-      order, that the sequential rule keeps when it is applied to the
-      fixed-effects columns followed by the indicator columns.
+      J + rank(X_w) - rank(X), ranks by the sequential rule, where J is units,
+      X the fixed-effects columns restricted to the rows of the assignment and
+      X_w the same columns centred within the levels of the unit, each level
+      mean summed exactly and divided once as ir.md (Centring) computes means.
+      In exact arithmetic, it equals the number of indicator columns of the
+      levels of the unit that the sequential rule keeps when it is applied to
+      the fixed-effects columns followed by the indicator columns, without
+      building the n by J indicator matrix. The tolerance of the sequential
+      rule applies to the centred columns. It gives back units, so it takes
+      the count class of units.
   missing_blocks:
     kind: names
     definition: >-
-      The declared blocks of the assignment whose label columns appear neither
-      in the fixed part nor in a grouping factor of the IR, in declared order.
+      The declared blocks of the assignment of which some label column, by
+      the levels of a unit (registry.md, Terms), is not a variable of a term
+      of the fixed part, in declared order.
   level_source:
     kind: category
     values: [declared, inferred_from_the_data]
@@ -50,23 +64,29 @@ parameters:
   agreement:
     value: 0.99
     definition: >-
-      The share of a level's rows that the most frequent value of the assigned
-      column must cover for the level to count as constant, when the level of
-      the assignment is inferred (registry.md, Terms).
+      The share of the rows of the assignment, pooled over the levels of the
+      unit with at least two rows, that must have the most frequent value of
+      their level for an assignment without a declared level to be inferred
+      as between_unit (registry.md, Terms).
     sources:
       - kind: decision
         citation: >-
           02-decisions.md, Q4. A rule that required 99% agreement within
-          clusters recovered the school level in 99.3 to 100% of 2,000
-          replicates with up to 0.5% of rows miscoded.
+          clusters, pooled over the rows of all clusters, recovered the school
+          level in 99.3 to 100% of 2,000 replicates with up to 0.5% of rows
+          miscoded (evidence/decisions/E-verify/scripts/exp2_tolerant.py, rule
+          R2). The same share applied to each cluster separately behaves as
+          the exact rule R1 for clusters of fewer than 100 rows.
 decision:
   rules:
     - finding: consequential
       condition: design_df is 0.
+      statistics: [design_df]
       thresholds: []
       message: no_df
     - finding: detectable_inconsequential
       condition: missing_blocks is not empty.
+      statistics: [missing_blocks]
       thresholds: []
       message: blocks_missing
   otherwise:
@@ -76,38 +96,51 @@ assessability: []
 messages:
   no_df:
     template: >-
-      No degrees of freedom remain between the {units} levels of '{unit}', the
-      unit to which '{column}' was assigned at a level between units that is
-      {level}, after the fixed effects, so the effect of '{column}' cannot be
-      compared with variation between units.
+      No degrees of freedom remain between the {units} of '{unit}' after the
+      fixed effects, so the effect of '{column}', assigned to '{unit}' at a
+      level between units that is {level}, cannot be compared with variation
+      between units.
+    fallback: >-
+      No degrees of freedom remain between the levels of '{unit}' after the
+      fixed effects, so the effect of '{column}', assigned to '{unit}' at a
+      level between units that is {level}, cannot be compared with variation
+      between units.
     args:
-      units: {source: statistic, name: units}
+      units: {source: statistic, name: units, noun: [level, levels]}
       unit: {source: scope, name: unit}
       column: {source: scope, name: column}
       level: {source: statistic, name: level_source}
   blocks_missing:
     template: >-
-      The assignment of '{column}' was blocked by {blocks}, which the formula
-      does not include. '{unit}', to which '{column}' was assigned at a level
-      between units that is {level}, leaves {df} degrees of freedom between
-      its {units} levels after the fixed effects.
+      The assignment of '{column}' was blocked by {blocks}, which the fixed
+      part does not include. '{unit}', to which '{column}' was assigned at a
+      level between units that is {level}, leaves {df} between its {units}
+      after the fixed effects.
+    fallback: >-
+      The assignment of '{column}' was blocked by {blocks}, which the fixed
+      part does not include. '{column}' was assigned to '{unit}' at a level
+      between units that is {level}.
     args:
       column: {source: scope, name: column}
       blocks: {source: statistic, name: missing_blocks}
       unit: {source: scope, name: unit}
-      df: {source: statistic, name: design_df}
-      units: {source: statistic, name: units}
+      df: {source: statistic, name: design_df, noun: [degree of freedom, degrees of freedom]}
+      units: {source: statistic, name: units, noun: [level, levels]}
       level: {source: statistic, name: level_source}
   design_df:
     template: >-
       '{unit}', the unit to which '{column}' was assigned at a level between
-      units that is {level}, has {units} levels and leaves {df} degrees of
-      freedom between them after the fixed effects.
+      units that is {level}, has {units} and leaves {df} between them after
+      the fixed effects.
+    fallback: >-
+      The privacy rules do not allow the levels of '{unit}', the unit to which
+      '{column}' was assigned at a level between units that is {level}, and
+      the degrees of freedom between them to be shown.
     args:
       unit: {source: scope, name: unit}
       column: {source: scope, name: column}
-      units: {source: statistic, name: units}
-      df: {source: statistic, name: design_df}
+      units: {source: statistic, name: units, noun: [level, levels]}
+      df: {source: statistic, name: design_df, noun: [degree of freedom, degrees of freedom]}
       level: {source: statistic, name: level_source}
 remedies:
   - id: add_blocks

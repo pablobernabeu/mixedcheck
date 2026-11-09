@@ -6,7 +6,7 @@ A declaration describes the design behind a dataset: its grouping units and how 
 
 Declarations are optional by default. Checks whose inputs the data determine run without one, and a check that needs a declared field reports not_available with the reason declaration_missing and the JSON Pointer of the field (conventions.md, Status fields). A minimal declaration, defined below, is required for a confirmatory goal, for the outcome-blind and preregistration exports and for the trial features cluster_randomised, stepped_wedge and partially_nested, which also require the assignment block (02-decisions.md, Q4).
 
-The validator checks a declaration on its own. Whether the data agree with it, for example whether a declared column exists when there is no table block, whether a key is unique or whether an assigned column is constant within the declared unit, is checked when the data are read and audited in M2, with the codes of the table area ([tables.md](tables.md)) and as findings.
+The validator checks a declaration on its own. Whether the data agree with it is checked when the data are read and audited: `audit()` refuses data that lack a column that the declaration names with E5011, which can happen only for a data frame or a file read without a table block, since the table block names every column of a file, and whether a key is unique or an assigned column is constant within the declared unit is reported as findings of the registry (03-execution-plan.md, M2, and [registry.md](registry.md)).
 
 ## Documents, versions and hashes
 
@@ -34,7 +34,7 @@ A declaration has the members below. Each block is optional, and only `vocabular
 | `table` | the types, categories, missing values and keys of the columns | the data are read by the rules for columns without a table block (tables.md) |
 | `units` | the grouping units | grouping factors come from the formula, and their relations are inferred from the data with 'inferred' wording |
 | `crossings` | pairs of crossed units | crossing is inferred from the incidence of labels |
-| `observation` | what one row is | duplicate rows are reported as information only, and checks that need the time of a row report not_available |
+| `observation` | what one row is | keys.duplicates and the checks that need the time of a row report not_available |
 | `assignment` | the assigned variables | randomisation checks report not_available |
 | `variables` | the roles and measurement of columns | role checks report not_available, and outcome-blind mode cannot exclude an undeclared outcome |
 | `estimands` | the estimands | the protected set cannot be defined, so the ladder is labelled exploratory and no stopping rule runs (02-decisions.md, Q3) |

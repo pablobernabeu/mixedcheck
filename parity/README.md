@@ -7,7 +7,7 @@ This directory holds the cross-language harness, which compares the outputs of t
 | `parity.py` | the driver: it writes the plan of a run, runs both packages, compares their outcomes, prints every mismatch and a summary and sets the exit status. It needs only the standard library of Python 3.11 or later. |
 | `run_r.R` | runs the cases with the installed R package and writes its outcomes |
 | `run_python.py` | runs the cases with the installed Python package and writes its outcomes |
-| `corpora.json` | every corpus file of fixtures/conformance/ with the kind of its cases. A file marked `pending` is counted but not run until the milestone it names implements what it tests, and no file is pending since M2a. |
+| `corpora.json` | every corpus file of fixtures/conformance/ with the kind of its cases. A file marked `pending` is counted but not run until the milestone it names implements what it tests: the audit and results corpora wait for M2b. |
 
 ## Running the harness
 

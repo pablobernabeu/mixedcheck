@@ -17,37 +17,47 @@ reads: [formula, grouping_factors, predictors]
 fitted_model: false
 sample: design
 scope: fixed_term_by_factor
+applies_when: >-
+  The sequential rule, applied to the fixed-effects columns, keeps at least
+  one column of the term.
 availability: []
 statistics:
   multi_row_levels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels_with_two_rows
     definition: The number of levels of the factor with at least two rows in the design sample.
   varying_levels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    part_of: multi_row_levels
     definition: >-
-      The number of levels with at least two rows in which the term varies. A
-      level is constant in the term when its most frequent row pattern, the
-      values of the term's columns in a row compared exactly, covers at least
-      the share agreement of its rows: with agreement written as m / 10^d, c
-      rows of that pattern and n rows in the level, when c times 10^d is at
-      least m times n in integer arithmetic. A level varies otherwise.
+      The number of levels with at least two rows in which the term varies:
+      levels whose rows do not all have the same pattern of the term's kept
+      columns, the columns of the term that the sequential rule keeps when it
+      is applied to the fixed-effects columns. Patterns are compared by value
+      (registry.md, Terms).
   informative_levels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    part_of: varying_levels
     definition: >-
       The number of levels counted in varying_levels in which the rank by the
-      sequential rule of the term's columns, restricted to the level's rows,
-      after the level's first row is subtracted from every row, equals the
-      number of columns of the term.
+      sequential rule of the term's kept columns, restricted to the level's
+      rows, after the level's first row is subtracted from every row, equals
+      the number of the term's kept columns.
   status:
     kind: category
     values: [between, within, partially_within]
     definition: >-
-      between when varying_levels is 0, so that every level with at least two
-      rows is constant in the term, within when varying_levels equals
-      multi_row_levels and is above 0, and partially_within otherwise.
+      between when the factor is constant in the term's kept columns with the
+      parameter agreement, pooled over its levels with at least two rows
+      (registry.md, Terms), so that a few miscoded rows do not make the term
+      vary, within otherwise when varying_levels equals multi_row_levels, and
+      partially_within otherwise. It is absent when multi_row_levels is 0.
   slope_requested:
     kind: boolean
     definition: >-
@@ -57,80 +67,122 @@ statistics:
   icc:
     kind: real
     definition: >-
-      For a term with one column that is not coded from a factor, the ANOVA
-      intraclass correlation of the column across the levels, (MSB - MSW) /
-      (MSB + (n0 - 1) MSW), with MSB = SSB/(J - 1), MSW = SSW/(N - J), SSB the
-      sum over levels of the level size times the squared difference between
-      the level mean and the overall mean, SSW the sum of squared differences
-      from the level means and n0 as structure.cluster_sizes defines it. It is
-      absent for other terms, when J is 1, when N equals J or when the
+      For a term with one kept column whose variables are all numeric, the
+      ANOVA intraclass correlation of the column across the levels,
+      (MSB - MSW) / (MSB + (n0 - 1) MSW), with MSB = SSB/(J - 1),
+      MSW = SSW/(N - J), SSB the sum over levels of the level size times the
+      squared difference between the level mean and the overall mean, SSW the
+      sum of squared differences from the level means and n0 as
+      structure.cluster_sizes defines it. The overall and level means are
+      summed exactly and divided once, as ir.md (Centring) computes means. It
+      is absent for other terms, when the column is constant over the design
+      sample, compared by value, when J is 1, when N equals J or when the
       denominator is 0.
   within_share:
     kind: real
     definition: >-
-      For the same terms, SSW / (SSB + SSW), the share of the column's variation
-      that lies within levels, absent when SSB + SSW is 0 or for other terms.
+      For the same terms, SSW / (SSB + SSW), the share of the column's
+      variation that lies within levels, absent when the column is constant
+      over the design sample, when SSB + SSW is 0 or for other terms.
 thresholds: {}
 parameters:
   agreement:
     value: 0.99
     definition: >-
-      The share of a level's rows that its most frequent row pattern must
-      cover for the level to count as constant in the term.
+      The share of the rows of the levels with at least two rows that must
+      have the most frequent pattern of their level for the factor to count as
+      constant in the term (registry.md, Terms).
     sources:
       - kind: decision
         citation: >-
           02-decisions.md, Q4. A rule that required 99% agreement within
-          clusters recovered the school level in 99.3 to 100% of 2,000
-          replicates with up to 0.5% of rows miscoded.
+          clusters, pooled over the rows of all clusters, recovered the school
+          level in 99.3 to 100% of 2,000 replicates with up to 0.5% of rows
+          miscoded (evidence/decisions/E-verify/scripts/exp2_tolerant.py, rule
+          R2). The same share applied to each cluster separately behaves as
+          the exact rule R1 for clusters of fewer than 100 rows.
 decision:
   rules:
+    - finding: consistent
+      condition: multi_row_levels is 0.
+      statistics: [multi_row_levels]
+      thresholds: []
+      message: no_levels
     - finding: consequential
-      condition: status is between and slope_requested is true.
+      condition: >-
+        status is between, slope_requested is true and varying_levels is 0,
+        so that the term is exactly constant within every level.
+      statistics: [status, slope_requested, varying_levels]
+      thresholds: []
+      message: between_slope
+    - finding: detectable_inconsequential
+      condition: >-
+        status is between and slope_requested is true, the term being constant
+        within the levels only with the tolerance of agreement.
+      statistics: [status, slope_requested]
       thresholds: []
       message: between_slope
     - finding: detectable_inconsequential
       condition: status is partially_within and slope_requested is true.
+      statistics: [status, slope_requested]
       thresholds: []
       message: partial_slope
   otherwise:
     finding: consistent
     message: status
-assessability: []
+assessability:
+  - value: not_assessable
+    reason: prerequisite_unmet
+    prerequisite: level_with_two_rows
+    condition: multi_row_levels is 0.
 messages:
+  no_levels:
+    template: >-
+      No level of '{factor}' has two or more rows, so whether '{term}' varies
+      within its levels cannot be assessed.
+    args:
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
   between_slope:
     template: >-
-      As inferred from the data, '{term}' does not vary within any level of
+      As inferred from the data, '{term}' does not vary within the levels of
       '{factor}', so a by-'{factor}' slope for it can only describe how the
       variance between levels changes with '{term}'. Its variance is not a
-      slope variance and may not be identified. Remove the slope, or keep it only as a model of
-      between-level variance.
+      slope variance and may not be identified. Remove the slope, or keep it
+      only as a model of between-level variance.
     args:
       term: {source: scope, name: term}
       factor: {source: scope, name: factor}
   partial_slope:
     template: >-
       As inferred from the data, '{term}' varies within {varying} of the
-      {levels} levels of '{factor}' that have two or more rows, and in all its
+      {levels} of '{factor}' with two or more rows, and in all its kept
       columns within {informative}, so its by-'{factor}' slope rests on those
       levels alone.
+    fallback: >-
+      As inferred from the data, '{term}' varies within only some of the
+      levels of '{factor}' that have two or more rows, so its by-'{factor}'
+      slope rests on those levels alone.
     args:
       term: {source: scope, name: term}
       factor: {source: scope, name: factor}
       varying: {source: statistic, name: varying_levels}
-      levels: {source: statistic, name: multi_row_levels}
+      levels: {source: statistic, name: multi_row_levels, noun: [level, levels]}
       informative: {source: statistic, name: informative_levels}
   status:
     template: >-
       As inferred from the data, '{term}' is {status} with respect to
-      '{factor}': it varies within {varying} of the {levels} levels that have
-      two or more rows.
+      '{factor}': it varies within {varying} of its {levels} with two or more
+      rows.
+    fallback: >-
+      As inferred from the data, '{term}' is {status} with respect to
+      '{factor}'.
     args:
       term: {source: scope, name: term}
       factor: {source: scope, name: factor}
       status: {source: statistic, name: status}
       varying: {source: statistic, name: varying_levels}
-      levels: {source: statistic, name: multi_row_levels}
+      levels: {source: statistic, name: multi_row_levels, noun: [level, levels]}
 remedies:
   - id: remove_slope
     description: >-

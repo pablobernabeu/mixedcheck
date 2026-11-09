@@ -7,10 +7,9 @@
   vendored into the package.
 
 * The package ships the shared specification: the compiled registry of
-  checks, the error catalogue, the schema bundle, the list of code points that
-  Unicode 14.0 assigns and the conformance corpora, including the table and
-  formula corpora. `spec_versions()` reports registry, schema bundle and
-  canonicaliser version 0.1.0.
+  checks, the error catalogue, the schema bundle and the list of code points
+  that Unicode 14.0 assigns. `spec_versions()` reports registry, schema bundle
+  and canonicaliser version 0.1.0.
 
 * `read_json_strict()` reads JSON in the hashable or data profile or in the
   plain mode and reports the first problem with a code of the shared error
@@ -30,15 +29,14 @@
   digest and version.
 
 * The tests run every case of the JSON, number, Unicode, hash, HMAC,
-  declaration and YAML corpora from the installed package, also with
-  `options(OutDec = ",")`.
+  declaration and YAML corpora, also with `options(OutDec = ",")`.
 
 * `read_table()` reads a CSV file with the strict table reader of the
   [table specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/tables.md),
   under the table block of a declaration or with the types inferred from the
   values, and returns a data frame whose attribute `types` holds the column
   types, or reports the first problem with a code of the table area. The
-  tests run every case of the table corpus from the installed package.
+  tests run every case of the table corpus.
 
 * `formula_ir()` parses an lme4-style formula with the in-house parser and
   builds the canonical IR of the
@@ -55,6 +53,6 @@
   `design_matrices()` refuses the values of the rows. Matrix and methods join
   the Imports, and lme4 joins the Suggests as a test oracle.
 
-* The tests run every case of the formula corpus from the installed package,
-  with the design matrices of the cases that give them, and the design and
-  analysis samples of the table cases with a formula.
+* The tests run every case of the formula corpus, with the design matrices of
+  the cases that give them, and the design and analysis samples of the table
+  cases with a formula.

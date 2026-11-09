@@ -27,7 +27,10 @@ test_that("the exact sum rounds once, as math.fsum() does", {
   # 1,200,000 values span three chunks of the summation (math.fsum() gives
   # 0x1.d4cp+16).
   expect_identical(exact_sum(rep(0.1, 1200000L)), from_hex(0x1d4c, 4))
-  expect_identical(exact_sum(rep(1.7976931348623157e308 / 2^11, 1500L)),
+  # The largest double is taken from .Machine, since R parses a decimal
+  # literal in long double, which on some platforms is a double, so that
+  # 1.7976931348623157e308 can parse as Inf.
+  expect_identical(exact_sum(rep(.Machine$double.xmax / 2^11, 1500L)),
                    from_hex(0x176fffffffffff, 1023 - 52))
 })
 

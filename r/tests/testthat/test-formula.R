@@ -273,7 +273,8 @@ test_that("a part has at most 10,000 columns and a name at most 10,000 character
   data$g <- labels
   issue <- issue_of(formula_ir("y ~ (0 + a:b:c | g)", data = data))
   expect_identical(issue$code, "E6075")
-  expect_match(issue$message, "^The random term '0 \\+ a:b:c \\| g' would have")
+  expect_identical(issue$message,
+                   "The random term '0 + a:b:c | g' would have more than 10000 columns.")
   names <- c("a", "b", "c", "d", "e", "f", "h", "i", "j", "k")
   declaration <- numeric_declaration(names)
   declaration$table$fields <- c(declaration$table$fields, list(list(name = "g", type = "string")))
@@ -308,6 +309,20 @@ test_that("centring constants that are not finite are refused", {
   coding <- list(x = list(centring = "value", value = paste0("1", strrep("0", 309L))))
   expect_identical(issue_of(formula_ir("y ~ x", numeric_declaration("x"), coding = coding))$code,
                    "E6077")
+})
+
+test_that("centring reports every code of one predictor before those of the next", {
+  coding <- list(a = list(centring = "mean"), b = list(centring = "mean"))
+  data <- data.frame(y = c(1, 2), a = c(1.7e308, 1.7e308), b = c(1, NaN))
+  issue <- issue_of(formula_ir("y ~ b + a", data = data, coding = coding))
+  expect_identical(c(issue$code, issue$message),
+                   c("E6077", "A value computed for 'a' is not finite."))
+  # The design sample is empty, so 'b' alone would give E6067.
+  data <- data.frame(y = c(1, 2), a = c(1, 2), b = c(1, NA), s = c(NA, 1))
+  coding$a <- list(centring = "value", value = paste0("1", strrep("0", 309L)))
+  issue <- issue_of(formula_ir("y ~ a + b", data = data, coding = coding, sample_columns = "s"))
+  expect_identical(c(issue$code, issue$message),
+                   c("E6077", "A value computed for 'a' is not finite."))
 })
 
 test_that("integral numbers count as integers in the coding argument", {
@@ -345,6 +360,10 @@ test_that("a run of 4,998 operands of ':', '*' or '/' builds the IR", {
 })
 
 test_that("a sum of about 10,000 characters is expanded in seconds", {
+  # About 1 s, also with a CPU-bound process on every core, and 3.5 s with
+  # four other jobs, each running BLAS on four threads, on four cores. The
+  # bound is seven times the latter, so that a loaded machine does not fail
+  # the test.
   skip_on_cran()
   names <- paste0("x", seq_len(1850L))
   formula <- paste0("y ~ ", paste(names, collapse = "+"))
@@ -356,7 +375,7 @@ test_that("a sum of about 10,000 characters is expanded in seconds", {
     issue <- issue_of(formula_ir(paste0("y ~ (", paste(names[1:1500], collapse = "+"), " | g)")))
   })[["elapsed"]]
   expect_identical(issue$code, "E6051")
-  expect_lt(elapsed, 10)
+  expect_lt(elapsed, 25)
 })
 
 test_that("a key that the coding argument repeats is shown escaped", {

@@ -105,7 +105,8 @@ def expect_matrices(ir: dict[str, Any], data: pd.DataFrame, expected: dict[str, 
         )
     )
     assert got == [(c["term"], c["level"], c["column"]) for c in expected["z_columns"]], label
-    # One stored entry for each row and each column of a random term.
+    # One stored entry for each row and each column of a random term, zero or
+    # not (ir.md, Z).
     widths = [len(term["columns"]) for term in ir["random"]]
     assert z.nnz == len(rows) * sum(widths), label
 
@@ -153,9 +154,9 @@ def test_formula_corpus_with_nullable_dtypes(case):
     run_case(case, "nullable")
 
 
-def test_the_formula_corpus_holds_246_cases_33_with_matrices_7_with_their_issue():
+def test_the_formula_corpus_holds_250_cases_33_with_matrices_9_with_their_issue():
     for name in FORMULA_FILES:
         assert corpus_cases("formulas", name), name
-    assert len(CASES) == 246
+    assert len(CASES) == 250
     assert sum("matrices" in case["expected"] for case in CASES) == 33
-    assert sum({"ir", "issue"} <= set(case["expected"]) for case in CASES) == 7
+    assert sum({"ir", "issue"} <= set(case["expected"]) for case in CASES) == 9

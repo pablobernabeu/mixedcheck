@@ -97,6 +97,15 @@ test_that("the matrices report their problems in the order of ir.md", {
                    log(c(1, 3)))
 })
 
+test_that("E6071 for an offset and E6072 apply to rows whose response is missing", {
+  data <- data.frame(y = c(1, NA, 3), x = c(1, 2, 3), e = c(1, 0, 2), w = c(1, 0, 1))
+  ir <- formula_ir("y ~ x + offset(log(e))", data = data)
+  expect_identical(design_samples(ir, data)$analysis_sample, c(1L, 3L))
+  expect_identical(issue_code(design_matrices(ir, data)), "E6071")
+  ir <- formula_ir("y ~ x", data = data, weights = "w")
+  expect_identical(issue_code(design_matrices(ir, data)), "E6072")
+})
+
 test_that("Z stores one entry for each row and column of a term, zero or not", {
   data <- data.frame(y = 1:6, x = c(0, 1, 2, 0, 1, 2), g = c(2, 10, 1.5, 2, 10, 1.5),
                      h = c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE))
@@ -109,6 +118,21 @@ test_that("Z stores one entry for each row and column of a term, zero or not", {
                    c("1.5:false", "1.5:true", "2:false", "2:true", "10:false", "10:true"))
   expect_identical(m$z_columns$term, c(rep(1L, 6L), rep(2L, 6L)))
   expect_identical(as.matrix(m$z)[1L, ], c(0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0))
+})
+
+test_that("a random slope of 0 keeps its stored entry in Z", {
+  # The slope of level 'a' is 0 in both of its rows and that of level 'b' in
+  # its first row. Z is built from its slots, so that this holds whatever
+  # Matrix version is installed.
+  data <- data.frame(y = c(1, 2, 3, 4), x = c(0, 0, 0, 3), g = c("a", "a", "b", "b"))
+  z <- design_matrices(formula_ir("y ~ x + (1 + x | g)", data = data), data)$z
+  expect_s4_class(z, "dgCMatrix")
+  expect_no_error(methods::validObject(z))
+  expect_identical(length(z@x), nrow(z) * 2L)
+  expect_identical(z@p, c(0L, 2L, 4L, 6L, 8L))
+  expect_identical(z@i, c(0L, 1L, 0L, 1L, 2L, 3L, 2L, 3L))
+  expect_identical(z@x, c(1, 1, 0, 0, 1, 1, 0, 3))
+  expect_identical(z@Dimnames, list(NULL, NULL))
 })
 
 test_that("a level outside the IR's levels and a missing column are refused", {
@@ -244,21 +268,31 @@ test_that("columns far from 1 in size are kept or dropped by their direction alo
 })
 
 test_that("the sequential rule gives the same columns after the reduction by QR", {
+  # The same columns as in the Python package's test. Of the 13 columns, 12
+  # are not all 0, so that the columns are reduced by QR on more than 24 rows
+  # and used as they are on 24 rows or fewer.
   rule <- mixedcheck:::sequential_rule
-  set.seed(20261109)
-  n <- 200L
-  a <- rnorm(n)
-  b <- rnorm(n)
-  f <- sample(c("A", "B", "C"), n, replace = TRUE)
+  index <- seq_len(200L)
+  a <- sin(index)
+  b <- cos(3 * index)
+  f <- c("A", "B", "C")[index %% 3L + 1L]
+  sign <- c(1, -1)
   x <- cbind(1, a, 0, b, a + 2 * b, f == "A", f == "B", f == "C", (f == "C") * 1e-12,
-             a * (f == "A"), 3 * a - 1, b + c(1, -1) * 1e-6, b + c(1, -1) * 1e-9)
+             a * (f == "A"), 3 * a - 1, b + sign * 1e-6, b + sign * 1e-9)
   expected <- c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, TRUE,
                 FALSE)
   expect_identical(rule(x), expected)
-  # With no more than twice as many rows as columns, the columns are not
-  # reduced.
-  expect_identical(rule(x[1:26, ]), expected)
-  expect_identical(rule(x[1:26, c(1, 2, 5, 4)]), c(TRUE, TRUE, TRUE, FALSE))
+  expect_identical(rule(x[1:25, ]), expected)
+  expect_identical(rule(x[1:24, ]), expected)
+  expect_identical(rule(x[, c(1, 2, 5, 4)]), c(TRUE, TRUE, TRUE, FALSE))
+  # Relative residuals of 2e-7 and 5e-8 against the columns 1 and a, on 200
+  # rows, which are reduced.
+  e <- rep(sign, 100L)
+  e <- e - drop(cbind(1, a) %*% qr.solve(cbind(1, a), e))
+  e <- e / sqrt(sum(e * e))
+  w <- a / sqrt(sum(a * a))
+  expect_identical(rule(cbind(1, a, w + 2e-7 * e)), c(TRUE, TRUE, TRUE))
+  expect_identical(rule(cbind(1, a, w + 5e-8 * e)), c(TRUE, TRUE, FALSE))
 })
 
 test_that("a level of the IR outside its predictor's levels is refused", {
@@ -283,8 +317,12 @@ test_that("a level of the IR outside its predictor's levels is refused", {
 })
 
 test_that("a factor of 300 levels on 30,000 rows gives its matrices in seconds", {
-  # About 4 s, and 12 s on 100,000 rows, where projecting every column onto
-  # a basis of n rows took 70 s. The bound is loose, so that a slow machine
+  # About 3 s, and 12 s on 100,000 rows, almost all of it in the QR of the
+  # sequential rule, where projecting every column onto a basis of n rows
+  # took 70 s. The reference BLAS of R shares the cores with every thread of
+  # other jobs, so the test takes about 4 s with a CPU-bound process on every
+  # core and 17 s with four other jobs, each running BLAS on four threads, on
+  # four cores. The bound is seven times the latter, so that a loaded machine
   # does not fail the test.
   skip_on_cran()
   n <- 30000L
@@ -295,5 +333,5 @@ test_that("a factor of 300 levels on 30,000 rows gives its matrices in seconds",
   })[["elapsed"]]
   expect_identical(dim(m$x), c(n, 301L))
   expect_identical(m$x_dropped, character(0))
-  expect_lt(elapsed, 30)
+  expect_lt(elapsed, 120)
 })

@@ -588,6 +588,62 @@
         "ir_hash": "sha256:b2a7d466ac96afbb40fa5f4020d6128104dba2a8ce32f227ffc57add88f23336",
         "issue": {"code": "E6071", "message": "log() of the column 'e' meets a value that is not positive."}
       }
+    },
+    {
+      "id": "offsets-23",
+      "description": "Same IR as offsets-19: the row with the offset 0 has no response but is in the design sample, to which E6071 for an offset applies.",
+      "formula": "y ~ x + offset(log(e))",
+      "data": {"y": [1, null, 3], "x": [1, 2, 3], "e": [1, 0, 2]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:a6cd2861098e853c4d78ec738d29e42bd1e0bb512929e447d4ff7e0c33d0fedb",
+        "issue": {"code": "E6071", "message": "log() of the column 'e' meets a value that is not positive."}
+      }
+    },
+    {
+      "id": "offsets-24",
+      "description": "Same IR as offsets-21: the row with the weight 0 has no response but is in the design sample, to which E6072 applies.",
+      "formula": "y ~ x",
+      "data": {"y": [1, null, 3], "x": [1, 2, 3], "w": [1, 0, 2]},
+      "weights": "w",
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"},
+          "weights": {"variable": "w"}
+        },
+        "ir_hash": "sha256:d44a4d0d9ee274add02d2a19a18e62982f688c82b1654a049a6d6fbdcdee6344",
+        "issue": {"code": "E6072", "message": "The weights column 'w' has a value that is not positive."}
+      }
     }
   ]
 }

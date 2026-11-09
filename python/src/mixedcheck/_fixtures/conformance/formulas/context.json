@@ -799,6 +799,32 @@
           "message": "The column 'n' holds NaN or an infinity in a row that the model uses."
         }
       }
+    },
+    {
+      "id": "context-45",
+      "description": "E6077 for 'a' comes before E6073 for 'b', since centring reports every code of one predictor, in code-point order, before those of the next.",
+      "formula": "y ~ b + a",
+      "data": {"y": [1, 2], "a": [1.7e+308, 1.7e+308], "b": [1, "NaN"]},
+      "coding": {"a": {"centring": "mean"}, "b": {"centring": "mean"}},
+      "expected": {"issue": {"code": "E6077", "message": "A value computed for 'a' is not finite."}}
+    },
+    {
+      "id": "context-46",
+      "description": "The random term '0 + a:b:c | g' of three factors of 22 levels, coded by indicators, would have 10,648 columns.",
+      "formula": "y ~ (0 + a:b:c | g)",
+      "data": {
+        "y": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "a": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "b": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "c": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "g": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6075",
+          "message": "The random term '0 + a:b:c | g' would have more than 10000 columns."
+        }
+      }
     }
   ]
 }

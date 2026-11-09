@@ -166,7 +166,67 @@ schema_issues <- function(value, schema, bundle = schema_bundle()) {
 }
 
 schema_valid <- function(bundle, value, node) {
+  simple <- simple_schema_valid(value, node$schema)
+  if (!is.na(simple)) {
+    return(simple)
+  }
   length(validate_schema_node(bundle, value, node, "")) == 0L
+}
+
+# The keywords of the schemas that simple_schema_valid() decides.
+simple_keywords <- c("type", "enum", "const", "not", "required", "properties", "title",
+                     "description")
+
+# Whether a value is valid against a schema built only of the keywords type,
+# enum, const, not, required and properties, decided as the validator decides
+# it but without collecting issues, or NA for a schema with other keywords.
+# The conditions of if in the results schema have this form, and the
+# validator evaluates many of them.
+simple_schema_valid <- function(value, schema) {
+  if (isTRUE(schema)) {
+    return(TRUE)
+  }
+  if (isFALSE(schema)) {
+    return(FALSE)
+  }
+  if (!is.list(schema) || !all(names(schema) %in% simple_keywords)) {
+    return(NA)
+  }
+  types <- schema[["type"]]
+  if (!is.null(types) &&
+      !any(vapply(unlist(types), function(type) has_json_type(value, type), NA))) {
+    return(FALSE)
+  }
+  if (!is.null(schema[["enum"]]) &&
+      !any(vapply(schema[["enum"]], function(item) json_equal(value, item), NA))) {
+    return(FALSE)
+  }
+  if ("const" %in% names(schema) && !json_equal(value, schema[["const"]])) {
+    return(FALSE)
+  }
+  known <- TRUE
+  if (json_kind(value) == "object") {
+    keys <- names(value)
+    if (!all(unlist(schema[["required"]]) %in% keys)) {
+      return(FALSE)
+    }
+    properties <- schema[["properties"]]
+    for (i in which(keys %in% names(properties))) {
+      valid <- simple_schema_valid(value[[i]], properties[[keys[i]]])
+      if (isFALSE(valid)) {
+        return(FALSE)
+      }
+      known <- known && !is.na(valid)
+    }
+  }
+  if (!is.null(schema[["not"]])) {
+    valid <- simple_schema_valid(value, schema[["not"]])
+    if (isTRUE(valid)) {
+      return(FALSE)
+    }
+    known <- known && !is.na(valid)
+  }
+  if (known) TRUE else NA
 }
 
 # The pointer of a member or item: its token escaped and appended.
@@ -205,7 +265,10 @@ unconditional_types <- function(bundle, value, node) {
   found
 }
 
-validate_schema_node <- function(bundle, value, node, pointer) {
+# typed is TRUE for a node that apply_schema() reaches through $ref, allOf or
+# the branch of if: its unconditional types are among those of the node that
+# reached it, which the value already has, so they are not checked again.
+validate_schema_node <- function(bundle, value, node, pointer, typed = FALSE) {
   schema <- node$schema
   if (isTRUE(schema)) {
     return(list())
@@ -213,7 +276,7 @@ validate_schema_node <- function(bundle, value, node, pointer) {
   if (isFALSE(schema)) {
     return(list(raw_issue("E1423", pointer)))
   }
-  for (types in unconditional_types(bundle, value, node)) {
+  for (types in if (typed) list() else unconditional_types(bundle, value, node)) {
     if (!any(vapply(types, function(type) has_json_type(value, type), NA))) {
       return(list(raw_issue("E1401", pointer, list(expected = types, found = json_kind(value)))))
     }
@@ -242,18 +305,19 @@ apply_schema <- function(bundle, value, node, pointer) {
   if (!is.null(ref)) {
     target <- resolve_reference(bundle, ref, base)
     if (!target$ref %in% profile_definitions) {
-      issues <- c(issues, validate_schema_node(bundle, value, target, pointer))
+      issues <- c(issues, validate_schema_node(bundle, value, target, pointer, typed = TRUE))
       issues <- c(issues, definition_issues(bundle, value, target, pointer))
     }
   }
   for (sub in schema[["allOf"]]) {
-    issues <- c(issues, validate_schema_node(bundle, value, schema_node(sub, base), pointer))
+    issues <- c(issues, validate_schema_node(bundle, value, schema_node(sub, base), pointer,
+                                             typed = TRUE))
   }
   if (!is.null(schema[["if"]])) {
     branch <- if (schema_valid(bundle, value, schema_node(schema[["if"]], base))) "then" else "else"
     if (!is.null(schema[[branch]])) {
       issues <- c(issues, validate_schema_node(bundle, value, schema_node(schema[[branch]], base),
-                                               pointer))
+                                               pointer, typed = TRUE))
     }
   }
   if (!is.null(schema[["enum"]]) &&

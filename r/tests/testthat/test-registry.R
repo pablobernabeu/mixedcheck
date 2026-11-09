@@ -182,3 +182,159 @@ test_that("the rules on one entry find each kind of problem", {
     paste0("E4011 ", prefix, "/thresholds/moderate")
   ))
 })
+
+test_that("the members that M2 added name what exists, of the kind required", {
+  registry <- read_registry()
+  i <- entry_index(registry, "structure.id_scope_evidence")
+  prefix <- sprintf("/entries/%d", i - 1L)
+  check <- function(document, expected) {
+    expect_identical(codes_and_pointers(registry_issues(document)), paste0("E", expected))
+  }
+  # The statistics that a rule reads, the resolution of by_unit counts,
+  # quantiles, suppression with other statistics and parts of a total
+  # (E4004 and E4024).
+  document <- registry
+  statistics <- document$entries[[i]]$statistics
+  document$entries[[i]]$decision$rules[[1L]]$statistics <- list("attributes", "absent")
+  statistics$shared_labels$resolved_by <- list(
+    list(name = "factor", source = "scope"),
+    list(name = "changing_labels", source = "statistic")
+  )
+  statistics$changing_labels$resolved_by <- list(list(name = "absent", source = "statistic"))
+  statistics$changing_labels$quantile <- list(n = "changing_attribute", p = "0.5")
+  statistics$shared_labels$quantile <- list(n = "absent", p = "0.5")
+  statistics$changing_share$suppress_with <- list("absent")
+  statistics$changing_labels$part_of <- "absent"
+  statistics$shared_labels$part_of <- "changing_attribute"
+  document$entries[[i]]$statistics <- statistics
+  check(document, paste0(c("4004 ", "4004 ", "4024 ", "4004 ", "4004 ", "4024 ", "4004 ",
+                           "4004 ", "4024 "), prefix, c(
+    "/decision/rules/0/statistics/1",
+    "/statistics/changing_labels/part_of",
+    "/statistics/changing_labels/quantile/n",
+    "/statistics/changing_labels/resolved_by/0/name",
+    "/statistics/changing_share/suppress_with/0",
+    "/statistics/shared_labels/part_of",
+    "/statistics/shared_labels/quantile/n",
+    "/statistics/shared_labels/resolved_by/0/name",
+    "/statistics/shared_labels/resolved_by/1/name"
+  )))
+
+  # A part of a total of another count class (E4024), beside the ratio of
+  # the two (E4021), and a noun for an argument that does not show a count
+  # (E4024).
+  document <- registry
+  document$entries[[i]]$statistics$shared_labels$count_class <- "person"
+  document$entries[[i]]$messages$no_change$args$attributes$noun <- list("attribute", "attributes")
+  check(document, paste0(c("4024 ", "4024 ", "4021 "), prefix, c(
+    "/messages/no_change/args/attributes/noun",
+    "/statistics/changing_labels/part_of",
+    "/statistics/changing_share"
+  )))
+})
+
+test_that("a message that renders an unwritten statistic has a fallback (E4023)", {
+  registry <- read_registry()
+  i <- entry_index(registry, "structure.id_scope_evidence")
+  prefix <- sprintf("/entries/%d", i - 1L)
+  document <- registry
+  messages <- document$entries[[i]]$messages
+  messages$some_change$fallback <- NULL
+  messages$no_change$fallback <- "None of the {shared} labels changes. {nope} }"
+  messages$no_attribute$fallback <- "No column of {labels_column} is constant."
+  document$entries[[i]]$messages <- messages
+  expect_identical(codes_and_pointers(registry_issues(document)), paste0(
+    c("E4023 ", "E4007 ", "E4009 ", "E4023 "), prefix,
+    c("/messages/no_change", "/messages/no_change/fallback", "/messages/no_change/fallback",
+      "/messages/some_change")
+  ))
+
+  # A count of class non_person can be rendered without a fallback, whereas
+  # one that is internal_only or suppressed with another cannot.
+  j <- entry_index(registry, "outcome.constant_clusters")
+  document <- registry
+  multi <- document$entries[[j]]$statistics$multi_row_levels
+  expect_false(statistic_can_be_unwritten(list(kind = "count", count_class = "non_person")))
+  expect_true(statistic_can_be_unwritten(list(kind = "count", count_class = "by_unit")))
+  expect_true(statistic_can_be_unwritten(list(kind = "names", internal_only = TRUE)))
+  expect_true(statistic_can_be_unwritten(list(kind = "names", suppress_with = list("x"))))
+  expect_false(statistic_can_be_unwritten(list(kind = "category", values = list("a", "b"))))
+  expect_identical(multi$count_class, "by_unit")
+})
+
+test_that("the parameter agreement has one value in every entry that has it (E4022)", {
+  registry <- read_registry()
+  holders <- which(vapply(registry$entries, function(entry) {
+    !is.null(entry$parameters$agreement)
+  }, NA))
+  expect_gt(length(holders), 1L)
+  document <- registry
+  document$entries[[holders[2L]]]$parameters$agreement$value <- "0.95"
+  first <- registry$entries[[holders[1L]]]$parameters$agreement$value
+  pointer <- sprintf("/entries/%d/parameters/agreement/value", holders[2L] - 1L)
+  expect_identical(registry_issues(document), list(list(
+    code = "E4022",
+    message = sprintf(paste("The parameter at %s must have the value '%s' that other entries",
+                            "give the parameter of the same name."), pointer, first),
+    pointer = pointer
+  )))
+})
+
+test_that("the schema checks the members that no rule in code covers", {
+  registry <- read_registry()
+  schema_codes <- function(document) {
+    codes_and_pointers(finish_issues(schema_issues(document, "urn:mixedcheck:schema:registry")))
+  }
+  i <- entry_index(registry, "outcome.separation")
+  j <- entry_index(registry, "structure.cluster_sizes")
+  k <- entry_index(registry, "outcome.minority_events")
+  document <- registry
+  # proximity_factor is a decimal above 1, internal_only a boolean, measures
+  # one of its values and only for counts, and the scope one of the scopes.
+  document$entries[[i]]$parameters$separation_tolerance$proximity_factor <- "1"
+  document$entries[[i]]$statistics$margin$internal_only <- "yes"
+  document$entries[[j]]$statistics$rows$measures <- "rows"
+  document$entries[[j]]$statistics$effective_size$measures <- "design_rows"
+  document$entries[[k]]$scope <- "grouping_factor_or_models"
+  found <- schema_codes(document)
+  prefix <- function(index) sprintf("/entries/%d", index - 1L)
+  expect_true(all(c(
+    paste0("E1406 ", prefix(i), "/parameters/separation_tolerance/proximity_factor"),
+    paste0("E1401 ", prefix(i), "/statistics/margin/internal_only"),
+    paste0("E1405 ", prefix(j), "/statistics/rows/measures"),
+    paste0("E1404 ", prefix(j), "/statistics/effective_size"),
+    paste0("E1405 ", prefix(k), "/scope")
+  ) %in% found))
+})
+
+test_that("internal_only and suppress_with make a statistic unwritten", {
+  registry <- read_registry()
+  i <- entry_index(registry, "outcome.separation")
+  prefix <- sprintf("/entries/%d", i - 1L)
+  # A list of names can be rendered without a fallback unless it is
+  # internal_only or suppressed with another statistic (E4023).
+  document <- registry
+  document$entries[[i]]$messages$none <- list(
+    args = list(columns = list(name = "columns_involved", source = "statistic")),
+    template = "The fixed effects do not separate the events, through {columns}."
+  )
+  expect_identical(codes_and_pointers(registry_issues(document)),
+                   paste0("E4023 ", prefix, "/messages/none"))
+  document$entries[[i]]$statistics$columns_involved$internal_only <- NULL
+  expect_identical(registry_issues(document), list())
+  document$entries[[i]]$statistics$columns_involved$suppress_with <- list("events")
+  expect_identical(codes_and_pointers(registry_issues(document)),
+                   paste0("E4023 ", prefix, "/messages/none"))
+})
+
+test_that("the scope grouping_factor_or_model has the part factor and no other", {
+  registry <- read_registry()
+  j <- entry_index(registry, "outcome.zero_shares")
+  document <- registry
+  expect_identical(document$entries[[j]]$scope, "grouping_factor_or_model")
+  document$entries[[j]]$messages$zeros$args$factor$name <- "term"
+  document$entries[[j]]$statistics$levels$resolved_by[[1L]] <- list(name = "unit", source = "scope")
+  expect_identical(codes_and_pointers(registry_issues(document)), paste0("E4004 ", sprintf(
+    "/entries/%d", j - 1L
+  ), c("/messages/zeros/args/factor/name", "/statistics/levels/resolved_by/0/name")))
+})

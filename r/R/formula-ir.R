@@ -286,20 +286,7 @@ model_column <- function(x, name, field) {
 # --- The builder ----------------------------------------------------------------
 
 build_formula_ir <- function(formula, declaration, table, coding, weights, sample_columns) {
-  # Stage 1: length.
-  text <- formula_text(formula)
-  if (length(text$codepoints) > 10000L) {
-    raise_issue("E6001")
-  }
-  # Stage 2: tokens.
-  tokens <- formula_tokens(text)
-  if (!any(vapply(tokens, function(token) token$type == "op" && token$text == "~", NA))) {
-    raise_issue("E6008")
-  }
-  # Stage 3: syntax.
-  tree <- formula_parse(tokens, text$bytes)
-  # Stage 4: structure.
-  raise_found(formula_structure_issue(tree))
+  tree <- formula_tree(formula)
   # Stage 5: expansion.
   model <- formula_expand(tree)
   raise_found(model$issue)
@@ -311,6 +298,41 @@ build_formula_ir <- function(formula, declaration, table, coding, weights, sampl
     raise_issue("E6076", list(name = long))
   }
   ir
+}
+
+# The name node of the response of a parsed formula that has passed the
+# structural rules, with its transform, or NULL for a one-sided formula.
+formula_response_node <- function(tree) {
+  if (is.null(tree$lhs)) {
+    return(NULL)
+  }
+  log_call <- formula_sole_call(tree$lhs, "log")
+  node <- if (is.null(log_call)) tree$lhs$summands[[1L]]$expr else
+    log_call$args[[1L]]$lhs$summands[[1L]]$expr
+  list(node = node, transform = if (is.null(log_call)) "identity" else "log")
+}
+
+# The parsed formula after the first four stages of the builder, which need
+# no data: length, tokens, syntax and structure. The issue of the first stage
+# that fails is signalled.
+formula_tree <- function(formula) {
+  text <- formula_text(formula)
+  if (length(text$codepoints) > 10000L) {
+    raise_issue("E6001")
+  }
+  tokens <- formula_tokens(text)
+  if (!any(vapply(tokens, function(token) token$type == "op" && token$text == "~", NA))) {
+    raise_issue("E6008")
+  }
+  tree <- formula_parse(tokens, text$bytes)
+  raise_found(formula_structure_issue(tree))
+  tree
+}
+
+# The response of a formula, as the key by which the IR names its column, or
+# NULL for a one-sided formula.
+formula_response_key <- function(formula) {
+  formula_response_node(formula_tree(formula))$node$key
 }
 
 # The first name of an IR, in the order of its canonical serialisation, that
@@ -535,15 +557,12 @@ formula_expand <- function(tree) {
                                          use = kind, written = written, double = double)
     }
   }
-  response <- NULL
-  if (!is.null(tree$lhs)) {
-    log_call <- formula_sole_call(tree$lhs, "log")
-    node <- if (is.null(log_call)) tree$lhs$summands[[1L]]$expr else
-      log_call$args[[1L]]$lhs$summands[[1L]]$expr
-    transform <- if (is.null(log_call)) "identity" else "log"
-    response <- list(key = node$key, value = node$value, transform = transform,
-                     offset = node$start, start = tree$lhs$start)
-    use(list(node), if (is.null(log_call)) "response" else "log_response")
+  response <- formula_response_node(tree)
+  if (!is.null(response)) {
+    use(list(response$node), if (response$transform == "identity") "response" else "log_response")
+    response <- list(key = response$node$key, value = response$node$value,
+                     transform = response$transform, offset = response$node$start,
+                     start = tree$lhs$start)
   }
   summands <- tree$rhs$summands
   kinds <- vapply(summands, function(summand) {

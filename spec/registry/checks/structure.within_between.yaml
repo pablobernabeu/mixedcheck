@@ -75,9 +75,10 @@ statistics:
       sum of squared differences from the level means and n0 as
       structure.cluster_sizes defines it. The overall and level means are
       summed exactly and divided once, as ir.md (Centring) computes means. It
-      is absent for other terms, when the column is constant over the design
-      sample, compared by value, when J is 1, when N equals J or when the
-      denominator is 0.
+      is absent for other terms and when the column is constant over the
+      design sample, compared by value, and 'NaN' when J is 1, when N equals
+      J or when the denominator is 0, so that its absence depends on no
+      count of levels or rows (privacy.md, Steps).
   within_share:
     kind: real
     definition: >-

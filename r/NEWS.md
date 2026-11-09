@@ -56,3 +56,45 @@
 * The tests run every case of the formula corpus, with the design matrices of
   the cases that give them, and the design and analysis samples of the table
   cases with a formula.
+
+* `validate_results()` validates a results document in the five stages of the
+  [results specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/documents.md)
+  and, with its internal sidecar, checks the sidecar and verifies the results
+  file hash, the commitment keys and, from the data of the run, the
+  commitments to the data file, the analysis table and the outcome columns.
+  `write_results()` writes a results document as its canonical bytes and its
+  internal sidecar, under file names that show the privacy mode. The tests run
+  every case of the results corpus.
+
+* The tests of the vendored registry apply the rules on registry entries that
+  M2 added, among them E4022 to E4024.
+
+* `audit()` runs the 24 checks of the
+  [registry](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/registry.md)
+  on the design of a model and returns a results object, in the steps of the
+  [execution plan](https://github.com/pablobernabeu/lmecheck/blob/main/docs/design/03-execution-plan.md)
+  (M2): the arguments, the declaration, the data, the IR, the family class,
+  the samples, the checks, the privacy filter, the access log with keyed
+  commitments to the outcome columns read and the inputs. It refuses a run
+  with E5011, E6069, E7007, E7008 or E7009, and the environment variable
+  MIXEDCHECK_TIME fixes its times. Among the checks are the identifiability
+  of the covariance parameters from the rank of their Gram matrix, the
+  connected components of two crossed grouping factors, the generalised
+  variance inflation factor of each main-effect term and the design degrees
+  of freedom of an assignment. outcome.separation solves its linear programs
+  with lpSolve, which joins the Suggests, and is not available without it.
+
+* In shareable mode, the default of `audit()`, the privacy filter of the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  writes as null the values that could disclose a person's data, suppresses
+  a finding of an outcome check that rests on such a value, renders messages
+  from the written values and replaces labels with pseudonyms, which the
+  sidecar maps back to them. The tests run every case of the audit corpus,
+  those of the privacy filter in both modes, and validate every document.
+
+* `design_matrices()` refuses events or trials of a response with a trials
+  column that are not integers with 0 <= events <= trials (E6078).
+
+* Where /dev/urandom does not exist, as on Windows, `new_commitment_key()`
+  creates a key with `openssl::rand_bytes()` when openssl is installed, so
+  that E1312 arises only without it. openssl joins the Suggests.

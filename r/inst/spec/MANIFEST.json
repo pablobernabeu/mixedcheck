@@ -2,7 +2,7 @@
   "source": "spec",
   "algorithm": "sha256",
   "files": {
-    "compiled/registry.json": "e34cc60686731bd7dbd0263fdf84d8cfdb64747ed7282262013665abee09c074",
+    "compiled/registry.json": "67d4734a7384af4163a78d76bdf88d1c6a6922a8a5aa4ec6b625ac934bfffd5a",
     "errors.json": "f9e45bd199413b9275c59a9c7edc2f76ff873a39208753c1d901af5c5f8b9c14",
     "schemas/declaration.schema.json": "846360eebabc9a87724858b23face8993b317dbeabddc52f26bd945a27181549",
     "schemas/defs.schema.json": "924bee1736306e8feeedcf4b3fd84f5757d26ccceca80f44f65c814f9cfd7e5a",

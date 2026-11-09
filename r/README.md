@@ -8,8 +8,9 @@ of the same name. Each component is built in R first.
 The package is in development and has not been released. So far it provides
 `spec_versions()`, which returns the versions of the shared specification
 installed with the package, the layer that every reader and writer of the
-package builds on and the data layer of the audits, which reads tables and
-builds the canonical model and its design matrices:
+package builds on, the data layer of the audits, which reads tables and
+builds the canonical model and its design matrices, the entry point of the
+audits and the validator and writer of results documents:
 
 - `read_json_strict()` reads JSON in the hashable or data profile and reports
   the first problem with a stable code.
@@ -31,13 +32,21 @@ builds the canonical model and its design matrices:
   `design_matrices()` builds its design and analysis samples, X, the sparse
   Z and the response, trials, offset and weight vectors. `design_samples()`
   returns the two samples alone.
+- `audit()` runs the checks of the registry on the design of a model and
+  returns a results object with an access log of every access to the
+  outcome. In shareable mode, the default, the privacy filter suppresses
+  the values that could disclose a person's data.
+- `validate_results()` validates a results document and verifies its internal
+  sidecar against it, and `write_results()` writes a results document and its
+  sidecar.
 
-The functions have the same names and arguments as in the Python package.
+The functions that both packages provide have the same names and arguments.
 `design_matrices()` and `design_samples()` number rows, and
 `design_matrices()` random terms, from 1 in R and from 0 in Python, whereas
 indices inside the IR count from 0 in both, and a missing value is `NA` in R
 and `None` in Python. The tests run every case of the JSON, number, Unicode,
-hash, HMAC, declaration, YAML, table and formula corpora. The
+hash, HMAC, declaration, YAML, table, formula, results and audit corpora,
+the cases of the privacy filter in both modes. The
 [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
 of the repository checks that both packages agree on every case of the
 corpora.
@@ -56,6 +65,7 @@ data <- read_table(path)
 ir <- formula_ir("rt ~ cond", data = data)
 canonical_hash(ir, "hashable")
 design_matrices(ir, data)$x
+audit(data, "rt ~ cond")
 ```
 
 It needs R 4.2.0 or later. To install it from a clone of the repository:

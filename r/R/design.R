@@ -68,9 +68,11 @@
 #'   double, E6071 for the logarithm of a value that is not
 #'   positive in an offset, in IR order, E6072 for a weight that is not
 #'   positive, E6073 for NaN or an infinity in the response and then the
-#'   trials column in a row of the analysis sample and E6071 for a response
-#'   written with log(). An IR that is not valid gives the codes of the
-#'   schema area. Data that do not hold the columns or levels of the IR, and
+#'   trials column in a row of the analysis sample, E6078 for events or
+#'   trials of a response with a trials column that are not integers with
+#'   0 <= events <= trials and E6071 for a response written with log(). An
+#'   IR that is not valid gives the codes of the schema area. Data that do
+#'   not hold the columns or levels of the IR, and
 #'   an IR whose columns or reference levels name a level that is not among
 #'   the levels of their predictor, give an ordinary error.
 #' @seealso [formula_ir()], [design_samples()].
@@ -93,8 +95,29 @@ design_matrices <- function(ir, data) {
   ir <- ir_input(ir)
   table <- model_table(data, NULL)
   model <- design_model(ir, table)
+  built <- design_build(ir, model, table)
+  vectors <- design_response(ir, model, table, model$analysis)
+  list(
+    design_sample = model$design,
+    analysis_sample = model$analysis,
+    x = built$x,
+    x_columns = built$x_columns,
+    x_dropped = built$x_columns[!built$kept],
+    z = built$z,
+    z_columns = built$z_columns,
+    response = vectors$response,
+    trials = vectors$trials,
+    offset = built$offset,
+    weights = built$weights
+  )
+}
+
+# X, Z, the offset and the weights of the design sample of a model, with the
+# columns that the sequential rule keeps, reporting E6073 for a column of the
+# design sample, E6077, E6071 for an offset and E6072 in the order of ir.md
+# (Errors). The response is not read, so that audit() can build them at T0.
+design_build <- function(ir, model, table) {
   design <- model$design
-  analysis <- model$analysis
   # E6073 in the design sample, by column in code-point order.
   checked <- unique(c(
     names(Filter(function(p) p$kind == "numeric", model$predictors)),
@@ -142,20 +165,8 @@ design_matrices <- function(ir, data) {
       raise_issue("E6072", list(column = model$weights))
     }
   }
-  vectors <- design_response(ir, model, table, analysis)
-  list(
-    design_sample = design,
-    analysis_sample = analysis,
-    x = x,
-    x_columns = fixed_names,
-    x_dropped = fixed_names[!kept],
-    z = z$matrix,
-    z_columns = z$columns,
-    response = vectors$response,
-    trials = vectors$trials,
-    offset = offset,
-    weights = weights
-  )
+  list(x = x, x_columns = fixed_names, kept = kept, z = z$matrix, z_columns = z$columns,
+       offset = offset, weights = weights)
 }
 
 #' The design and analysis samples of an IR
@@ -221,7 +232,9 @@ ir_input <- function(ir) {
 
 # What the matrices need from an IR and the data: the column of each key,
 # the predictors, the random terms, the offsets, the weights and the samples.
-design_model <- function(ir, table) {
+# The analysis sample, which reads the response, is left out when analysis is
+# FALSE, as audit() leaves it out at T0.
+design_model <- function(ir, table, analysis = TRUE) {
   column <- function(key) {
     j <- match(key, table$keys)
     if (is.na(j)) {
@@ -260,6 +273,15 @@ design_model <- function(ir, table) {
     }
   }
   design <- design_rows(table, read)
+  list(column = column, predictors = predictors, random = random, offsets = offsets,
+       weights = weights, design = design,
+       analysis = if (analysis) analysis_rows(ir, table, design, column))
+}
+
+# The analysis sample (ir.md, Samples): the rows of the design sample whose
+# response, and trials column if any, are present, with trials above 0 or not
+# finite.
+analysis_rows <- function(ir, table, design, column) {
   analysis <- design
   if (!is.null(ir$response)) {
     j <- column(ir$response$variable)
@@ -270,8 +292,7 @@ design_model <- function(ir, table) {
       analysis <- analysis[!table$missing[[t]][analysis] & !(is.finite(trials) & trials <= 0)]
     }
   }
-  list(column = column, predictors = predictors, random = random, offsets = offsets,
-       weights = weights, design = design, analysis = analysis)
+  analysis
 }
 
 # The rows of the table, counted from 1, in which no column of the given keys
@@ -492,6 +513,13 @@ design_response <- function(ir, model, table, analysis) {
     if (any(!is.finite(trials))) {
       raise_issue("E6073", list(column = response$trials))
     }
+    # E6078: the events and trials of every row must be integers with
+    # 0 <= events <= trials. Events that are not numbers fail in the first row.
+    counts <- !length(v) || (table$types[j] == "number" &&
+                               all(v == floor(v) & trials == floor(trials) & v >= 0 & v <= trials))
+    if (!counts) {
+      raise_issue("E6078", list(column = response$variable))
+    }
   }
   if (!is.null(response$event_level)) {
     event <- response$event_level
@@ -547,11 +575,21 @@ design_response <- function(ir, model, table, analysis) {
 # same values, so that they differ only in the rounding of their BLAS and
 # LAPACK. Returns whether each column is kept.
 sequential_rule <- function(x, tolerance = 1e-7) {
+  sequential_residuals(x, tolerance)$kept
+}
+
+# The sequential rule with the norms it computes: kept, whether each column
+# is kept, and residual, the norm of the residual of each scaled column after
+# projection onto the columns kept before it, 0 for a column whose values are
+# all 0. design.collinearity takes the residuals of its columns from here, so
+# that they are computed as the rule computes them.
+sequential_residuals <- function(x, tolerance = 1e-7) {
   n <- nrow(x)
   p <- ncol(x)
   kept <- logical(p)
+  residual <- numeric(p)
   if (!n || !p) {
-    return(kept)
+    return(list(kept = kept, residual = residual))
   }
   largest <- numeric(p)
   v <- vapply(seq_len(p), function(j) {
@@ -562,7 +600,7 @@ sequential_rule <- function(x, tolerance = 1e-7) {
   dim(v) <- c(n, p)
   candidates <- which(largest > 0)
   if (!length(candidates)) {
-    return(kept)
+    return(list(kept = kept, residual = residual))
   }
   if (length(candidates) < p) {
     v <- v[, candidates, drop = FALSE]
@@ -582,12 +620,13 @@ sequential_rule <- function(x, tolerance = 1e-7) {
       }
     }
     norm_r <- sqrt(drop(crossprod(r)))
+    residual[candidates[k]] <- norm_r
     if (norm_r > tolerance * norm_v) {
       kept[candidates[k]] <- TRUE
       basis <- cbind(basis, r / norm_r)
     }
   }
-  kept
+  list(kept = kept, residual = residual)
 }
 
 # --- Exact summation --------------------------------------------------------------
@@ -634,6 +673,151 @@ exact_sum <- function(x) {
     limbs_subtract(positive, negative)
   value <- limbs_round(difference)
   if (negative_result) -value else value
+}
+
+# The exact sum of the finite doubles of each group, rounded once to the
+# nearest double, ties to even, as exact_sum() rounds the sum of one vector.
+# groups gives the group of each value, from 1 to count, and a group without
+# values sums to 0. The limbs of every group are summed and carried together,
+# so that the time grows with the values and not with the groups times the
+# values.
+exact_group_sums <- function(x, groups, count) {
+  limb_count <- 72L
+  base <- 2^32
+  nonzero <- x != 0
+  x <- x[nonzero]
+  groups <- groups[nonzero]
+  result <- numeric(count)
+  if (!length(x)) {
+    return(result)
+  }
+  parts <- double_parts(x)
+  chunk <- 2^19
+  totals <- lapply(c(FALSE, TRUE), function(negative) {
+    sums <- matrix(0, count, limb_count)
+    chosen <- which(parts$negative == negative)
+    while (length(chosen)) {
+      at <- chosen[seq_len(min(length(chosen), chunk))]
+      chosen <- chosen[-seq_along(at)]
+      sums <- limbs_normalise_rows(sums + group_limbs(parts$m[at], parts$e[at], groups[at],
+                                                      count, limb_count))
+    }
+    sums
+  })
+  positive <- totals[[1L]]
+  negative <- totals[[2L]]
+  # The sign of each sum, from its highest limb that differs.
+  sign <- numeric(count)
+  for (k in rev(seq_len(limb_count))) {
+    open <- sign == 0
+    sign[open & positive[, k] > negative[, k]] <- 1
+    sign[open & positive[, k] < negative[, k]] <- -1
+  }
+  larger <- positive
+  smaller <- negative
+  swap <- sign < 0
+  larger[swap, ] <- negative[swap, ]
+  smaller[swap, ] <- positive[swap, ]
+  borrow <- numeric(count)
+  for (k in seq_len(limb_count)) {
+    value <- larger[, k] - smaller[, k] - borrow
+    borrow <- as.numeric(value < 0)
+    larger[, k] <- value + borrow * base
+  }
+  top <- integer(count)
+  for (k in rev(seq_len(limb_count))) {
+    top[top == 0L & larger[, k] > 0] <- k
+  }
+  # Sums below 2^96 times 2^-1074, which no data reach in practice, are
+  # rounded one by one, since they can be subnormal.
+  small <- which(sign != 0 & top < 3L)
+  for (g in small) {
+    result[g] <- limbs_round(larger[g, ])
+  }
+  wide <- which(sign != 0 & top >= 3L)
+  if (length(wide)) {
+    t <- top[wide]
+    high <- larger[cbind(wide, t)]
+    middle <- larger[cbind(wide, t - 1L)]
+    low <- larger[cbind(wide, t - 2L)]
+    below <- vapply(seq_along(wide), function(i) {
+      t[i] > 3L && any(larger[wide[i], seq_len(t[i] - 3L)] > 0)
+    }, NA)
+    # The bit length b of the highest limb, and the s = 53 - b bits taken
+    # from the limbs below it.
+    b <- floor(log2(high)) + 1
+    b[2^(b - 1) > high] <- b[2^(b - 1) > high] - 1
+    b[2^b <= high] <- b[2^b <= high] + 1
+    s <- 53 - b
+    mantissa <- numeric(length(wide))
+    round_bit <- logical(length(wide))
+    sticky <- below
+    one <- s < 32
+    if (any(one)) {
+      unit <- 2^(32 - s[one])
+      taken <- floor(middle[one] / unit)
+      rest <- middle[one] - taken * unit
+      half <- unit / 2
+      mantissa[one] <- high[one] * 2^s[one] + taken
+      round_bit[one] <- rest >= half
+      sticky[one] <- sticky[one] | rest - round_bit[one] * half > 0 | low[one] > 0
+    }
+    two <- s == 32
+    if (any(two)) {
+      mantissa[two] <- high[two] * 2^32 + middle[two]
+      round_bit[two] <- low[two] >= 2^31
+      sticky[two] <- sticky[two] | low[two] - round_bit[two] * 2^31 > 0
+    }
+    three <- s > 32
+    if (any(three)) {
+      unit <- 2^(64 - s[three])
+      taken <- floor(low[three] / unit)
+      rest <- low[three] - taken * unit
+      half <- unit / 2
+      mantissa[three] <- high[three] * 2^s[three] + middle[three] * 2^(s[three] - 32) + taken
+      round_bit[three] <- rest >= half
+      sticky[three] <- sticky[three] | rest - round_bit[three] * half > 0
+    }
+    up <- round_bit & (sticky | mantissa %% 2 == 1)
+    mantissa[up] <- mantissa[up] + 1
+    result[wide] <- sign[wide] * mantissa * 2^(32 * (t - 1) + b - 53 - 1074)
+  }
+  result
+}
+
+# The limbs of base 2^32 of the sums of m * 2^e of each group, before
+# carrying, as a matrix with one row for each group.
+group_limbs <- function(m, e, groups, count, limb_count) {
+  base <- 2^32
+  position <- e + 1074
+  limb <- position %/% 32
+  shift <- 2^(position %% 32)
+  high <- floor(m / base)
+  low <- m - high * base
+  low_shifted <- low * shift
+  low_carry <- floor(low_shifted / base)
+  high_shifted <- high * shift
+  high_carry <- floor(high_shifted / base)
+  cell <- as.integer(c(limb, limb + 1, limb + 1, limb + 2) * count + rep(groups, 4L))
+  amount <- c(low_shifted - low_carry * base, low_carry, high_shifted - high_carry * base,
+              high_carry)
+  sums <- rowsum(amount, cell, reorder = FALSE)
+  out <- numeric(count * limb_count)
+  out[as.integer(rownames(sums))] <- sums[, 1L]
+  dim(out) <- c(count, limb_count)
+  out
+}
+
+# Carries the limbs of each row of a matrix so that each lies in [0, 2^32).
+limbs_normalise_rows <- function(limbs) {
+  base <- 2^32
+  carry <- numeric(nrow(limbs))
+  for (k in seq_len(ncol(limbs))) {
+    value <- limbs[, k] + carry
+    carry <- floor(value / base)
+    limbs[, k] <- value - carry * base
+  }
+  limbs
 }
 
 # The limbs of base 2^32 of the sum of m * 2^e, before carrying.

@@ -36,6 +36,26 @@ read_registry <- function() {
   registry
 }
 
+# The registry hash of the vendored compiled registry: the SHA-256 of its
+# bytes, which every results document records (registry.md, The compiled
+# registry).
+registry_hash <- function() {
+  hash <- mixedcheck_cache$registry_hash
+  if (is.null(hash)) {
+    read_registry()
+    hash <- hash_file(installed_path("spec", "compiled", "registry.json"))
+    mixedcheck_cache$registry_hash <- hash
+  }
+  hash
+}
+
+# The entries of the registry, named by identifier.
+registry_entries_by_id <- function(registry = read_registry()) {
+  entries <- registry[["entries"]]
+  names(entries) <- vapply(entries, function(entry) entry[["id"]], "")
+  entries
+}
+
 # The supported line of registry versions.
 registry_version_pattern <- "^0\\.1\\.(0|[1-9][0-9]*)\\z"
 
@@ -180,6 +200,51 @@ registry_entry_issues <- function(entry, prefix) {
       add("E4021", here)
     }
   }
+  parts <- registry_scope_parts[[entry[["scope"]]]]
+  for (name in names(statistics)) {
+    statistic <- statistics[[name]]
+    here <- child_pointer("/statistics", name)
+    resolved_by <- statistic[["resolved_by"]]
+    for (i in seq_along(resolved_by)) {
+      target <- resolved_by[[i]][["name"]]
+      at <- paste0(here, "/resolved_by/", i - 1L, "/name")
+      if (identical(resolved_by[[i]][["source"]], "scope")) {
+        if (!target %in% parts) {
+          add("E4004", at, list(kind = "scope element", name = target))
+        }
+      } else if (is.null(statistics[[target]])) {
+        add("E4004", at, list(kind = "statistic", name = target))
+      } else if (!identical(statistics[[target]][["kind"]], "names")) {
+        add("E4024", at, list(name = target, expected = "of kind names"))
+      }
+    }
+    if (!is.null(statistic[["quantile"]])) {
+      target <- statistic[["quantile"]][["n"]]
+      if (is.null(statistics[[target]])) {
+        add("E4004", paste0(here, "/quantile/n"), list(kind = "statistic", name = target))
+      } else if (!identical(statistics[[target]][["kind"]], "count")) {
+        add("E4024", paste0(here, "/quantile/n"), list(name = target, expected = "a count"))
+      }
+    }
+    suppress_with <- unlist(statistic[["suppress_with"]])
+    for (i in seq_along(suppress_with)) {
+      if (is.null(statistics[[suppress_with[i]]])) {
+        add("E4004", paste0(here, "/suppress_with/", i - 1L),
+            list(kind = "statistic", name = suppress_with[i]))
+      }
+    }
+    if (!is.null(statistic[["part_of"]])) {
+      target <- statistic[["part_of"]]
+      total <- statistics[[target]]
+      if (is.null(total)) {
+        add("E4004", paste0(here, "/part_of"), list(kind = "statistic", name = target))
+      } else if (!identical(total[["kind"]], "count") ||
+                 !identical(total[["count_class"]], statistic[["count_class"]])) {
+        add("E4024", paste0(here, "/part_of"),
+            list(name = target, expected = "a count of the same count class"))
+      }
+    }
+  }
   availability <- entry[["availability"]]
   for (i in seq_along(availability)) {
     parameter <- availability[[i]][["parameter"]]
@@ -193,6 +258,12 @@ registry_entry_issues <- function(entry, prefix) {
   for (i in seq_along(rules)) {
     rule <- rules[[i]]
     here <- paste0("/decision/rules/", i - 1L)
+    read <- unlist(rule[["statistics"]])
+    for (j in seq_along(read)) {
+      if (is.null(statistics[[read[j]]])) {
+        add("E4004", paste0(here, "/statistics/", j - 1L), list(kind = "statistic", name = read[j]))
+      }
+    }
     named <- unlist(rule[["thresholds"]])
     for (j in seq_along(named)) {
       if (!named[j] %in% names(thresholds)) {
@@ -213,23 +284,12 @@ registry_entry_issues <- function(entry, prefix) {
   if (!otherwise %in% names(messages)) {
     add("E4004", "/decision/otherwise/message", list(kind = "message", name = otherwise))
   }
-  parts <- registry_scope_parts[[entry[["scope"]]]]
   for (name in names(messages)) {
     message <- messages[[name]]
     here <- child_pointer("/messages", name)
-    template <- message[["template"]]
-    placeholder <- "\\{([a-z][a-z0-9_]{0,47})\\}"
-    used <- regmatches(template, gregexpr(placeholder, template, perl = TRUE))[[1L]]
-    used <- unique(substr(used, 2L, nchar(used) - 1L))
-    if (grepl("[{}]", gsub(placeholder, "", template, perl = TRUE))) {
-      add("E4009", paste0(here, "/template"))
-    }
     args <- message[["args"]]
-    for (placeholder_name in used) {
-      if (!placeholder_name %in% names(args)) {
-        add("E4007", paste0(here, "/template"), list(name = placeholder_name))
-      }
-    }
+    used <- registry_template_issues(message[["template"]], names(args),
+                                     paste0(here, "/template"), add)
     for (arg_name in names(args)) {
       arg <- args[[arg_name]]
       arg_here <- child_pointer(paste0(here, "/args"), arg_name)
@@ -255,6 +315,25 @@ registry_entry_issues <- function(entry, prefix) {
       } else if (!is.null(arg[["digits"]]) != (statistic_kind %in% c("ratio", "real"))) {
         add("E4014", arg_here)
       }
+      if (!is.null(arg[["noun"]]) && statistic_kind != "count") {
+        add("E4024", paste0(arg_here, "/noun"), list(name = target, expected = "a count"))
+      }
+    }
+    # The arguments that render a statistic that can be left unwritten, which
+    # only the template may render, and only with a fallback (E4023).
+    unwritten <- names(args)[vapply(args, function(arg) {
+      identical(arg[["source"]], "statistic") && !is.null(statistics[[arg[["name"]]]]) &&
+        statistic_can_be_unwritten(statistics[[arg[["name"]]]])
+    }, NA)]
+    fallback <- message[["fallback"]]
+    if (!is.null(fallback)) {
+      fallback_used <- registry_template_issues(fallback, names(args),
+                                                paste0(here, "/fallback"), add)
+      if (any(unwritten %in% fallback_used)) {
+        add("E4023", here)
+      }
+    } else if (length(unwritten)) {
+      add("E4023", here)
     }
   }
   remedies <- vapply(entry[["remedies"]], function(remedy) remedy[["id"]], "")
@@ -264,7 +343,40 @@ registry_entry_issues <- function(entry, prefix) {
   issues
 }
 
-# The rules across entries: unique identifiers (E4003), links that name an
+# The placeholders of a template or fallback, each once, after reporting a
+# brace outside a placeholder (E4009) and a placeholder that no argument
+# defines (E4007) at the pointer given.
+registry_template_issues <- function(template, argument_names, pointer, add) {
+  placeholder <- "\\{([a-z][a-z0-9_]{0,47})\\}"
+  used <- regmatches(template, gregexpr(placeholder, template, perl = TRUE))[[1L]]
+  used <- unique(substr(used, 2L, nchar(used) - 1L))
+  if (grepl("[{}]", gsub(placeholder, "", template, perl = TRUE))) {
+    add("E4009", pointer)
+  }
+  for (name in used) {
+    if (!name %in% argument_names) {
+      add("E4007", pointer, list(name = name))
+    }
+  }
+  used
+}
+
+# Whether a message may find a statistic unwritten, because its definition
+# can leave it absent or the privacy filter can suppress it (registry.md,
+# Messages): ratios, reals and labels, person and by_unit counts, and every
+# statistic that is internal_only or suppressed with another.
+statistic_can_be_unwritten <- function(statistic) {
+  kind <- statistic[["kind"]]
+  kind %in% c("ratio", "real", "labels") ||
+    (identical(kind, "count") && !identical(statistic[["count_class"]], "non_person")) ||
+    isTRUE(statistic[["internal_only"]]) || !is.null(statistic[["suppress_with"]])
+}
+
+# Parameters whose value must be the same in every entry that has one (E4022).
+registry_shared_parameters <- "agreement"
+
+# The rules across entries: unique identifiers (E4003), the same value of a
+# shared parameter in every entry that has it (E4022), links that name an
 # entry (E4004) and no cycle of links (E4005). A link closes a cycle when the
 # check it names reaches the linking entry through links, so every link on a
 # cycle is reported.
@@ -274,6 +386,21 @@ registry_graph_issues <- function(entries) {
   for (i in which(duplicated(ids))) {
     issues <- c(issues, list(raw_issue("E4003", paste0("/entries/", i - 1L, "/id"),
                                        list(id = ids[i]))))
+  }
+  for (name in registry_shared_parameters) {
+    first <- NULL
+    for (i in seq_along(entries)) {
+      value <- entries[[i]][["parameters"]][[name]][["value"]]
+      if (is.null(value)) {
+        next
+      }
+      if (is.null(first)) {
+        first <- value
+      } else if (!identical(value, first)) {
+        pointer <- paste0(child_pointer(paste0("/entries/", i - 1L, "/parameters"), name), "/value")
+        issues <- c(issues, list(raw_issue("E4022", pointer, list(expected = first))))
+      }
+    }
   }
   # The links of each entry, in pointer order, with their pointers.
   links <- lapply(entries, function(entry) {

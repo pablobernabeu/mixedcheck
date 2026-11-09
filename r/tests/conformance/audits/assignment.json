@@ -917,6 +917,45 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-assignment-023",
+      "description": "The data of audits-assignment-003 with the class-level covariate z set to 0.1, 0.7, 0.2 and 3.3 in the classes c1 to c4. A class mean of z computed in floating point differs from its value in the last bits, which would leave residues in a column centred within classes, whereas subtracting the first row of each class leaves exact zeros, so z adds nothing to rank(X_d) and design_df stays 0: message no_df.",
+      "checks": ["assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"],
+        "z": [0.1, 0.1, 0.1, 0.7, 0.7, 0.7, 0.2, 0.2, 0.2, 3.3, 3.3, 3.3]
+      },
+      "formula": "y ~ arm + school + z + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_df", "text": "No degrees of freedom remain between the 4 levels of 'class' after the fixed effects, so the effect of 'arm', assigned to 'class' at a level between units that is declared, cannot be compared with variation between units."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

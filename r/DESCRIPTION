@@ -22,6 +22,8 @@ Imports:
     utf8 (>= 1.2.4)
 Suggests:
     lme4,
+    lpSolve,
+    openssl,
     testthat (>= 3.1.7),
     yaml (>= 2.3.8)
 Config/testthat/edition: 3

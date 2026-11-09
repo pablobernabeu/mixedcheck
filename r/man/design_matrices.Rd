@@ -79,9 +79,11 @@ with a value that is not finite, such as a product beyond the largest
 double, E6071 for the logarithm of a value that is not
 positive in an offset, in IR order, E6072 for a weight that is not
 positive, E6073 for NaN or an infinity in the response and then the
-trials column in a row of the analysis sample and E6071 for a response
-written with log(). An IR that is not valid gives the codes of the
-schema area. Data that do not hold the columns or levels of the IR, and
+trials column in a row of the analysis sample, E6078 for events or
+trials of a response with a trials column that are not integers with
+0 <= events <= trials and E6071 for a response written with log(). An
+IR that is not valid gives the codes of the schema area. Data that do
+not hold the columns or levels of the IR, and
 an IR whose columns or reference levels name a level that is not among
 the levels of their predictor, give an ordinary error.
 }

@@ -4047,6 +4047,56 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-privacy-059",
+      "description": "Two subjects crossed with three items, with no column other than the response and the two grouping columns, so that neither direction of structure.id_scope_evidence has a candidate attribute: the message is no_attribute, and changing_labels and changing_share are absent. The finding has 2 contributors and fails the minimum-count rule, so shared_labels is suppressed with the detail 'min_count_rule', and changing_share, whose denominator is suppressed, is written as suppressed with the detail 'ratio' and the class person of shared_labels (privacy.md, Steps, 8), so that its absence shows nothing.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "unit_attribute"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_attribute", "text": "No column is constant within the units that the repeated labels of 'item' denote, so the data give no evidence on whether a label denotes one unit across the levels of 'subject'. Declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": []},
+              "context_column": {"kind": "names", "value": ["subject"]},
+              "labels_column": {"kind": "names", "value": ["item"]},
+              "shared_labels": {"kind": "count", "value": 3, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "unit_attribute"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_attribute", "text": "No column is constant within the units that the repeated labels of 'item' denote, so the data give no evidence on whether a label denotes one unit across the levels of 'subject'. Declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": []},
+              "changing_share": {"kind": "ratio", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "ratio"}},
+              "context_column": {"kind": "names", "value": ["subject"]},
+              "labels_column": {"kind": "names", "value": ["item"]},
+              "shared_labels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": true}}
+          }
+        ]
+      }
     }
   ]
 }

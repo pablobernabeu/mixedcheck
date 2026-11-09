@@ -34,6 +34,26 @@ test_that("the exact sum rounds once, as math.fsum() does", {
                    from_hex(0x176fffffffffff, 1023 - 52))
 })
 
+test_that("the exact sums of groups equal the exact sum of each group", {
+  exact_sum <- mixedcheck:::exact_sum
+  sums <- mixedcheck:::exact_group_sums
+  expect_identical(sums(c(1e100, 1, -1e100, 0.1, 0.2, 0.3), c(1, 1, 1, 2, 2, 2), 3L),
+                   c(1, from_hex(0x13333333333333, -53), 0))
+  # Ties to even, cancellation, subnormal sums and overflow, each in its group.
+  values <- list(c(2^53, 1), c(2^53, 1, 2^-60), c(1, 2^-53, 2^-105), c(3, -3), c(-0.5, -0.25),
+                 c(5e-324, 5e-324), rep(.Machine$double.xmax / 2, 3L), c(2^100, 2^47, 2^-1000))
+  groups <- rep(seq_along(values), lengths(values))
+  expect_identical(sums(unlist(values), groups, length(values)),
+                   vapply(values, exact_sum, 0))
+  set.seed(5)
+  for (trial in 1:20) {
+    x <- rnorm(200) * 10^sample(-200:200, 200, TRUE)
+    x <- c(x, -x[1:50])
+    g <- sample(7L, length(x), TRUE)
+    expect_identical(sums(x, g, 8L), c(vapply(1:7, function(k) exact_sum(x[g == k]), 0), 0))
+  }
+})
+
 test_that("the sequential rule drops zero columns and later members of dependencies", {
   rule <- mixedcheck:::sequential_rule
   x <- cbind(1, c(1, 2, 3, 4), 0, c(2, 4, 6, 8), c(1, 0, 0, 1))
@@ -239,6 +259,32 @@ test_that("trials that are not finite reach E6073 and negative trials leave", {
     expect_identical(issue$message,
                      "The column 'n' holds NaN or an infinity in a row that the model uses.")
   }
+})
+
+test_that("events and trials must be integers with 0 <= events <= trials (E6078)", {
+  declaration <- list(vocabulary = "0.1.0", variables = list(
+    k = list(role = "outcome", measurement = "binomial", trials = "n")
+  ))
+  first_issue <- function(k, n) {
+    data <- data.frame(k = k, n = n, x = seq_along(n))
+    tryCatch({
+      design_matrices(formula_ir("k ~ x", declaration, data), data)
+      NULL
+    }, mixedcheck_error = function(e) e$issues[[1L]])
+  }
+  expect_null(first_issue(c(0, 2, 1, 3), c(2, 2, 3, 3)))
+  message <- paste("A row of the analysis sample holds events of 'k' or trials that are not",
+                   "integers with 0 <= events <= trials.")
+  for (bad in list(list(c(1, 3), c(2, 2)), list(c(1, -1), c(2, 2)), list(c(0.5, 1), c(2, 2)),
+                   list(c(1, 1), c(2, 2.5)), list(c("a", "b"), c(1, 1)))) {
+    expect_identical(first_issue(bad[[1L]], bad[[2L]])$message, message)
+  }
+  # Rows outside the analysis sample are not read.
+  expect_null(first_issue(c(5, 1, NA), c(0, 2, 2)))
+  expect_null(first_issue(c(5, 1), c(-1, 2)))
+  # E6073 for the response and the trials comes first.
+  expect_identical(first_issue(c(NaN, 3), c(1, 1))$code, "E6073")
+  expect_identical(first_issue(c(3, 3), c(Inf, 1))$code, "E6073")
 })
 
 test_that("the levels of a factor of several variables escape their labels", {

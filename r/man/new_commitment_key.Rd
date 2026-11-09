@@ -15,29 +15,33 @@ commitment_key_id(key)
 \value{
 \code{new_commitment_key()} returns a list with the members \code{created},
 the UTC time of creation, \code{key} and \code{key_id}, the form in which the
-internal sidecar stores a key. \code{commitment_key_id()} returns a character
-string.
+internal sidecar stores a key. The time is that of the environment
+variable MIXEDCHECK_TIME when it is set, as for \code{\link[=audit]{audit()}}.
+\code{commitment_key_id()} returns a character string.
 }
 \description{
 A commitment key is 32 bytes, written as 64 lower-case hexadecimal digits.
-\code{new_commitment_key()} creates one from the operating system's secure
-source of random bytes, never from R's random number generator, whose
-state it leaves unchanged. \code{commitment_key_id()} returns the identifier of
-a key, the first 16 hexadecimal digits of the SHA-256 digest of its 32
-bytes, by which a verifier finds the key. Keys belong in the internal
-sidecar of a results document and never in a shareable file.
+\code{new_commitment_key()} creates one from a cryptographically secure source
+of random bytes, never from R's random number generator, whose state it
+leaves unchanged: the operating system's generator through /dev/urandom on
+Unix-alikes and, where /dev/urandom does not exist, as on Windows,
+\code{openssl::rand_bytes()} when the package openssl is installed.
+\code{commitment_key_id()} returns the identifier of a key, the first 16
+hexadecimal digits of the SHA-256 digest of its 32 bytes, by which a
+verifier finds the key. Keys belong in the internal sidecar of a results
+document and never in a shareable file.
 }
 \section{Errors}{
  A key of another form gives an error of class
-\code{mixedcheck_error} with the code E1311. On Windows, base R cannot read the
-system's secure source of random bytes, so \code{new_commitment_key()} gives
-the code E1312 there, and a key must be supplied.
+\code{mixedcheck_error} with the code E1311. Without /dev/urandom and without
+the package openssl, no secure source is available, so
+\code{new_commitment_key()} gives the code E1312, and a key must be supplied.
+A value of MIXEDCHECK_TIME other than a whole number of seconds gives an
+ordinary error.
 }
 
 \examples{
 commitment_key_id(paste(rep("0f", 32), collapse = ""))
-if (.Platform$OS.type == "unix") {
-  key <- new_commitment_key()
-  key$key_id
-}
+key <- tryCatch(new_commitment_key(), mixedcheck_error = function(e) NULL)
+if (!is.null(key)) key$key_id
 }

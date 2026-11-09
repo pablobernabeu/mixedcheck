@@ -81,32 +81,57 @@ commitment_key_bytes <- function(key) {
 #' Commitment keys
 #'
 #' A commitment key is 32 bytes, written as 64 lower-case hexadecimal digits.
-#' `new_commitment_key()` creates one from the operating system's secure
-#' source of random bytes, never from R's random number generator, whose
-#' state it leaves unchanged. `commitment_key_id()` returns the identifier of
-#' a key, the first 16 hexadecimal digits of the SHA-256 digest of its 32
-#' bytes, by which a verifier finds the key. Keys belong in the internal
-#' sidecar of a results document and never in a shareable file.
+#' `new_commitment_key()` creates one from a cryptographically secure source
+#' of random bytes, never from R's random number generator, whose state it
+#' leaves unchanged: the operating system's generator through /dev/urandom on
+#' Unix-alikes and, where /dev/urandom does not exist, as on Windows,
+#' `openssl::rand_bytes()` when the package openssl is installed.
+#' `commitment_key_id()` returns the identifier of a key, the first 16
+#' hexadecimal digits of the SHA-256 digest of its 32 bytes, by which a
+#' verifier finds the key. Keys belong in the internal sidecar of a results
+#' document and never in a shareable file.
 #'
 #' @param key A commitment key, as 64 lower-case hexadecimal digits.
 #' @return `new_commitment_key()` returns a list with the members `created`,
 #'   the UTC time of creation, `key` and `key_id`, the form in which the
-#'   internal sidecar stores a key. `commitment_key_id()` returns a character
-#'   string.
+#'   internal sidecar stores a key. The time is that of the environment
+#'   variable MIXEDCHECK_TIME when it is set, as for [audit()].
+#'   `commitment_key_id()` returns a character string.
 #' @section Errors: A key of another form gives an error of class
-#'   `mixedcheck_error` with the code E1311. On Windows, base R cannot read the
-#'   system's secure source of random bytes, so `new_commitment_key()` gives
-#'   the code E1312 there, and a key must be supplied.
+#'   `mixedcheck_error` with the code E1311. Without /dev/urandom and without
+#'   the package openssl, no secure source is available, so
+#'   `new_commitment_key()` gives the code E1312, and a key must be supplied.
+#'   A value of MIXEDCHECK_TIME other than a whole number of seconds gives an
+#'   ordinary error.
 #' @export
 #' @examples
 #' commitment_key_id(paste(rep("0f", 32), collapse = ""))
-#' if (.Platform$OS.type == "unix") {
-#'   key <- new_commitment_key()
-#'   key$key_id
-#' }
+#' key <- tryCatch(new_commitment_key(), mixedcheck_error = function(e) NULL)
+#' if (!is.null(key)) key$key_id
 new_commitment_key <- function() {
+  created <- utc_timestamp(run_time())
+  key <- paste(as.character(random_key_bytes()), collapse = "")
+  list(created = created, key = key, key_id = commitment_key_id(key))
+}
+
+# The type of the operating system, a function of its own so that the tests
+# can take the branch of another system.
+platform_type <- function() {
+  .Platform$OS.type
+}
+
+# Whether a package can be loaded, a function of its own so that the tests
+# can take the branch of a package that is not installed.
+package_installed <- function(package) {
+  requireNamespace(package, quietly = TRUE)
+}
+
+# 32 bytes from a cryptographically secure source (conventions.md, Keys):
+# /dev/urandom on Unix-alikes and openssl::rand_bytes() where /dev/urandom
+# does not exist, or E1312 when neither is available.
+random_key_bytes <- function() {
   bytes <- NULL
-  if (.Platform$OS.type == "unix" && file.exists("/dev/urandom")) {
+  if (platform_type() == "unix" && file.exists("/dev/urandom")) {
     # The connection is opened with raw = TRUE, since /dev/urandom is not a
     # regular file.
     connection <- tryCatch(file("/dev/urandom", "rb", raw = TRUE), error = function(e) NULL)
@@ -114,16 +139,13 @@ new_commitment_key <- function() {
       bytes <- tryCatch(readBin(connection, "raw", n = 32L), error = function(e) NULL)
       close(connection)
     }
+  } else if (package_installed("openssl")) {
+    bytes <- openssl::rand_bytes(32L)
   }
-  if (length(bytes) != 32L) {
+  if (!is.raw(bytes) || length(bytes) != 32L) {
     raise_issue("E1312")
   }
-  key <- paste(as.character(bytes), collapse = "")
-  list(
-    created = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
-    key = key,
-    key_id = commitment_key_id(key)
-  )
+  as.raw(bytes)
 }
 
 #' @rdname new_commitment_key

@@ -37,16 +37,22 @@ statistics:
     resolved_by: [{source: scope, name: unit}]
     suppress_with: [units]
     definition: >-
-      J + rank(X_w) - rank(X), ranks by the sequential rule, where J is units,
+      J + rank(X_d) - rank(X), ranks by the sequential rule, where J is units,
       X the fixed-effects columns restricted to the rows of the assignment and
-      X_w the same columns centred within the levels of the unit, each level
-      mean summed exactly and divided once as ir.md (Centring) computes means.
-      In exact arithmetic, it equals the number of indicator columns of the
-      levels of the unit that the sequential rule keeps when it is applied to
-      the fixed-effects columns followed by the indicator columns, without
-      building the n by J indicator matrix. The tolerance of the sequential
-      rule applies to the centred columns. It gives back units, so it takes
-      the count class of units.
+      X_d the same columns with the first row of each level of the unit, in
+      table order, subtracted from every row of the level. A combination of
+      the columns is constant within the levels exactly when X_d maps it to
+      0, so in exact arithmetic rank(X_d) is the rank of the columns centred
+      within the levels, and design_df equals the number of indicator columns
+      of the levels that the sequential rule keeps when it is applied to the
+      fixed-effects columns followed by the indicator columns, without
+      building the n by J indicator matrix. A column that is constant within
+      every level gives exact zeros in X_d, whereas centring it by level
+      means computed in floating point would leave residues, which the
+      sequential rule keeps once it divides the column by its largest
+      absolute value. The tolerance of the sequential rule applies to the
+      columns of X_d. It gives back units, so it takes the count class of
+      units.
   missing_blocks:
     kind: names
     definition: >-

@@ -1942,7 +1942,7 @@
     },
     {
       "id": "audits-structure-047",
-      "description": "No level has two rows: no_levels, not_assessable with the prerequisite level_with_two_rows, status absent, icc absent because N equals J and within_share 0.",
+      "description": "No level has two rows: no_levels, not_assessable with the prerequisite level_with_two_rows, status absent, icc NaN because N equals J and within_share 0.",
       "checks": ["structure.within_between"],
       "data": {
         "y": [1, 2, 3, 4],
@@ -1960,6 +1960,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "level_with_two_rows"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "no_levels", "text": "No level of 'g' has two or more rows, so whether 'x' varies within its levels cannot be assessed."},
             "statistics": {
+              "icc": {"kind": "real", "value": "NaN"},
               "informative_levels": {"kind": "count", "value": 0, "count_class": "person"},
               "multi_row_levels": {"kind": "count", "value": 0, "count_class": "person"},
               "slope_requested": {"kind": "boolean", "value": false},
@@ -2038,7 +2039,7 @@
     },
     {
       "id": "audits-structure-050",
-      "description": "A factor with one level: status within, icc absent because J is 1, within_share 1.",
+      "description": "A factor with one level: status within, icc NaN because J is 1, within_share 1.",
       "checks": ["structure.within_between"],
       "data": {
         "y": [1, 2, 3],
@@ -2056,6 +2057,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "status", "text": "As inferred from the data, 'x' is within with respect to 'g': it varies within 1 of its 1 level with two or more rows."},
             "statistics": {
+              "icc": {"kind": "real", "value": "NaN"},
               "informative_levels": {"kind": "count", "value": 1, "count_class": "person"},
               "multi_row_levels": {"kind": "count", "value": 1, "count_class": "person"},
               "slope_requested": {"kind": "boolean", "value": false},

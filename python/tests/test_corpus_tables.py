@@ -1,6 +1,5 @@
-"""The table corpus, run from the installed package: CSV inputs read with the
-strict table reader, with and without the table block of a declaration
-(fixtures/conformance/tables/README.md).
+"""The table corpus: CSV inputs read with the strict table reader, with and
+without the table block of a declaration (fixtures/conformance/tables/README.md).
 
 Each case gives the columns that the reader returns, with their names, types
 and values, or the one issue that it reports, with its code, message and byte

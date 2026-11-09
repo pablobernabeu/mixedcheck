@@ -1,7 +1,7 @@
-"""The formula corpus, run from the installed package: formulas with their
-declaration, data, coding, weights and sample columns, and the expected IR with
-its hash, with the design matrices of the design sample or the issue that they
-report for some cases, or the one issue that the builder reports
+"""The formula corpus: formulas with their declaration, data, coding, weights
+and sample columns, and the expected IR with its hash, with the design
+matrices of the design sample or the issue that they report for some cases,
+or the one issue that the builder reports
 (fixtures/conformance/formulas/README.md).
 
 Each case with data runs twice: with columns of dtype object, as read_table()

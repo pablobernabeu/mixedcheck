@@ -383,14 +383,16 @@ number_parts <- function(a) {
   # correctly rounded operations on exact operands.
   rest <- which(!done)
   if (length(rest)) {
+    # A candidate that sprintf() writes in any other layout, as the C library
+    # of Windows does for some values, is left to the exact method below.
     text <- sprintf("%.14e", a[rest])
+    form <- grepl("^[1-9]\\.[0-9]{14}e[+-][0-9]{2,3}$", text)
+    text[!form] <- "1.00000000000000e+00"
     mantissa <- paste0(substr(text, 1L, 1L), substr(text, 3L, 16L))
     exponent <- as.integer(substr(text, 18L, nchar(text)))
     stripped <- sub("0+$", "", mantissa)
     k <- nchar(stripped)
     q <- exponent - k + 1L
-    form <- grepl("^[1-9][0-9]{14}$", mantissa)
-    mantissa[!form] <- "100000000000000"
     columns <- matrix(utf8ToInt(paste(mantissa, collapse = "")) - 48L, nrow = 15L)
     value <- 0
     for (j in seq_len(15L)) {

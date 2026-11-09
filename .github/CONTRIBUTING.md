@@ -30,8 +30,10 @@ change to behaviour usually needs a change in both packages.
 
 Files that both packages read, such as `spec/versions.json`, are edited only in
 `spec/` or `fixtures/` and listed in `spec/vendoring.json`. The vendoring script
-copies them byte for byte into `r/inst/` and `python/src/mixedcheck/`, with a
-manifest of SHA-256 digests. After editing a source, run from the repository
+copies them byte for byte into the packages, with a manifest of SHA-256
+digests: `spec/` into `r/inst/spec/` and `python/src/mixedcheck/_spec/`, the
+conformance corpora into `r/tests/conformance/` and `python/tests/conformance/`,
+and other fixtures into `r/inst/fixtures/` and `python/src/mixedcheck/_fixtures/`. After editing a source, run from the repository
 root:
 
 ```bash

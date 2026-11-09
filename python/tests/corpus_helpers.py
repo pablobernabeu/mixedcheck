@@ -1,6 +1,6 @@
 """Helpers that run the cases of the conformance corpora, which
 spec/tools/vendor.py copies from fixtures/conformance/ into tests/conformance/
-(each directory's README.md describes its corpus)."""
+(fixtures/conformance/<corpus>/README.md describes each corpus)."""
 
 from __future__ import annotations
 

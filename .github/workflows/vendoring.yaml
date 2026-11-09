@@ -20,6 +20,7 @@ on:
       - 'r/tests/conformance/**'
       - 'python/tests/conformance/**'
       - 'parity/corpora.json'
+      - 'docs/design/evidence/decisions/E-verify/edgezoo/**'
       - '.github/workflows/vendoring.yaml'
   pull_request:
     paths:
@@ -36,6 +37,7 @@ on:
       - 'r/tests/conformance/**'
       - 'python/tests/conformance/**'
       - 'parity/corpora.json'
+      - 'docs/design/evidence/decisions/E-verify/edgezoo/**'
       - '.github/workflows/vendoring.yaml'
   workflow_dispatch:
 

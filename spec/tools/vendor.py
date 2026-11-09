@@ -10,10 +10,11 @@ spec/vendoring.json lists every artefact to vendor, as a path relative to the
 repository root under spec/ or fixtures/. `sync` copies each one byte for byte
 into the package directories that TARGETS names for the most specific source
 directory that holds it, and writes a MANIFEST.json of SHA-256 digests into
-each of them. `check` changes nothing and exits with
-status 1, naming each problem, when a copy is missing or differs from its
+each of them. `check` changes nothing and exits with status 1, naming each
+problem, when a copy is missing or differs from its
 source, a listed source is missing, a vendored directory holds a file that is
-not listed or is a symbolic link, a MANIFEST.json is missing or stale, or a
+not listed, an old copy of an artefact now vendored elsewhere or a symbolic
+link, a MANIFEST.json is missing or stale, or a
 file under spec/ contains a carriage return (CR) or starts with a UTF-8
 byte-order mark. Both modes also reject a list entry whose name the R package
 could not carry, and take --root to work on another tree.
@@ -242,7 +243,16 @@ def check(root: Path) -> list[str]:
                     problems.append(f"{target}/{name}: differs from {source_dir}/{name}")
             expected = (set(listed) | {MANIFEST}) if listed else set()
             for name in sorted(present - expected):
-                problems.append(f"{target}/{name}: not listed in {LIST}")
+                entry = f"{source_dir}/{name}"
+                owner = source_dir_of(entry) if entry in artefacts else None
+                if owner is not None and owner != source_dir:
+                    # A copy left where an earlier layout vendored the artefact.
+                    problems.append(
+                        f"{target}/{name}: an old copy of {entry}, which is now "
+                        f"vendored into {' and '.join(TARGETS[owner])}"
+                    )
+                else:
+                    problems.append(f"{target}/{name}: not listed in {LIST}")
             if listed and sources_present:
                 manifest = target_root / MANIFEST
                 expected_manifest = manifest_text(source_root, listed, source_dir)

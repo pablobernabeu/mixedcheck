@@ -1,6 +1,6 @@
 # Helpers that run the cases of the conformance corpora, which
 # spec/tools/vendor.py copies from fixtures/conformance/ into tests/conformance/
-# (each directory's README.md describes its corpus).
+# (fixtures/conformance/<corpus>/README.md describes each corpus).
 # Inputs are built from bytes and strings read by the strict reader, never
 # from non-ASCII string literals, which a C locale would leave unmarked.
 

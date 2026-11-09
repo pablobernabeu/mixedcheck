@@ -21,6 +21,11 @@ availability:
   - reason: declaration_missing
     condition: The declaration gives no measurement level for the outcome.
     pointer: /variables/{outcome}/measurement
+  - reason: declaration_missing
+    condition: >-
+      The declared measurement of the outcome is bounded_score, and the
+      declaration gives no bounds for it, as when they are inferred.
+    pointer: /variables/{outcome}/bounds
 statistics:
   rows:
     kind: count

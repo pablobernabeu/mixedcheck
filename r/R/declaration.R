@@ -208,8 +208,11 @@ declaration_reference_issues <- function(d) {
     column_reference(assignment[[i]][["column"]], "assignment", i - 1L, "column")
   }
   unit_reference(d[["disclosure_unit"]], "disclosure_unit")
-  for (column in names(variables)) {
-    entry <- variables[[column]]
+  # Column names are looked up by position or with match(), since `[[`
+  # translates a name to the native encoding (named_member()).
+  for (k in seq_along(variables)) {
+    column <- names(variables)[k]
+    entry <- variables[[k]]
     column_reference(column, "variables", column)
     for (j in seq_along(entry[["derived_from"]])) {
       column_reference(entry[["derived_from"]][[j]], "variables", column, "derived_from", j - 1L)
@@ -267,7 +270,7 @@ pointer_resolves <- function(x, pointer) {
       if (!token %in% names(x)) {
         return(FALSE)
       }
-      x <- x[[token]]
+      x <- named_member(x, token)
     } else if (is_json_array(x)) {
       if (!grepl("^(0|[1-9][0-9]*)$", token) || as.numeric(token) >= length(x)) {
         return(FALSE)
@@ -336,7 +339,7 @@ declaration_meaning_issues <- function(d, minimal = FALSE) {
 
   derived <- lapply(variables, function(entry) unlist(entry[["derived_from"]]))
   for (column in columns) {
-    pending <- derived[[column]]
+    pending <- named_member(derived, column)
     seen <- character(0)
     while (length(pending)) {
       current <- pending[1L]
@@ -348,7 +351,7 @@ declaration_meaning_issues <- function(d, minimal = FALSE) {
       if (!current %in% seen) {
         seen <- c(seen, current)
         if (current %in% columns) {
-          pending <- c(pending, derived[[current]])
+          pending <- c(pending, named_member(derived, current))
         }
       }
     }
@@ -400,16 +403,16 @@ declaration_meaning_issues <- function(d, minimal = FALSE) {
     }
   }
 
-  for (column in columns) {
-    entry <- variables[[column]]
-    bounds <- entry[["bounds"]]
+  for (k in seq_along(columns)) {
+    column <- columns[k]
+    bounds <- variables[[k]][["bounds"]]
     if (!is.null(bounds) && !(bounds[[1L]] < bounds[[2L]])) {
       add("E2017", path_pointer("variables", column, "bounds"))
     }
   }
   for (entry in assignment) {
     column <- entry[["column"]]
-    if (column %in% columns && roles[[column]] != "assigned") {
+    if (column %in% columns && named_member(roles, column) != "assigned") {
       add("E2018", path_pointer("variables", column, "role"), list(name = column))
     }
   }
@@ -431,9 +434,9 @@ declaration_meaning_issues <- function(d, minimal = FALSE) {
     misused(observation[["key"]][[j]], "observation", "key", j - 1L)
   }
   misused(observation[["time"]][["column"]], "observation", "time", "column")
-  for (column in columns) {
-    misused(variables[[column]][["trials"]], "variables", column, "trials")
-    misused(variables[[column]][["exposure"]][["column"]], "variables", column, "exposure", "column")
+  for (k in seq_along(columns)) {
+    misused(variables[[k]][["trials"]], "variables", columns[k], "trials")
+    misused(variables[[k]][["exposure"]][["column"]], "variables", columns[k], "exposure", "column")
   }
   for (j in seq_along(table[["primaryKey"]])) {
     misused(table[["primaryKey"]][[j]], "table", "primaryKey", j - 1L)
@@ -449,10 +452,10 @@ declaration_meaning_issues <- function(d, minimal = FALSE) {
     }
   }
 
-  for (column in columns) {
-    if (any(derived[[column]] %in% c(outcomes, outcome_derived)) &&
-        !roles[[column]] %in% c("outcome", "outcome_derived")) {
-      add("E2020", path_pointer("variables", column, "role"), list(name = column))
+  for (k in seq_along(columns)) {
+    if (any(derived[[k]] %in% c(outcomes, outcome_derived)) &&
+        !roles[k] %in% c("outcome", "outcome_derived")) {
+      add("E2020", path_pointer("variables", columns[k], "role"), list(name = columns[k]))
     }
   }
   for (i in seq_along(estimands)) {
@@ -465,8 +468,9 @@ declaration_meaning_issues <- function(d, minimal = FALSE) {
     }
   }
 
-  for (column in columns) {
-    level <- variables[[column]][["event_level"]]
+  for (k in seq_along(columns)) {
+    column <- columns[k]
+    level <- variables[[k]][["event_level"]]
     field <- if (column %in% field_names) fields[[match(column, field_names)]]
     type <- field[["type"]]
     if (is.null(level) || is.null(type)) {

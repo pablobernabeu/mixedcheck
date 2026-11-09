@@ -126,8 +126,9 @@ test_that("identifiability.gram_rank runs up to max_z_columns columns of Z", {
 
 # The budget of identifiability.df_budget as the number of indicator columns
 # of the levels of 'g' that the sequential rule keeps after the kept
-# fixed-effects columns of the terms up to each term, which J - k + rank(X_d)
-# equals up to the tolerances, and the consuming terms that it gives.
+# fixed-effects columns of the terms up to each term, which J - k + r, with r
+# the rank within the levels (within_level_rank()), equals up to the
+# tolerances, and the consuming terms that it gives.
 budget_by_indicators <- function(data, formula) {
   ir <- formula_ir(formula, data = data)
   m <- design_matrices(ir, data)
@@ -238,7 +239,7 @@ test_that("identifiability.df_budget equals the indicator columns that the seque
   }
 })
 
-test_that("identifiability.df_budget sets to 0 a column of X_d constant within levels up to rounding", {
+test_that("identifiability.df_budget counts no rank within levels for a column constant within them up to rounding", {
   # wn differs from its level's value by one unit in the last place in some
   # rows, wn2 by about 1e-9 and wn3 by 1e-4 relative to its scale, which the
   # indicator columns do not absorb.
@@ -262,6 +263,42 @@ test_that("identifiability.df_budget sets to 0 a column of X_d constant within l
                                            "identifiability.df_budget")$statistics$budget$value, 10)
   expect_identical(identifiability_finding(data, "y ~ x + wn3 + (1 | g)",
                                            "identifiability.df_budget")$statistics$budget$value, 11)
+})
+
+test_that("identifiability.df_budget does not change when a constant is added to a column", {
+  # Times of 30 sessions on different days, each up to 60 seconds long, in
+  # seconds from 0 and from 1.7e9, near the Unix time of 2023. The time
+  # varies within every subject, alone and in the interaction, from either
+  # origin, which the earlier comparison with 1e-7 times the largest
+  # absolute value of the column missed from 1.7e9.
+  local_seed(1)
+  subject <- rep(sprintf("s%02d", 1:30), each = 8L)
+  day <- rep(sample(0:29), each = 8L)
+  seconds <- day * 86400 + runif(240L, 0, 60)
+  base <- data.frame(y = rnorm(240L), cond = rep(rep(c("A", "B"), 15L), each = 8L),
+                     g = subject)
+  for (origin in c(0, 1.7e9)) {
+    data <- base
+    data$time <- origin + seconds
+    for (formula in c("y ~ cond + time + (1 | g)", "y ~ cond * time + (1 | g)",
+                      "y ~ 0 + time + cond + (1 | g)")) {
+      found <- identifiability_finding(data, formula, "identifiability.df_budget")
+      expected <- budget_by_indicators(data, formula)
+      label <- paste(origin, formula)
+      expect_identical(found$statistics$budget$value, expected$budget, label = label)
+      expect_identical(found$statistics$consuming_terms$value, expected$consuming, label = label)
+    }
+    expect_identical(identifiability_finding(data, "y ~ cond * time + (1 | g)",
+                                             "identifiability.df_budget")$statistics$budget$value,
+                     28)
+  }
+  # Values near the largest double, whose differences within the levels
+  # would overflow before the columns are scaled.
+  data <- base
+  data$time <- (2 * seconds / max(seconds) - 1) * 1.7e308
+  expect_identical(identifiability_finding(data, "y ~ cond + time + (1 | g)",
+                                           "identifiability.df_budget")$statistics$budget$value,
+                   28)
 })
 
 test_that("the rank of each level follows the sequential rule", {

@@ -6,13 +6,9 @@
 # its unit and the assigned column are present, the level of the unit in
 # each of these rows, numbered from 1 in the order of first appearance, the
 # number of levels, the level of the assignment, declared or inferred with
-# the parameter agreement, and the entry of the assignment block. Returns
-# NULL when the unit counts as absent.
+# the parameter agreement, and the entry of the assignment block.
 assignment_rows <- function(run, entry, element) {
   declaration <- run$declaration
-  if (is.null(declared_units(declaration)[[element$unit]])) {
-    return(NULL)
-  }
   assignment <- declaration[["assignment"]]
   i <- match(element$column, vapply(assignment, function(a) a[["column"]], ""))
   present <- function(member) {
@@ -41,7 +37,7 @@ assignment_rows <- function(run, entry, element) {
 # between_unit and some level of the unit has at least two rows of the
 # assignment.
 assignment_applies <- function(found) {
-  !is.null(found) && found$level == "between_unit" && any(tabulate(found$unit) >= 2L)
+  found$level == "between_unit" && any(tabulate(found$unit) >= 2L)
 }
 
 # The checks of the prefix assignment are not available without an
@@ -104,11 +100,10 @@ audit_check_assignment_unit_in_random_part <- function(run, entry, elements) {
 }
 
 # assignment.design_df: the degrees of freedom between the levels of the unit
-# after the fixed effects, J + rank(X_d) - rank(X) on the rows of the
-# assignment, where X_d is X with the first row of each level subtracted from
-# the level's rows and the columns constant within the levels up to rounding
-# set to 0 (level_differences()), and the declared blocks that the fixed part
-# leaves out.
+# after the fixed effects, J + r - k on the rows of the assignment, where k
+# is the number of columns of X that the sequential rule keeps on these rows
+# and r the within-level rank of those columns (within_level_rank()), and
+# the declared blocks that the fixed part leaves out.
 audit_check_assignment_design_df <- function(run, entry, elements) {
   if (assignment_block_missing(run)) {
     return(check_unavailable("declaration_missing"))
@@ -123,8 +118,9 @@ audit_check_assignment_design_df <- function(run, entry, elements) {
       return(NULL)
     }
     x <- run$x[match(found$rows, run$design), , drop = FALSE]
-    within <- level_differences(x, found$unit, found$count)
-    design_df <- found$count + sum(sequential_rule(within)) - sum(sequential_rule(x))
+    kept <- sequential_rule(x)
+    within <- within_level_rank(x[, kept, drop = FALSE], found$unit, found$count)
+    design_df <- found$count + sum(within) - sum(kept)
     blocks <- Filter(function(block) {
       !is.null(units[[block]]) &&
         !all(unit_label_columns(run$declaration, block) %in% fixed)

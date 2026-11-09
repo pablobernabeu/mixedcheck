@@ -950,6 +950,38 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-design-028",
+      "description": "x1 takes the values 1 and -1 and x2 the values 2.5e20 and -2.5e20, in patterns orthogonal to each other and to the intercept, so that sd_ratio is the double 2.5e20, at or above 1e15, which the message disparate renders in scientific notation with 0 digits, rounded half to even to 2e+20, and the condition number is 1.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [3.5, 2.1, 4.4, 5],
+        "x1": [1, -1, 1, -1],
+        "x2": [2.5e20, 2.5e20, -2.5e20, -2.5e20]
+      },
+      "formula": "y ~ x1 + x2",
+      "exact": ["design.scale_disparity:sd_largest", "design.scale_disparity:sd_smallest", "design.scale_disparity:sd_ratio"],
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disparate", "text": "The standard deviations of 'x1' and 'x2' differ by a factor of 2e+20, or one of them lies outside 0.001 to 1000, which makes lme4 warn that the predictors are on very different scales. Centre and scale these columns outside the formula with stored constants."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": 288675134594812870000},
+              "sd_smallest": {"kind": "real", "value": 1.1547005383792515},
+              "sd_ratio": {"kind": "real", "value": 250000000000000000000},
+              "condition_number": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "rows", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

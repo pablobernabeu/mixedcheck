@@ -1156,6 +1156,103 @@
       "expected": {
         "issue": {"code": "E7009", "message": "Outcome access at T1 needs a formula with a response."}
       }
+    },
+    {
+      "id": "audits-outcome-037",
+      "description": "A bounded score whose bounds /provenance/inferred lists: the bounds count as absent, so the check is not available, with the pointer of the bounds as the detail.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4]
+      },
+      "formula": "score ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome", "measurement": "bounded_score", "bounds": [0, 10]}},
+        "provenance": {"inferred": ["/variables/score/bounds"]}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.boundary_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/variables/score/bounds"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-038",
+      "description": "The data of audits-outcome-010 with the outcome written as 'yes' and 'no' and the event level 'yes', which /provenance/inferred lists. The IR is built from the declaration as written, so its response has the event level and the response vector is that of audits-outcome-010: outcome.minority_events is available, with the same finding (registry.md, Terms).",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "y": ["yes", "no", "yes", "yes", "no", "yes", "yes", "no", "yes", "no"],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "formula": "y ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"y": {"role": "outcome", "measurement": "binary", "event_level": "yes"}},
+        "provenance": {"inferred": ["/variables/y/event_level"]}
+      },
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events_model", "text": "The outcome has 6 events and 4 non-events, or 2.0 minority events per fixed-effects column."},
+            "statistics": {
+              "events": {"kind": "count", "value": 6, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 4, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 2}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "rows", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-039",
+      "description": "The inputs of audits-outcome-010 with a reason that holds U+0085, a C1 control character, which E7009 accepts, since it refuses U+0000 to U+001F and U+007F only, as the pattern of text in results.schema.json does: the same finding.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "y": [1, 0, 1, 1, 0, 1, 1, 0, 1, 0],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome\u0085before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events_model", "text": "The outcome has 6 events and 4 non-events, or 2.0 minority events per fixed-effects column."},
+            "statistics": {
+              "events": {"kind": "count", "value": 6, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 4, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 2}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "rows", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

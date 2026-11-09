@@ -160,7 +160,7 @@ audit_check_design_scale_disparity <- function(run, entry, elements) {
   n <- length(run$design)
   numeric_terms <- vapply(ir$fixed$terms, function(term) {
     length(term$variables) > 0L && all(vapply(term$variables, function(v) {
-      identical(ir$predictors[[v$variable]]$kind, "numeric")
+      identical(named_member(ir$predictors, v$variable)$kind, "numeric")
     }, NA))
   }, NA)
   column_terms <- vapply(ir$fixed$columns, function(column) column$term + 1, 0)

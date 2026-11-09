@@ -2121,6 +2121,16 @@
       "args": {}
     },
     {
+      "code": "E7025",
+      "name": "results_quantile_n",
+      "area": "results",
+      "location": "pointer",
+      "template": "The n at {location} must be left out unless the count '{count}' of its finding is written, and must then equal that count.",
+      "args": {
+        "count": "text"
+      }
+    },
+    {
       "code": "E7040",
       "name": "results_unknown_check",
       "area": "results",

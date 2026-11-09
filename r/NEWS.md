@@ -98,3 +98,48 @@
   `new_commitment_key()` creates a key with `openssl::rand_bytes()` when
   openssl is installed, so that E1312 arises only without it. openssl joins
   the Suggests.
+
+* The messages of findings write a real statistic of at least 1e15 in
+  absolute value in scientific notation, such as 2e+20, as the
+  [registry specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/registry.md)
+  (Messages) states.
+
+* `validate_results()` reports E7025 when the quantile of a statistic writes
+  an n although the count that gives n is not written in its finding, or an
+  n other than that count, in every document.
+
+* In a C locale, `validate_declaration()`, `formula_ir()` and `audit()` keep
+  apart column names outside ASCII and names that hold the text into which
+  R translates them, such as `<U+00FC>`, which lookups by name had merged.
+
+* `audit()` sums the values of the levels of a grouping factor exactly with
+  memory that grows with the rows, so that a factor with many small levels
+  needs less memory and time.
+
+* The privacy filter of `audit()` writes the detail 'quantile' for every
+  quantile that the quantile rule suppresses, compares the levels that an
+  assignment removes from a sample in which they are person counts, hides
+  the rows without a key value when they would give back rows that a
+  predictor removes, never writes the smallest eigenvalue of
+  identifiability.gram_rank and suppresses outcome.separation for a fixed
+  part that codes one variable, such as one factor, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  states.
+
+* In a draft declaration, a unit whose name or columns are inferred counts
+  as absent, together with the assignments to it and a disclosure unit that
+  names it, and outcome.boundary_shares is not available when the bounds of
+  a bounded score are inferred.
+
+* MIXEDCHECK_TIME accepts only the ASCII digits 0 to 9.
+
+* identifiability.df_budget and assignment.design_df take the rank within
+  the levels from an orthonormal basis of the kept fixed-effects columns, so
+  that adding a constant to a column, as with times in Unix seconds, no
+  longer changes the budget, and values near the largest double no longer
+  stop the run. structure.within_between divides its column by its largest
+  absolute value, so that values beyond about 1e154 no longer give 'NaN'.
+
+* identifiability.gram_rank forms the elements between random terms with
+  one sparse product for each term, so that a model with hundreds of random
+  terms takes seconds instead of minutes.

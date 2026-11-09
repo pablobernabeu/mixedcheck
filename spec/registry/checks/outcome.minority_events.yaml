@@ -20,8 +20,8 @@ availability:
   - reason: declaration_missing
     condition: >-
       The family class is bernoulli, the outcome takes values other than 0 and
-      1, as numbers or logical values, in the analysis sample, and the
-      declaration gives no event level.
+      1, as numbers or logical values, in the analysis sample, and the IR
+      gives the response no event level (registry.md, Terms).
     pointer: /variables/{outcome}/event_level
 statistics:
   events:

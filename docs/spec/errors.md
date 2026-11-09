@@ -392,12 +392,13 @@ The builder of the IR reports one issue, the first that its stages find, with a 
 
 ### results
 
-The rules behind these codes, the stages in which they are checked and their locations are in [documents.md](documents.md) (Results document and Internal sidecar). E7007 to E7010 are raised by `audit()` and `write_results()`, whose arguments and order of steps are in 03-execution-plan.md (M2). Their arguments take these values, so that both packages render the same message.
+The rules behind these codes, the stages in which they are checked and their locations are in [documents.md](documents.md) (Results document and Internal sidecar). E7007 to E7010 are raised by `audit()` and `write_results()`, whose arguments and order of steps are in 03-execution-plan.md (M2). Their arguments and that of E7025 take these values, so that both packages render the same message.
 
 - E7007: {sample} is 'design' or 'analysis'.
 - E7008: {name} is the family given, and {expected} the accepted names in the order 'gaussian', 'binomial', 'poisson', 'negative_binomial', 'beta', 'gamma', 'inverse_gaussian' and 'cumulative'.
-- E7009: {tier} is 'T1' or 'T2', and {requirement} is 'a reason of 1 to 4000 characters without control characters' for a reason that is missing, empty, longer or with a control character, 'the exploratory mode' for T2 without it and 'a formula with a response' for a one-sided formula.
+- E7009: {tier} is 'T1' or 'T2', and {requirement} is 'a reason of 1 to 4000 characters without control characters' for a reason that is missing, empty, longer or with a control character, U+0000 to U+001F or U+007F, as the pattern of text in results.schema.json states, so that U+0080 to U+009F are accepted, 'the exploratory mode' for T2 without it and 'a formula with a response' for a one-sided formula.
 - E7010: {rule} is 'does not end in' when {file} is 'shareable results document', for a shareable document, and 'ends in' when {file} is 'internal results document' or 'internal sidecar', for an internal document or the sidecar.
+- E7025: {count} is the name of the count statistic that the registry entry gives as the n of the quantile.
 
 | Code | Name | Raised when |
 |---|---|---|
@@ -416,6 +417,7 @@ The rules behind these codes, the stages in which they are checked and their loc
 | E7022 | results_quantile_shown | a shareable document writes a quantile without its n or one that the quantile rule suppresses |
 | E7023 | results_label_not_pseudonym | a shareable document writes a label that is not a pseudonym |
 | E7024 | results_ratio_shown | a shareable document writes a ratio whose numerator or denominator is a person count that is suppressed or below the minimum count |
+| E7025 | results_quantile_n | a finding writes the n of a quantile without the count that gives it, or with a value other than that count's |
 | E7040 | results_unknown_check | a finding names a check that the registry does not have |
 | E7041 | results_registry_value | a finding's check version, tier, statistic kind or count class differs from its registry entry |
 | E7042 | results_unknown_name | a finding has a statistic, message or scope part that its registry entry does not define |

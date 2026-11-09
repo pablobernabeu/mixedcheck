@@ -79,10 +79,15 @@ statistics:
       family classes, for which the test covers a necessary condition only.
   smallest_eigenvalue:
     kind: real
+    internal_only: true
     definition: >-
       The smallest eigenvalue of C, a scale-free index of how close the design
       comes to confounding parameters. It is a heuristic, absent when C is
-      empty.
+      empty, which the verdict does not read. It is computed from the level
+      sizes of the factors and the rows of the design sample, so that for a
+      random intercept beside a fixed part constant within its levels it
+      gives back the rows and the level sizes that the privacy filter
+      suppresses, and a shareable document never writes it.
   vanishing_parameters:
     kind: names
     definition: >-
@@ -132,10 +137,12 @@ parameters:
       The largest number of columns of Z for which the check runs. With
       max_parameters, it bounds the time of the check, which grows with the
       square of the number of columns of Z times the square of the largest
-      number of columns of a random term. The check holds W in blocks, the
-      elements between two random terms for a few of the levels of one of
-      them at a time, so that its memory does not grow with the square of the
-      number of columns of Z.
+      number of columns of a random term, and with the number of rows times
+      the square of the number of random terms, which max_parameters bounds.
+      The check holds W in blocks, the elements between a few of the levels
+      of one random term and the columns of the terms after it at a time, so
+      that its memory does not grow with the square of the number of columns
+      of Z.
     sources:
       - kind: convention
         citation: Set by this project for registry 0.1.0.
@@ -149,7 +156,8 @@ parameters:
       - kind: convention
         citation: >-
           Set by this project for registry 0.1.0 with max_z_columns, so that
-          the check takes seconds rather than minutes at both limits.
+          the check takes seconds rather than minutes at both limits on a few
+          thousand rows.
 decision:
   rules:
     - finding: consequential

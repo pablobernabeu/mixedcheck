@@ -379,7 +379,7 @@ audit_check_structure_within_between <- function(run, entry, elements) {
       }
     }
     numeric <- vapply(term$variables, function(v) {
-      identical(ir$predictors[[v$variable]]$kind, "numeric")
+      identical(named_member(ir$predictors, v$variable)$kind, "numeric")
     }, NA)
     if (length(kept) == 1L && all(numeric)) {
       statistics <- c(statistics, intraclass_correlation(values[, 1L], levels$code,
@@ -411,17 +411,20 @@ slope_requested <- function(run, term, factor) {
 
 # The ANOVA intraclass correlation of a column over the levels of a factor
 # and the share of its variation within levels (structure.within_between).
-# The overall and level means are summed exactly and divided once. Both are
-# absent for a column that is constant, compared by value, and the share
-# also when SSB + SSW is 0. The correlation is NaN when J is 1, when N
-# equals J or when its denominator is 0, so that its absence depends on no
-# count of levels or rows.
+# The column is divided by its largest absolute value, which changes neither
+# statistic, so that the squares neither overflow nor underflow, and the
+# overall and level means of the scaled column are summed exactly and
+# divided once. Both are absent for a column that is constant, compared by
+# value, and the share also when SSB + SSW is 0. The correlation is NaN when
+# J is 1, when N equals J or when its denominator is 0, so that its absence
+# depends on no count of levels or rows.
 intraclass_correlation <- function(x, level, count, sizes) {
   found <- list()
   n <- length(x)
   if (all(x == x[1L])) {
     return(found)
   }
+  x <- x / max(abs(x))
   mean <- exact_sum(x) / n
   means <- exact_group_sums(x, level, count) / sizes
   ssb <- sum(sizes * (means - mean)^2)

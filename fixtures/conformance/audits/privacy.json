@@ -63,7 +63,7 @@
     },
     {
       "id": "audits-privacy-002",
-      "description": "With pupils as the disclosure unit, the levels of 'pupil', each holding one pupil, resolve as a person count and those of 'school', each holding ten pupils, as a non-person count, so both are written. The sizes of 2 rows of the pupils are person counts below min_count, of which the minimum and the maximum are suppressed by the quantile rule whatever their value, while the sizes of 20 rows of the two schools are quantiles of 2 values, which the quantile rule suppresses: the minimum and the maximum always, the median since 2 times 5 is below 10 times 10 and the quartiles since 2 times 25 is below 10 times 100. effective_size is suppressed with lower_quartile, which with the rows and the levels would give back the sizes.",
+      "description": "With pupils as the disclosure unit, the levels of 'pupil', each holding one pupil, resolve as a person count and those of 'school', each holding ten pupils, as a non-person count, so both are written. The sizes of 2 rows of the pupils are person counts below min_count, of which the median is suppressed with the detail 'min_count' and the minimum, the maximum and the quartiles, which the quantile rule suppresses since 20 times 25 is below 10 times 100, with the detail 'quantile' whatever their value, while the sizes of 20 rows of the two schools are quantiles of 2 values, which the quantile rule suppresses: the minimum and the maximum always, the median since 2 times 5 is below 10 times 10 and the quartiles since 2 times 25 is below 10 times 100. effective_size is suppressed with lower_quartile, which with the rows and the levels would give back the sizes.",
       "checks": ["structure.cluster_sizes"],
       "data": {
         "y": [10, 17, 12.5, 19.5, 15, 10.5, 17.5, 13, 20, 15.5, 11, 18, 13.5, 20.5, 16, 11.5, 18.5, 14, 21, 16.5, 12, 19, 14.5, 10, 17, 12.5, 19.5, 15, 10.5, 17.5, 13, 20, 15.5, 11, 18, 13.5, 20.5, 16, 11.5, 18.5],
@@ -134,12 +134,12 @@
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 20, "count_class": "person"},
-              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "rows": {"kind": "count", "value": 40, "count_class": "person"},
               "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}
+              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
             "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 20}, "dominated": false}}
           },
@@ -445,12 +445,12 @@
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 20, "count_class": "person"},
-              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "rows": {"kind": "count", "value": 36, "count_class": "person"},
               "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}
+              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
             "support": {"rows": {"value": 36}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
           }
@@ -914,12 +914,12 @@
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
-              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}
+              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
             "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
           }
@@ -3329,7 +3329,7 @@
     },
     {
       "id": "audits-privacy-049",
-      "description": "Eleven pupils, the disclosure unit, meet in ten sessions of two rows each, except that two pupils share the session s10. Nine sessions hold one pupil, so a count of the levels of 'session' can count pupils, and it resolves as a person count although one session holds two members. The 10 levels are written, being at least min_count, the level sizes of 2 and 4 rows are person counts below min_count, of which the minimum and the maximum are suppressed by the quantile rule, and the support has 11 contributors.",
+      "description": "Eleven pupils, the disclosure unit, meet in ten sessions of two rows each, except that two pupils share the session s10. Nine sessions hold one pupil, so a count of the levels of 'session' can count pupils, and it resolves as a person count although one session holds two members. The 10 levels are written, being at least min_count, the level sizes of 2 and 4 rows are person counts below min_count, which the quantile rule suppresses whatever their value, since 10 times 50 is below 10 times 100, and the support has 11 contributors.",
       "checks": ["structure.cluster_sizes"],
       "data": {
         "y": [11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 30, 31],
@@ -3378,12 +3378,12 @@
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 10, "count_class": "person"},
-              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
-              "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
+              "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "rows": {"kind": "count", "value": 22, "count_class": "person"},
               "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}
+              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
             "support": {"rows": {"value": 22}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 11}, "dominated": false}}
           }
@@ -4102,6 +4102,105 @@
               "tied": {"kind": "boolean", "value": false}
             },
             "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-060",
+      "description": "A draft declaration whose disclosure_unit names the unit class, which counts as absent because /provenance/inferred lists it, so that disclosure_unit counts as absent too and the default applies: the one participant unit, pupil, is the disclosure unit. Each class holds two pupils, so the counts of labels.unicode_forms for the column class resolve as non-person counts, which the filter writes. The table and the design sample hold the same rows, so the table loses its rows and contributors, and the support is suppressed with the detail 'secondary'.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6, 2, 6, 4],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "class": ["c1", "c1", "c1", "c1", "c2", "c2", "c2", "c2", "c3", "c3", "c3", "c3", "c4", "c4", "c4", "c4", "c5", "c5", "c5", "c5", "c6", "c6", "c6", "c6"],
+        "pupil": ["p01", "p01", "p02", "p02", "p03", "p03", "p04", "p04", "p05", "p05", "p06", "p06", "p07", "p07", "p08", "p08", "p09", "p09", "p10", "p10", "p11", "p11", "p12", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "class", "columns": ["class"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "role": "participant"}],
+        "disclosure_unit": "class",
+        "provenance": {"inferred": ["/units/0"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'class' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 24}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'class' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-061",
+      "description": "The data of audits-privacy-060 with the first column of the unit pupil inferred: a unit one of whose columns is inferred counts as absent, so no unit is the disclosure unit, the counts of labels.unicode_forms resolve as person counts and the contributors are the 6 levels of class. The finding fails the minimum-count rule, so its counts are suppressed with the detail 'min_count_rule' and its contributors with 'min_count', and its 24 rows, of the table, lose their value beside the design sample with the same rows.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6, 2, 6, 4],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "class": ["c1", "c1", "c1", "c1", "c2", "c2", "c2", "c2", "c3", "c3", "c3", "c3", "c4", "c4", "c4", "c4", "c5", "c5", "c5", "c5", "c6", "c6", "c6", "c6"],
+        "pupil": ["p01", "p01", "p02", "p02", "p03", "p03", "p04", "p04", "p05", "p05", "p06", "p06", "p07", "p07", "p08", "p08", "p09", "p09", "p10", "p10", "p11", "p11", "p12", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "class", "columns": ["class"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "role": "participant"}],
+        "provenance": {"inferred": ["/units/1/columns/0"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'class' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 24}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'class' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "spellings": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
           }
         ]
       }

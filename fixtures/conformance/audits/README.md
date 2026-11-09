@@ -4,13 +4,13 @@ These cases test `audit()`, the entry point of Stream B that M2 implements in bo
 
 | File | Cases | Covers |
 |---|---|---|
-| assignment.json | 24 | the three assignment checks: declared and inferred levels, mixed units, coverage by a random intercept, coarser grouping factors, design degrees of freedom with and without blocks, units nested within their parents, the rows of an assignment and a missing declaration or assignment block |
-| design.json | 27 | design.rank_deficiency, design.collinearity and design.scale_disparity: dropped columns, empty cells, estimands, GVIF against its thresholds and the scales of the fixed-effects columns |
+| assignment.json | 25 | the three assignment checks: declared and inferred levels, mixed units, coverage by a random intercept, coarser grouping factors, design degrees of freedom with and without blocks, units nested within their parents, the rows of an assignment and a missing declaration or assignment block, or one whose units count as absent |
+| design.json | 28 | design.rank_deficiency, design.collinearity and design.scale_disparity: dropped columns, empty cells, estimands, GVIF against its thresholds and the scales of the fixed-effects columns |
 | identifiability.json | 34 | the four identifiability checks: the Gram matrix of the covariance parameters, degrees of freedom between levels, levels against the dimension of a random term and random effects confounded with the residual |
 | keys.json | 12 | keys.duplicates: duplicates and missing values of the key, the columns compared, availability and the refusals of a key that the run cannot read |
-| labels.json | 7 | labels.unicode_forms: the columns that hold labels and the spellings that NFC merges |
-| outcome.json | 36 | the T1 checks and outcome.separation: decisions, messages, family filters, availability, findings for the model as a whole and the refusals E6069, E6078, E7007, E7008 and E7009 |
-| privacy.json | 59 | the privacy filter in both modes: each step, counts of levels resolved both ways, parts of a total, the rules across findings and on decisions, the fallback of every message that a case can reach and the channels of differencing that the filter closes |
+| labels.json | 8 | labels.unicode_forms: the columns that hold labels and the spellings that NFC merges |
+| outcome.json | 39 | the T1 checks and outcome.separation: decisions, messages, family filters, availability, inferred bounds and event levels, findings for the model as a whole, the refusals E6069, E6078, E7007, E7008 and E7009 and a reason that E7009 accepts |
+| privacy.json | 61 | the privacy filter in both modes: each step, counts of levels resolved both ways, parts of a total, the rules across findings and on decisions, the disclosure unit of a draft declaration, the fallback of every message that a case can reach and the channels of differencing that the filter closes |
 | sample.json | 11 | sample.raw_vs_analysis: complete tables, rows dropped through predictors, weights and sample columns, factors that lose levels, new singletons and emptied reference levels |
 | structure.json | 55 | the six structure checks: label incidence, evidence on the scope of repeated labels, aliased factors, level sizes, within and between status and connectivity |
 
@@ -49,7 +49,7 @@ The test compares the findings with the expected list member by member.
 - Identifiers, versions, tiers, scopes, statuses, message identifiers, availability, count classes, quantiles and the values of statistics of kind count, ratio, boolean, category, names and labels match exactly. A ratio is the double nearest to the quotient of its two counts, which both languages compute alike.
 - The values of statistics of kind real and reals match within the tolerance of conventions.md (Comparison across languages), with its exceptions for design.collinearity, design.scale_disparity and outcome.separation, and bit for bit for the statistics that `exact` lists. The expected value is the double that the definition gives, written as the canonical serialiser writes it.
 - A message text matches when it is identical, or when it differs only in the renderings of real statistics whose values match by the rule above and whose two renderings are the neighbouring roundings at the statistic's digits on either side of one rounding boundary.
-- A finding whose expected threshold_proximity is near_threshold may differ in its finding status, its message and the statistics its decision chose between, as conventions.md allows. Cases keep real statistics away from thresholds unless they test the proximity band.
+- A finding that is near_threshold in the expected findings or in the run may differ in its finding status, its message and its threshold_proximity, and a finding of outcome.separation also in its verdict, optimum, margin, bounds and columns_involved, as conventions.md allows. Cases keep real statistics away from thresholds unless they test the proximity band.
 - The `dominated` member of a support matches exactly.
 
 ## Provenance

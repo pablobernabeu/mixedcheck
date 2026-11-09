@@ -74,12 +74,15 @@ statistics:
       MSW = SSW/(N - J), SSB the sum over levels of the level size times the
       squared difference between the level mean and the overall mean, SSW the
       sum of squared differences from the level means and n0 as
-      structure.cluster_sizes defines it. The overall and level means are
-      summed exactly and divided once, as ir.md (Centring) computes means. It
-      is absent for other terms and when the column is constant over the
-      design sample, compared by value, and 'NaN' when J is 1, when N equals
-      J or when the denominator is 0, so that its absence depends on no
-      count of levels or rows (privacy.md, Steps). With within_share and the
+      structure.cluster_sizes defines it. The column is first divided by its
+      largest absolute value, which changes neither icc nor within_share, so
+      that its squares neither overflow nor underflow, and the overall and
+      level means of the scaled column are summed exactly and divided once,
+      as ir.md (Centring) computes means. It is absent for other terms and
+      when the column is constant over the design sample, compared by value,
+      and 'NaN' when J is 1, when N equals J or when the denominator is 0, so
+      that its absence depends on no count of levels or rows (privacy.md,
+      Steps). With within_share and the
       rows of the design sample, it gives back J and the sum of the squared
       level sizes, which are integers, so a shareable document never writes
       it.
@@ -87,8 +90,10 @@ statistics:
     kind: real
     definition: >-
       For the same terms, SSW / (SSB + SSW), the share of the column's
-      variation that lies within levels, absent when the column is constant
-      over the design sample, when SSB + SSW is 0 or for other terms.
+      variation that lies within levels, with SSB and SSW those of icc,
+      computed from the scaled column. It is absent when the column is
+      constant over the design sample, when SSB + SSW is 0 or for other
+      terms.
 thresholds: {}
 parameters:
   agreement:

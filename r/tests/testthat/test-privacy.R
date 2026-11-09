@@ -599,6 +599,191 @@ test_that("outcome.separation does not show that missing outcomes emptied a cell
   expect_identical(shared[[1L]]$status, shared[[2L]]$status)
 })
 
+test_that("outcome.separation with the levels of one factor is suppressed whatever its verdict", {
+  skip_if_not_installed("lpSolve")
+  # Three arms of 40 rows, with events exactly in arm 'b': complete would
+  # show that each arm holds one class, and events which.
+  data <- data.frame(arm = rep(c("a", "b", "c"), each = 40), g = rep(sprintf("g%02d", 1:20), 6))
+  data$y <- as.numeric(data$arm == "b")
+  found <- audit_both(data, "y ~ arm + (1 | g)", family = "binomial", outcome_access = "T2",
+                      reason = "Separation.", exploratory = TRUE)
+  expect_identical(written(finding_of(found$shareable, "design.rank_deficiency"), "kept"), 3)
+  expect_identical(written(finding_of(found$internal, "outcome.separation"), "verdict"), "complete")
+  shared <- finding_of(found$shareable, "outcome.separation")
+  expect_identical(shared$status$availability$detail, "decision")
+  # Without separation, the finding is suppressed alike.
+  data$y <- rep(c(0, 1), 60)
+  found <- audit_both(data, "y ~ arm + (1 | g)", family = "binomial", outcome_access = "T2",
+                      reason = "Separation.", exploratory = TRUE)
+  expect_identical(written(finding_of(found$internal, "outcome.separation"), "verdict"), "none")
+  expect_identical(finding_of(found$shareable, "outcome.separation")$status$availability$detail,
+                   "decision")
+})
+
+test_that("the smallest eigenvalue of the Gram matrix does not give back the rows", {
+  # 20 subjects of 4 rows with a condition balanced within subjects: the
+  # eigenvalue is 1 - sqrt((J - 1) / (N - 2)), which gives back N.
+  data <- data.frame(y = seq_len(80) %% 9, condition = rep(c("a", "b"), 40),
+                     subject = rep(sprintf("s%02d", 1:20), each = 4))
+  found <- audit_both(data, "y ~ condition + (1 | subject)")
+  internal <- finding_of(found$internal, "identifiability.gram_rank")
+  expect_equal(written(internal, "smallest_eigenvalue"), 1 - sqrt(19 / 78), tolerance = 1e-12)
+  shared <- finding_of(found$shareable, "identifiability.gram_rank")
+  expect_null(written(shared, "smallest_eigenvalue"))
+  expect_identical(detail(shared, "smallest_eigenvalue"), "internal_only")
+})
+
+test_that("a quartile that is the minimum is suppressed by the quantile rule whatever its value", {
+  # Three schools of pupils, the disclosure unit: the lower quartile of 3
+  # sizes is the smallest, and its detail must not show whether it is
+  # below min_count.
+  details <- vapply(list(c(6, 40, 54), c(12, 40, 48)), function(sizes) {
+    school <- rep(c("A", "B", "C"), sizes)
+    data <- data.frame(y = seq_along(school) %% 5, school = school,
+                       pupil = sprintf("p%03d", seq_along(school)))
+    declaration <- list(vocabulary = "0.1.0", units = list(
+      list(name = "school", columns = list("school"), role = "cluster"),
+      list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+           role = "participant")
+    ))
+    found <- audit_both(data, "y ~ 1 + (1 | school)", declaration = declaration)
+    sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "school")
+    vapply(c("lower_quartile", "median", "upper_quartile"), detail, "", finding = sizes)
+  }, character(3))
+  expect_true(all(details == "quantile"))
+})
+
+test_that("levels that an assignment removes from a person sample are compared", {
+  # 29 schools of 4 pupils and S30 of 1 pupil, whose rows alone lack 'arm':
+  # the schools are person counts in the design sample and not in the rows
+  # of the assignment, and 30 levels minus 29 units would count S30.
+  school <- c(rep(sprintf("S%02d", 1:29), each = 8), rep("S30", 2))
+  pupil <- c(rep(sprintf("P%03d", 1:116), each = 2), rep("P117", 2))
+  arm <- ifelse(seq_along(school) %% 16 < 8, "a", "b")
+  arm[school == "S30"] <- NA
+  data <- data.frame(y = seq_along(school) %% 7, school = school, pupil = pupil, arm = arm)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+         role = "participant")
+  ), assignment = list(list(column = "arm", unit = "school", randomised = TRUE,
+                            level = "between_unit")))
+  found <- audit_both(data, "y ~ 1 + (1 | school)", declaration = declaration)
+  sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "school")
+  assigned <- finding_of(found$shareable, "assignment.constant_within_unit", column = "arm")
+  expect_identical(written(sizes, "levels"), 30)
+  expect_identical(finding_of(found$internal, "assignment.constant_within_unit",
+                              column = "arm")$statistics$units$count_class, "non_person")
+  expect_null(recover_difference(written(sizes, "levels"), written(assigned, "units")))
+  expect_identical(detail(assigned, "units"), "secondary")
+})
+
+test_that("rows without a key value do not give back the rows that a predictor removes", {
+  # 30 subjects of 10 trials, with 'subject' missing in rows 1 to 15 and
+  # 'x' in rows 100 and 200: 17 rows leave the design sample, 15 of them
+  # without a key value.
+  data <- data.frame(y = seq_len(300) %% 11, x = seq_len(300) %% 13,
+                     subject = rep(sprintf("s%02d", 1:30), each = 10), trial = rep(1:10, 30))
+  data$subject[1:15] <- NA
+  data$x[c(100, 200)] <- NA
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant")
+  ), observation = list(key = list("subject", "trial")))
+  found <- audit_both(data, "y ~ x + (1 | subject)", declaration = declaration)
+  expect_identical(written(finding_of(found$internal, "keys.duplicates"), "missing_key_rows"), 15)
+  keys <- finding_of(found$shareable, "keys.duplicates")
+  dropped <- finding_of(found$shareable, "sample.raw_vs_analysis")
+  expect_identical(written(dropped, "rows_dropped"), 17)
+  expect_null(recover_difference(written(dropped, "rows_dropped"),
+                                 written(keys, "missing_key_rows")))
+  expect_identical(detail(keys, "missing_key_rows"), "secondary")
+  # With 12 rows that only 'x' removes, the count stays.
+  data$x[c(100, 200)] <- 1
+  data$x[seq(20, 240, by = 20)] <- NA
+  found <- audit_both(data, "y ~ x + (1 | subject)", declaration = declaration)
+  expect_identical(written(finding_of(found$shareable, "keys.duplicates"), "missing_key_rows"),
+                   15)
+})
+
+test_that("only the rows of assignments that yield findings are samples", {
+  # 30 classes of 2 rows without a disclosure unit. 'arm' is missing in
+  # classes 1 to 10 and 'dose' in classes 1 to 11, so the rows of 'dose'
+  # lie in those of 'arm' and differ by one class.
+  class <- rep(sprintf("c%02d", 1:30), each = 2)
+  arm <- rep(c("a", "b"), 30)[match(class, unique(class))]
+  dose <- rep(c("d1", "d2", "d3"), 10)[match(class, unique(class))]
+  arm[class <= "c10"] <- NA
+  dose[class <= "c11"] <- NA
+  data <- data.frame(y = seq_along(class) %% 7, x = seq_along(class) %% 5, class = class,
+                     arm = arm, dose = dose)
+  units <- function(level) {
+    declaration <- list(vocabulary = "0.1.0", units = list(
+      list(name = "class", columns = list("class"), role = "cluster")
+    ), assignment = list(
+      list(column = "arm", unit = "class", randomised = TRUE, level = "between_unit"),
+      list(column = "dose", unit = "class", randomised = TRUE, level = level)
+    ))
+    found <- audit_both(data, "y ~ x + (1 | class)", declaration = declaration)
+    finding_of(found$shareable, "assignment.design_df", column = "arm")
+  }
+  # 'dose' within units yields no finding, so its rows are not a sample.
+  expect_identical(written(units("within_unit"), "units"), 20)
+  expect_identical(detail(units("between_unit"), "units"), "secondary")
+})
+
+test_that("the rows of two pairs of columns that hold the same rows are one sample", {
+  # 24 classes and 24 teachers in 12 schools, which are not in the formula
+  # and are missing in schools 7 to 12: the pairs (class, school) and
+  # (school, teacher) read the same 24 rows.
+  index <- rep(1:24, each = 2)
+  school <- sprintf("S%02d", (index + 1) %/% 2)
+  school[index > 12] <- NA
+  data <- data.frame(y = seq_along(index) %% 7, x = seq_along(index) %% 5,
+                     class = sprintf("c%02d", index), teacher = sprintf("t%02d", index),
+                     school = school)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), nested_in = "school", id_scope = "global",
+         role = "cluster"),
+    list(name = "teacher", columns = list("teacher"), nested_in = "school", id_scope = "global",
+         role = "cluster")
+  ))
+  found <- audit_both(data, "y ~ x + (1 | class) + (1 | teacher)", declaration = declaration)
+  classes <- finding_of(found$shareable, "structure.label_incidence", first = "class",
+                        second = "school")
+  teachers <- finding_of(found$shareable, "structure.label_incidence", first = "school",
+                         second = "teacher")
+  expect_identical(written(classes, "levels_first"), 12)
+  expect_identical(written(teachers, "levels_second"), 12)
+})
+
+test_that("a draft declaration has the disclosure unit of the units that do not count as absent", {
+  data <- data.frame(y = seq_len(24) %% 5, x = seq_len(24) %% 7,
+                     class = rep(sprintf("c%d", 1:6), each = 4),
+                     pupil = rep(sprintf("p%02d", 1:12), each = 2))
+  draft <- function(inferred, disclosure_unit = NULL) {
+    declaration <- list(vocabulary = "0.1.0", units = list(
+      list(name = "class", columns = list("class"), role = "cluster"),
+      list(name = "pupil", columns = list("pupil"), role = "participant")
+    ), provenance = list(inferred = inferred))
+    declaration$disclosure_unit <- disclosure_unit
+    with_audit_time(audit(data, "y ~ x + (1 | class)", declaration = declaration,
+                          key = privacy_key))$document
+  }
+  # A disclosure_unit that names a unit that counts as absent counts as
+  # absent itself, so that the one participant unit is the default.
+  document <- draft(list("/units/0"), "class")
+  expect_identical(document$privacy$disclosure_unit, list(name = "pupil", source = "participant"))
+  # A unit one of whose columns is inferred counts as absent, so that no
+  # unit is the disclosure unit.
+  for (inferred in c("/units/1/columns", "/units/1/columns/0", "/units/1/name")) {
+    document <- draft(list(inferred))
+    expect_null(document$privacy$disclosure_unit)
+    sizes <- finding_of(document, "structure.cluster_sizes", factor = "class")
+    expect_identical(sizes$support$contributors$basis, "grouping_factors")
+  }
+})
+
 # --- Pseudonyms ---------------------------------------------------------------------------
 
 # A check whose findings write labels, which registry 0.1.0 does not have.

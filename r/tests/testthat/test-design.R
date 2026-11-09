@@ -58,6 +58,49 @@ test_that("the exact sums of groups equal the exact sum of each group", {
   }
 })
 
+test_that("the exact sums of groups keep only the limbs their values reach", {
+  exact_sum <- mixedcheck:::exact_sum
+  sums <- mixedcheck:::exact_group_sums
+  largest <- .Machine$double.xmax
+  # A borrow that leaves the highest limb not 0 below the lowest limb of every
+  # value in its group, sums at either end of the range of doubles and sums
+  # that cancel to 0, also of negative zeros.
+  values <- list(c(4 + 2^-50, -4, -2^-1074), c(-4 - 2^-50, 4, 2^-1074, 2^-1074),
+                 c(2^46, -2^-1074), c(2^1000, -2^-1000), c(largest, largest),
+                 c(largest, -2^-1074), c(-largest, -largest / 2^53), c(largest, -largest),
+                 c(2^-1022, -2^-1074), c(2^-1074, -2^-1074), c(-0, -0), c(2^64, -1),
+                 c(2^1023, 2^970), c(1, -2^-54, -2^-1074))
+  groups <- rep(seq_along(values), lengths(values))
+  expect_identical(sums(unlist(values), groups, length(values)),
+                   vapply(values, exact_sum, 0))
+  # Random values with subnormals, values near the largest double, negative
+  # zeros, groups of one row and groups whose values cancel.
+  local_seed(11)
+  draw <- function(n) {
+    kind <- sample(5L, n, TRUE)
+    sign <- sample(c(-1, 1), n, TRUE)
+    x <- rnorm(n) * 2^sample(-1000:1000, n, TRUE)
+    x[kind == 2L] <- sign[kind == 2L] * sample(2^20, sum(kind == 2L), TRUE) * 2^-1074
+    x[kind == 3L] <- sign[kind == 3L] * largest * runif(sum(kind == 3L)) / 4
+    x[kind == 4L] <- sample(c(0, -0, 2^-1022, -2^-1074, 1), sum(kind == 4L), TRUE)
+    x[kind == 5L] <- sign[kind == 5L] * (1 - 2^-53) * 2^sample(-1000:1000, sum(kind == 5L), TRUE)
+    x
+  }
+  for (trial in 1:30) {
+    count <- sample(c(3L, 20L, 100L), 1L)
+    x <- draw(sample(300L, 1L))
+    g <- sample(count, length(x), TRUE)
+    cancel <- g %in% sample(count, count %/% 3L)
+    x <- c(x, -x[cancel])
+    g <- c(g, g[cancel])
+    expect_identical(sums(x, g, count),
+                     vapply(seq_len(count), function(k) exact_sum(x[g == k]), 0))
+  }
+  # Two groups whose carries reach the limb above the three of their values.
+  x <- rep((1 - 2^-53) * 2^(53 + 32 * 20 + 31 - 1074), 20000L)
+  expect_identical(sums(x, rep(1:2, 10000L), 2L), rep(exact_sum(x[1:10000]), 2L))
+})
+
 test_that("the sequential rule drops zero columns and later members of dependencies", {
   rule <- mixedcheck:::sequential_rule
   x <- cbind(1, c(1, 2, 3, 4), 0, c(2, 4, 6, 8), c(1, 0, 0, 1))

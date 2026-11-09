@@ -82,12 +82,13 @@ from reporting a new submission, the repository's URLs while it is private and
 the large component of the development version number. Without access to a time
 server, also set `_R_CHECK_SYSTEM_CLOCK_=false`.
 
-The Python package needs Python 3.11 or later. Install it with its test group,
+The Python package needs Python 3.11 or later. Install it with its test and
+typing groups, the second of which holds mypy and the stubs of pandas and scipy,
 then run the tests and ruff from the repository root, and mypy, which reads its
 settings from python/pyproject.toml, from python/:
 
 ```bash
-python -m pip install ./python --group python/pyproject.toml:test
+python -m pip install ./python --group python/pyproject.toml:test --group python/pyproject.toml:typing
 python -m pytest python
 ruff check python spec/tools parity fixtures/conformance/tools .github/scripts
 (cd python && mypy)

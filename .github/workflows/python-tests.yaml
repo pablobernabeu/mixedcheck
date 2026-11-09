@@ -61,11 +61,20 @@ jobs:
       # comparison runs in references.yaml.
       - name: Test the reference checker offline
         run: python3 -m unittest discover -s .github/scripts
+      - name: Install uv
+        run: pipx install "uv==$UV_VERSION"
       # The settings are in python/pyproject.toml. The package ships the
-      # marker py.typed, so its hints must pass the strict mode.
+      # marker py.typed, so its hints must pass the strict mode. The group
+      # 'typing' installs mypy with the hints of numpy and the stubs of pandas
+      # and scipy, at their lowest versions, so that every array and data
+      # frame of the package is checked against the declared floors.
       - name: Check the type hints of the package
         working-directory: python
-        run: pipx run --spec mypy==2.4.1 mypy
+        run: |
+          uv venv --python 3.11 "$RUNNER_TEMP/typing"
+          uv pip install --python "$RUNNER_TEMP/typing" --resolution lowest-direct --group typing
+          uv pip list --python "$RUNNER_TEMP/typing"
+          "$RUNNER_TEMP/typing/bin/mypy"
 
   quick:
     name: ${{ matrix.name }}

@@ -211,3 +211,26 @@ run_declaration_cases <- function(directory, file) {
     }
   }
 }
+
+# The data frame of a case of the formula corpus: one column for each member of its data, numeric,
+# character or logical, with NA for null. Strings come from the strict reader
+# and are marked UTF-8.
+corpus_data_frame <- function(data) {
+  special <- c("NaN" = NaN, "Infinity" = Inf, "-Infinity" = -Inf)
+  columns <- lapply(data, function(values) {
+    present <- Filter(Negate(is.null), values)
+    # A column with a number is numeric, and its strings are special values.
+    if (any(vapply(present, is.numeric, NA))) {
+      return(vapply(values, function(v) {
+        if (is.null(v)) NA_real_ else if (is.character(v)) special[[v]] else v
+      }, 0))
+    }
+    if (is.character(present[[1L]])) {
+      return(vapply(values, function(v) if (is.null(v)) NA_character_ else v, ""))
+    }
+    vapply(values, function(v) if (is.null(v)) NA else v, NA)
+  })
+  frame <- list2DF(unname(columns))
+  names(frame) <- names(data)
+  frame
+}

@@ -438,6 +438,25 @@ def calendar_day_exists(text: str) -> bool:
     return day <= days
 
 
+def is_column_name(text: str) -> bool:
+    """Whether a str is a column name of defs.schema.json: 1 to 128 characters,
+    none of them a control character or a character outside the Basic
+    Multilingual Plane, as the lengths and pattern of the definition state."""
+    bundle = schema_bundle()
+    definition = bundle.resolve("urn:mixedcheck:schema:defs#/$defs/column_name", "").schema
+    return definition["minLength"] <= len(text) <= definition["maxLength"] and bundle.matches(
+        definition["pattern"], text
+    )
+
+
+def is_decimal_string(text: str) -> bool:
+    """Whether a str is a decimal string of defs.schema.json, a decimal number
+    in canonical plain notation, as the pattern of the definition states."""
+    bundle = schema_bundle()
+    definition = bundle.resolve("urn:mixedcheck:schema:defs#/$defs/decimal_string", "").schema
+    return bundle.matches(definition["pattern"], text)
+
+
 def significant_digit_count(text: str) -> int:
     """The number of significant digits of a decimal string: its digits
     without leading or trailing zeros."""

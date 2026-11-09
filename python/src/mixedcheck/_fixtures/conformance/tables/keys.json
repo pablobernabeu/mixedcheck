@@ -692,6 +692,66 @@
           "offset": 15
         }
       }
+    },
+    {
+      "id": "tables-keys-019",
+      "description": "The primary key is checked record by record, so a record that repeats an earlier key is reported before a missing value in a later record.",
+      "path": "keys/primary_duplicate_before_missing.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5009",
+          "message": "The record at byte 9 has the same values in the primary key as the record at byte 5.",
+          "offset": 9
+        }
+      }
+    },
+    {
+      "id": "tables-keys-020",
+      "description": "The primary key is checked record by record, so a missing value is reported before a repetition of an earlier key in a later record.",
+      "path": "keys/primary_missing_before_duplicate.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ],
+          "primaryKey": [
+            "id"
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5008",
+          "message": "The value of the column 'id' at byte 9 is missing, but the column belongs to the primary key.",
+          "offset": 9
+        }
+      }
     }
   ]
 }

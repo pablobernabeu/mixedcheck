@@ -151,6 +151,13 @@ schema_pattern_matches <- function(bundle, pattern, text) {
   grepl(converted, text, perl = TRUE)
 }
 
+# Whether each string matches the pattern of a definition of defs.schema.json
+# in the vendored bundle, such as 'decimal_string'.
+matches_definition <- function(text, name, bundle = schema_bundle()) {
+  ref <- paste0("urn:mixedcheck:schema:defs#/$defs/", name)
+  schema_pattern_matches(bundle, resolve_reference(bundle, ref, ref)$schema[["pattern"]], text)
+}
+
 # Validates a value against the schema with the given identifier, or against a
 # node, and returns the raw issues, unsorted.
 schema_issues <- function(value, schema, bundle = schema_bundle()) {
@@ -480,17 +487,16 @@ definition_issues <- function(bundle, value, node, pointer) {
   )
 }
 
-# Whether the day of a string that matches the pattern of a date or a UTC
-# timestamp, YYYY-MM-DD..., exists in its month, in integer arithmetic.
+# Whether the day of each string that matches the pattern of a date or a UTC
+# timestamp, YYYY-MM-DD..., with a month from 01 to 12, exists in its month,
+# in integer arithmetic.
 calendar_day_exists <- function(text) {
   year <- as.integer(substr(text, 1L, 4L))
   month <- as.integer(substr(text, 6L, 7L))
   day <- as.integer(substr(text, 9L, 10L))
   days <- c(31L, 28L, 31L, 30L, 31L, 30L, 31L, 31L, 30L, 31L, 30L, 31L)[month]
-  leap <- (year %% 4L == 0L && year %% 100L != 0L) || year %% 400L == 0L
-  if (month == 2L && leap) {
-    days <- 29L
-  }
+  leap <- (year %% 4L == 0L & year %% 100L != 0L) | year %% 400L == 0L
+  days[month == 2L & leap] <- 29L
   day <= days
 }
 

@@ -1,0 +1,676 @@
+# The design and analysis samples, the design matrices X and Z, the response,
+# offset and weight vectors and the sequential rule for aliased columns
+# (docs/spec/ir.md, Samples, Design matrices and Sequential rule) and the
+# exact summation behind mean centring constants (ir.md, Centring).
+
+#' Build the design matrices of an IR
+#'
+#' Builds, for the data, the design and analysis samples of an IR that
+#' [formula_ir()] returned and the matrices and vectors of the model: the
+#' fixed-effects matrix X, with the columns that the sequential rule drops
+#' named separately, the random-effects matrix Z and the response, trials,
+#' offset and weight vectors.
+#'
+#' The design sample holds the rows in which no column that the IR reads is
+#' missing, other than the response and the trials column, and no sample
+#' column of the IR is missing. The analysis sample holds the rows of the
+#' design sample in which the response is present and, with a trials column,
+#' the trials are present and either above 0 or not finite.
+#' [design_samples()] gives the two samples alone. X and Z have one row for
+#' each row of the design sample, in the order of the data. X has the
+#' fixed-part columns of the IR, computed in double arithmetic in the order
+#' the IR specification fixes, and the sequential rule drops each column
+#' whose values are all 0 or whose residual after projection onto the columns
+#' kept before it is at most 1e-7 times its norm, once the column is divided
+#' by its largest absolute value. Z has, for each random term in IR order, one
+#' column for each level of its grouping factor in the design sample and
+#' each column of the term, the columns of one level together, with one
+#' stored entry for each row and column of the term, zero or not.
+#'
+#' @param ir An IR, as [formula_ir()] returns it with the data. Its version
+#'   and structure are checked, and a mean centring rule must hold its
+#'   constant.
+#' @param data A data frame with the columns that the IR reads, under the
+#'   rules of [formula_ir()].
+#' @return A list with these elements:
+#'   * `design_sample` and `analysis_sample`: the rows of `data` in each
+#'     sample, as integer row numbers counted from 1. The Python package
+#'     counts them from 0.
+#'   * `x`: a double matrix with one row for each row of the design sample
+#'     and one column for each column of the fixed part, named as in the IR.
+#'   * `x_columns`: the names of the columns of `x`, in order.
+#'   * `x_dropped`: the names of the columns of `x` that the sequential rule
+#'     drops, in column order.
+#'   * `z`: a sparse [Matrix::dgCMatrix-class] with one row for each row of
+#'     the design sample and the columns described by `z_columns`.
+#'   * `z_columns`: a data frame with one row for each column of `z` and the
+#'     columns `term`, the position of its random term in `ir$random`,
+#'     counted from 1 (from 0 in Python), `level`, the label of its level,
+#'     which for several grouping variables joins their labels by ':', with
+#'     each '\\' and ':' in a label preceded by '\\', and `column`, the
+#'     name of the column of the random term.
+#'   * `response` and `trials`: double vectors with one value for each row
+#'     of the analysis sample, or `NULL`. The response is the response
+#'     itself, its natural logarithm for the transform 'log', 1 and 0 for
+#'     `TRUE` and `FALSE`, or, with a declared event level, 1 where the value
+#'     equals the event level and 0 otherwise. A response of strings without
+#'     an event level has no response vector.
+#'   * `offset` and `weights`: double vectors with one value for each row of
+#'     the design sample, or `NULL` when the IR has no offsets or weights.
+#'     The offset is the sum of the offsets in IR order, with the natural
+#'     logarithm for the transform 'log'.
+#' @section Errors: A problem is signalled as an error of class
+#'   `mixedcheck_error` with one issue: E6073 for NaN or an infinity in a
+#'   numeric column that the IR reads in a row of the design sample, other
+#'   than the response and the trials column, checked by column in
+#'   code-point order, then E6077 for the first column of X and then of Z
+#'   with a value that is not finite, such as a product beyond the largest
+#'   double, E6071 for the logarithm of a value that is not
+#'   positive in an offset, in IR order, E6072 for a weight that is not
+#'   positive, E6073 for NaN or an infinity in the response and then the
+#'   trials column in a row of the analysis sample and E6071 for a response
+#'   written with log(). An IR that is not valid gives the codes of the
+#'   schema area. Data that do not hold the columns or levels of the IR, and
+#'   an IR whose columns or reference levels name a level that is not among
+#'   the levels of their predictor, give an ordinary error.
+#' @seealso [formula_ir()], [design_samples()].
+#' @export
+#' @examples
+#' data <- data.frame(
+#'   y = c(1.5, 2.25, 3, 2.5, 4, 3.5),
+#'   cond = c("A", "B", "A", "B", "A", "B"),
+#'   subject = c("s1", "s1", "s2", "s2", "s3", "s3")
+#' )
+#' ir <- formula_ir("y ~ cond + (1 + cond | subject)", data = data)
+#' matrices <- design_matrices(ir, data)
+#' matrices$x
+#' matrices$z_columns
+#' as.matrix(matrices$z)
+design_matrices <- function(ir, data) {
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data frame.", call. = FALSE)
+  }
+  ir <- ir_input(ir)
+  table <- model_table(data, NULL)
+  model <- design_model(ir, table)
+  design <- model$design
+  analysis <- model$analysis
+  # E6073 in the design sample, by column in code-point order.
+  checked <- unique(c(
+    names(Filter(function(p) p$kind == "numeric", model$predictors)),
+    unlist(lapply(model$random, function(term) {
+      Filter(function(key) table$types[model$column(key)] == "number", term$grouping)
+    })),
+    vapply(model$offsets, function(o) o$variable, ""),
+    model$weights
+  ))
+  for (key in sort_identifiers(checked)) {
+    if (any(!is.finite(table$values[[model$column(key)]][design]))) {
+      raise_issue("E6073", list(column = key))
+    }
+  }
+  values <- design_variable_values(model, table, design)
+  x <- matrix(0, nrow = length(design), ncol = length(ir$fixed$columns))
+  fixed_names <- vapply(ir$fixed$columns, function(column) column$name, "")
+  # E6077 for the first column of X, then of Z, with a value that is not
+  # finite.
+  for (k in seq_along(ir$fixed$columns)) {
+    x[, k] <- design_column_values(ir$fixed$terms, ir$fixed$columns[[k]], values, length(design))
+    if (any(!is.finite(x[, k]))) {
+      raise_issue("E6077", list(column = fixed_names[k]))
+    }
+  }
+  colnames(x) <- fixed_names
+  z <- design_z(ir, model, table, design, values)
+  kept <- sequential_rule(x)
+  offset <- NULL
+  for (o in model$offsets) {
+    v <- table$values[[model$column(o$variable)]][design]
+    if (o$transform == "log") {
+      if (any(v <= 0)) {
+        raise_issue("E6071", list(column = o$variable))
+      }
+      v <- log(v)
+    }
+    offset <- if (is.null(offset)) v else offset + v
+  }
+  weights <- NULL
+  if (!is.null(model$weights)) {
+    weights <- table$values[[model$column(model$weights)]][design]
+    if (any(weights <= 0)) {
+      raise_issue("E6072", list(column = model$weights))
+    }
+  }
+  vectors <- design_response(ir, model, table, analysis)
+  list(
+    design_sample = design,
+    analysis_sample = analysis,
+    x = x,
+    x_columns = fixed_names,
+    x_dropped = fixed_names[!kept],
+    z = z$matrix,
+    z_columns = z$columns,
+    response = vectors$response,
+    trials = vectors$trials,
+    offset = offset,
+    weights = weights
+  )
+}
+
+#' The design and analysis samples of an IR
+#'
+#' Determines, for the data, the design and analysis samples of an IR that
+#' [formula_ir()] returned, without building the design matrices. The samples
+#' are determined before X, Z and the vectors, so this function reports them
+#' even when [design_matrices()] would signal E6071, E6072, E6073 or E6077
+#' for the values of the rows.
+#'
+#' The design sample holds the rows in which no column that the IR reads is
+#' missing, other than the response and the trials column, and no sample
+#' column of the IR is missing. The analysis sample holds the rows of the
+#' design sample in which the response is present and, with a trials column,
+#' the trials are present and either above 0 or not finite.
+#'
+#' @inheritParams design_matrices
+#' @return A list with the elements `design_sample` and `analysis_sample`:
+#'   the rows of `data` in each sample, as integer row numbers counted from
+#'   1. The Python package counts them from 0.
+#' @section Errors: An IR that is not valid gives the codes of the schema
+#'   area. Data that do not hold the columns or levels of the IR give an
+#'   ordinary error.
+#' @seealso [design_matrices()], which also builds the matrices.
+#' @export
+#' @examples
+#' data <- data.frame(y = c(1.5, NA, 3, 2.5), x = c(1, 2, NA, 4))
+#' ir <- formula_ir("y ~ x", data = data)
+#' design_samples(ir, data)
+design_samples <- function(ir, data) {
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data frame.", call. = FALSE)
+  }
+  ir <- ir_input(ir)
+  model <- design_model(ir, model_table(data, NULL))
+  list(design_sample = model$design, analysis_sample = model$analysis)
+}
+
+# An IR passed in: written and read again in the hashable profile, so that it
+# holds the values that the strict reader returns, then checked for its
+# version (E1441) and against ir.schema.json. A mean centring rule without
+# its constant cannot be applied.
+ir_input <- function(ir) {
+  value <- parse_json_bytes(canonical_bytes(mark_input_strings(ir), "hashable"), "hashable")
+  version <- if (is_json_object(value)) value[["ir_version"]]
+  if (is.character(version) && !version_supported(version, "^0\\.1\\.(0|[1-9][0-9]*)\\z")) {
+    raise_issue("E1441", list(version = version, supported = "0.1.x"), pointer = "/ir_version")
+  }
+  raw <- schema_issues(value, "urn:mixedcheck:schema:ir")
+  if (length(raw)) {
+    signal_issues(finish_issues(raw))
+  }
+  for (name in names(value$predictors)) {
+    centring <- value$predictors[[name]]$centring
+    if (identical(centring$rule, "mean") && is.null(centring$constant)) {
+      stop(sprintf(paste0("The centring of '%s' has no constant. Build the IR with ",
+                          "formula_ir() and the data first."), display_text(name)),
+           call. = FALSE)
+    }
+  }
+  value
+}
+
+# What the matrices need from an IR and the data: the column of each key,
+# the predictors, the random terms, the offsets, the weights and the samples.
+design_model <- function(ir, table) {
+  column <- function(key) {
+    j <- match(key, table$keys)
+    if (is.na(j)) {
+      stop(sprintf("The column '%s' that the IR reads is not in 'data'.", display_text(key)),
+           call. = FALSE)
+    }
+    j
+  }
+  predictors <- ir$predictors
+  for (key in names(predictors)) {
+    p <- predictors[[key]]
+    j <- column(key)
+    wanted <- if (p$kind == "numeric") "number" else if (is.character(p$levels[[1L]])) "string" else
+      if (is.logical(p$levels[[1L]])) "boolean" else "number"
+    if (table$types[j] != wanted && !all(table$missing[[j]])) {
+      stop(sprintf("The column '%s' of 'data' does not hold the %s values that the IR reads.",
+                   display_text(key), wanted), call. = FALSE)
+    }
+  }
+  random <- lapply(ir$random, function(term) {
+    term$grouping <- unlist(term$grouping)
+    term
+  })
+  offsets <- ir$offsets
+  weights <- ir$weights$variable
+  sample_columns <- unlist(ir$sample_columns)
+  read <- unique(c(names(predictors), unlist(lapply(random, function(term) term$grouping)),
+                   vapply(offsets, function(o) o$variable, ""), weights, sample_columns))
+  for (key in c(read, ir$response$variable, ir$response$trials)) {
+    column(key)
+  }
+  for (key in c(vapply(offsets, function(o) o$variable, ""), weights, ir$response$trials)) {
+    if (table$types[column(key)] != "number") {
+      stop(sprintf("The column '%s' of 'data' does not hold numbers.", display_text(key)),
+           call. = FALSE)
+    }
+  }
+  design <- design_rows(table, read)
+  analysis <- design
+  if (!is.null(ir$response)) {
+    j <- column(ir$response$variable)
+    analysis <- analysis[!table$missing[[j]][analysis]]
+    if (!is.null(ir$response$trials)) {
+      t <- column(ir$response$trials)
+      trials <- table$values[[t]][analysis]
+      analysis <- analysis[!table$missing[[t]][analysis] & !(is.finite(trials) & trials <= 0)]
+    }
+  }
+  list(column = column, predictors = predictors, random = random, offsets = offsets,
+       weights = weights, design = design, analysis = analysis)
+}
+
+# The rows of the table, counted from 1, in which no column of the given keys
+# is missing.
+design_rows <- function(table, keys) {
+  present <- rep(TRUE, table$rows)
+  for (key in keys) {
+    present <- present & !table$missing[[match(key, table$keys)]]
+  }
+  which(present)
+}
+
+# The values of each predictor in the rows of a sample: a numeric predictor
+# centred by its rule and, for a categorical predictor, the position of each
+# row's level among its levels. A value outside the levels is refused.
+design_variable_values <- function(model, table, rows) {
+  keys <- names(model$predictors)
+  values <- lapply(keys, function(key) {
+    p <- model$predictors[[key]]
+    v <- table$values[[model$column(key)]][rows]
+    if (p$kind == "numeric") {
+      rule <- p$centring$rule
+      if (rule != "none") {
+        v <- v - json_number_values(p$centring$constant$value)
+      }
+      return(v)
+    }
+    levels <- unlist(p$levels)
+    position <- if (is.character(levels)) match(comparison_form(v), levels) else match(v, levels)
+    if (anyNA(position)) {
+      stop(sprintf("The column '%s' of 'data' holds a value that is not one of its levels in the IR.",
+                   display_text(key)), call. = FALSE)
+    }
+    position
+  })
+  names(values) <- keys
+  attr(values, "predictors") <- model$predictors
+  values
+}
+
+# The values of one column of a part (ir.md, X): 1 for '(Intercept)', and
+# otherwise the product of the values of the term's variables, multiplied
+# from the left in double arithmetic.
+design_column_values <- function(terms, column, values, rows) {
+  term <- terms[[column$term + 1L]]
+  if (!length(term$variables)) {
+    return(rep(1, rows))
+  }
+  result <- NULL
+  for (variable in term$variables) {
+    key <- variable$variable
+    v <- values[[key]]
+    if (!is.null(variable$coding)) {
+      level <- column$levels[[key]]
+      if (is.null(level)) {
+        stop(sprintf("The column '%s' of the IR gives no level of '%s'.",
+                     display_text(column$name), display_text(key)), call. = FALSE)
+      }
+      v <- level_values(v, variable$coding, level, attr(values, "predictors")[[key]])
+    }
+    result <- if (is.null(result)) v else result * v
+  }
+  result
+}
+
+# The position of a level of the IR among the levels of its predictor. The
+# schema of the IR does not tie a column's level or a reference to the
+# levels, so a level outside them is refused here.
+level_index <- function(level, levels) {
+  l <- if (is.character(levels) == is.character(level) &&
+             is.logical(levels) == is.logical(level)) match(level, levels) else NA_integer_
+  if (is.na(l)) {
+    stop(sprintf("The level '%s' is not one of the levels in the IR.",
+                 display_text(level_label(level))), call. = FALSE)
+  }
+  l
+}
+
+# The values that a categorical variable takes in the column of one level,
+# for rows whose levels are at the positions given: its contrast (ir.md,
+# Contrasts) or its indicator.
+level_values <- function(position, coding, level, predictor) {
+  levels <- unlist(predictor$levels)
+  l <- level_index(level, levels)
+  if (coding == "indicator") {
+    return(as.double(position == l))
+  }
+  k <- length(levels)
+  switch(predictor$contrast,
+    treatment = as.double(position == l),
+    sum = {
+      r <- level_index(predictor$reference, levels)
+      ifelse(position == l, 1, ifelse(position == r, -1, 0))
+    },
+    simple = {
+      inverse <- 1 / k
+      ifelse(position == l, (k - 1) / k, -inverse)
+    }
+  )
+}
+
+# Z (ir.md, Z): for each random term in IR order, J x q columns, ordered by
+# level and, within a level, by the term's columns. Returns the matrix and
+# the description of its columns.
+design_z <- function(ir, model, table, rows, values) {
+  n <- length(rows)
+  i_all <- list()
+  j_all <- list()
+  x_all <- list()
+  described <- list()
+  start <- 0L
+  for (t in seq_along(model$random)) {
+    term <- model$random[[t]]
+    grouping <- grouping_levels(table, term$grouping, rows, model$column)
+    q <- length(term$columns)
+    for (c in seq_len(q)) {
+      v <- design_column_values(term$terms, term$columns[[c]], values, n)
+      if (any(!is.finite(v))) {
+        raise_issue("E6077", list(column = term$columns[[c]]$name))
+      }
+      i_all[[length(i_all) + 1L]] <- seq_len(n)
+      j_all[[length(j_all) + 1L]] <- start + (grouping$code - 1L) * q + c
+      x_all[[length(x_all) + 1L]] <- v
+    }
+    labels <- grouping$labels
+    described[[t]] <- data.frame(
+      term = rep(t, length(labels) * q),
+      level = rep(labels, each = q),
+      column = rep(vapply(term$columns, function(column) column$name, ""), length(labels)),
+      stringsAsFactors = FALSE
+    )
+    start <- start + length(labels) * q
+  }
+  columns <- if (length(described)) do.call(rbind, described) else
+    data.frame(term = integer(0), level = character(0), column = character(0),
+               stringsAsFactors = FALSE)
+  columns$term <- as.integer(columns$term)
+  rownames(columns) <- NULL
+  matrix <- Matrix::sparseMatrix(
+    i = unlist(i_all, use.names = FALSE) %||% integer(0),
+    j = unlist(j_all, use.names = FALSE) %||% integer(0),
+    x = unlist(x_all, use.names = FALSE) %||% numeric(0),
+    dims = c(n, start)
+  )
+  list(matrix = matrix, columns = columns)
+}
+
+# The levels of a grouping factor in the rows of a sample (ir.md, Z): the
+# distinct combinations of the values of its variables, ordered by the first
+# variable, then the second, numbers by value, strings by code point after
+# NFC and false before true. Returns the position of each row's level among
+# the levels and the label of each level: the label of its one variable, or
+# the labels of its variables joined by ':', each with a backslash and ':'
+# escaped by a backslash.
+grouping_levels <- function(table, keys, rows, column) {
+  ranks <- list()
+  labels <- list()
+  for (key in keys) {
+    j <- column(key)
+    v <- table$values[[j]][rows]
+    if (table$types[j] == "string") {
+      v <- comparison_form(v)
+      distinct <- sort_identifiers(unique(v))
+      text <- distinct
+    } else if (table$types[j] == "boolean") {
+      distinct <- c(FALSE, TRUE)[c(FALSE, TRUE) %in% v]
+      text <- ifelse(distinct, "true", "false")
+    } else {
+      distinct <- sort(unique(v + 0))
+      text <- if (length(distinct)) format_number(distinct) else character(0)
+    }
+    if (length(keys) > 1L) {
+      text <- gsub(":", "\\:", gsub("\\", "\\\\", text, fixed = TRUE), fixed = TRUE)
+    }
+    ranks[[length(ranks) + 1L]] <- match(if (is.numeric(v)) v + 0 else v, distinct)
+    labels[[length(labels) + 1L]] <- text
+  }
+  combined <- rep(1, length(rows))
+  for (r in ranks) {
+    combined <- match(combined * (length(rows) + 1) + r, unique(combined * (length(rows) + 1) + r))
+  }
+  first <- match(seq_len(max(c(combined, 0L))), combined)
+  level_ranks <- lapply(ranks, function(r) r[first])
+  ordering <- if (length(first)) do.call(order, c(level_ranks, list(method = "radix"))) else integer(0)
+  code <- match(combined, ordering)
+  level_text <- vapply(ordering, function(level) {
+    paste(vapply(seq_along(ranks), function(v) labels[[v]][level_ranks[[v]][level]], ""),
+          collapse = ":")
+  }, "")
+  list(code = code, labels = level_text)
+}
+
+# The response and trials vectors of the analysis sample (ir.md, Response,
+# offsets and weights).
+design_response <- function(ir, model, table, analysis) {
+  response <- ir$response
+  if (is.null(response)) {
+    return(list(response = NULL, trials = NULL))
+  }
+  j <- model$column(response$variable)
+  v <- table$values[[j]][analysis]
+  trials <- NULL
+  if (table$types[j] == "number" && any(!is.finite(v))) {
+    raise_issue("E6073", list(column = response$variable))
+  }
+  if (!is.null(response$trials)) {
+    trials <- table$values[[model$column(response$trials)]][analysis]
+    if (any(!is.finite(trials))) {
+      raise_issue("E6073", list(column = response$trials))
+    }
+  }
+  if (!is.null(response$event_level)) {
+    event <- response$event_level
+    hit <- if (is.character(event)) {
+      table$types[j] == "string" & comparison_form(v) == comparison_form(event)
+    } else {
+      table$types[j] == "number" & v == event
+    }
+    return(list(response = as.double(hit), trials = trials))
+  }
+  if (table$types[j] == "boolean") {
+    return(list(response = as.double(v), trials = trials))
+  }
+  if (table$types[j] == "string") {
+    return(list(response = NULL, trials = trials))
+  }
+  if (response$transform == "log") {
+    if (any(v <= 0)) {
+      raise_issue("E6071", list(column = response$variable))
+    }
+    v <- log(v)
+  }
+  list(response = v, trials = trials)
+}
+
+# --- The sequential rule ----------------------------------------------------------
+
+# The sequential rule for aliased columns (ir.md, Sequential rule): each
+# column in turn is dropped when its values are all 0. Otherwise it is divided
+# by its largest absolute value, so that its squares neither overflow nor
+# underflow, and dropped when the norm of its residual after orthogonal
+# projection onto the columns kept so far is at most tolerance times its
+# norm. The residual is computed against an orthonormal basis of the kept
+# columns with two passes of Gram-Schmidt. When there are more than twice as
+# many rows as scaled columns, each column is first replaced by Q'v, its
+# coordinates in the orthonormal Q of the Householder QR of LAPACK that qr()
+# computes. Q'v keeps every norm and inner product up to an error near the
+# rounding error of the column, and the passes then work on as many rows as
+# there are columns, so that the costly work is one QR in compiled code
+# rather than a projection of every column onto all n rows of the basis.
+# Returns whether each column is kept.
+sequential_rule <- function(x, tolerance = 1e-7) {
+  n <- nrow(x)
+  p <- ncol(x)
+  kept <- logical(p)
+  largest <- numeric(p)
+  for (j in seq_len(p)) {
+    if (n) {
+      largest[j] <- max(abs(x[, j]))
+    }
+  }
+  candidates <- which(largest > 0)
+  if (!length(candidates)) {
+    return(kept)
+  }
+  v <- x[, candidates, drop = FALSE]
+  for (k in seq_along(candidates)) {
+    v[, k] <- v[, k] / largest[candidates[k]]
+  }
+  if (n > 2L * ncol(v)) {
+    decomposition <- qr(v, LAPACK = TRUE)
+    v <- qr.R(decomposition)[, order(decomposition$pivot), drop = FALSE]
+  }
+  basis <- matrix(0, nrow(v), 0L)
+  for (k in seq_along(candidates)) {
+    r <- v[, k]
+    norm_v <- sqrt(sum(r * r))
+    if (ncol(basis)) {
+      for (pass in 1:2) {
+        r <- r - drop(basis %*% crossprod(basis, r))
+      }
+    }
+    norm_r <- sqrt(sum(r * r))
+    if (norm_r > tolerance * norm_v) {
+      kept[candidates[k]] <- TRUE
+      basis <- cbind(basis, r / norm_r)
+    }
+  }
+  kept
+}
+
+# --- Exact summation --------------------------------------------------------------
+
+# The sum of finite doubles, computed exactly and rounded once to the nearest
+# double, ties to even, as Python's math.fsum() returns it (ir.md,
+# Centring). Each double is m * 2^e with an integer m below 2^53, and its
+# exact value is split into three limbs of 32 bits at the position of e,
+# counted from 2^-1074. The limbs of all values are summed exactly in double
+# arithmetic in chunks small enough that no sum reaches 2^53 and carried, and the
+# difference of the positive and negative sums is rounded to 53 bits.
+exact_sum <- function(x) {
+  x <- x[x != 0]
+  if (!length(x)) {
+    return(0)
+  }
+  parts <- double_parts(x)
+  limb_count <- 72L
+  total <- list(positive = numeric(limb_count), negative = numeric(limb_count))
+  # A limb receives at most three amounts below 2^32 from each value, so a
+  # chunk of 2^19 values keeps its sums below 2^53.
+  chunk <- 2^19
+  for (sign in c("positive", "negative")) {
+    chosen <- if (sign == "positive") !parts$negative else parts$negative
+    m <- parts$m[chosen]
+    e <- parts$e[chosen]
+    if (!length(m)) {
+      next
+    }
+    for (first in seq.int(1, length(m), by = chunk)) {
+      at <- first:min(length(m), first + chunk - 1)
+      total[[sign]] <- limbs_normalise(total[[sign]] + exact_limbs(m[at], e[at], limb_count))
+    }
+  }
+  positive <- total$positive
+  negative <- total$negative
+  top <- which(positive != negative)
+  if (!length(top)) {
+    return(0)
+  }
+  top <- max(top)
+  negative_result <- negative[top] > positive[top]
+  difference <- if (negative_result) limbs_subtract(negative, positive) else
+    limbs_subtract(positive, negative)
+  value <- limbs_round(difference)
+  if (negative_result) -value else value
+}
+
+# The limbs of base 2^32 of the sum of m * 2^e, before carrying.
+exact_limbs <- function(m, e, limb_count) {
+  base <- 2^32
+  position <- e + 1074
+  limb <- position %/% 32
+  shift <- 2^(position %% 32)
+  high <- floor(m / base)
+  low <- m - high * base
+  low_shifted <- low * shift
+  low_carry <- floor(low_shifted / base)
+  high_shifted <- high * shift
+  high_carry <- floor(high_shifted / base)
+  index <- c(limb, limb + 1, limb + 1, limb + 2) + 1
+  amount <- c(low_shifted - low_carry * base, low_carry, high_shifted - high_carry * base,
+              high_carry)
+  sums <- rowsum(amount, index, reorder = TRUE)
+  out <- numeric(limb_count)
+  out[as.integer(rownames(sums))] <- sums[, 1L]
+  out
+}
+
+# Carries limbs of base 2^32 so that each lies in [0, 2^32).
+limbs_normalise <- function(limbs) {
+  base <- 2^32
+  carry <- 0
+  for (k in seq_along(limbs)) {
+    value <- limbs[k] + carry
+    carry <- floor(value / base)
+    limbs[k] <- value - carry * base
+  }
+  limbs
+}
+
+# a - b for normalised limbs with a > b.
+limbs_subtract <- function(a, b) {
+  base <- 2^32
+  borrow <- 0
+  for (k in seq_along(a)) {
+    value <- a[k] - b[k] - borrow
+    borrow <- if (value < 0) 1 else 0
+    a[k] <- value + borrow * base
+  }
+  a
+}
+
+# The double nearest to the positive integer in normalised limbs times
+# 2^-1074, ties to even.
+limbs_round <- function(limbs) {
+  bits <- unlist(lapply(limbs, function(limb) {
+    high <- floor(limb / 65536)
+    c(as.integer(intToBits(as.integer(limb - high * 65536)))[1:16],
+      as.integer(intToBits(as.integer(high)))[1:16])
+  }), use.names = FALSE)
+  top <- max(which(bits == 1L))
+  if (top <= 53L) {
+    return(sum(bits[seq_len(top)] * 2^(seq_len(top) - 1L)) * 2^-1074)
+  }
+  low <- top - 52L
+  mantissa <- sum(bits[low:top] * 2^(0:52))
+  round_bit <- bits[low - 1L]
+  sticky <- low > 2L && any(bits[seq_len(low - 2L)] == 1L)
+  if (round_bit == 1L && (sticky || mantissa %% 2 == 1)) {
+    mantissa <- mantissa + 1
+  }
+  mantissa * 2^(low - 1L - 1074)
+}

@@ -4,7 +4,7 @@ This directory holds the test fixtures that the R and Python packages share: the
 
 | Directory | Contents |
 |---|---|
-| [conformance/formulas/](conformance/formulas/README.md) | formulas with their declaration, data and coding, and the expected canonical IR, its hash and some design matrices, or the expected error code (docs/spec/ir.md) |
+| [conformance/formulas/](conformance/formulas/README.md) | formulas with their declaration, data and coding, and the expected canonical IR, its hash and some design matrices or the issue that they report, or the expected error code (docs/spec/ir.md) |
 | [conformance/json/](conformance/json/README.md) | the strict JSON reader in each mode and the RFC 8785 serialiser: the vectors of RFC 8785, every rejection of the reader, profile violations and canonical bytes with their hashes (docs/spec/conventions.md) |
 | [conformance/numbers/](conformance/numbers/README.md) | ECMAScript number formatting, the reading of number tokens with correct rounding and the number rules of the hashable profile, and decimal constants |
 | [conformance/unicode/](conformance/unicode/README.md) | UTF-8 validation, normalisable strings, NFC and NFD pairs, the order of identifiers, NFC in the hashable profile and cases a C locale or an encoding mark could change |
@@ -15,4 +15,4 @@ This directory holds the test fixtures that the R and Python packages share: the
 | [conformance/tables/](conformance/tables/README.md) | CSV inputs with their declarations and the columns that the table reader returns, with the design and analysis samples of a formula, or the issue that it reports (docs/spec/tables.md) |
 | [conformance/tools/](conformance/tools/README.md) | the scripts that write corpora, which are not vendored |
 
-The files that the packages read are listed in spec/vendoring.json and reach them only through spec/tools/vendor.py. The tests of each package run every case of the corpora that M1 implements from the installed package, and the parity harness ([parity/README.md](../parity/README.md)) runs every case in both packages and compares their outcomes with each other and with the expected outcomes. Every corpus file must be listed in parity/corpora.json with the kind of its cases, and the harness stops when one is missing. The table and formula corpora are listed as pending until M2 implements the table reader and the formula parser.
+The files that the packages read are listed in spec/vendoring.json and reach them only through spec/tools/vendor.py. The tests of each package run every case of the corpora from the installed package, and the parity harness ([parity/README.md](../parity/README.md)) runs every case in both packages and compares their outcomes with each other and with the expected outcomes. Every corpus file must be listed in parity/corpora.json with the kind of its cases, and the harness stops when one is missing.

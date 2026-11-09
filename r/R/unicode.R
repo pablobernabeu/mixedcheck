@@ -164,6 +164,18 @@ has_non_ascii <- function(x) {
   grepl("[^\\x01-\\x7F]", x, useBytes = TRUE, perl = TRUE)
 }
 
+# Whether each string is a valid column name (defs.schema.json, column_name):
+# 1 to 128 code points, each from U+0020 to U+007E or from U+00A0 to U+FFFF.
+# The strings are ASCII or marked UTF-8.
+valid_column_name <- function(x) {
+  vapply(x, function(name) {
+    codepoints <- utf8ToInt(name)
+    length(codepoints) >= 1L && length(codepoints) <= 128L &&
+      all((codepoints >= 0x20L & codepoints <= 0x7EL) |
+            (codepoints >= 0xA0L & codepoints <= 0xFFFFL))
+  }, NA, USE.NAMES = FALSE)
+}
+
 # Whether the session's native encoding is UTF-8. A function of its own, so
 # that the tests can replace it.
 native_utf8 <- function() {

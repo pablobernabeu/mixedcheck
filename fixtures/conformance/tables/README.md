@@ -11,7 +11,7 @@ These cases test the strict table reader that M2 implements in both packages ([d
 | header.json | 15 | invalid, too long and repeated column names (E5002) and the match with the table block in number, order and spelling (E5003) |
 | values.json | 37 | missing values of the field, the table and the default, labelled sentinel codes, the lexical form of each field type (E5006), dates and times that do not exist and categories (E5007) |
 | inference.json | 13 | the types inferred without a table block and the order of their issues |
-| keys.json | 18 | primary keys (E5008 and E5009), unique keys (E5010), the comparison of values and the order of the checks |
+| keys.json | 20 | primary keys (E5008 and E5009), unique keys (E5010), the comparison of values and the order of the checks, record by record for the primary key |
 | precedence.json | 9 | tables with several problems, of which the reader reports the first |
 | samples.json | 6 | the rows that missing values, sentinel codes and trials of 0 remove from the design and analysis samples |
 
@@ -36,7 +36,7 @@ Each file is a JSON object with a `description` and a list of `cases`, read with
 
 A test compares the column names and every string code point by code point, without normalisation, and numbers by value, so that the negative zero that the reader returns for '-0' in a number column equals 0.
 
-`design_sample` and `analysis_sample` list the rows of the design and analysis samples (ir.md, Samples), numbered from 0 in the order of the records. Numbering from 0 belongs to this file only, since the packages identify rows by their observation keys.
+`design_sample` and `analysis_sample` list the rows of the design and analysis samples (ir.md, Samples), numbered from 0 in the order of the records, as in Python. `design_samples()` and `design_matrices()` return row positions counted from 1 in R and from 0 in Python.
 
 `issue` holds the `code`, the rendered `message` and, for a code located by offset, the byte `offset` into the input (`issue` in [defs.schema.json](../../../spec/schemas/defs.schema.json)). A test compares all three.
 

@@ -76,7 +76,12 @@ Every member is required. The schema allows no other member anywhere.
 
 ### privacy
 
-`privacy.mode` is 'shareable' or 'internal'. A shareable document passed through the privacy filter of the shared view model, which M2 specifies, and meets the invariants under Shareable documents below. An internal document did not pass through it. It is written only when the caller asks for internal mode explicitly, carries a banner in every report built from it and is written with the file suffix that M2 defines (02-decisions.md, Q5).
+`privacy.mode` is 'shareable' or 'internal'. A shareable document passed through the privacy filter of the shared view model ([privacy.md](privacy.md)) and meets the invariants under Shareable documents below. An internal document did not pass through it. It is made only when the caller asks for internal mode explicitly, is written to a file whose name ends in '.internal.json' (Writing) and carries a banner in every report built from it, printed results included (02-decisions.md, Q5). The two banners are these, written as they stand in ASCII:
+
+| Mode | Banner |
+|---|---|
+| shareable | Shareable output: the privacy filter has reduced the risk of disclosure, but this report is not anonymous data. |
+| internal | INTERNAL: this report holds values that the privacy filter has not checked, such as small counts and labels. Do not share it. |
 
 `min_count`, `dominance`, `rounding_base` and `zeros_disclosive` are the parameters of the filter, copied from the compiled registry (registry.md, The compiled registry). The dominance share is copied as its decimal string.
 
@@ -87,9 +92,9 @@ Every member is required. The schema allows no other member anywhere.
 `inputs` holds the public hashes and the keyed commitments of 02-decisions.md (cross-cutting conventions).
 
 - `registry_hash` is the registry hash, the SHA-256 of the bytes of the compiled registry the package used.
-- `declaration`, present when the run had a declaration, holds the declaration hash, its vocabulary version, whether it is a draft with inferred entries and whether it was validated as a minimal declaration (declarations.md).
+- `declaration`, present when the run had a declaration, holds the declaration hash, its vocabulary version, whether it is a draft with inferred entries and whether it is a minimal declaration, which `audit()` records by validating it again as one after the ordinary validation has passed (declarations.md and 03-execution-plan.md, M2).
 - `model`, present when the run had a model, holds the formula as the caller gave it, the family class (registry.md, Family classes) and the IR hash (ir.md).
-- `data`, present when the run read data, holds keyed commitments by what they cover: `data_file` to the bytes of the raw data file and `analysis_table` to the canonical analysis table that M2 defines (conventions.md, Keyed commitments).
+- `data`, present when the run read data, holds keyed commitments by what they cover: `data_file` to the bytes of the raw data file, when the run read the data from a file, and `analysis_table` to the canonical analysis table (Analysis table commitment below), always (conventions.md, Keyed commitments).
 - `execution_binding_hash`, present when Stream A executed a plan, is the hash of the execution binding it ran. It requires `/access_log/plan` (E7004).
 
 The design-plan hash is recorded in the access log, and the commitment to the outcome column in each access log entry that read it. The results file hash, the SHA-256 of the written file, cannot be part of the file it covers, so it is recorded in the internal sidecar and in exports that include the file (02-decisions.md, Q5).
@@ -99,17 +104,17 @@ The design-plan hash is recorded in the access log, and the commitment to the ou
 The access log, at `/access_log`, records access to the outcome (02-decisions.md, Q3). It records the accesses of the run that produced the document. Earlier accesses enter it only through the frozen plan's stamp and through the attestation.
 
 - `plan` is present when the run is bound to a frozen plan. It holds the plan's design-plan hash and `outcome_access`, the highest tier at which the outcome had been read when the plan was frozen, copied from the plan. The report header shows that tier. Without a plan, it shows the highest tier among the entries.
-- `outcome_seen` is the attestation that the outcome had been seen before the run, as for secondary data, taken from `/provenance/outcome_seen` of the declaration or from the caller. Without it, the report states that there is no attestation. The package cannot verify it.
-- `entries` lists one entry for each tier at which checks ran and, at T1 and T2, for each outcome column read, in the order in which the accesses happened.
+- `outcome_seen` is the attestation that the outcome had been seen before the run, as for secondary data, taken from `/provenance/outcome_seen` of the declaration or from the caller's argument `outcome_seen`, which must agree with the declaration when both give it. Without it, the report states that there is no attestation. The package cannot verify it.
+- `entries` lists, in the order in which the accesses happened, one entry at T0 and, for each further tier at which checks ran, one entry for each outcome column that its checks read: the response and then, for a binomial response, its trials column.
 
-An entry has the tier, the UTC time and the mode. At T0, the mode is 'outcome_blind', and the entry has no outcome and no reason, because T0 checks read no outcome. At T1 and T2, the mode is 'planned' when the access was bound to the frozen plan and 'exploratory' otherwise, and the entry has the outcome column with a keyed commitment to it and the reason the caller gave, written as given. A T1 access without a plan runs in the mode labelled exploratory, and a plan created afterwards records it in its `outcome_access` (02-decisions.md, Q3). A package records an access as planned only after it has read the plan file that the caller gives, validated it (Plan, Validation, including E1321 on `/design_plan_hash`) and found that the run's declaration hash equals `/design/declaration_hash` and its IR hash equals the IR hash of a rung. Otherwise it refuses the access with E7310, naming the member that differs, so that a hash string alone never makes an access planned.
+An entry has the tier, the UTC time and the mode. At T0, the mode is 'outcome_blind', and the entry has no outcome and no reason, because T0 checks read no outcome. At T1 and T2, the mode is 'planned' when the access was bound to the frozen plan and 'exploratory' otherwise, and the entry has the outcome column with a keyed commitment to it (Outcome column commitment) and the reason the caller gave, written as given. A T1 access without a plan runs in the mode labelled exploratory, and a plan created afterwards records it in its `outcome_access` (02-decisions.md, Q3). A package records an access as planned only after it has read the plan file that the caller gives, validated it (Plan, Validation, including E1321 on `/design_plan_hash`) and found that the run's declaration hash equals `/design/declaration_hash` and its IR hash equals the IR hash of a rung. Otherwise it refuses the access with E7310, naming the member that differs, so that a hash string alone never makes an access planned.
 
 ### Outcome column commitment
 
 The commitment of an access log entry covers 'outcome_column' (conventions.md, Keyed commitments). Its message is the canonical bytes (conventions.md, Serialisation) of an object with three members.
 
-- `column`: the name of the outcome column.
-- `key`: the columns of the declared observation key, in declared order, or an empty array when no key is declared.
+- `column`: the name of the outcome column, the response or its trials column.
+- `key`: the columns of the declared observation key, in declared order, or an empty array when no key is declared or the key counts as absent (registry.md, Terms).
 - `rows`: one array for each row of the table as the table reader returns it ([tables.md](tables.md)), before any row leaves the analysis sample, holding the values of the key columns in order followed by the value of the outcome column. Values are written as a writer in the data profile writes them: a missing value as null, a number as a double, a non-finite double as 'NaN', 'Infinity' or '-Infinity', a string as read and a boolean as true or false. With a key, the rows are ordered by the canonical bytes of the array of their key values, compared byte by byte with a prefix first, and rows with equal key bytes, which keys.duplicates reports, by the canonical bytes of the whole row in the same way, so that the commitment does not depend on the order of the rows in the file. Without a key, they are in the order of the table.
 
 For example, with the key 00 01 02 … 1F of conventions.md (Keyed commitments, Example), whose identifier is `630dcd2966c43366`, an outcome column 'post' with the key columns 'pupil' and 'wave' and four rows gives the 98 bytes
@@ -119,6 +124,24 @@ For example, with the key 00 01 02 … 1F of conventions.md (Keyed commitments, 
 ```
 
 and the commitment `75cc1f029d23f7ee37f8b3e0f1dc93e2d78b113b88d69f62a617346a6edafe7f`.
+
+### Analysis table commitment
+
+The commitment of `/inputs/data/analysis_table` covers 'analysis_table' (conventions.md, Keyed commitments). Its message is the canonical bytes of an object with three members, in the form of the outcome column commitment above, so that data passed as a data frame have a commitment as data read from a file do.
+
+- `columns`: the names of the columns of the table as the table reader returns them, or of the data frame passed in, in their order, without the outcome columns: the response, its trials column and the columns that the declaration gives the role outcome or outcome_derived.
+- `key`: the columns of the declared observation key, in declared order, or an empty array when no key is declared or the key counts as absent (registry.md, Terms).
+- `rows`: one array for each row of the table, before any row leaves a sample, with the values of `columns` in order, written as for the outcome column commitment. With a key, the rows are ordered by the canonical bytes of the array of their key values, compared byte by byte with a prefix first, and rows with equal key bytes by the canonical bytes of the whole row, and without a key they are in the order of the table.
+
+The table leaves out the outcome. A T0 run reads no outcome, so it cannot commit to one, and each access to the outcome at T1 or T2 records its own commitment to the outcome column in the access log. The analysis table of a T1 run is then the same as that of the T0 run on the same data, so that the two documents can be matched. Values are those that `audit()` reads, after the declaration's missing values are applied to a data frame in memory (03-execution-plan.md, M2).
+
+For example, with the key 00 01 02 … 1F, the outcome 'post' and the columns 'pupil', 'wave', 'arm' and 'post' in that order, the observation key 'pupil' and 'wave' and four rows give the 118 bytes
+
+```text
+{"columns":["pupil","wave","arm"],"key":["pupil","wave"],"rows":[["p1",0,"A"],["p1",1,"A"],["p2",0,"B"],["p2",1,"B"]]}
+```
+
+and the commitment `72de9a1b287c8601cdbab959ce1192af4fe02a10030e6bc721928ba52d8b0391`.
 
 ### Findings
 
@@ -131,7 +154,7 @@ A finding is the result of one check for one element of its scope (registry.md, 
 - `statistics`: for an available finding, the statistics by their names in the entry. A statistic that its definition leaves absent, such as a ratio whose denominator is 0, is left out.
 - `support`: for an available finding, the counts behind it that the privacy filter needs.
 
-A check that is not available as a whole yields one finding with an empty scope (registry.md, Availability). Checks of a tier at which the run did not read the outcome, such as the T1 checks of an outcome-blind run, yield no finding, and a report lists them as not assessed from the registry and the tiers that the access log records, as every report states what could not be assessed (02-decisions.md, Q5). A finding for one scope element that the privacy filter suppressed as a whole is not_available with the reason privacy_suppressed and keeps its scope. A finding that is not available has no message, statistics or support.
+A check that is not available as a whole yields one finding with an empty scope (registry.md, Availability), and a check of the scope grouping_factor_or_model yields one finding with an empty scope for a model without grouping factors. A check whose families do not include the family class of the run yields no finding (registry.md, Family classes). Checks of a tier at which the run did not read the outcome, such as the T1 checks of an outcome-blind run, yield no finding, and a report lists them as not assessed from the registry and the tiers that the access log records, as every report states what could not be assessed (02-decisions.md, Q5). A finding for one scope element that the privacy filter suppressed as a whole is not_available with the reason privacy_suppressed and the detail 'decision' (privacy.md, Decisions) and keeps its scope. A finding that is not available has no message, statistics or support.
 
 Findings are ordered by `check`, compared code point by code point with a prefix first, and findings of the same check by their scopes. A scope is compared through the list of its parts in ascending order of part name, as pairs of a name and the NFC form of the value: pairs are compared in turn, first by name and then by value, each code point by code point, and a list that is a prefix of the other comes first. Two findings with the same check and equal lists are duplicates.
 
@@ -148,39 +171,39 @@ Each statistic is an object with the kind of its registry entry, its value and, 
 | category | one of the values that the entry lists |
 | boolean | true or false |
 | names | an array of names of columns, terms, grouping factors or parameters |
-| labels | an array of labels, each as a string as M2's table reader gives the levels of a grouping factor, or pseudonyms in a shareable document |
+| labels | an array of labels, each as a string as ir.md (Z) writes the levels of a grouping factor, or pseudonyms in a shareable document |
 
 `count_class` is 'person' or 'non_person'. An entry's class by_unit is resolved for each finding from the disclosure unit as registry.md (Statistics and counts) describes, so that the document records the class that the filter applied.
 
-`value` is null exactly when the value was not written, and `availability` is then present with the value not_available and its reason. A value that the privacy filter suppressed has the reason privacy_suppressed, with the detail 'min_count', 'dominance' or 'quantile' for the rule that suppressed it. An `availability` member beside a value that is not null is an error (E1404).
+`value` is null exactly when the value was not written, and `availability` is then present with the value not_available and its reason. A value that the privacy filter suppressed has the reason privacy_suppressed, with the detail that names the rule that suppressed it ([privacy.md](privacy.md), Steps): 'internal_only', 'min_count_rule' or 'dominance' for a value of a finding that fails the minimum-count or the dominance rule, 'min_count' for a person count below min_count, 'quantile', 'ratio' or 'secondary'. An `availability` member beside a value that is not null is an error (E1404).
 
-`quantile` records, for a statistic that is the p-quantile of n values, the probability p, from 0 to 1, and n, which the privacy filter needs (02-decisions.md, Q5). It is allowed for statistics of kind count and real. A minimum is the quantile 0 and a maximum the quantile 1, so that the quantile rule also keeps minima and maxima out of shareable output. Registry 0.1.0 does not state which statistics are quantiles. M2 adds this to the entries whose statistics are order statistics, such as the level sizes of structure.cluster_sizes, before their findings are written.
+`quantile` records, for a statistic that is the p-quantile of n values, the probability p, from 0 to 1, and n, which the privacy filter needs (02-decisions.md, Q5). It is allowed for statistics of kind count and real. A minimum is the quantile 0 and a maximum the quantile 1, so that the quantile rule also keeps minima and maxima out of shareable output. The registry entry of a statistic that is an order statistic states its p and the count that gives n (registry.md, Statistics and counts), as the level sizes of structure.cluster_sizes and the median minority count of outcome.minority_events do. A finding writes p for every such statistic, whether its value is written or not, and n exactly when that count is written in the finding, with its value, so that n never shows a count that the filter suppressed.
 
 ### Support
 
 `support` holds the counts behind a finding that the privacy rules of 02-decisions.md (Q5) use.
 
 - `rows` is the number of rows of the sample that the check reads, as the `sample` of its registry entry names it: the table, the design sample or the analysis sample (registry.md, Tier and inputs).
-- `contributors.basis` says who supplied those rows. It is 'disclosure_unit' when the document has a disclosure unit, and a contributor is then a member of that unit. Without a disclosure unit, it is 'grouping_factors' when the model has grouping factors, and a contributor is then a level of a grouping factor, and 'rows' otherwise, when each row is a contributor (E7006).
+- `contributors.basis` says who supplied those rows. It is 'disclosure_unit' when the document has a disclosure unit, and a contributor is then a member of that unit. Without a disclosure unit, it is 'grouping_factors' when the model has grouping factors, and a contributor is then a level of a grouping factor, and 'rows' otherwise, when each row is a contributor (E7006). A row in which a label column of the disclosure unit, or with the basis grouping_factors the grouping column, is missing counts in `rows` but belongs to no contributor.
 - `contributors.distinct` is the number of distinct contributors among the rows. With the basis grouping_factors, it is the smallest number of distinct levels over the grouping factors, as the rule 'at least k distinct levels of every grouping factor' requires.
-- `contributors.largest_share` is the double nearest to c / rows, where c is the exact integer sum of the rows of the `dominance.contributors` largest contributors, divided once, and 0 when there are no rows. With the basis grouping_factors, it is the largest such share over the grouping factors.
+- `contributors.dominated` states whether the finding fails the dominance rule: whether c × 10^d ≥ m × rows in integer arithmetic, where c is the sum of the rows of the `dominance.contributors` largest contributors and m / 10^d is the dominance share, false when there are no rows. With the basis grouping_factors, it is true when the rule fails for some grouping factor. The share itself is not written, since with the rows it would give back c, the rows of the largest contributors.
 
-`rows` and `distinct` are person counts, each written as an object with `value` and, when the value is not written, `availability`, as for statistics.
+`rows` and `distinct` are person counts, each written as an object with `value` and, when the value is not written, `availability`, as for statistics. The filter suppresses them with the detail 'min_count' when they are below min_count, and may suppress them with the detail 'secondary' so that the sizes of two samples cannot give back the rows or members that leave one of them ([privacy.md](privacy.md), Across findings).
 
 ### Shareable documents
 
-A shareable document meets the invariants below. They are necessary conditions that the filter of M2 guarantees and that a validator can check from the document alone. The filter may suppress further values, for example by secondary suppression, and a validator never reports a value that was suppressed. Let k be `privacy.min_count` and s the double nearest to `privacy.dominance.share`. An available finding fails the minimum-count rule when its `support.contributors.distinct.value` is null or below k, and fails the dominance rule when its `support.contributors.largest_share` is at least s. The filter, which knows the counts, applies the dominance rule exactly: with the share written as m / 10^d, a finding fails when c × 10^d ≥ m × rows in integer arithmetic. The validator's comparison of doubles gives the same result whenever rows × 10^d is below 2^53, since both doubles are correctly rounded quotients, and so for every table of fewer than 900 trillion rows with the share 0.9.
+A shareable document meets the invariants below. They are necessary conditions that the filter ([privacy.md](privacy.md)) guarantees and that a validator can check from the document alone. The filter suppresses further values, for example by secondary suppression, and a validator never reports a value that was suppressed. Let k be `privacy.min_count`. An available finding fails the minimum-count rule when its `support.contributors.distinct.value` is below k, or null with a detail other than 'secondary', and fails the dominance rule when its `support.contributors.dominated` is true. The filter decides both from the counts it knows (Support).
 
 1. Every person count that is written is at least k (E7020). The person counts are the values of statistics of kind count with the class person, `support.rows` and `support.contributors.distinct`. A count of 0 is below k and therefore suppressed, which also treats zeros of person attributes as disclosive.
 2. When a finding fails the minimum-count rule or the dominance rule, every statistic of kind real, reals or labels and every statistic of kind count or ratio with the class person has the value null (E7021). The issue names the rule as 'minimum-count' when the finding fails that rule, and as 'dominance' otherwise. Counts and ratios with the class non_person, booleans, categories and names stay, because counts of non-person units, parameters and df are shown exactly (02-decisions.md, Q5).
-3. A statistic with `quantile` p of n values is written only when n × min(m, 10^d − m) ≥ k × 10^d in integer arithmetic, where m / 10^d is the shortest decimal that represents p (conventions.md, Serialisation), and otherwise has the value null (E7022). So with k = 10, the quantile 0.9 of 100 values is written, whereas n × (1 − p) computed in doubles would give 9.999999999999998. The filter of M2 applies the same rule.
+3. A statistic with `quantile` p is written only when its quantile has n and n × min(m, 10^d − m) ≥ k × 10^d in integer arithmetic, where m / 10^d is the shortest decimal that represents p (conventions.md, Serialisation), and otherwise has the value null (E7022). So with k = 10, the quantile 0.9 of 100 values is written, whereas n × (1 − p) computed in doubles would give 9.999999999999998. The filter applies the same rule.
 4. Every item of a labels value is a pseudonym: '#' followed by a positive integer without leading zeros, such as '#1' (E7023). The internal sidecar maps each pseudonym to its label.
 
 Each written value gets at most one of these issues, the first that applies in the order E7020, E7021, E7022 and E7023, and the items of a labels value that E7021 reports are not checked for pseudonyms. A fifth invariant needs the registry entry and is checked in stage 5: a statistic of kind ratio whose numerator or denominator, as the entry names them, is a person count that is not written or is below k, has the value null (E7024), so that a written ratio and a written denominator cannot give back a suppressed count. The document holds no commitment key (E1315), no path, no user name and no host name: the schema has no member for any of them, and the free text it holds, the formula and the reasons in the access log, is written as the caller gave it.
 
 ### Writing
 
-A written results document consists of exactly its canonical bytes (conventions.md, Serialisation), so the results file hash is the SHA-256 of the document's canonical bytes. When the document holds a keyed commitment or a pseudonym, the writer also writes an internal sidecar beside it, at a path the caller gives.
+A written results document consists of exactly its canonical bytes (conventions.md, Serialisation), so the results file hash is the SHA-256 of the document's canonical bytes. When the document holds a keyed commitment or a pseudonym, which every document of `audit()` does through its analysis table commitment, the writer also writes an internal sidecar beside it, at a path the caller gives. The file of an internal document and the sidecar have names that end in '.internal.json', and the file of a shareable document does not, so that the name shows which files may leave the analyst's machine. `write_results()` refuses a path whose name does not match what the file holds with E7010, and adds no suffix itself, so that the caller always sees the name of the file written.
 
 ### Internal sidecar
 
@@ -193,7 +216,7 @@ The internal sidecar holds what must not leave the analyst's machine (02-decisio
 | `keys` | the commitment keys of the results document, as `commitment_key` objects (conventions.md, Keys) |
 | `pseudonyms` | for each pseudonym of the results document, the pseudonym, the column or grouping factor whose label it replaces and the label as the data give it |
 
-Observation keys and the labels of predicted random effects, which 02-decisions.md also places in the sidecar, are added with the milestones that write them (M2 and M5), as a MINOR version.
+02-decisions.md also places observation keys and the labels of predicted random effects in the sidecar. No check of registry 0.1.0 writes key values or labels of rows, since keys.duplicates writes only counts, so the sidecar of M2 holds neither. M5 adds the labels of predicted random effects, and any observation keys that its checks write, as a MINOR version.
 
 The rules enforced in code are these.
 
@@ -203,7 +226,7 @@ The rules enforced in code are these.
 | E7060 | A pseudonym differs from every earlier pseudonym. | `/pseudonyms/i/pseudonym` |
 | E7061 | A key identifier differs from every earlier key identifier. | `/keys/i/key_id` |
 
-Verification reads a results file with its sidecar. It reports E1321 at `/results_hash` when the hash differs from the SHA-256 of the results file, E1313 for a commitment whose key the sidecar does not hold and E1314 for a commitment that the data do not match (conventions.md, Keyed commitments).
+Verification reads a results file with its sidecar, and runs only when the sidecar has passed its own reading, version, structure and rules. It reports, in this order, E1321 at `/results_hash` when the hash differs from the SHA-256 of the results file, E1313, without a location, once for each key identifier that a commitment of the document names and the sidecar does not hold, in the order in which the commitments first name them, and E1314 at each commitment that the data do not match, in the order of the commitments (conventions.md, Keyed commitments). The commitments are taken in the order of their pointers as errors.md (Reporting rules) sorts locations, and a commitment whose key is missing is not recomputed.
 
 ### Validation
 
@@ -229,7 +252,7 @@ Stage 4 applies these rules.
 | E7006 | The basis of every support is 'disclosure_unit' when `/privacy/disclosure_unit` is present, and 'grouping_factors' or 'rows' otherwise. | `/findings/i/support/contributors/basis`, with the values allowed |
 | E7020 | In a shareable document, every person count that is written is at least min_count. | `/findings/i/statistics/s/value`, `/findings/i/support/rows/value` or `/findings/i/support/contributors/distinct/value` |
 | E7021 | In a shareable document, a finding that fails the minimum-count or dominance rule writes no value of kind real, reals or labels and no person count or ratio. | `/findings/i/statistics/s/value` |
-| E7022 | In a shareable document, a quantile that fails the quantile rule above is not written. | `/findings/i/statistics/s/value` |
+| E7022 | In a shareable document, a quantile without n, or one that fails the quantile rule above, is not written. | `/findings/i/statistics/s/value` |
 | E7023 | In a shareable document, every label is a pseudonym. | `/findings/i/statistics/s/value/j` |
 
 Stage 5 applies these rules to each finding. A finding whose check is not in the registry gets E7040 alone.
@@ -239,13 +262,13 @@ Stage 5 applies these rules to each finding. A finding whose check is not in the
 | E7040 | The check is an entry of the registry. | `/findings/i/check` |
 | E7041 | `check_version` and `tier` equal those of the entry. The kind of each statistic equals the entry's, and so does its count class where the entry's class is person or non_person. | `/findings/i/check_version`, `/findings/i/tier`, `/findings/i/statistics/s/kind` or `/findings/i/statistics/s/count_class`, with the value the entry requires |
 | E7042 | Each statistic, the message and each scope part are defined by the entry. | `/findings/i/statistics/s`, `/findings/i/message/id` or `/findings/i/scope/p`, naming the kind 'statistic', 'message' or 'scope part' |
-| E7043 | The scope of an available finding, or of a finding that is not available and has a non-empty scope, has every part of the entry's scope. | `/findings/i/scope`, once for each missing part |
+| E7043 | The scope of an available finding, or of a finding that is not available and has a non-empty scope, has every part of the entry's scope, apart from the part factor of the scope grouping_factor_or_model, which a finding for the model as a whole leaves out. | `/findings/i/scope`, once for each missing part |
 | E7044 | The status of an available finding includes optimisation exactly when the entry's `fitted_model` is true. | `/findings/i/status` |
 | E7024 | In a shareable document, a ratio whose numerator or denominator, as the entry names them, is a person count that is not written or is below min_count, is not written. | `/findings/i/statistics/s/value` |
 
 ### Example
 
-This shareable document records a planned Stream B run on the cluster-randomised trial of declarations.md (Example), with 480 pupils measured twice and 10 outcome values missing. The hashes and the data-file digest are placeholders of the right form. The outcome commitment is the example above, and the key identifier that of the key 00 01 02 … 1F.
+This shareable document records a planned Stream B run on the cluster-randomised trial of declarations.md (Example), with 480 pupils measured twice and 10 outcome values missing. The hashes and the digests of the data file and the analysis table are placeholders of the right form. The outcome commitment is the example above, and the key identifier that of the key 00 01 02 … 1F.
 
 ```json
 {
@@ -285,6 +308,12 @@ This shareable document records a planned Stream B run on the cluster-randomised
       "ir_hash": "sha256:08c85bd37cdd0ffce8c39ecd7c7f0ff94e6f45af2aa986673b0c9f1a8a2fffea"
     },
     "data": {
+      "analysis_table": {
+        "algorithm": "hmac-sha256",
+        "covers": "analysis_table",
+        "digest": "9b0e1d3c5a7f24e6b8d1c0f3a2e5d4c7b6a9f8e1d2c3b4a5968778695a4b3c2d",
+        "key_id": "630dcd2966c43366"
+      },
       "data_file": {
         "algorithm": "hmac-sha256",
         "covers": "data_file",
@@ -336,7 +365,16 @@ This shareable document records a planned Stream B run on the cluster-randomised
         "text": "Every row has its own value of the observation key 'school', 'class', 'pupil' and 'wave'."
       },
       "statistics": {
-        "rows": {"kind": "count", "value": 960, "count_class": "person"},
+        "rows": {
+          "kind": "count",
+          "value": null,
+          "count_class": "person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        },
         "duplicate_rows": {
           "kind": "count",
           "value": null,
@@ -390,11 +428,17 @@ This shareable document records a planned Stream B run on the cluster-randomised
         "key_columns": {"kind": "names", "value": ["school", "class", "pupil", "wave"]}
       },
       "support": {
-        "rows": {"value": 960},
+        "rows": {
+          "value": null,
+          "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}
+        },
         "contributors": {
           "basis": "disclosure_unit",
-          "distinct": {"value": 480},
-          "largest_share": 0.004166666666666667
+          "distinct": {
+            "value": null,
+            "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}
+          },
+          "dominated": false
         }
       }
     },
@@ -424,7 +468,7 @@ This shareable document records a planned Stream B run on the cluster-randomised
         "contributors": {
           "basis": "disclosure_unit",
           "distinct": {"value": 476},
-          "largest_share": 0.004210526315789474
+          "dominated": false
         }
       }
     },
@@ -450,6 +494,7 @@ This shareable document records a planned Stream B run on the cluster-randomised
         "declared": {"kind": "category", "value": "nested_within_parent"},
         "first_in_several": {"kind": "count", "value": 4, "count_class": "non_person"},
         "inner": {"kind": "names", "value": ["class"]},
+        "inner_alone": {"kind": "boolean", "value": false},
         "inner_in_several": {"kind": "count", "value": 4, "count_class": "non_person"},
         "levels_first": {"kind": "count", "value": 4, "count_class": "non_person"},
         "levels_second": {"kind": "count", "value": 6, "count_class": "non_person"},
@@ -461,8 +506,11 @@ This shareable document records a planned Stream B run on the cluster-randomised
         "rows": {"value": 960},
         "contributors": {
           "basis": "disclosure_unit",
-          "distinct": {"value": 480},
-          "largest_share": 0.004166666666666667
+          "distinct": {
+            "value": null,
+            "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}
+          },
+          "dominated": false
         }
       }
     }
@@ -470,12 +518,12 @@ This shareable document records a planned Stream B run on the cluster-randomised
 }
 ```
 
-The counts of levels of 'class' and 'school' are non-person counts, because both units are coarser than the disclosure unit 'pupil'. The duplicate counts of keys.duplicates are person counts of 0, below k = 10, so they are suppressed, whereas the message that the decision chose quotes none of them. The canonical bytes of the document are 5,178 bytes long, and its results file hash is `sha256:96266d92ba646e346fbf6f19a59bd4f0b8ce63226d3a75a2d53aaa935a653477`, which the sidecar records:
+The counts of levels of 'class' and 'school' are non-person counts, because both units are coarser than the disclosure unit 'pupil'. The duplicate counts of keys.duplicates are person counts of 0, below k = 10, so they are suppressed, whereas the message that the decision chose quotes none of them. The table and the design sample have the same 960 rows and the same 480 pupils, so the size of the table and its contributors are suppressed wherever the document writes them, and 476 of the 480 pupils keep a row in the analysis sample, so the contributors of the design-sample finding are suppressed too, since the two counts would give back the 4 pupils whose outcome is missing in both rows (privacy.md, Across findings). The canonical bytes of the document are 5,715 bytes long, and its results file hash is `sha256:8dd371152e9753d27dfde5936b9f6d9e21db2a6a1ea3f84636f279621740ff52`, which the sidecar records:
 
 ```json
 {
   "sidecar_version": "0.1.0",
-  "results_hash": "sha256:96266d92ba646e346fbf6f19a59bd4f0b8ce63226d3a75a2d53aaa935a653477",
+  "results_hash": "sha256:8dd371152e9753d27dfde5936b9f6d9e21db2a6a1ea3f84636f279621740ff52",
   "keys": [
     {
       "created": "2026-11-08T09:05:30Z",
@@ -730,9 +778,8 @@ This file reports a Gaussian model with a random intercept and slope by subject,
 
 ## Left to later milestones
 
-- M2 specifies the privacy filter that produces a shareable document, including how suppressed values render in message text, the canonical analysis table that the analysis_table commitment covers, the file suffix of internal mode and the quantile probabilities of the registry's order statistics. It adds the observation keys to the sidecar.
 - M3 builds the ladder generator, which fixes how each rung's IR follows from the ceiling. It also fixes the menu of stopping rules with their versions and parameters and how a plan written before the data are seen records its centring rules, and it implements the plan validator.
-- M4 adds the figures and their aggregated tables to the results document, with the support of each bin.
+- M4 adds the figures and their aggregated tables to the results document, with the support of each bin, and extends the privacy filter ([privacy.md](privacy.md)) to them, with rounding and the secondary suppression of tables.
 - M5 adds the Stream A sections of the results document, the labels of predicted random effects in the sidecar, the optional capabilities of the contract and the checks of an estimates file against its IR.
 
 ## References

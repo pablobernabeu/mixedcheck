@@ -14,7 +14,9 @@ reads: [declaration, formula, outcome]
 fitted_model: false
 sample: analysis
 scope: model
-applies_when: The declared measurement of the outcome is bounded_score.
+applies_when: >-
+  The declared measurement of the outcome is bounded_score, and the outcome
+  is a numeric column.
 availability:
   - reason: declaration_missing
     condition: The declaration gives no measurement level for the outcome.
@@ -23,15 +25,24 @@ statistics:
   rows:
     kind: count
     count_class: person
+    measures: analysis_rows
     definition: The number of rows of the analysis sample.
   at_floor:
     kind: count
     count_class: person
-    definition: The number of rows whose outcome equals the lower declared bound, compared by value.
+    part_of: rows
+    definition: >-
+      The number of rows whose value of the outcome column, as the table
+      reader returns it and before any transform of the formula, equals the
+      double nearest to the lower declared bound. Values outside the bounds
+      count at neither bound.
   at_ceiling:
     kind: count
     count_class: person
-    definition: The number of rows whose outcome equals the upper declared bound, compared by value.
+    part_of: rows
+    definition: >-
+      The number of rows whose value of the outcome column equals the double
+      nearest to the upper declared bound.
   floor_share:
     kind: ratio
     count_class: person
@@ -52,7 +63,10 @@ thresholds:
     validation: {value: descriptive}
     rationale: >-
       More than 15% of respondents at the lowest possible score is a common
-      criterion for a floor effect.
+      criterion for a floor effect in the validation of health status
+      questionnaires, where each respondent gives one score. Applying it to
+      the rows of an analysis sample, which can hold several rows of one
+      person, is this project's extension.
     sources:
       - kind: literature
         citation: >-
@@ -70,7 +84,10 @@ thresholds:
     validation: {value: descriptive}
     rationale: >-
       More than 15% of respondents at the highest possible score is a common
-      criterion for a ceiling effect.
+      criterion for a ceiling effect in the validation of health status
+      questionnaires, where each respondent gives one score. Applying it to
+      the rows of an analysis sample, which can hold several rows of one
+      person, is this project's extension.
     sources:
       - kind: literature
         citation: >-
@@ -86,6 +103,7 @@ decision:
   rules:
     - finding: detectable_inconsequential
       condition: floor_share exceeds floor or ceiling_share exceeds ceiling.
+      statistics: [floor_share, ceiling_share]
       thresholds: [floor, ceiling]
       message: at_bounds
   otherwise:
@@ -95,10 +113,15 @@ assessability: []
 messages:
   at_bounds:
     template: >-
-      {floor_share} of the rows are at the lowest possible score and
-      {ceiling_share} at the highest, more than {threshold} at a bound. Consider
-      a binomial or beta-binomial model when the maximum is a number of items,
-      or an item-level model when item responses exist, and report any
+      Of the rows, {floor_share} are at the lowest possible score and
+      {ceiling_share} at the highest, more than {threshold} at a bound.
+      Consider a binomial or beta-binomial model when the maximum is a number
+      of items, or an item-level model when item responses exist, and report
+      any interaction on both scales.
+    fallback: >-
+      More than {threshold} of the rows are at a bound of the score. Consider a
+      binomial or beta-binomial model when the maximum is a number of items, or
+      an item-level model when item responses exist, and report any
       interaction on both scales.
     args:
       floor_share: {source: statistic, name: floor_share, digits: 1}
@@ -106,11 +129,13 @@ messages:
       threshold: {source: threshold, name: ceiling}
   within_bounds:
     template: >-
-      {floor_share} of the rows are at the lowest possible score and
-      {ceiling_share} at the highest.
+      Of the rows, {floor_share} are at the lowest possible score and
+      {ceiling_share} at the highest, no more than {threshold} at either bound.
+    fallback: No more than {threshold} of the rows are at either bound of the score.
     args:
       floor_share: {source: statistic, name: floor_share, digits: 1}
       ceiling_share: {source: statistic, name: ceiling_share, digits: 1}
+      threshold: {source: threshold, name: ceiling}
 remedies:
   - id: bounded_family
     description: >-

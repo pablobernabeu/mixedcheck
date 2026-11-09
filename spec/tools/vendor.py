@@ -8,8 +8,9 @@ Usage, from the repository root:
 
 spec/vendoring.json lists every artefact to vendor, as a path relative to the
 repository root under spec/ or fixtures/. `sync` copies each one byte for byte
-into the package directories that TARGETS names and writes a MANIFEST.json of
-SHA-256 digests into each of them. `check` changes nothing and exits with
+into the package directories that TARGETS names for the most specific source
+directory that holds it, and writes a MANIFEST.json of SHA-256 digests into
+each of them. `check` changes nothing and exits with
 status 1, naming each problem, when a copy is missing or differs from its
 source, a listed source is missing, a vendored directory holds a file that is
 not listed or is a symbolic link, a MANIFEST.json is missing or stale, or a
@@ -32,10 +33,14 @@ from pathlib import Path, PurePosixPath
 LIST = "spec/vendoring.json"
 MANIFEST = "MANIFEST.json"
 # Each source directory and the package directories it is vendored into
-# (02-decisions.md, Q7).
+# (02-decisions.md, Q7). An artefact belongs to the most specific source
+# directory that holds it. The conformance corpora are test material, so they
+# go into the packages' test directories and are not installed. Other fixtures,
+# such as the zoo, are installed with the packages.
 TARGETS = {
     "spec": ("r/inst/spec", "python/src/mixedcheck/_spec"),
     "fixtures": ("r/inst/fixtures", "python/src/mixedcheck/_fixtures"),
+    "fixtures/conformance": ("r/tests/conformance", "python/tests/conformance"),
 }
 # Caches that tools may write under spec/. They are not sources.
 SKIP_DIRS = {"__pycache__", ".pytest_cache", ".ruff_cache"}
@@ -47,7 +52,7 @@ BOM = b"\xef\xbb\xbf"
 # check rejects names that are not portable (Writing R Extensions, 1.1.1). The
 # list rejects such names, so that the cause shows here rather than as a
 # missing file in the R package's checks.
-R_PATH = "mixedcheck/inst/"
+R_PACKAGE = "mixedcheck"
 R_PATH_LIMIT = 100
 PORTABLE_NAME = re.compile(r"[A-Za-z0-9_][A-Za-z0-9._-]*")
 WINDOWS_DEVICE = re.compile(r"(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?", re.IGNORECASE)
@@ -63,7 +68,13 @@ def _reject_duplicates(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return dict(pairs)
 
 
-def _r_name_problem(parts: tuple[str, ...]) -> str | None:
+def source_dir_of(entry: str) -> str | None:
+    """Return the most specific source directory of TARGETS that holds `entry`."""
+    matches = [source for source in TARGETS if entry.startswith(source + "/")]
+    return max(matches, key=len) if matches else None
+
+
+def _r_name_problem(parts: tuple[str, ...], source_dir: str) -> str | None:
     for index, part in enumerate(parts):
         if not PORTABLE_NAME.fullmatch(part):
             return f"has the component {part!r}, which is not a portable file name"
@@ -72,7 +83,9 @@ def _r_name_problem(parts: tuple[str, ...]) -> str | None:
         is_dir = index < len(parts) - 1
         if R_DROPPED_NAME.fullmatch(part) or (is_dir and R_DROPPED_DIR.fullmatch(part)):
             return f"has the component {part!r}, which R CMD build leaves out"
-    if len((R_PATH + "/".join(parts)).encode("utf-8")) > R_PATH_LIMIT:
+    rest = "/".join(parts[len(source_dir.split("/")) :])
+    r_path = f"{R_PACKAGE}/{TARGETS[source_dir][0].removeprefix('r/')}/{rest}"
+    if len(r_path.encode("utf-8")) > R_PATH_LIMIT:
         return f"is longer than {R_PATH_LIMIT} bytes as a path in the R package's tarball"
     return None
 
@@ -85,14 +98,15 @@ def _entry_problem(entry: object) -> str | None:
         return f"entry {entry!r} is not a normalised relative POSIX path"
     if any(part in {".", ".."} for part in path.parts):
         return f"entry {entry!r} contains '.' or '..'"
-    if len(path.parts) < 2 or path.parts[0] not in TARGETS:
-        roots = " or ".join(f"{root}/" for root in TARGETS)
+    source_dir = source_dir_of(entry)
+    if source_dir is None:
+        roots = " or ".join(f"{root}/" for root in TARGETS if "/" not in root)
         return f"entry {entry!r} is not a file under {roots}"
     if entry == LIST:
         return f"entry {entry!r} is the list of artefacts itself"
-    if str(PurePosixPath(*path.parts[1:])).lower() == MANIFEST.lower():
+    if entry[len(source_dir) + 1 :].lower() == MANIFEST.lower():
         return f"entry {entry!r} would overwrite the vendored {MANIFEST}"
-    problem = _r_name_problem(path.parts)
+    problem = _r_name_problem(path.parts, source_dir)
     return None if problem is None else f"entry {entry!r} {problem}"
 
 
@@ -155,7 +169,7 @@ def _files_under(directory: Path) -> set[str]:
 
 def _listed_in(source_dir: str, artefacts: list[str]) -> list[str]:
     prefix = source_dir + "/"
-    return sorted(entry[len(prefix) :] for entry in artefacts if entry.startswith(prefix))
+    return sorted(entry[len(prefix) :] for entry in artefacts if source_dir_of(entry) == source_dir)
 
 
 def manifest_text(source_root: Path, listed: list[str], source_dir: str) -> str:

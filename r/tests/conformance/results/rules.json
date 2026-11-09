@@ -1,0 +1,227 @@
+{
+  "description": "Stage 4 of validation, the rules on findings and the access log: duplicates and the order of findings, tiers without an access, planned access without a plan, the order of access times and the basis of a support, each issue sorted by pointer, code and message.",
+  "cases": [
+    {
+      "id": "results-rules-001",
+      "description": "A finding of keys.duplicates repeated right after itself: E7001 at the later one, and no E7002, since an equal finding does not come before it.",
+      "document": "rules/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7001",
+            "message": "The finding at /findings/1 has the same check and scope as an earlier finding.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-002",
+      "description": "structure.cluster_sizes before keys.duplicates: E7002 at the finding that comes before the one immediately before it.",
+      "document": "rules/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/1 is not in the order of check and scope.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-003",
+      "description": "keys.duplicates repeated at the end, after a finding of another check: E7001 for the repeat and E7002, since it also comes before the finding immediately before it.",
+      "document": "rules/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7001",
+            "message": "The finding at /findings/3 has the same check and scope as an earlier finding.",
+            "pointer": "/findings/3"
+          },
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/3 is not in the order of check and scope.",
+            "pointer": "/findings/3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-004",
+      "description": "Two findings of structure.cluster_sizes for the factors 'caf\\u00e9' and 'cafe\\u0301', which are equal after NFC: E7001.",
+      "document": "rules/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7001",
+            "message": "The finding at /findings/1 has the same check and scope as an earlier finding.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-005",
+      "description": "Findings for the factors 'item' and 'Subject': E7002, since 'S' comes before 'i' in code-point order.",
+      "document": "rules/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/1 is not in the order of check and scope.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-006",
+      "description": "The same findings for 'Subject' and then 'item': in order, no issue.",
+      "document": "rules/006.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-rules-007",
+      "description": "Two findings of outcome.zero_shares, for 'subject' and then for the model as a whole with an empty scope: E7002, since the empty list of scope parts is a prefix of the other and comes first.",
+      "document": "rules/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/1 is not in the order of check and scope.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-008",
+      "description": "An available finding of tier T1 in a document whose access log has only a T0 entry: E7003. A finding of tier T1 that is not available needs no entry.",
+      "document": "rules/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7003",
+            "message": "The finding at /findings/2/tier has the tier 'T1', which no entry of the access log records.",
+            "pointer": "/findings/2/tier"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-009",
+      "description": "An entry in the mode 'planned' and an execution binding hash without /access_log/plan: E7004 at each, the access log first.",
+      "document": "rules/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7004",
+            "message": "The member at /access_log/entries/1/mode requires the plan at /access_log/plan.",
+            "pointer": "/access_log/entries/1/mode"
+          },
+          {
+            "code": "E7004",
+            "message": "The member at /inputs/execution_binding_hash requires the plan at /access_log/plan.",
+            "pointer": "/inputs/execution_binding_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-010",
+      "description": "The same entry and hash with /access_log/plan: no issue.",
+      "document": "rules/010.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-rules-011",
+      "description": "A T1 entry dated one second before the T0 entry: E7005 at its time. The T2 entry has the same time as the T1 entry, which is allowed.",
+      "document": "rules/011.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7005",
+            "message": "The time at /access_log/entries/1/time is earlier than the time of the entry before it.",
+            "pointer": "/access_log/entries/1/time"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-012",
+      "description": "The basis 'disclosure_unit' in a document without a disclosure unit: E7006, naming the two values allowed.",
+      "document": "rules/012.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7006",
+            "message": "The basis at /findings/1/support/contributors/basis must be 'grouping_factors' or 'rows'.",
+            "pointer": "/findings/1/support/contributors/basis"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-013",
+      "description": "The basis 'rows' in a document with a declared disclosure unit: E7006, naming 'disclosure_unit'.",
+      "document": "rules/013.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7006",
+            "message": "The basis at /findings/2/support/contributors/basis must be 'disclosure_unit'.",
+            "pointer": "/findings/2/support/contributors/basis"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-rules-014",
+      "description": "The basis 'rows' for a model with a grouping factor and no disclosure unit: the validator, which does not read the model, accepts 'grouping_factors' or 'rows', so no issue.",
+      "document": "rules/014.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-rules-015",
+      "description": "Five issues of stage 4 in one document, sorted by pointer: E7005 in the access log, then E7002 at /findings/1, E7006 at /findings/2, and E7001 and E7006 at /findings/3.",
+      "document": "rules/015.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7005",
+            "message": "The time at /access_log/entries/1/time is earlier than the time of the entry before it.",
+            "pointer": "/access_log/entries/1/time"
+          },
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/1 is not in the order of check and scope.",
+            "pointer": "/findings/1"
+          },
+          {
+            "code": "E7006",
+            "message": "The basis at /findings/2/support/contributors/basis must be 'grouping_factors' or 'rows'.",
+            "pointer": "/findings/2/support/contributors/basis"
+          },
+          {
+            "code": "E7001",
+            "message": "The finding at /findings/3 has the same check and scope as an earlier finding.",
+            "pointer": "/findings/3"
+          },
+          {
+            "code": "E7006",
+            "message": "The basis at /findings/3/support/contributors/basis must be 'grouping_factors' or 'rows'.",
+            "pointer": "/findings/3/support/contributors/basis"
+          }
+        ]
+      }
+    }
+  ]
+}

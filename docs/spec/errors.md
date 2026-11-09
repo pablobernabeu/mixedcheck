@@ -305,10 +305,13 @@ The compiler reports these codes for the YAML sources, with pointers into the en
 | E4019 | registry_unexpected_file | spec/registry/checks/ holds a file that is not a YAML source |
 | E4020 | registry_consequential_descriptive | a decision rule grades a finding as consequential with a threshold whose validation is descriptive |
 | E4021 | registry_ratio_counts | a ratio does not name two count statistics of its own count class as its numerator and denominator |
+| E4022 | registry_parameter_differs | a parameter named agreement has a value other than that of the other entries that have it |
+| E4023 | registry_message_fallback | a message that renders a statistic that can be absent or suppressed has no fallback template, or its fallback renders such a statistic |
+| E4024 | registry_reference_kind | a quantile, a resolution or a noun names a statistic of the wrong kind |
 
 ### table
 
-The table reader reports one issue, the first that its stages find (tables.md, Stages), with a byte offset into the file when the issue has a place there. The rules behind these codes are in [tables.md](tables.md).
+The table reader reports one issue, the first that its stages find (tables.md, Stages), with a byte offset into the file when the issue has a place there. The rules behind these codes are in [tables.md](tables.md). E5011 is raised by `audit()`, which checks the columns that the declaration names against the data before any check (03-execution-plan.md, M2), located by the JSON Pointer into the declaration.
 
 | Code | Name | Raised when |
 |---|---|---|
@@ -322,6 +325,7 @@ The table reader reports one issue, the first that its stages find (tables.md, S
 | E5008 | table_key_missing | a column of the primary key has a missing value |
 | E5009 | table_primary_key_duplicate | a record has the same values in the primary key as an earlier record |
 | E5010 | table_unique_key_duplicate | a record has the same values in a unique key as an earlier record |
+| E5011 | table_declared_column | a column that the declaration names is not a column of the data passed to `audit()` |
 
 ### formula
 
@@ -383,11 +387,17 @@ The builder of the IR reports one issue, the first that its stages find, with a 
 | E6075 | formula_too_many_columns | the fixed part or a random term would have more than 10,000 columns |
 | E6076 | formula_name_too_long | a name of the IR would have more than 10,000 characters |
 | E6077 | formula_nonfinite_result | a centring constant, a centred value or a product in the design matrices is not finite |
+| E6078 | formula_binomial_counts | a row of the analysis sample holds events or trials of a binomial response that are not integers with 0 <= events <= trials |
 | E6101 | formula_ir_inconsistent | an IR document differs from what its own predictors and terms define |
 
 ### results
 
-The rules behind these codes, the stages in which they are checked and their locations are in [documents.md](documents.md) (Results document and Internal sidecar).
+The rules behind these codes, the stages in which they are checked and their locations are in [documents.md](documents.md) (Results document and Internal sidecar). E7007 to E7010 are raised by `audit()` and `write_results()`, whose arguments and order of steps are in 03-execution-plan.md (M2). Their arguments take these values, so that both packages render the same message.
+
+- E7007: {sample} is 'design' or 'analysis'.
+- E7008: {name} is the family given, and {expected} the accepted names in the order 'gaussian', 'binomial', 'poisson', 'negative_binomial', 'beta', 'gamma', 'inverse_gaussian' and 'cumulative'.
+- E7009: {tier} is 'T1' or 'T2', and {requirement} is 'a reason of 1 to 4000 characters without control characters' for a reason that is missing, empty, longer or with a control character, 'the exploratory mode' for T2 without it and 'a formula with a response' for a one-sided formula.
+- E7010: {rule} is 'does not end in' when {file} is 'shareable results document', for a shareable document, and 'ends in' when {file} is 'internal results document' or 'internal sidecar', for an internal document or the sidecar.
 
 | Code | Name | Raised when |
 |---|---|---|
@@ -397,9 +407,13 @@ The rules behind these codes, the stages in which they are checked and their loc
 | E7004 | results_plan_missing | an entry in the mode 'planned', or an execution binding hash, appears without the plan in the access log |
 | E7005 | results_access_order | an entry of the access log is dated before the entry before it |
 | E7006 | results_support_basis | the basis of a finding's support does not agree with the disclosure unit |
+| E7007 | results_empty_sample | `audit()` meets a design sample, or at T1 or T2 an analysis sample, without rows |
+| E7008 | results_family_unknown | `audit()` is given a family that it does not accept |
+| E7009 | results_access_refused | outcome access at T1 or T2 lacks a reason, the exploratory mode for T2 or a response |
+| E7010 | results_file_suffix | `write_results()` is given a file name whose suffix does not match the privacy mode of the document, or a sidecar name without the internal suffix |
 | E7020 | results_person_count_shown | a shareable document writes a person count below the minimum count |
 | E7021 | results_statistic_shown | a shareable document writes a statistic of a finding that fails the minimum-count or dominance rule |
-| E7022 | results_quantile_shown | a shareable document writes a quantile that the quantile rule suppresses |
+| E7022 | results_quantile_shown | a shareable document writes a quantile without its n or one that the quantile rule suppresses |
 | E7023 | results_label_not_pseudonym | a shareable document writes a label that is not a pseudonym |
 | E7024 | results_ratio_shown | a shareable document writes a ratio whose numerator or denominator is a person count that is suppressed or below the minimum count |
 | E7040 | results_unknown_check | a finding names a check that the registry does not have |

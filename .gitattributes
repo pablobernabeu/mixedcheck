@@ -7,3 +7,5 @@ r/inst/spec/** -text
 r/inst/fixtures/** -text
 python/src/mixedcheck/_spec/** -text
 python/src/mixedcheck/_fixtures/** -text
+r/tests/conformance/** -text
+python/tests/conformance/** -text

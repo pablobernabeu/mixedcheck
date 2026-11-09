@@ -1,0 +1,190 @@
+{
+  "description": "Stage 5 of validation, against the compiled registry vendored with the package: W7090 for another registry, unknown checks, check versions, tiers, kinds and count classes, unknown statistics, messages and scope parts, missing scope parts and the optimisation status.",
+  "cases": [
+    {
+      "id": "results-registry-001",
+      "description": "A valid document whose registry hash differs from that of the registry of this release: W7090 alone, at /inputs/registry_hash.",
+      "document": "registry/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "W7090",
+            "message": "The registry hash at /inputs/registry_hash differs from the hash of the registry of this release, so the findings were not checked against registry entries.",
+            "pointer": "/inputs/registry_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-002",
+      "description": "Another registry hash with findings that the registry of this release would reject: W7090 alone, since the findings are not checked against registry entries.",
+      "document": "registry/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "W7090",
+            "message": "The registry hash at /inputs/registry_hash differs from the hash of the registry of this release, so the findings were not checked against registry entries.",
+            "pointer": "/inputs/registry_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-003",
+      "description": "A finding of the check 'structure.level_sizes', which the registry does not have: E7040 alone for that finding, whose version and statistics are not checked.",
+      "document": "registry/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7040",
+            "message": "The check 'structure.level_sizes' at /findings/2/check is not in the registry.",
+            "pointer": "/findings/2/check"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-004",
+      "description": "keys.duplicates with the check version 2 and the tier T1: E7041 at each, with the value of the entry.",
+      "document": "registry/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/check_version must be 1, as the registry entry of the check states.",
+            "pointer": "/findings/0/check_version"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/tier must be 'T0', as the registry entry of the check states.",
+            "pointer": "/findings/0/tier"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-005",
+      "description": "The statistic rows of keys.duplicates with the kind ratio and duplicate_rows with the class non_person: E7041 at each. levels of structure.cluster_sizes, whose class is by_unit, may be either class.",
+      "document": "registry/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/statistics/duplicate_rows/count_class must be 'person', as the registry entry of the check states.",
+            "pointer": "/findings/0/statistics/duplicate_rows/count_class"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/statistics/rows/kind must be 'count', as the registry entry of the check states.",
+            "pointer": "/findings/0/statistics/rows/kind"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-006",
+      "description": "A scope part 'factor' on keys.duplicates, whose scope is model, a message 'all_rows' and a statistic 'rows_total' that sample.raw_vs_analysis does not define: E7042 for each, naming its kind.",
+      "document": "registry/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7042",
+            "message": "The scope part 'factor' at /findings/0/scope/factor is not defined by the registry entry of the check.",
+            "pointer": "/findings/0/scope/factor"
+          },
+          {
+            "code": "E7042",
+            "message": "The message 'all_rows' at /findings/1/message/id is not defined by the registry entry of the check.",
+            "pointer": "/findings/1/message/id"
+          },
+          {
+            "code": "E7042",
+            "message": "The statistic 'rows_total' at /findings/1/statistics/rows_total is not defined by the registry entry of the check.",
+            "pointer": "/findings/1/statistics/rows_total"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-007",
+      "description": "An available finding of structure.cluster_sizes with an empty scope and a finding of structure.label_incidence that is not available with the part 'first' alone: E7043 for each missing part. A finding that is not available with an empty scope, for the whole check, has no issue.",
+      "document": "registry/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7043",
+            "message": "The scope at /findings/2/scope lacks the part 'factor'.",
+            "pointer": "/findings/2/scope"
+          },
+          {
+            "code": "E7043",
+            "message": "The scope at /findings/4/scope lacks the part 'second'.",
+            "pointer": "/findings/4/scope"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-008",
+      "description": "A model without grouping factors: outcome.minority_events, whose scope is grouping_factor_or_model, yields its finding for the model with an empty scope, which has no issue, whereas an available finding of outcome.constant_clusters with an empty scope lacks the part 'factor': E7043.",
+      "document": "registry/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7043",
+            "message": "The scope at /findings/0/scope lacks the part 'factor'.",
+            "pointer": "/findings/0/scope"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-009",
+      "description": "An optimisation status on a finding of keys.duplicates, which evaluates no fitted model: E7044.",
+      "document": "registry/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7044",
+            "message": "The status at /findings/0/status must include optimisation exactly when the check evaluates a fitted model.",
+            "pointer": "/findings/0/status"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-010",
+      "description": "Several issues of stage 5 in three findings, sorted by pointer: E7041 and E7044 in the first, E7041 in the second and E7041 and E7042 in the third.",
+      "document": "registry/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/check_version must be 1, as the registry entry of the check states.",
+            "pointer": "/findings/0/check_version"
+          },
+          {
+            "code": "E7044",
+            "message": "The status at /findings/0/status must include optimisation exactly when the check evaluates a fitted model.",
+            "pointer": "/findings/0/status"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/1/statistics/rows_kept/count_class must be 'person', as the registry entry of the check states.",
+            "pointer": "/findings/1/statistics/rows_kept/count_class"
+          },
+          {
+            "code": "E7042",
+            "message": "The scope part 'unit' at /findings/2/scope/unit is not defined by the registry entry of the check.",
+            "pointer": "/findings/2/scope/unit"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/2/statistics/median/kind must be 'count', as the registry entry of the check states.",
+            "pointer": "/findings/2/statistics/median/kind"
+          }
+        ]
+      }
+    }
+  ]
+}

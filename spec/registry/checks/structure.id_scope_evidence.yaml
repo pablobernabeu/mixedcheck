@@ -10,8 +10,12 @@ summary: >-
   the levels of the other column. In mlmRev's Exam data, 269 of 322 shared
   student labels change sex across schools, whereas in a crossed
   psycholinguistic dataset none of 600 items changes its frequency or length
-  (02-decisions.md, Q4). The evidence informs a declaration and never decides
-  the coding.
+  (02-decisions.md, Q4). An attribute can show which column repeats its labels
+  only when another attribute stays constant across the shared labels of the
+  other column: in Exam, sex also changes within 35 of the 65 schools, so sex
+  alone leaves the direction open, whereas the school attribute schgend,
+  constant within every school, points to the student labels. The evidence
+  informs a declaration and never decides the coding.
 reads: [declaration, formula, grouping_factors, other_columns, predictors]
 fitted_model: false
 sample: design
@@ -25,51 +29,77 @@ statistics:
   labels_column:
     kind: names
     definition: >-
-      The column whose repeated labels the evidence concerns. The statistics
-      below are computed for each direction in which labels of one column, the
-      labels column, occur with more than one label of the other, the context
-      column. The direction with the larger changing_share is reported, and on
-      a tie the direction whose labels column is the first column.
+      The column whose repeated labels the evidence concerns. The check looks
+      in both directions, each with one column of the pair as the labels
+      column and the other as the context column, and computes the statistics
+      below in each. It reports the only direction that has candidate
+      attributes. When both have them, it reports the direction whose
+      changing_labels is above 0 when that of the other is 0, since the other
+      direction then has an attribute that stays constant across its shared
+      labels, as an attribute of its units does, so that the change in the
+      reported direction cannot come from the other column repeating its
+      labels. Otherwise, and when neither direction has candidate attributes,
+      it reports the direction whose labels column is the first column.
   context_column:
     kind: names
     definition: The other column of the pair in the reported direction.
   shared_labels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: statistic, name: labels_column}]
     definition: >-
       The number of labels of the labels column that occur with more than one
-      label of the context column.
+      label of the context column in the design sample, labels being compared
+      by value (registry.md, Terms).
   attributes:
     kind: names
     definition: >-
       The candidate attributes, in code-point order of their names. They are
-      the columns of the design sample that the IR reads, other than the
-      response, its trials column and the two columns of the pair, and the
-      columns that the declaration gives a role
-      other than outcome or outcome_derived, that are constant within every
-      combination of a label of the labels column and a label of the context
-      column but not within every label of the context column. Constancy
-      compares the values as the table reader returns them, with missing
-      values equal to each other.
+      the columns that the IR reads or that the declaration gives a role,
+      other than the response, its trials column, the columns that the
+      declaration gives the role outcome or outcome_derived and the two
+      columns of the pair, so that sample columns enter only through a
+      declared role, which are constant within most combinations of a label of
+      the labels column and a label of the context column but not within every
+      label of the context column. With agreement written as m / 10^d, a
+      column is constant within most combinations when c times 10^d is at
+      least m times n in integer arithmetic, where n is the number of
+      combinations that occur in the design sample and c the number within
+      which its values are all equal. Values are compared by value
+      (registry.md, Terms), with missing values equal to each other.
   changing_labels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: statistic, name: labels_column}]
+    part_of: shared_labels
     definition: >-
-      The largest number, over the candidate attributes, of shared labels for
-      which the attribute takes more than one value across the labels of the
-      context column with which they occur.
+      The smallest number, over the candidate attributes, of shared labels
+      for which the attribute takes more than one value in the rows of the
+      label. Attributes of a single unit are the attributes that can stay
+      constant across contexts, whereas an attribute of the combinations,
+      such as a condition assigned to each subject and item, changes for most
+      shared labels in both directions. It is absent when neither direction
+      has a candidate attribute.
   changing_share:
     kind: ratio
     count_class: by_unit
     numerator: changing_labels
     denominator: shared_labels
-    definition: changing_labels divided by shared_labels.
+    definition: changing_labels divided by shared_labels, absent when changing_labels is absent.
   changing_attribute:
     kind: names
     definition: >-
       The candidate attribute that gives changing_labels, the first in
-      code-point order of their names on a tie, and no column when there is no
-      candidate attribute.
+      code-point order of their names on a tie. It is absent when neither
+      direction has a candidate attribute.
+  tied:
+    kind: boolean
+    definition: >-
+      Whether both directions have candidate attributes and changing_labels
+      above 0, so that every candidate attribute changes across the shared
+      labels of both columns and the attributes cannot show which of the two
+      columns repeats its labels, since a column that repeats its labels makes
+      the attributes of its units change in both directions.
 thresholds:
   most_change:
     statistic: changing_share
@@ -96,19 +126,48 @@ thresholds:
     sources:
       - kind: convention
         citation: Set by this project for registry 0.1.0.
-parameters: {}
+parameters:
+  agreement:
+    value: 0.99
+    definition: >-
+      The share of the combinations of a label of the labels column and a
+      label of the context column within which a column must be constant to
+      count as a candidate attribute, so that one combination with two rows
+      that disagree, as a data error or a label shared by two persons in one
+      context, does not remove the attribute.
+    sources:
+      - kind: decision
+        citation: >-
+          02-decisions.md, Q4, where the same share infers the level at which a
+          variable varies (registry.md, Terms).
+      - kind: derivation
+        citation: >-
+          In mlmRev's Exam data, one combination of school and student holds a
+          boy and a girl, so that exact constancy removes sex from the
+          candidates. With this share, sex changes for 269 of the 322 shared
+          student labels, as the evidence of
+          docs/design/evidence/decisions/E-verify/scripts/exp_label_scope_evidence.R
+          reports.
 decision:
   rules:
     - finding: consistent
       condition: attributes is empty.
+      statistics: [attributes]
       thresholds: []
       message: no_attribute
+    - finding: consistent
+      condition: tied is true.
+      statistics: [tied]
+      thresholds: []
+      message: tied
     - finding: detectable_inconsequential
       condition: changing_share reaches most_change.
+      statistics: [changing_share]
       thresholds: [most_change]
       message: reuse_likely
     - finding: detectable_inconsequential
       condition: changing_labels reaches any_change.
+      statistics: [changing_labels]
       thresholds: [any_change]
       message: some_change
   otherwise:
@@ -129,39 +188,63 @@ messages:
     args:
       labels_column: {source: statistic, name: labels_column}
       context_column: {source: statistic, name: context_column}
+  tied:
+    template: >-
+      Every candidate attribute changes across the shared labels of both
+      {labels_column} and {context_column}, so the attributes cannot show which
+      of the two columns repeats its labels. Declare the scope of the labels.
+    args:
+      labels_column: {source: statistic, name: labels_column}
+      context_column: {source: statistic, name: context_column}
   reuse_likely:
     template: >-
-      For {share} of the {shared} labels of {labels_column} that occur with
+      {labels_column} has {shared} occurring with several levels of
+      {context_column}, and the attribute {attribute} changes between those
+      levels for {share} of them, so these labels probably denote different
+      units. The model treats each label as one unit. Declare the scope of the
+      labels, and nest {labels_column} in {context_column} if the labels are
+      reused.
+    fallback: >-
+      For at least half of the labels of {labels_column} that occur with
       several levels of {context_column}, the attribute {attribute} changes
       between those levels, so these labels probably denote different units.
       The model treats each label as one unit. Declare the scope of the labels,
       and nest {labels_column} in {context_column} if the labels are reused.
     args:
       share: {source: statistic, name: changing_share, digits: 0}
-      shared: {source: statistic, name: shared_labels}
+      shared: {source: statistic, name: shared_labels, noun: [label, labels]}
       labels_column: {source: statistic, name: labels_column}
       context_column: {source: statistic, name: context_column}
       attribute: {source: statistic, name: changing_attribute}
   some_change:
     template: >-
-      For {changing} of the {shared} labels of {labels_column} that occur with
-      several levels of {context_column}, the attribute {attribute} changes
-      between those levels. Check these units and declare the scope of the
-      labels.
+      {labels_column} has {shared} occurring with several levels of
+      {context_column}, and the attribute {attribute} changes between those
+      levels for {changing} of them. Check these units and declare the scope
+      of the labels.
+    fallback: >-
+      For some of the labels of {labels_column} that occur with several levels
+      of {context_column}, the attribute {attribute} changes between those
+      levels. Check these units and declare the scope of the labels.
     args:
       changing: {source: statistic, name: changing_labels}
-      shared: {source: statistic, name: shared_labels}
+      shared: {source: statistic, name: shared_labels, noun: [label, labels]}
       labels_column: {source: statistic, name: labels_column}
       context_column: {source: statistic, name: context_column}
       attribute: {source: statistic, name: changing_attribute}
   no_change:
     template: >-
-      None of the {shared} labels of {labels_column} that occur with several
-      levels of {context_column} changes any of the attributes {attributes},
-      which is consistent with labels that each denote one unit. Declare the
-      scope of the labels to confirm it.
+      {labels_column} has {shared} occurring with several levels of
+      {context_column}, and none of the attributes changes for any of them,
+      which is consistent with labels that each denote one unit. Attributes:
+      {attributes}. Declare the scope of the labels to confirm it.
+    fallback: >-
+      No label of {labels_column} that occurs with several levels of
+      {context_column} changes any of the attributes {attributes}, which is
+      consistent with labels that each denote one unit. Declare the scope of
+      the labels to confirm it.
     args:
-      shared: {source: statistic, name: shared_labels}
+      shared: {source: statistic, name: shared_labels, noun: [label, labels]}
       labels_column: {source: statistic, name: labels_column}
       context_column: {source: statistic, name: context_column}
       attributes: {source: statistic, name: attributes}

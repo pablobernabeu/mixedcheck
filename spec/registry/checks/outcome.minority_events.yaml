@@ -8,22 +8,26 @@ summary: >-
   rows. The check reports the events and non-events in the analysis sample,
   the minority count in each level of a grouping factor and the minority events
   per fixed-effects column, as an index without a cut-off. It reads the
-  outcome by grouping factor only.
+  outcome by grouping factor only. A model without grouping factors yields
+  one finding for the model as a whole, with the counts of the analysis
+  sample.
 reads: [declaration, formula, grouping_factors, outcome]
 fitted_model: false
 sample: analysis
 families: [bernoulli, binomial]
-scope: grouping_factor
+scope: grouping_factor_or_model
 availability:
   - reason: declaration_missing
     condition: >-
       The family class is bernoulli, the outcome takes values other than 0 and
-      1, as numbers or logical values, and the declaration gives no event level.
+      1, as numbers or logical values, in the analysis sample, and the
+      declaration gives no event level.
     pointer: /variables/{outcome}/event_level
 statistics:
   events:
     kind: count
     count_class: person
+    suppress_with: [non_events]
     definition: >-
       The number of events in the analysis sample: rows whose value of the
       response vector of ir.md (Response, offsets and weights) is 1 for the
@@ -32,54 +36,90 @@ statistics:
   non_events:
     kind: count
     count_class: person
-    definition: The number of rows, or of trials for the binomial family class, minus events.
+    suppress_with: [events]
+    definition: >-
+      The number of rows, or of trials for the binomial family class, minus
+      events. events and non_events add up to the rows, or the trials, so
+      either is suppressed with the other.
   levels:
     kind: count
     count_class: by_unit
-    definition: The number of levels of the factor in the analysis sample.
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels
+    definition: >-
+      The number of levels of the factor in the analysis sample, absent for a
+      finding for the model as a whole.
   levels_without_minority:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    part_of: levels
     definition: >-
       The number of levels in which the smaller of the level's events and
-      non-events is 0.
+      non-events is 0, levels of one row included, absent for a finding for
+      the model as a whole.
   median_minority:
     kind: count
     count_class: person
+    quantile: {p: '0.5', n: levels}
     definition: >-
       The level minority count at position ceil(J/2) when the smaller of each
       level's events and non-events are sorted in increasing order, with J the
-      number of levels.
+      number of levels, which is the quantile 0.5 of the J level minority
+      counts. It is absent for a finding for the model as a whole.
   events_per_column:
     kind: real
+    suppress_with: [events, non_events]
     definition: >-
       The smaller of events and non-events divided by the statistic kept of
       design.rank_deficiency, the number of fixed-effects columns that the
       sequential rule keeps on the design sample, so that the check reads no
-      predictor. It is absent when kept is 0.
+      predictor. It is absent when kept is 0. With kept, which is written, it
+      gives back the minority count, so it is suppressed with events and
+      non_events.
 thresholds: {}
 parameters: {}
 decision:
-  rules: []
+  rules:
+    - finding: consistent
+      condition: The finding is for the model as a whole.
+      statistics: []
+      thresholds: []
+      message: events_model
   otherwise:
     finding: consistent
     message: events
 assessability: []
 messages:
+  events_model:
+    template: >-
+      The outcome has {events} and {non_events}, or {per_column} minority
+      events per fixed-effects column.
+    fallback: >-
+      The statistics give the events and non-events of the outcome as far as
+      they can be shown.
+    args:
+      events: {source: statistic, name: events, noun: [event, events]}
+      non_events: {source: statistic, name: non_events, noun: [non-event, non-events]}
+      per_column: {source: statistic, name: events_per_column, digits: 1}
   events:
     template: >-
-      The outcome has {events} events and {non_events} non-events, or {per_column}
-      minority events per fixed-effects column. In {without} of the {levels}
-      levels of '{factor}' one of the two classes is absent, and the median
-      level has {median} minority events.
+      The outcome has {events} and {non_events}, or {per_column} minority
+      events per fixed-effects column. One of the two classes is absent in
+      {without} of the {levels} of '{factor}', counting the levels with one
+      row, and the median level has {median}.
+    fallback: >-
+      The statistics give the events and non-events of the outcome and the
+      minority events in the levels of '{factor}' as far as they can be
+      shown.
     args:
-      events: {source: statistic, name: events}
-      non_events: {source: statistic, name: non_events}
+      events: {source: statistic, name: events, noun: [event, events]}
+      non_events: {source: statistic, name: non_events, noun: [non-event, non-events]}
       per_column: {source: statistic, name: events_per_column, digits: 1}
       without: {source: statistic, name: levels_without_minority}
-      levels: {source: statistic, name: levels}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
       factor: {source: scope, name: factor}
-      median: {source: statistic, name: median_minority}
+      median: {source: statistic, name: median_minority, noun: [minority event, minority events]}
 remedies: []
 links:
   requires: [design.rank_deficiency]

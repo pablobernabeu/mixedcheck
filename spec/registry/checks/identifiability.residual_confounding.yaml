@@ -7,20 +7,22 @@ summary: >-
   combination of a level of its grouping factor and a cell of its columns
   holds more than one row. With one row per combination, as with a
   subject-by-item intercept in a Latin-square design or one observation per
-  subject and condition, a Gaussian model cannot separate the term from the
-  residual when the term has one column or estimates correlations, and with
-  uncorrelated columns it is identified only through the restriction its
-  coding imposes, if at all. For Bernoulli outcomes the term acts as an
-  observation-level effect, which is not identified under a probit link and
-  weakly identified under a logit link, whereas for binomial outcomes with
-  trials and counts it is an identified overdispersion term.
+  subject and condition, a Gaussian model cannot separate a random intercept
+  or a correlated block from the residual. Uncorrelated terms of one factor,
+  such as those that '||' writes, are judged together, and with one row per
+  combination they are identified only through the restriction their coding
+  imposes, if at all, which identifiability.gram_rank decides. For Bernoulli
+  outcomes the term acts as an observation-level effect, whose variance
+  ungrouped binary data do not identify, whereas for binomial outcomes with
+  trials and counts it is an overdispersion term (Harrison, 2014, 2015).
 reads: [formula, grouping_factors, predictors]
 fitted_model: false
 sample: design
 scope: random_term
 applies_when: >-
-  The term's columns are the intercept and columns coded from factors, so that
-  its rows take finitely many patterns.
+  The columns of the pattern, as pattern_terms defines it, are the intercept
+  and columns coded from factors, so that its rows take finitely many
+  patterns.
 availability: []
 statistics:
   columns:
@@ -30,18 +32,37 @@ statistics:
   correlated:
     kind: boolean
     definition: Whether the term has two or more columns and estimates their correlations.
+  pattern_terms:
+    kind: names
+    definition: >-
+      The random terms whose columns form the pattern of the cells: the term
+      itself when it is correlated, and otherwise every random term of the
+      same grouping factor that has one column, in IR order, which are the
+      terms that model uncorrelated effects of the factor.
   cells:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: factor}, {source: statistic, name: pattern_terms}]
     definition: >-
       The number of distinct combinations of a level of the term's grouping
-      factor and a pattern of the term's columns in the design sample, two
-      rows having the same pattern when all the term's columns are equal. Its
-      count class is that of the grouping factor.
+      factor and a pattern of the columns of the pattern terms in the design
+      sample, two rows having the same pattern when all these columns are
+      equal.
   replicated_cells:
     kind: count
     count_class: by_unit
-    definition: The number of those combinations that hold at least two rows.
+    resolved_by: [{source: scope, name: factor}, {source: statistic, name: pattern_terms}]
+    part_of: cells
+    definition: >-
+      The number of those combinations that hold at least two rows. The
+      combinations with one row, cells minus replicated_cells, each hold one
+      row, and both counts resolve over the combinations, so that a
+      combination with one member makes them person counts.
+  intercept_alone:
+    kind: boolean
+    definition: >-
+      Whether the term's one column is the intercept and pattern_terms holds
+      the term alone.
 thresholds: {}
 parameters: {}
 decision:
@@ -49,19 +70,23 @@ decision:
     - finding: consequential
       condition: >-
         replicated_cells is 0, the family class is gaussian or other, and
-        columns is 1 or correlated is true.
+        correlated or intercept_alone is true.
+      statistics: [replicated_cells, correlated, intercept_alone]
       thresholds: []
       message: confounded
     - finding: consequential
       condition: replicated_cells is 0 and the family class is bernoulli.
+      statistics: [replicated_cells]
       thresholds: []
       message: bernoulli
     - finding: detectable_inconsequential
       condition: replicated_cells is 0 and the family class is gaussian or other.
+      statistics: [replicated_cells]
       thresholds: []
       message: coding_dependent
     - finding: consistent
       condition: replicated_cells is 0.
+      statistics: [replicated_cells]
       thresholds: []
       message: overdispersion
   otherwise:
@@ -79,39 +104,45 @@ messages:
       term: {source: scope, name: term}
   bernoulli:
     template: >-
-      Each combination of a level of '{factor}' and a cell of '{term}' has one
-      row, so '{term}' acts as an observation-level effect, which is not
-      identified under a probit link and only weakly identified under a logit
-      link.
+      Each combination of a level of '{factor}' and a cell of {terms} has one
+      row, so '{term}' acts as an observation-level effect, whose variance
+      ungrouped binary data do not identify.
     args:
       factor: {source: scope, name: factor}
+      terms: {source: statistic, name: pattern_terms}
       term: {source: scope, name: term}
   coding_dependent:
     template: >-
-      Each combination of a level of '{factor}' and a cell of '{term}' has one
+      Each combination of a level of '{factor}' and a cell of {terms} has one
       row. With uncorrelated random effects, '{term}' is identified only
-      through the restriction that its coding imposes, if at all, and the
-      result changes with the coding.
+      through the restriction that the coding imposes, if at all, and the
+      result changes with the coding. identifiability.gram_rank decides
+      whether the coding chosen identifies it.
     args:
       factor: {source: scope, name: factor}
+      terms: {source: statistic, name: pattern_terms}
       term: {source: scope, name: term}
   overdispersion:
     template: >-
-      Each combination of a level of '{factor}' and a cell of '{term}' has one
+      Each combination of a level of '{factor}' and a cell of {terms} has one
       row, so '{term}' acts as an observation-level effect, which models
       overdispersion in this family.
     args:
       factor: {source: scope, name: factor}
+      terms: {source: statistic, name: pattern_terms}
       term: {source: scope, name: term}
   replicated:
     template: >-
-      {replicated} of the {cells} combinations of a level of '{factor}' and a
-      cell of '{term}' have two or more rows.
+      Combinations of a level of '{factor}' and a cell of {terms} that have
+      two or more rows: {replicated} of {cells}.
+    fallback: >-
+      Some combinations of a level of '{factor}' and a cell of {terms} have
+      two or more rows.
     args:
       replicated: {source: statistic, name: replicated_cells}
       cells: {source: statistic, name: cells}
       factor: {source: scope, name: factor}
-      term: {source: scope, name: term}
+      terms: {source: statistic, name: pattern_terms}
 remedies:
   - id: remove_term
     description: >-
@@ -128,4 +159,23 @@ references:
     citation: >-
       Review catalogue (docs/design/evidence/review-catalogue.md), L1-05 and
       L7-14, with the verifiers' corrections on coding and on families.
+  - kind: literature
+    citation: >-
+      Harrison, X. A. (2014). Using observation-level random effects to model
+      overdispersion in count data in ecology and evolution. PeerJ, 2, e616.
+    doi: 10.7717/peerj.616
+    full_text_read: false
+  - kind: literature
+    citation: >-
+      Harrison, X. A. (2015). A comparison of observation-level random effect
+      and Beta-Binomial models for modelling overdispersion in Binomial data in
+      ecology & evolution. PeerJ, 3, e1114.
+    doi: 10.7717/peerj.1114
+    full_text_read: false
+  - kind: derivation
+    citation: >-
+      The R-sig-mixed-models thread 'reference on unidentifiability of
+      observation-level variance in Bernoulli variables?' (2011) states that
+      the observation-level variance of ungrouped Bernoulli data is not
+      identifiable, which the message for the bernoulli family class states.
 catalogue: [L1-05, L7-14]

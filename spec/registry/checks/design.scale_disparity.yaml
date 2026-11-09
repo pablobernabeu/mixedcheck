@@ -4,32 +4,40 @@ title: Scales of the fixed-effects columns
 tier: T0
 summary: >-
   Anticipates lme4's warning that predictors are on very different scales,
-  which it gives when the standard deviations of the fixed-effects columns
-  that are not all 0 or 1 differ by a factor above 1000, or when one of them
-  lies above 1000 or below 0.001. The warning concerns the units of the
-  columns, so the check also reports the condition number of the
-  fixed-effects matrix with columns scaled to unit length, which measures
-  near-dependence between the columns and which a change of units does not
-  alter.
+  which it gives with the default settings of lmerControl() when the standard
+  deviations of the fixed-effects columns that it keeps and that are not all 0
+  or 1 differ by a factor above 1000, or when one of them lies above 1000 or
+  below 0.001. The warning concerns the units of the columns, so the check
+  also reports the condition number of the fixed-effects matrix with columns
+  scaled to unit length, which measures near-dependence between the columns
+  and which a change of units does not alter. Columns coded from categorical
+  predictors are left out of the standard deviations, because their contrasts
+  lie between -1 and 1, so that they rarely set off the warning, and because
+  their standard deviations give back the counts of the levels.
 reads: [formula, predictors]
 fitted_model: false
 sample: design
 scope: model
 applies_when: >-
-  At least one fixed-effects column other than the intercept takes a value
-  other than 0 and 1 in the design sample.
+  The design sample has at least two rows, and scaled_columns is not empty.
 availability: []
 statistics:
   scaled_columns:
     kind: names
     definition: >-
-      The fixed-effects columns, other than the intercept, that take a value
-      other than 0 and 1 in the design sample, in column order.
+      The fixed-effects columns, other than the intercept, that the sequential
+      rule keeps, that belong to terms whose variables are all numeric and
+      that take a value other than 0 and 1 in the design sample, in column
+      order.
   sd_largest:
     kind: real
     definition: >-
       The largest standard deviation of those columns, with denominator n - 1,
-      where n is the number of rows of the design sample.
+      where n is the number of rows of the design sample. The standard
+      deviation of a column whose values are all equal, compared by value, is
+      0. That of any other column is computed from its mean, summed exactly and
+      divided once as ir.md (Centring) computes means, as the square root of
+      the sum of the squared differences from the mean, divided by n - 1.
   sd_smallest:
     kind: real
     definition: The smallest of those standard deviations.
@@ -40,8 +48,8 @@ statistics:
     kind: real
     definition: >-
       The ratio of the largest to the smallest singular value of the matrix of
-      the fixed-effects columns that the sequential rule keeps, each scaled to
-      unit Euclidean length.
+      the fixed-effects columns that the sequential rule keeps, the intercept
+      included, each scaled to unit Euclidean length.
 thresholds:
   ratio:
     statistic: sd_ratio
@@ -93,6 +101,7 @@ decision:
   rules:
     - finding: detectable_inconsequential
       condition: sd_ratio exceeds ratio, sd_largest exceeds high or sd_smallest is below low.
+      statistics: [sd_ratio, sd_largest, sd_smallest]
       thresholds: [ratio, high, low]
       message: disparate
   otherwise:
@@ -106,13 +115,21 @@ messages:
       one of them lies outside 0.001 to 1000, which makes lme4 warn that the
       predictors are on very different scales. Centre and scale these columns
       outside the formula with stored constants.
+    fallback: >-
+      The standard deviations of {columns} differ by a factor above 1000, or
+      one of them lies outside 0.001 to 1000, which makes lme4 warn that the
+      predictors are on very different scales. Centre and scale these columns
+      outside the formula with stored constants.
     args:
       columns: {source: statistic, name: scaled_columns}
       ratio: {source: statistic, name: sd_ratio, digits: 0}
   similar:
     template: >-
-      The standard deviations of {columns} differ by a factor of {ratio} at
-      most.
+      Each standard deviation of {columns} lies between 0.001 and 1000, and the
+      largest is {ratio} times the smallest at most.
+    fallback: >-
+      Each standard deviation of {columns} lies between 0.001 and 1000, and the
+      largest is at most 1000 times the smallest.
     args:
       columns: {source: statistic, name: scaled_columns}
       ratio: {source: statistic, name: sd_ratio, digits: 1}

@@ -3,13 +3,14 @@ version: 1
 title: Randomisation unit in the random part
 tier: T0
 summary: >-
-  For a variable randomised between units, checks that a grouping factor of
-  the model matches the randomisation unit. Leaving the randomised level out of
-  the random part understates the uncertainty of the treatment effect, and a
-  higher level alone never makes up for it. In a review simulation with 4
-  schools, 6 classes each and randomisation by class, a model with a school
-  intercept only rejected a true null in 31.7% of replicates at a nominal 5%,
-  against 1.3% when class was included (01-design-review.md).
+  For a variable randomised between units, checks that a random intercept of
+  the model is on a grouping factor that matches the randomisation unit.
+  Leaving the randomised level out of the random part understates the
+  uncertainty of the treatment effect, and a higher level alone did not make
+  up for it in a review simulation with 4 schools, 6 classes each and
+  randomisation by class, where a model with a school intercept only rejected
+  a true null in 31.7% of 300 replicates at a nominal 5%, against 1.3% when
+  class was included (01-design-review.md).
 reads: [declaration, formula, grouping_factors]
 fitted_model: false
 sample: design
@@ -17,7 +18,7 @@ scope: assignment
 applies_when: >-
   The assignment is randomised, its level is between_unit, declared or
   inferred (registry.md, Terms), and some level of the unit has at least two
-  rows in the design sample.
+  rows of the assignment.
 availability:
   - reason: declaration_missing
     condition: The declaration has no assignment block.
@@ -26,19 +27,25 @@ statistics:
   units:
     kind: count
     count_class: by_unit
-    definition: The number of levels of the assignment unit in the design sample.
+    resolved_by: [{source: scope, name: unit}]
+    measures: levels
+    definition: >-
+      The number of levels of the assignment unit (registry.md, Terms) in the
+      rows of the assignment.
   coverage:
     kind: category
     values: [present, absent]
     definition: >-
-      present when some grouping factor of the IR divides the design sample
-      into the same groups as the levels of the unit, and absent otherwise.
+      present when a grouping factor of the IR that has a random term with an
+      intercept divides the rows of the assignment into the same groups as the
+      levels of the unit, and absent otherwise.
   coarser_factors:
     kind: names
     definition: >-
-      The grouping factors of the IR, other than one that matches the unit,
-      each of whose levels contains whole levels of the unit, in the order in
-      which they first arise in the IR.
+      The grouping factors of the IR, other than those that divide the rows of
+      the assignment into the same groups as the levels of the unit, each of
+      whose levels contains whole levels of the unit, in the order in which
+      they first arise in the IR.
   level_source:
     kind: category
     values: [declared, inferred_from_the_data]
@@ -50,21 +57,31 @@ parameters:
   agreement:
     value: 0.99
     definition: >-
-      The share of a level's rows that the most frequent value of the assigned
-      column must cover for the level to count as constant, when the level of
-      the assignment is inferred (registry.md, Terms).
+      The share of the rows of the assignment, pooled over the levels of the
+      unit with at least two rows, that must have the most frequent value of
+      their level for an assignment without a declared level to be inferred
+      as between_unit (registry.md, Terms).
     sources:
       - kind: decision
         citation: >-
           02-decisions.md, Q4. A rule that required 99% agreement within
-          clusters recovered the school level in 99.3 to 100% of 2,000
-          replicates with up to 0.5% of rows miscoded.
+          clusters, pooled over the rows of all clusters, recovered the school
+          level in 99.3 to 100% of 2,000 replicates with up to 0.5% of rows
+          miscoded (evidence/decisions/E-verify/scripts/exp2_tolerant.py, rule
+          R2). The same share applied to each cluster separately behaves as
+          the exact rule R1 for clusters of fewer than 100 rows.
 decision:
   rules:
     - finding: consequential
-      condition: coverage is absent.
+      condition: coverage is absent and coarser_factors is not empty.
+      statistics: [coverage, coarser_factors]
       thresholds: []
       message: unit_missing
+    - finding: consequential
+      condition: coverage is absent.
+      statistics: [coverage]
+      thresholds: []
+      message: unit_missing_alone
   otherwise:
     finding: consistent
     message: unit_present
@@ -73,21 +90,48 @@ messages:
   unit_missing:
     template: >-
       '{column}' was randomised by '{unit}', at a level between units that is
-      {level}, but no grouping factor of the model matches the {units} levels
-      of '{unit}'. Grouping factors at higher
-      levels ({coarser}) do not account for the dependence between rows of one
-      '{unit}'. Add a random intercept for '{unit}', analyse '{unit}' means or
-      use cluster-robust inference at that level.
+      {level}, but no random intercept of the model is on a grouping factor
+      that matches the {units} of '{unit}'. Grouping factors at higher levels,
+      which do not account for the dependence between rows of one '{unit}':
+      {coarser}. Add a random intercept for '{unit}', analyse '{unit}' means
+      or use cluster-robust inference at that level.
+    fallback: >-
+      '{column}' was randomised by '{unit}', at a level between units that is
+      {level}, but no random intercept of the model is on a grouping factor
+      that matches the levels of '{unit}'. Grouping factors at higher levels,
+      which do not account for the dependence between rows of one '{unit}':
+      {coarser}. Add a random intercept for '{unit}', analyse '{unit}' means
+      or use cluster-robust inference at that level.
     args:
       column: {source: scope, name: column}
       unit: {source: scope, name: unit}
-      units: {source: statistic, name: units}
+      units: {source: statistic, name: units, noun: [level, levels]}
       coarser: {source: statistic, name: coarser_factors}
+      level: {source: statistic, name: level_source}
+  unit_missing_alone:
+    template: >-
+      '{column}' was randomised by '{unit}', at a level between units that is
+      {level}, but no random intercept of the model is on a grouping factor
+      that matches the {units} of '{unit}', so the model ignores the
+      dependence between rows of one '{unit}'. Add a random intercept for
+      '{unit}', analyse '{unit}' means or use cluster-robust inference at that
+      level.
+    fallback: >-
+      '{column}' was randomised by '{unit}', at a level between units that is
+      {level}, but no random intercept of the model is on a grouping factor
+      that matches the levels of '{unit}', so the model ignores the dependence
+      between rows of one '{unit}'. Add a random intercept for '{unit}',
+      analyse '{unit}' means or use cluster-robust inference at that level.
+    args:
+      column: {source: scope, name: column}
+      unit: {source: scope, name: unit}
+      units: {source: statistic, name: units, noun: [level, levels]}
       level: {source: statistic, name: level_source}
   unit_present:
     template: >-
-      A grouping factor of the model matches '{unit}', the unit by which
-      '{column}' was randomised, at a level between units that is {level}.
+      A random intercept of the model is on a grouping factor that matches
+      '{unit}', the unit by which '{column}' was randomised, at a level between
+      units that is {level}.
     args:
       unit: {source: scope, name: unit}
       column: {source: scope, name: column}

@@ -1,0 +1,382 @@
+{
+  "description": "Cases of keys.duplicates: duplicates and missing values of the declared observation key, the columns compared, the conditions under which the check is not available and the refusals of a key that the run cannot read.",
+  "cases": [
+    {
+      "id": "audits-keys-001",
+      "description": "Every row has its own value of the declared key: unique, consistent.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "trial": [1, 2, 3, 1, 2, 3]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unique", "text": "Every row has its own value of the observation key 'subject' and 'trial'."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["subject", "trial"]},
+              "missing_key_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "rows": {"kind": "count", "value": 6, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-002",
+      "description": "One key value is shared by rows that differ in 'x' and one by rows that differ only in the response, which is not compared, and one row has a missing trial: conflicting, consequential, with the counts of both kinds and of the rows.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7],
+        "x": [1, 2, 3, 3, 5, 6, 7],
+        "subject": ["s1", "s1", "s1", "s1", "s2", "s2", "s2"],
+        "trial": [1, 1, 2, 2, 1, 2, null]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "conflicting", "text": "Values of the observation key 'subject' and 'trial' shared by rows that differ in other columns: 1. Values shared only by identical rows: 1. Rows with a shared value: 4. Each row must have its own key value."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 1, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 2, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 1, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["subject", "trial"]},
+              "missing_key_rows": {"kind": "count", "value": 1, "count_class": "person"},
+              "rows": {"kind": "count", "value": 7, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 7}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-003",
+      "description": "Two rows share a key value and differ only in the response and in 'note', which the IR does not read and the declaration gives no role: identical rows, double_import, which comes before the rule for the row with a missing trial.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4, 5],
+        "x": [1, 1, 2, 3, 4],
+        "note": ["a", "b", "c", "d", "e"],
+        "subject": ["s1", "s1", "s1", "s2", "s2"],
+        "trial": [1, 1, 2, 1, null]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "double_import", "text": "Values of the observation key 'subject' and 'trial' shared by identical rows: 1, with 2 rows in all, which suggests rows imported twice. Remove the copies at the source."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 2, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 1, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 1, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["subject", "trial"]},
+              "missing_key_rows": {"kind": "count", "value": 1, "count_class": "person"},
+              "rows": {"kind": "count", "value": 5, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-004",
+      "description": "Two rows with the same subject and a missing trial: they count as rows with a missing key value and not as duplicates, so missing_key.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4, 5],
+        "x": [1, 2, 3, 4, 5],
+        "subject": ["s1", "s1", "s2", "s2", "s3"],
+        "trial": [1, 2, null, null, 1]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "missing_key", "text": "Rows with a missing value in the observation key 'subject' and 'trial': 2."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["subject", "trial"]},
+              "missing_key_rows": {"kind": "count", "value": 2, "count_class": "person"},
+              "rows": {"kind": "count", "value": 5, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-005",
+      "description": "A declaration without an observation key: not_available with the reason declaration_missing and the detail /observation/key.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/observation/key"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-006",
+      "description": "No declaration: not_available with the reason declaration_missing.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/observation/key"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-007",
+      "description": "A key with an inferred column counts as absent: not_available.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "trial": [1, 2, 1, 2]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]},
+        "provenance": {"inferred": ["/observation/key/1"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/observation/key"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-008",
+      "description": "A key whose list is inferred counts as absent: not_available.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "trial": [1, 2, 1, 2]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]},
+        "provenance": {"inferred": ["/observation/key"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/observation/key"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-009",
+      "description": "An observation key that includes an outcome-derived column is refused with E6069 before any check.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "lag": [0, 1, 0, 2]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "lag"]},
+        "variables": {"lag": {"role": "outcome_derived"}}
+      },
+      "expected": {
+        "issue": {"code": "E6069", "message": "The column 'lag' is an outcome, is derived from one or holds the trials of the response, so the outcome-blind checks cannot read it."}
+      }
+    },
+    {
+      "id": "audits-keys-010",
+      "description": "A key column that the data lack is refused with E5011 at its pointer.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "trial": [1, 2, 1, 2]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "wave"]}
+      },
+      "expected": {
+        "issue": {"code": "E5011", "message": "The column 'wave' that the declaration names at /observation/key/1 is not a column of the data.", "pointer": "/observation/key/1"}
+      }
+    },
+    {
+      "id": "audits-keys-011",
+      "description": "Compared columns: rows that differ in 'site', which the declaration gives the role block, conflict, whereas rows that differ only in the sample column 'flag' or in the outcome-derived column 'lag' count as identical.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 1, 2, 2, 3, 3],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"],
+        "trial": [1, 1, 1, 1, 1, 1],
+        "flag": ["a", "b", "a", "a", "a", "a"],
+        "lag": [0, 0, 1, 2, 0, 0],
+        "site": ["A", "A", "A", "A", "A", "B"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]},
+        "variables": {"site": {"role": "block"}, "lag": {"role": "outcome_derived"}}
+      },
+      "sample_columns": ["flag"],
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "conflicting", "text": "Values of the observation key 'subject' and 'trial' shared by rows that differ in other columns: 1. Values shared only by identical rows: 2. Rows with a shared value: 6. Each row must have its own key value."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 1, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 6, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 3, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 2, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["subject", "trial"]},
+              "missing_key_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "rows": {"kind": "count", "value": 6, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-keys-012",
+      "description": "Key values are compared by value, so the two spellings of one subject share a key value with identical rows. Missing values in a compared column equal each other, so the rows of 's1' are identical, and those of 's2' conflict.",
+      "checks": ["keys.duplicates"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 1, null, null, null, 3],
+        "subject": ["Jos\u00e9", "Jose\u0301", "s1", "s1", "s2", "s2"],
+        "trial": [1, 1, 1, 1, 1, 1]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "conflicting", "text": "Values of the observation key 'subject' and 'trial' shared by rows that differ in other columns: 1. Values shared only by identical rows: 2. Rows with a shared value: 6. Each row must have its own key value."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 1, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 6, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 3, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 2, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["subject", "trial"]},
+              "missing_key_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "rows": {"kind": "count", "value": 6, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "description": "The five stages of validation and their order: documents with problems in several stages, of which the validator reports those of the first stage that finds any.",
+  "cases": [
+    {
+      "id": "results-stages-001",
+      "description": "A byte-order mark before a document whose version is not supported: stage 1 reports E1003 and stops.",
+      "document": "stages/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-stages-002",
+      "description": "An unsupported version and an invalid registry hash: stage 2 reports E1441 and stops before the structure.",
+      "document": "stages/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-stages-003",
+      "description": "A statistic whose null value has no availability, in findings out of order: stage 3 reports E1402 and stops before the rules of stage 4.",
+      "document": "stages/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /findings/0/statistics/rows lacks the required member 'availability'.",
+            "pointer": "/findings/0/statistics/rows"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-stages-004",
+      "description": "Findings out of order, of which one has the wrong check version and one an unknown check: stage 4 reports E7002 and stops, so stage 5 does not run.",
+      "document": "stages/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/1 is not in the order of check and scope.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-stages-005",
+      "description": "A shareable document with a person count of 4 (E7020, stage 4) and a ratio whose numerator is suppressed (E7024, stage 5): only E7020.",
+      "document": "stages/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/1/statistics/singletons/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/1/statistics/singletons/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-stages-006",
+      "description": "A shareable document whose findings are out of order and write a person count of 4: the rules on findings and the invariants belong to one stage, so E7002 and E7020 are reported together, sorted by pointer.",
+      "document": "stages/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/0/statistics/singletons/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/0/statistics/singletons/value"
+          },
+          {
+            "code": "E7002",
+            "message": "The finding at /findings/1 is not in the order of check and scope.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-stages-007",
+      "description": "Another registry hash and a repeated finding of an unknown check: stage 4 reports E7001, and W7090, which stage 5 would report, does not appear.",
+      "document": "stages/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7001",
+            "message": "The finding at /findings/3 has the same check and scope as an earlier finding.",
+            "pointer": "/findings/3"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,12 +1,12 @@
-"""Helpers that run the cases of the conformance corpora installed with the
-package (fixtures/conformance/, described in each directory's README.md)."""
+"""Helpers that run the cases of the conformance corpora, which
+spec/tools/vendor.py copies from fixtures/conformance/ into tests/conformance/
+(each directory's README.md describes its corpus)."""
 
 from __future__ import annotations
 
 import struct
 from collections.abc import Callable
 from functools import partial
-from importlib.resources import as_file, files
 from pathlib import Path
 from typing import Any
 
@@ -19,9 +19,12 @@ from mixedcheck._hash import json_pointer_get
 PROFILES = ("plain", "data", "hashable")
 
 
-def corpus_directory(directory: str):
-    """The installed directory of a corpus."""
-    return files("mixedcheck") / "_fixtures" / "conformance" / directory
+CONFORMANCE = Path(__file__).resolve().parent / "conformance"
+
+
+def corpus_directory(directory: str) -> Path:
+    """The directory of a corpus."""
+    return CONFORMANCE / directory
 
 
 def corpus_cases(directory: str, file: str) -> list[dict[str, Any]]:
@@ -191,9 +194,9 @@ def run_declaration_case(directory: str, case: dict[str, Any]) -> None:
     Without PyYAML, a YAML file gives the issue of its bytes when they are
     refused and E3001 otherwise.
     """
-    with as_file(corpus_directory(directory) / case["path"]) as path:
-        minimal = case.get("minimal", False)
-        result = capture(lambda: mixedcheck.validate_declaration(str(path), minimal=minimal))
+    path = corpus_directory(directory) / case["path"]
+    minimal = case.get("minimal", False)
+    result = capture(lambda: mixedcheck.validate_declaration(str(path), minimal=minimal))
     expected = case["expected"]
     from mixedcheck._declaration import is_yaml_path
     from mixedcheck._yaml import yaml_module, yaml_requirement

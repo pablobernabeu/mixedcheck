@@ -67,6 +67,7 @@ SCOPE_ELEMENTS = {
     "fixed_term_by_factor": {"factor", "term"},
     "grouping_column_pair": {"first", "second"},
     "grouping_factor": {"factor"},
+    "grouping_factor_or_model": {"factor"},
     "grouping_factor_pair": {"first", "second"},
     "model": set(),
     "random_term": {"factor", "term"},
@@ -74,6 +75,22 @@ SCOPE_ELEMENTS = {
 THRESHOLD_KINDS = {"count", "ratio", "real"}
 UNRENDERABLE_KINDS = {"boolean", "reals"}
 DIGIT_KINDS = {"ratio", "real"}
+# Parameters whose value must be the same in every entry that has one (E4022).
+SHARED_PARAMETERS = ("agreement",)
+
+
+def can_be_unwritten(statistic: dict) -> bool:
+    """Whether the privacy filter can suppress a statistic, or its definition
+    leave it absent in a way that a message must allow for (registry.md,
+    Messages): ratios, reals and labels, person and by_unit counts, and any
+    statistic that is internal_only or suppressed with another."""
+    kind = statistic["kind"]
+    return (
+        kind in ("ratio", "real", "labels")
+        or (kind == "count" and statistic["count_class"] != "non_person")
+        or bool(statistic.get("internal_only"))
+        or "suppress_with" in statistic
+    )
 
 
 # Issues and the error catalogue -------------------------------------------------
@@ -1217,6 +1234,57 @@ def entry_issues(
             for target in parts
         ):
             add("registry_ratio_counts", here)
+    elements_of_scope = SCOPE_ELEMENTS[entry["scope"]]
+    for name, statistic in statistics.items():
+        here = child_pointer("/statistics", name)
+        for position, ref in enumerate(statistic.get("resolved_by", [])):
+            ref_here = f"{here}/resolved_by/{position}/name"
+            if ref["source"] == "scope":
+                if ref["name"] not in elements_of_scope:
+                    add(
+                        "registry_unknown_reference",
+                        ref_here,
+                        kind="scope element",
+                        name=ref["name"],
+                    )
+            elif ref["name"] not in statistics:
+                add("registry_unknown_reference", ref_here, kind="statistic", name=ref["name"])
+            elif statistics[ref["name"]]["kind"] != "names":
+                add("registry_reference_kind", ref_here, name=ref["name"], expected="of kind names")
+        if "quantile" in statistic:
+            target = statistic["quantile"]["n"]
+            if target not in statistics:
+                add(
+                    "registry_unknown_reference",
+                    here + "/quantile/n",
+                    kind="statistic",
+                    name=target,
+                )
+            elif statistics[target]["kind"] != "count":
+                add(
+                    "registry_reference_kind", here + "/quantile/n", name=target, expected="a count"
+                )
+        for position, target in enumerate(statistic.get("suppress_with", [])):
+            if target not in statistics:
+                add(
+                    "registry_unknown_reference",
+                    f"{here}/suppress_with/{position}",
+                    kind="statistic",
+                    name=target,
+                )
+        if "part_of" in statistic:
+            target = statistic["part_of"]
+            if target not in statistics:
+                add("registry_unknown_reference", here + "/part_of", kind="statistic", name=target)
+            elif statistics[target]["kind"] != "count" or statistics[target].get(
+                "count_class"
+            ) != statistic.get("count_class"):
+                add(
+                    "registry_reference_kind",
+                    here + "/part_of",
+                    name=target,
+                    expected="a count of the same count class",
+                )
     for index, rule in enumerate(entry["availability"]):
         if "parameter" in rule and rule["parameter"] not in parameters:
             add(
@@ -1228,6 +1296,14 @@ def entry_issues(
     decision = entry["decision"]
     for index, rule in enumerate(decision["rules"]):
         here = f"/decision/rules/{index}"
+        for position, name in enumerate(rule["statistics"]):
+            if name not in statistics:
+                add(
+                    "registry_unknown_reference",
+                    f"{here}/statistics/{position}",
+                    kind="statistic",
+                    name=name,
+                )
         for position, name in enumerate(rule["thresholds"]):
             if name not in thresholds:
                 add(
@@ -1285,6 +1361,26 @@ def entry_issues(
                 add("registry_message_kind", arg_here + "/name", name=target)
             elif ("digits" in arg) != (statistic_kind in DIGIT_KINDS):
                 add("registry_message_digits", arg_here)
+            if "noun" in arg and statistic_kind != "count":
+                add("registry_reference_kind", arg_here + "/noun", name=target, expected="a count")
+        unwritten = {
+            arg_name
+            for arg_name, arg in message["args"].items()
+            if arg["source"] == "statistic"
+            and arg["name"] in statistics
+            and can_be_unwritten(statistics[arg["name"]])
+        }
+        if "fallback" in message:
+            fallback_used, fallback_stray = _placeholders(message["fallback"])
+            if fallback_stray:
+                add("registry_template_brace", here + "/fallback")
+            for placeholder in dict.fromkeys(fallback_used):
+                if placeholder not in message["args"]:
+                    add("registry_template_placeholder", here + "/fallback", name=placeholder)
+            if unwritten & set(fallback_used):
+                add("registry_message_fallback", here)
+        elif unwritten:
+            add("registry_message_fallback", here)
     seen: set[str] = set()
     for index, remedy in enumerate(entry["remedies"]):
         if remedy["id"] in seen:
@@ -1336,6 +1432,22 @@ def graph_issues(entries: list[tuple[str, dict]], catalogue: Catalogue) -> list[
                 stack.extend(edges.get(current, []))
         return False
 
+    for name in SHARED_PARAMETERS:
+        values = [
+            entry["parameters"][name]["value"]
+            for _, entry in entries
+            if name in entry["parameters"]
+        ]
+        for position, (prefix, entry) in enumerate(entries):
+            parameter = entry["parameters"].get(name)
+            if parameter is not None and parameter["value"] != values[0]:
+                issues[position].append(
+                    catalogue.issue(
+                        "registry_parameter_differs",
+                        pointer=prefix + child_pointer("/parameters", name) + "/value",
+                        expected=values[0],
+                    )
+                )
     for position, (prefix, entry) in enumerate(entries):
         for pointer, target in _links(entry):
             if target not in known:

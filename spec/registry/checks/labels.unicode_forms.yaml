@@ -8,19 +8,21 @@ summary: >-
   precomposed and a decomposed accented letter, count as one label. The check
   reports each column in which such spellings occur, so that the merge is
   visible rather than silent. It compares no case and no white space.
-reads: [declaration, formula, grouping_factors, keys, predictors]
+reads: [declaration, formula, grouping_factors, keys, other_columns, predictors]
 fitted_model: false
 sample: table
 scope: column
 applies_when: >-
   The column holds labels: a grouping column, a categorical predictor of the
-  fixed part, a column of the declared observation key or a declared
-  assignment column. The outcome is not read.
+  IR, a column of the declared observation key, the column of an entry of the
+  assignment block or a column that the declaration gives the role assigned.
+  The outcome is not read.
 availability: []
 statistics:
   spellings:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: column}]
     definition: >-
       The number of distinct strings of the column in the table that share
       their NFC form with another distinct string of the column. A string that
@@ -28,6 +30,7 @@ statistics:
   labels:
     kind: count
     count_class: by_unit
+    resolved_by: [{source: scope, name: column}]
     definition: The number of distinct NFC forms that those strings share.
 thresholds: {}
 parameters: {}
@@ -35,6 +38,7 @@ decision:
   rules:
     - finding: detectable_inconsequential
       condition: spellings is above 0.
+      statistics: [spellings]
       thresholds: []
       message: merged
   otherwise:
@@ -44,12 +48,15 @@ assessability: []
 messages:
   merged:
     template: >-
-      {spellings} distinct spellings in '{column}' differ only in their Unicode
-      form and are treated as {labels} labels.
+      In '{column}', {spellings} that differ only in their Unicode form are
+      treated as {labels}.
+    fallback: >-
+      In '{column}', distinct spellings that differ only in their Unicode form
+      are treated as one label each.
     args:
-      spellings: {source: statistic, name: spellings}
+      spellings: {source: statistic, name: spellings, noun: [distinct spelling, distinct spellings]}
       column: {source: scope, name: column}
-      labels: {source: statistic, name: labels}
+      labels: {source: statistic, name: labels, noun: [label, labels]}
   distinct:
     template: No two labels in '{column}' differ only in their Unicode form.
     args:

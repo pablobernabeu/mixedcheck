@@ -1,4 +1,4 @@
-"""The corpora of the canonicaliser, run from the installed package: the JSON
+"""The corpora of the canonicaliser: the JSON
 corpus (the strict reader in each mode and the serialiser, with the examples
 of RFC 8785), the number corpus (ECMAScript formatting, correctly rounded
 reading, the number rules of the hashable profile and decimal constants), the

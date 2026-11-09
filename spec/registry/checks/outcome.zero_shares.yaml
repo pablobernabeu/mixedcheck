@@ -7,22 +7,28 @@ summary: >-
   levels of each grouping factor in which every count is 0. Many zeros do not
   by themselves indicate zero inflation, because random intercepts already
   make counts zero-heavy, and a comparison with a marginal Poisson
-  distribution is invalid with clustering, so the check grades no finding.
+  distribution is invalid with clustering, so the check grades no finding. A
+  model without grouping factors yields one finding for the model as a whole.
 reads: [declaration, formula, grouping_factors, outcome]
 fitted_model: false
 sample: analysis
 families: [poisson]
-scope: grouping_factor
+scope: grouping_factor_or_model
 availability: []
 statistics:
   rows:
     kind: count
     count_class: person
+    measures: analysis_rows
     definition: The number of rows of the analysis sample.
   zeros:
     kind: count
     count_class: person
-    definition: The number of rows whose outcome is 0.
+    part_of: rows
+    definition: >-
+      The number of rows whose value of the outcome column, as the table
+      reader returns it and before any transform of the formula, is 0, compared
+      by value.
   zero_share:
     kind: ratio
     count_class: person
@@ -32,30 +38,57 @@ statistics:
   levels:
     kind: count
     count_class: by_unit
-    definition: The number of levels of the factor in the analysis sample.
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels
+    definition: >-
+      The number of levels of the factor in the analysis sample, absent for a
+      finding for the model as a whole.
   all_zero_levels:
     kind: count
     count_class: by_unit
-    definition: The number of levels in which every count is 0.
+    resolved_by: [{source: scope, name: factor}]
+    part_of: levels
+    definition: >-
+      The number of levels in which every count is 0, absent for a finding for
+      the model as a whole.
 thresholds: {}
 parameters: {}
 decision:
-  rules: []
+  rules:
+    - finding: consistent
+      condition: The finding is for the model as a whole.
+      statistics: []
+      thresholds: []
+      message: zeros_model
   otherwise:
     finding: consistent
     message: zeros
 assessability: []
 messages:
-  zeros:
+  zeros_model:
     template: >-
-      {share} of the {rows} counts are 0, and every count is 0 in {all_zero} of
-      the {levels} levels of '{factor}'. Many zeros alone do not indicate zero
-      inflation in a model with random effects.
+      Of the {rows}, {share} are 0. Many zeros alone do not indicate zero
+      inflation.
+    fallback: >-
+      The statistics give the zeros of the counts as far as they can be shown.
+      Many zeros alone do not indicate zero inflation.
     args:
       share: {source: statistic, name: zero_share, digits: 1}
-      rows: {source: statistic, name: rows}
+      rows: {source: statistic, name: rows, noun: [count, counts]}
+  zeros:
+    template: >-
+      Of the {rows}, {share} are 0, and every count is 0 in {all_zero} of the
+      {levels} of '{factor}'. Many zeros alone do not indicate zero inflation
+      in a model with random effects.
+    fallback: >-
+      The statistics give the zeros of the counts and the levels of '{factor}'
+      in which every count is 0 as far as they can be shown. Many zeros alone
+      do not indicate zero inflation in a model with random effects.
+    args:
+      share: {source: statistic, name: zero_share, digits: 1}
+      rows: {source: statistic, name: rows, noun: [count, counts]}
       all_zero: {source: statistic, name: all_zero_levels}
-      levels: {source: statistic, name: levels}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
       factor: {source: scope, name: factor}
 remedies: []
 links:

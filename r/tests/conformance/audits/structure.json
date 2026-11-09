@@ -1,0 +1,2208 @@
+{
+  "description": "Cases of the structure checks: label incidence, evidence on the scope of repeated labels, aliased grouping factors, level sizes, the within and between status of fixed terms and the connectivity of crossed factors.",
+  "cases": [
+    {
+      "id": "audits-structure-001",
+      "description": "Without a declaration, class labels unique across schools: 'class' is nested in 'school' (first_nested_in_second), declared is none and the message relation is consistent. id_scope_evidence yields no finding for a nested pair.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | class)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "class", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'class' has 4 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: first nested in second."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 0, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "first_nested_in_second"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-002",
+      "description": "Two grouping columns with one label each are identical partitions, and the message renders counts of 1 with the singular nouns 'label' and 'combination'.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3],
+        "g": ["a", "a", "a"],
+        "h": ["b", "b", "b"]
+      },
+      "formula": "y ~ 1 + (1 | g) + (1 | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "g", "second": "h"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'g' has 1 label and 'h' has 1 label, which occur in 1 combination. Relation from the labels: identical."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 1, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 0, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 1, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 1, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "identical"},
+              "second_in_several": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 1}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-003",
+      "description": "Three grouping columns give three pairs in code-point order: 'item' and 'list' partially crossed, 'item' and 'subject' partially crossed and 'subject' nested in 'list' (second_nested_in_first), each with first_in_several and second_in_several.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3", "i2", "i3", "i4", "i2", "i3", "i4"],
+        "list": ["L1", "L1", "L1", "L1", "L1", "L1", "L2", "L2", "L2", "L2", "L2", "L2"]
+      },
+      "formula": "y ~ 1 + (1 | item) + (1 | list) + (1 | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "list"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'item' has 4 labels and 'list' has 2 labels, which occur in 6 combinations. Relation from the labels: partially crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'item' has 4 labels and 'subject' has 4 labels, which occur in 12 combinations. Relation from the labels: partially crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 12, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 4, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 4, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "list", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'list' has 2 labels and 'subject' has 4 labels, which occur in 4 combinations. Relation from the labels: second nested in first."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 4, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "second_nested_in_first"},
+              "second_in_several": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-004",
+      "description": "Every subject meets every item: combinations equals levels_first times levels_second, so the relation is crossed.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'item' has 3 labels and 'subject' has 2 labels, which occur in 6 combinations. Relation from the labels: crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 3, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-005",
+      "description": "Classes declared within_parent and used alone in (1 | class): the pair of 'class' with 'school', the only label column of its parent, is evaluated although 'school' is not a grouping column, and reused labels give merged_units. The row whose school is missing is left out of every count.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", null],
+        "class": ["1", "1", "2", "2", "1", "1", "2", "2", "3"]
+      },
+      "formula": "y ~ 1 + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "within_parent", "role": "cluster"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "class", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged_units", "text": "Labels of 'class' that occur under more than one level of 'school': 2. The declaration states that these labels are unique only within 'school', but the model uses 'class' without 'school' in a grouping factor and so treats units with the same label as one unit. Nest 'class' in 'school' in the formula."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "nested_within_parent"},
+              "first_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["class"]},
+              "inner_alone": {"kind": "boolean", "value": true},
+              "inner_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-006",
+      "description": "Classes declared within_parent and nested in the formula with '/': composite is true and inner_alone is false, so the reused labels give no rule and the message relation is consistent. id_scope_evidence yields no finding for a declared pair.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "class": ["1", "1", "2", "2", "1", "1", "2", "2"]
+      },
+      "formula": "y ~ 1 + (1 | school/class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "within_parent", "role": "cluster"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "class", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'class' has 2 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": true},
+              "declared": {"kind": "category", "value": "nested_within_parent"},
+              "first_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["class"]},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "inner_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-007",
+      "description": "Pupils declared nested in schools with id_scope global and the default membership, one label under two schools: labels_change_parent. The pupils are the disclosure unit, so the counts of pupil labels resolve as person counts and those of school labels, with two pupils in a school, as non-person counts.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p2", "p3", "p3", "p4"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "role": "participant"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "labels_change_parent", "text": "Labels of 'pupil' that occur under more than one level of 'school': 1. The declaration states that each unit stays in one level of 'school' and that its label is unique across the data."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 5, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "nested_global"},
+              "first_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["pupil"]},
+              "inner_alone": {"kind": "boolean", "value": true},
+              "inner_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-008",
+      "description": "Pupils declared nested in schools with id_scope global, no label under two schools: inner_in_several is 0 and the message relation is consistent.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S1", "S1", "S1", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p3", "p4", "p4"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "role": "participant"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'pupil' has 4 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: first nested in second."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "nested_global"},
+              "first_in_several": {"kind": "count", "value": 0, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["pupil"]},
+              "inner_alone": {"kind": "boolean", "value": true},
+              "inner_in_several": {"kind": "count", "value": 0, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "first_nested_in_second"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-009",
+      "description": "With pupils as the disclosure unit and two pupils in every class, neither 'class' nor 'school' is finer than the disclosure unit, so every count, combinations included, resolves as a non-person count. The pair is declared nested_global without a label under two schools: relation, consistent.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4"],
+        "pupil": ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "class", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'class' has 4 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: first nested in second."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "nested_global"},
+              "first_in_several": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "inner": {"kind": "names", "value": ["class"]},
+              "inner_alone": {"kind": "boolean", "value": true},
+              "inner_in_several": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "levels_first": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "first_nested_in_second"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-010",
+      "description": "Pupils who may change school over time (nested_mobile), nested in the formula with '/', and one pupil who moves: movers_split.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S1", "S1", "S1", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3"],
+        "wave": [1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ 1 + (1 | school/pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"]}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "membership": "may_change_over_time"}],
+        "observation": {"time": {"column": "wave", "kind": "occasion", "within": "pupil"}}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "movers_split", "text": "Units labelled by 'pupil' that change their level of 'school': 1. The model nests 'pupil' in 'school', so it splits each of them into separate units. For outcomes measured on each occasion, use separate random terms for 'school' and 'pupil', so that each unit keeps one random effect."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": true},
+              "declared": {"kind": "category", "value": "nested_mobile"},
+              "first_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["pupil"]},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "inner_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-011",
+      "description": "Pupils who may change school over time, with one mover, used in separate random terms: composite is false, so the movers give no rule and the message relation is consistent.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S1", "S1", "S1", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3"],
+        "wave": [1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"]}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "membership": "may_change_over_time"}],
+        "observation": {"time": {"column": "wave", "kind": "occasion", "within": "pupil"}}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'pupil' has 3 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: partially crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "nested_mobile"},
+              "first_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["pupil"]},
+              "inner_alone": {"kind": "boolean", "value": true},
+              "inner_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-012",
+      "description": "Subjects and items declared crossed but combined into one grouping factor: crossed_split. The subjects are the disclosure unit, so the counts of item labels, each seen by two subjects, are non-person counts. id_scope_evidence yields no finding.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject:item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "crossed_split", "text": "The declaration states that 'item' and 'subject' are crossed, so that a label shared between levels of one denotes one unit, but the model combines the two columns into one grouping factor and splits such units."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": true},
+              "declared": {"kind": "category", "value": "crossed"},
+              "first_in_several": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-013",
+      "description": "Subjects and items declared crossed and used as separate grouping factors: declared is crossed, composite is false and the message relation is consistent. id_scope_evidence yields no finding for a declared pair.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'item' has 3 labels and 'subject' has 2 labels, which occur in 6 combinations. Relation from the labels: crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "crossed"},
+              "first_in_several": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-014",
+      "description": "A nesting whose nested_in is inferred counts as absent: declared is none for reused class labels, so the relation crossed is reported, and id_scope_evidence applies and finds no candidate attribute.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S1", "S1", "S1", "S2", "S2", "S2"],
+        "class": ["1", "1", "2", "1", "2", "2"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"]}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "within_parent"}],
+        "provenance": {"inferred": ["/units/1/nested_in"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "class", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "unit_attribute"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_attribute", "text": "No column is constant within the units that the repeated labels of 'class' denote, so the data give no evidence on whether a label denotes one unit across the levels of 'school'. Declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": []},
+              "context_column": {"kind": "names", "value": ["school"]},
+              "labels_column": {"kind": "names", "value": ["class"]},
+              "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "class", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'class' has 2 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-015",
+      "description": "Two declared units share 'site' as their only label column, so declared is none for the pair, although 'patient' is declared nested in 'site' with id_scope global and one label occurs under both sites.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "site": ["A", "A", "A", "B", "B", "B"],
+        "patient": ["p1", "p2", "p3", "p3", "p4", "p5"]
+      },
+      "formula": "y ~ 1 + (1 | site) + (1 | patient)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "site", "columns": ["site"]}, {"name": "centre", "columns": ["site"]}, {"name": "patient", "columns": ["patient"], "nested_in": "site", "id_scope": "global"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "patient", "second": "site"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'patient' has 5 labels and 'site' has 2 labels, which occur in 6 combinations. Relation from the labels: partially crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 5, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-016",
+      "description": "Without a declaration, subjects and items combined into one grouping factor: composite is true, declared is none and the message relation is consistent, and id_scope_evidence yields no finding because composite is true.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "item": ["i1", "i2", "i1", "i2"]
+      },
+      "formula": "y ~ 1 + (1 | subject:item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'item' has 2 labels and 'subject' has 2 labels, which occur in 4 combinations. Relation from the labels: crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": true},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 2, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-017",
+      "description": "A partially crossed pair without any column other than the response: no candidate attribute in either direction, so the first column is the labels column, the message is no_attribute and the finding is not_assessable with the prerequisite unit_attribute. changing_labels, changing_share and changing_attribute are absent.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3],
+        "subject": ["s1", "s1", "s2"],
+        "item": ["i1", "i2", "i1"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "unit_attribute"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_attribute", "text": "No column is constant within the units that the repeated labels of 'item' denote, so the data give no evidence on whether a label denotes one unit across the levels of 'subject'. Declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": []},
+              "context_column": {"kind": "names", "value": ["subject"]},
+              "labels_column": {"kind": "names", "value": ["item"]},
+              "shared_labels": {"kind": "count", "value": 1, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-018",
+      "description": "Pupil labels reused across two schools: 'sex' changes for 2 of the 3 shared pupil labels, a share of at least one half, so reuse_likely. 'stype' is constant within every school, so it is no candidate when the pupils are the labels, and it changes for none of the school labels in the other direction, whose share of 0 is smaller.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3", "p1", "p1", "p2", "p2", "p3", "p3"],
+        "sex": ["F", "F", "M", "M", "F", "F", "M", "M", "F", "F", "F", "F"],
+        "stype": [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2]
+      },
+      "formula": "y ~ sex + stype + (1 | school) + (1 | pupil)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reuse_likely", "text": "'pupil' has 3 labels occurring with several levels of 'school', and the attribute 'sex' changes between those levels for 67% of them, so these labels probably denote different units. The model treats each label as one unit. Declare the scope of the labels, and nest 'pupil' in 'school' if the labels are reused."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["sex"]},
+              "changing_attribute": {"kind": "names", "value": ["sex"]},
+              "changing_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0.6666666666666666, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["school"]},
+              "labels_column": {"kind": "names", "value": ["pupil"]},
+              "shared_labels": {"kind": "count", "value": 3, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-019",
+      "description": "'sex' changes for 1 of the 4 shared pupil labels, below one half but at least one label: some_change.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p2", "p3", "p4", "p1", "p2", "p3", "p4"],
+        "sex": ["F", "M", "F", "M", "M", "M", "F", "M"],
+        "stype": [1, 1, 1, 1, 2, 2, 2, 2]
+      },
+      "formula": "y ~ sex + stype + (1 | school) + (1 | pupil)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "some_change", "text": "'pupil' has 4 labels occurring with several levels of 'school', and the attribute 'sex' changes between those levels for 1 of them. Check these units and declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["sex"]},
+              "changing_attribute": {"kind": "names", "value": ["sex"]},
+              "changing_labels": {"kind": "count", "value": 1, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0.25, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["school"]},
+              "labels_column": {"kind": "names", "value": ["pupil"]},
+              "shared_labels": {"kind": "count", "value": 4, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-020",
+      "description": "A crossed design with a subject attribute only: 'age' is constant within every item label, so only the direction with 'subject' as the labels column has a candidate, and it is reported although 'item' is the first column. No shared subject changes 'age': no_change.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"],
+        "age": [20, 20, 20, 30, 30, 30]
+      },
+      "formula": "y ~ age + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_change", "text": "'subject' has 2 labels occurring with several levels of 'item', and none of the attributes changes for any of them, which is consistent with labels that each denote one unit. Attributes: 'age'. Declare the scope of the labels to confirm it."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["age"]},
+              "changing_attribute": {"kind": "names", "value": ["age"]},
+              "changing_labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["item"]},
+              "labels_column": {"kind": "names", "value": ["subject"]},
+              "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-021",
+      "description": "A condition assigned to each combination of subject and item changes for every shared label in both directions: both shares are 1, so tied is true and the message tied is consistent. The first column is the labels column.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "item": ["i1", "i2", "i1", "i2"],
+        "cond": ["A", "B", "B", "A"]
+      },
+      "formula": "y ~ cond + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "tied", "text": "Every candidate attribute changes across the shared labels of both 'item' and 'subject', so the attributes cannot show which of the two columns repeats its labels. Declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["cond"]},
+              "changing_attribute": {"kind": "names", "value": ["cond"]},
+              "changing_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 1, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["subject"]},
+              "labels_column": {"kind": "names", "value": ["item"]},
+              "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-022",
+      "description": "A subject attribute and an item attribute: each direction has one candidate and a share of 0, which tie without making tied true, so the first column 'item' is the labels column with the candidate 'freq': no_change.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "item": ["i1", "i2", "i1", "i2"],
+        "age": [20, 20, 30, 30],
+        "freq": [1.5, 2.5, 1.5, 2.5]
+      },
+      "formula": "y ~ age + freq + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_change", "text": "'item' has 2 labels occurring with several levels of 'subject', and none of the attributes changes for any of them, which is consistent with labels that each denote one unit. Attributes: 'freq'. Declare the scope of the labels to confirm it."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["freq"]},
+              "changing_attribute": {"kind": "names", "value": ["freq"]},
+              "changing_labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["subject"]},
+              "labels_column": {"kind": "names", "value": ["item"]},
+              "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-023",
+      "description": "Both directions have 'sex' as a candidate, and it changes for 2 of the 3 pupil labels and for 2 of the 2 school labels. Neither direction has an attribute that stays constant across its shared labels, so the attributes cannot show which column repeats its labels: tied is true, the finding is consistent with the message tied, and the statistics are those of the direction of the first column, 'pupil'.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3", "p1", "p1", "p2", "p2", "p3", "p3"],
+        "sex": ["F", "F", "M", "M", "F", "F", "M", "M", "F", "F", "F", "F"]
+      },
+      "formula": "y ~ sex + (1 | school) + (1 | pupil)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "tied", "text": "Every candidate attribute changes across the shared labels of both 'pupil' and 'school', so the attributes cannot show which of the two columns repeats its labels. Declare the scope of the labels."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["sex"]},
+              "changing_attribute": {"kind": "names", "value": ["sex"]},
+              "changing_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0.6666666666666666, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["school"]},
+              "labels_column": {"kind": "names", "value": ["pupil"]},
+              "shared_labels": {"kind": "count", "value": 3, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-024",
+      "description": "'sex' differs within one of the 6 combinations of pupil and school, and 5 times 100 is below 99 times 6, so it is no candidate in either direction. 'stype' remains a candidate with 'school' as the labels column, and that direction is reported: no_change.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3", "p1", "p1", "p2", "p2", "p3", "p3"],
+        "sex": ["F", "M", "M", "M", "F", "F", "M", "M", "F", "F", "F", "F"],
+        "stype": [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2]
+      },
+      "formula": "y ~ sex + stype + (1 | school) + (1 | pupil)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_change", "text": "'school' has 2 labels occurring with several levels of 'pupil', and none of the attributes changes for any of them, which is consistent with labels that each denote one unit. Attributes: 'stype'. Declare the scope of the labels to confirm it."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["stype"]},
+              "changing_attribute": {"kind": "names", "value": ["stype"]},
+              "changing_labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["pupil"]},
+              "labels_column": {"kind": "names", "value": ["school"]},
+              "shared_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-025",
+      "description": "Attributes enter through declared roles and missing values are compared as equal to each other: 'sex' changes for the pupil labels whose values are F and missing or F and M, 2 of 4, exactly one half, which reaches most_change. The response and the sample column 'grade', constant within each pupil label, are not candidates.",
+      "checks": ["structure.id_scope_evidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 1, 2, 3, 4],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p2", "p3", "p4", "p1", "p2", "p3", "p4"],
+        "sex": ["F", "M", null, "F", null, "M", null, "M"],
+        "stype": [1, 1, 1, 1, 2, 2, 2, 2],
+        "grade": [1, 2, 1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"sex": {"role": "baseline_covariate"}, "stype": {"role": "baseline_covariate"}}
+      },
+      "sample_columns": ["grade"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.id_scope_evidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reuse_likely", "text": "'pupil' has 4 labels occurring with several levels of 'school', and the attribute 'sex' changes between those levels for 50% of them, so these labels probably denote different units. The model treats each label as one unit. Declare the scope of the labels, and nest 'pupil' in 'school' if the labels are reused."},
+            "statistics": {
+              "attributes": {"kind": "names", "value": ["sex"]},
+              "changing_attribute": {"kind": "names", "value": ["sex"]},
+              "changing_labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "changing_share": {"kind": "ratio", "value": 0.5, "count_class": "person"},
+              "context_column": {"kind": "names", "value": ["school"]},
+              "labels_column": {"kind": "names", "value": ["pupil"]},
+              "shared_labels": {"kind": "count", "value": 4, "count_class": "person"},
+              "tied": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-026",
+      "description": "Two grouping factors with identical partitions and random intercepts: shared_columns is true, so aliased. label_incidence finds the relation identical.",
+      "checks": ["structure.aliased_factors", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "g": ["a", "a", "b", "b", "c", "c"],
+        "h": ["x", "x", "y", "y", "z", "z"]
+      },
+      "formula": "y ~ 1 + (1 | g) + (1 | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "g", "second": "h"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "aliased", "text": "'g' and 'h' divide the design sample into the same groups, so their random effects on the same columns are aliased and only the sum of their variances is identified. Keep one of the two factors."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "identical"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 6, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "g", "second": "h"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'g' has 3 labels and 'h' has 3 labels, which occur in 3 combinations. Relation from the labels: identical."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 3, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "none"},
+              "first_in_several": {"kind": "count", "value": 0, "count_class": "person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 3, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "identical"},
+              "second_in_several": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-027",
+      "description": "Identical partitions whose random terms share no column, an intercept for one and a slope of 'x' for the other: same_groups is consistent.",
+      "checks": ["structure.aliased_factors"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 1, 2, 3],
+        "g": ["a", "a", "b", "b", "c", "c"],
+        "h": ["x", "x", "y", "y", "z", "z"]
+      },
+      "formula": "y ~ x + (1 | g) + (0 + x | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "g", "second": "h"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "same_groups", "text": "'g' and 'h' divide the design sample into the same groups, but their random terms have no column in common, so identifiability.gram_rank decides whether their variances are identified."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "identical"},
+              "shared_columns": {"kind": "boolean", "value": false},
+              "rows": {"kind": "count", "value": 6, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-028",
+      "description": "'school:class' is finer than 'school' (second_finer): two of the three schools hold two or more classes, with 7 rows, and the third holds 3 rows, so informative_rows is 7 of the 10 rows of the design sample.",
+      "checks": ["structure.aliased_factors"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S3", "S3", "S3"],
+        "class": ["1", "1", "2", "2", "1", "1", "1", "1", "2", "3"]
+      },
+      "formula": "y ~ 1 + (1 | school/class)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "school", "second": "school:class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nested", "text": "In 2 of the 3 levels of 'school', rows of two or more levels of 'school:class' occur, with 7 rows in these levels. The variance of 'school:class' separate from that of 'school' rests on these levels alone."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": ["school"]},
+              "coarser_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "finer": {"kind": "names", "value": ["school:class"]},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "informative_rows": {"kind": "count", "value": 7, "count_class": "person"},
+              "partition": {"kind": "category", "value": "second_finer"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-029",
+      "description": "Three factors: 'a' is finer than 'b' (first_finer), and 'c' is crossed with both, so the pairs with 'c' are distinct. connectivity applies to the two pairs whose partition is other and finds one crossed component in each: connected.",
+      "checks": ["structure.aliased_factors", "structure.connectivity"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "a": ["a1", "a1", "a2", "a2", "a3", "a3", "a4", "a4"],
+        "b": ["B1", "B1", "B1", "B1", "B2", "B2", "B2", "B2"],
+        "c": ["c1", "c2", "c1", "c2", "c1", "c2", "c1", "c2"]
+      },
+      "formula": "y ~ 1 + (1 | a) + (1 | b) + (1 | c)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "a", "second": "b"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nested", "text": "In 2 of the 2 levels of 'b', rows of two or more levels of 'a' occur, with 8 rows in these levels. The variance of 'a' separate from that of 'b' rests on these levels alone."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": ["b"]},
+              "coarser_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "finer": {"kind": "names", "value": ["a"]},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "informative_rows": {"kind": "count", "value": 8, "count_class": "person"},
+              "partition": {"kind": "category", "value": "first_finer"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 8, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "a", "second": "c"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "'a' and 'c' divide the design sample into different groups, and neither is nested in the other."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "other"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 8, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "b", "second": "c"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "'b' and 'c' divide the design sample into different groups, and neither is nested in the other."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "other"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 8, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.connectivity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "a", "second": "c"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "connected", "text": "The crossed levels of 'a' and 'c' are connected: rows link each of them to every other."},
+            "statistics": {
+              "between_component_terms": {"kind": "names", "value": []},
+              "components": {"kind": "count", "value": 1, "count_class": "person"},
+              "exact": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.connectivity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "b", "second": "c"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "connected", "text": "The crossed levels of 'b' and 'c' are connected: rows link each of them to every other."},
+            "statistics": {
+              "between_component_terms": {"kind": "names", "value": []},
+              "components": {"kind": "count", "value": 1, "count_class": "person"},
+              "exact": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-030",
+      "description": "Identical partitions whose random terms have columns with different names, '(Intercept)' and 'one', but equal values in every row of the design sample: shared_columns is true, so aliased.",
+      "checks": ["structure.aliased_factors"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "one": [1, 1, 1, 1, 1, 1],
+        "g": ["a", "a", "b", "b", "c", "c"],
+        "h": ["x", "x", "y", "y", "z", "z"]
+      },
+      "formula": "y ~ 1 + (1 | g) + (0 + one | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "g", "second": "h"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "aliased", "text": "'g' and 'h' divide the design sample into the same groups, so their random effects on the same columns are aliased and only the sum of their variances is identified. Keep one of the two factors."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "identical"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 6, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-031",
+      "description": "Each subject has two sessions in the table, but both rows of session 'k2' and one row of 'k4' have a missing 'x' and leave the design sample, where 'session' is finer than 'subject' (first_finer) and only 's2' holds two sessions: informative_levels 1 with 3 of the 5 rows. cluster_sizes counts the rows of the design sample only.",
+      "checks": ["structure.aliased_factors", "structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x": [1, 2, null, null, 3, 4, null, 5],
+        "subject": ["s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2"],
+        "session": ["k1", "k1", "k2", "k2", "k3", "k3", "k4", "k4"]
+      },
+      "formula": "y ~ x + (1 | subject) + (1 | session)",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "session", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nested", "text": "In 1 of the 2 levels of 'subject', rows of two or more levels of 'session' occur, with 3 rows in these levels. The variance of 'session' separate from that of 'subject' rests on these levels alone."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": ["subject"]},
+              "coarser_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "finer": {"kind": "names", "value": ["session"]},
+              "informative_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "informative_rows": {"kind": "count", "value": 3, "count_class": "person"},
+              "partition": {"kind": "category", "value": "first_finer"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 5, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "session"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'session' has 3 levels with 5 rows. Level sizes range from 1 to 2, with quartiles 1 and 2 and median 2. Levels with one row, which are kept: 1."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1.6},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 1, "n": 3}},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 3}},
+              "median": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.5, "n": 3}},
+              "rows": {"kind": "count", "value": 5, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 1, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 3}},
+              "upper_quartile": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.75, "n": 3}}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'subject' has 2 levels with 5 rows. Level sizes range from 2 to 3, with quartiles 2 and 3 and median 2. Levels with one row, which are kept: 0."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 2.4},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 1, "n": 2}},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.25, "n": 2}},
+              "median": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.5, "n": 2}},
+              "rows": {"kind": "count", "value": 5, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 0, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0, "n": 2}},
+              "upper_quartile": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 0.75, "n": 2}}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-032",
+      "description": "The rows of the second session of each subject have a missing 'x', so in the design sample 'session' and 'subject' have identical partitions and their random intercepts are aliased.",
+      "checks": ["structure.aliased_factors"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x": [1, 2, null, null, 3, 4, null, null],
+        "subject": ["s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2"],
+        "session": ["k1", "k1", "k2", "k2", "k3", "k3", "k4", "k4"]
+      },
+      "formula": "y ~ x + (1 | subject) + (1 | session)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "session", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "aliased", "text": "'session' and 'subject' divide the design sample into the same groups, so their random effects on the same columns are aliased and only the sum of their variances is identified. Keep one of the two factors."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "identical"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-033",
+      "description": "Five levels of 1 to 5 rows: the quartiles are the sizes at positions ceil(5/4) = 2, ceil(5/2) = 3 and ceil(15/4) = 4, with one singleton, and effective_size is (15 - 55/15)/4. The row with a missing 'x' leaves the design sample, and the row with a missing response stays in it.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, null, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+        "x": [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, null],
+        "g": ["a", "b", "b", "c", "c", "c", "d", "d", "d", "d", "e", "e", "e", "e", "e", "a"]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'g' has 5 levels with 15 rows. Level sizes range from 1 to 5, with quartiles 2 and 4 and median 3. Levels with one row, which are kept: 1."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 2.8333333333333335},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 5, "count_class": "person", "quantile": {"p": 1, "n": 5}},
+              "levels": {"kind": "count", "value": 5, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.25, "n": 5}},
+              "median": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 0.5, "n": 5}},
+              "rows": {"kind": "count", "value": 15, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 1, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 5}},
+              "upper_quartile": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 0.75, "n": 5}}
+            },
+            "support": {"rows": {"value": 15}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-034",
+      "description": "One row in every level of a factor with a random intercept, without a family, which gives the class gaussian: one_row_per_level is consequential.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "one_row_per_level", "text": "Every level of 'g' has one row, so its random intercept duplicates the residual and the two variances are not separately identified."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-035",
+      "description": "The family 'binomial' without a trials column gives the class bernoulli: one_row_bernoulli is consequential.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [0, 1, 1, 0],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "binomial",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "one_row_bernoulli", "text": "Every level of 'g' has one row, so its random intercept is an observation-level effect, whose variance ungrouped binary data do not identify."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-036",
+      "description": "The family 'poisson' gives the class poisson: one row per level is an observation-level effect, consistent.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [0, 3, 1, 2],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "poisson",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "observation_level", "text": "Every level of 'g' has one row, so its random intercept is an observation-level effect, which models overdispersion in this family."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-037",
+      "description": "The family 'binomial' with the trials column that the declaration gives the response gives the class binomial: observation_level, consistent.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 3, 0, 2],
+        "n": [4, 4, 4, 4],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"y": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "family": "binomial",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "observation_level", "text": "Every level of 'g' has one row, so its random intercept is an observation-level effect, which models overdispersion in this family."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-038",
+      "description": "Without a family, the declared measurement binary gives the class bernoulli: one_row_bernoulli.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [0, 1, 1, 0],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"y": {"role": "outcome", "measurement": "binary"}}
+      },
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "one_row_bernoulli", "text": "Every level of 'g' has one row, so its random intercept is an observation-level effect, whose variance ungrouped binary data do not identify."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-039",
+      "description": "The family 'gamma' gives the class other, which is judged as gaussian: one_row_per_level.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1.5, 2.5, 0.5, 3],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "gamma",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "one_row_per_level", "text": "Every level of 'g' has one row, so its random intercept duplicates the residual and the two variances are not separately identified."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-040",
+      "description": "One row per level, but no random term of the factor has an intercept: intercept is false, so the message is sizes.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ x + (0 + x | g)",
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'g' has 4 levels with 4 rows. Level sizes range from 1 to 1, with quartiles 1 and 1 and median 1. Levels with one row, which are kept: 4."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 1},
+              "intercept": {"kind": "boolean", "value": false},
+              "largest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 4, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-041",
+      "description": "A factor with one level: effective_size is 'NaN', since S/N equals N and the quotient is 0/0, every quantile is the one level size and the message renders '1 level'.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, 3],
+        "g": ["a", "a", "a"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'g' has 1 level with 3 rows. Level sizes range from 3 to 3, with quartiles 3 and 3 and median 3. Levels with one row, which are kept: 0."},
+            "statistics": {
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 1, "n": 1}},
+              "levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 0.25, "n": 1}},
+              "median": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 0.5, "n": 1}},
+              "rows": {"kind": "count", "value": 3, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 0, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 0, "n": 1}},
+              "upper_quartile": {"kind": "count", "value": 3, "count_class": "person", "quantile": {"p": 0.75, "n": 1}},
+              "effective_size": {"kind": "real", "value": "NaN"}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 1}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-042",
+      "description": "With pupils as the disclosure unit, levels resolves as a person count for 'pupil', whose levels each hold one pupil, and as a non-person count for 'school', whose levels hold two.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3", "p4", "p4"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "role": "participant"}]
+      },
+      "exact": ["structure.cluster_sizes:effective_size"],
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "pupil"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'pupil' has 4 levels with 8 rows. Level sizes range from 2 to 2, with quartiles 2 and 2 and median 2. Levels with one row, which are kept: 0."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 2},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 1, "n": 4}},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "lower_quartile": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.25, "n": 4}},
+              "median": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "rows": {"kind": "count", "value": 8, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 0, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0, "n": 4}},
+              "upper_quartile": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.75, "n": 4}}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          },
+          {
+            "check": "structure.cluster_sizes",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "sizes", "text": "'school' has 2 levels with 8 rows. Level sizes range from 4 to 4, with quartiles 4 and 4 and median 4. Levels with one row, which are kept: 0."},
+            "statistics": {
+              "effective_size": {"kind": "real", "value": 4},
+              "intercept": {"kind": "boolean", "value": true},
+              "largest": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 1, "n": 2}},
+              "levels": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "lower_quartile": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 0.25, "n": 2}},
+              "median": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 0.5, "n": 2}},
+              "rows": {"kind": "count", "value": 8, "count_class": "person"},
+              "singletons": {"kind": "count", "value": 0, "count_class": "person"},
+              "smallest": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 0, "n": 2}},
+              "upper_quartile": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 0.75, "n": 2}}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-043",
+      "description": "'x' is constant within every school and has a by-school slope: status between and between_slope, consequential. Its icc is 1 and its within_share 0.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x": [1, 1, 1, 2, 2, 2, 4, 4],
+        "school": ["A", "A", "A", "B", "B", "B", "C", "C"]
+      },
+      "formula": "y ~ x + (1 + x | school)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "between_slope", "text": "As inferred from the data, 'x' does not vary within the levels of 'school', so a by-'school' slope for it can only describe how the variance between levels changes with 'x'. Its variance is not a slope variance and may not be identified. Remove the slope, or keep it only as a model of between-level variance."},
+            "statistics": {
+              "icc": {"kind": "real", "value": 1},
+              "informative_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": true},
+              "status": {"kind": "category", "value": "between"},
+              "varying_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 0}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-044",
+      "description": "'x' varies within two of the three schools with two or more rows, and a fourth school has one row: status partially_within with a by-school slope gives partial_slope.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "x": [1, 2, 3, 5, 5, 5, 2, 4, 7],
+        "school": ["A", "A", "A", "B", "B", "B", "C", "C", "D"]
+      },
+      "formula": "y ~ x + (1 + x | school)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "partial_slope", "text": "As inferred from the data, 'x' varies within 2 of the 3 levels of 'school' with two or more rows, and in all its kept columns within 2, so its by-'school' slope rests on those levels alone."},
+            "statistics": {
+              "icc": {"kind": "real", "value": 0.8178963893249607},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": true},
+              "status": {"kind": "category", "value": "partially_within"},
+              "varying_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 0.13533834586466165}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-045",
+      "description": "One term with two grouping factors, ordered by factor and then term: 'x' is between with respect to 'item' and within with respect to 'subject', both without a slope and consistent.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 1, 2, 3],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ x + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "item", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is between with respect to 'item': it varies within 0 of its 3 levels with two or more rows."},
+            "statistics": {
+              "icc": {"kind": "real", "value": 1},
+              "informative_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "between"},
+              "varying_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 0}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is within with respect to 'subject': it varies within 2 of its 2 levels with two or more rows."},
+            "statistics": {
+              "icc": {"kind": "real", "value": -0.5},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "within"},
+              "varying_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-046",
+      "description": "A categorical term with two kept columns: it varies within two subjects, and its two columns, after the first row of the subject is subtracted, have rank 2 in one of them, so informative_levels is 1. icc and within_share are absent.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7],
+        "cond": ["A", "B", "C", "A", "B", "C", "C"],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ cond + (1 | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "cond"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'cond' is partially within with respect to 'subject': it varies within 2 of its 3 levels with two or more rows."},
+            "statistics": {
+              "informative_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "partially_within"},
+              "varying_levels": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 7}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-047",
+      "description": "No level has two rows: no_levels, not_assessable with the prerequisite level_with_two_rows, status absent, icc absent because N equals J and within_share 0.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 3, 2, 5],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "level_with_two_rows"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_levels", "text": "No level of 'g' has two or more rows, so whether 'x' varies within its levels cannot be assessed."},
+            "statistics": {
+              "informative_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "varying_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 0}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-048",
+      "description": "'x2' is twice 'x', so the sequential rule drops its column and it yields no finding (applies_when).",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 4, 5, 6],
+        "x2": [2, 4, 6, 8, 10, 12],
+        "g": ["a", "a", "a", "b", "b", "b"]
+      },
+      "formula": "y ~ x + x2 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is within with respect to 'g': it varies within 2 of its 2 levels with two or more rows."},
+            "statistics": {
+              "icc": {"kind": "real", "value": 0.8064516129032258},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "within"},
+              "varying_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 0.22857142857142856}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-049",
+      "description": "A constant column kept because the fixed part has no intercept: status between, icc and within_share absent because the column is constant.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [3, 3, 3, 3],
+        "g": ["a", "a", "b", "b"]
+      },
+      "formula": "y ~ 0 + x + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is between with respect to 'g': it varies within 0 of its 2 levels with two or more rows."},
+            "statistics": {
+              "informative_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "between"},
+              "varying_levels": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-050",
+      "description": "A factor with one level: status within, icc absent because J is 1, within_share 1.",
+      "checks": ["structure.within_between"],
+      "data": {
+        "y": [1, 2, 3],
+        "x": [1, 2, 4],
+        "g": ["a", "a", "a"]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is within with respect to 'g': it varies within 1 of its 1 level with two or more rows."},
+            "statistics": {
+              "informative_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "within"},
+              "varying_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 1}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-051",
+      "description": "Two blocks of two subjects crossed with two items that no row links: two crossed components, and 'x' varies within them, so disconnected.",
+      "checks": ["structure.connectivity"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4"],
+        "item": ["i1", "i2", "i1", "i2", "i3", "i4", "i3", "i4"]
+      },
+      "formula": "y ~ x + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.connectivity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disconnected", "text": "'item' and 'subject' form 2 crossed groups of levels that no row links, so their random effects are compared only within each group."},
+            "statistics": {
+              "between_component_terms": {"kind": "names", "value": []},
+              "components": {"kind": "count", "value": 2, "count_class": "person"},
+              "exact": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-052",
+      "description": "The same two blocks with 'group' constant within each: between_component_terms lists 'group', so confounded, consequential.",
+      "checks": ["structure.connectivity"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4"],
+        "item": ["i1", "i2", "i1", "i2", "i3", "i4", "i3", "i4"],
+        "group": ["A", "A", "A", "A", "B", "B", "B", "B"]
+      },
+      "formula": "y ~ x + group + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.connectivity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "confounded", "text": "'item' and 'subject' form 2 crossed groups of levels that no row links. Terms that, as inferred from the data, do not vary within these groups, so that their effects rest only or mainly on the differences between the groups: 'group'."},
+            "statistics": {
+              "between_component_terms": {"kind": "names", "value": ["group"]},
+              "components": {"kind": "count", "value": 2, "count_class": "person"},
+              "exact": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-053",
+      "description": "One crossed component and three components that hold one level of a factor, which are not counted: components is 1, connected.",
+      "checks": ["structure.connectivity"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "subject": ["s1", "s1", "s2", "s2", "s5", "s6", "s6", "s7"],
+        "item": ["i1", "i2", "i1", "i2", "i5", "i6", "i7", "i8"],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8]
+      },
+      "formula": "y ~ x + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.connectivity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "connected", "text": "The crossed levels of 'item' and 'subject' are connected: rows link each of them to every other."},
+            "statistics": {
+              "between_component_terms": {"kind": "names", "value": []},
+              "components": {"kind": "count", "value": 1, "count_class": "person"},
+              "exact": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-054",
+      "description": "The partition is other, but no component holds two levels of each factor, so connectivity yields no finding (applies_when). aliased_factors reports distinct.",
+      "checks": ["structure.aliased_factors", "structure.connectivity"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "subject": ["s1", "s2", "s3", "s3"],
+        "item": ["i1", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.aliased_factors",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "'item' and 'subject' divide the design sample into different groups, and neither is nested in the other."},
+            "statistics": {
+              "coarser": {"kind": "names", "value": []},
+              "finer": {"kind": "names", "value": []},
+              "partition": {"kind": "category", "value": "other"},
+              "shared_columns": {"kind": "boolean", "value": true},
+              "rows": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-055",
+      "description": "Every row has a missing value in a column that the IR reads, 'x' or 'g', so the design sample is empty and the run is refused with E7007 before any check.",
+      "checks": ["structure.cluster_sizes"],
+      "data": {
+        "y": [1, 2, 3],
+        "x": [null, 1, 2],
+        "g": ["a", null, null]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "expected": {
+        "issue": {"code": "E7007", "message": "The design sample has no rows, so the audits cannot run."}
+      }
+    }
+  ]
+}

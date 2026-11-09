@@ -2,7 +2,7 @@
 
 This document specifies how both packages read a data table: the CSV text they accept, how its header matches the table block of a declaration, which values are missing, the lexical form of each field type and the error codes of the table area. It turns the Frictionless lexical defaults that 02-decisions.md (Q4) requires into explicit rules, so that the table conformance corpus can state the expected outcome of every case and the two readers of M2 return the same values. The table block itself is specified in [declarations.md](declarations.md), the conventions on UTF-8, NFC and numbers in [conventions.md](conventions.md) and the codes in [spec/errors.json](../../spec/errors.json), described in [errors.md](errors.md). The conformance corpus in [fixtures/conformance/tables/](../../fixtures/conformance/tables/README.md) holds tables with their expected values and samples or the issue that the reader reports.
 
-M1 specifies the reader. The reader, the canonical analysis table and the handling of data frames passed in memory are implemented in M2 (03-execution-plan.md), and M2 applies the rules below on column names and on missing values given as strings to a data frame passed in memory.
+M1 specifies the reader. The reader, the canonical analysis table and the handling of data frames passed in memory are implemented in M2 (03-execution-plan.md). `audit()`, which holds the declaration and the data together, applies the declaration's missing values to a data frame passed in memory as Missing values below states.
 
 ## Stages
 
@@ -35,6 +35,10 @@ With a table block, the column names must match the fields of the block, in numb
 ## Missing values
 
 A value is missing when its raw value, compared after NFC, equals one of the missing values that apply to its column: the field's `missingValues` when the field has them, otherwise the table block's `missingValues` and otherwise the Frictionless default `[""]`, which the reader applies explicitly (02-decisions.md, Q4). A missing value given as an object, such as a labelled sentinel code '-99', matches through its `value`. An empty list of missing values declares that no value is missing, so that the empty string is then a value. Missing values are matched before any conversion and never checked against the type or the categories, and the reader returns a missing value as NA in R and None in Python.
+
+A data frame passed in memory to `audit()` with a declaration that has a table block gets the same missing values. In each column, a string that equals one of the missing values that apply to its column, compared after NFC, becomes missing, and so does a number that equals the double to which a missing value with the lexical form of a number converts (Field types), compared as keys compare numbers (Keys), so that NaN matches 'NaN' or 'nan', negative zero matches '0' and 1 matches '1.0'. A boolean is never missing, because a data frame holds the boolean and not its text, and a boolean has several lexical forms, among them the '0' and '1' that a number column also reads, so that the reader of a file and a rule on booleans in memory could not agree for every column. Without a table block, nothing is applied, so that `audit()`, `formula_ir()` and `design_matrices()` read the same rows of a data frame passed without a declaration.
+
+A data frame is not matched against the fields of the table block, since it has no header: the rules on column names that `formula_ir()` applies to a data frame give ordinary errors (03-execution-plan.md, M2), `audit()` refuses a declared column that the data frame lacks with E5011, and the keys of the table block are not checked, so that keys.duplicates reports what it finds.
 
 ## Field types
 

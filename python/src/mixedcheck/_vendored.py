@@ -1,7 +1,8 @@
 """Access to the shared artefacts vendored into the package.
 
-spec/tools/vendor.py copies them from spec/ and fixtures/ in the repository
-into _spec/ and _fixtures/, with a MANIFEST.json of SHA-256 digests in each.
+spec/tools/vendor.py copies them from spec/ in the repository into _spec/,
+and the fixtures that are installed from fixtures/ into _fixtures/, with a
+MANIFEST.json of SHA-256 digests in each.
 """
 
 from __future__ import annotations

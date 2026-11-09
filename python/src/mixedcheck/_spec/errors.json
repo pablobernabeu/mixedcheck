@@ -1309,6 +1309,35 @@
       "args": {}
     },
     {
+      "code": "E4022",
+      "name": "registry_parameter_differs",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The parameter at {location} must have the value '{expected}' that other entries give the parameter of the same name.",
+      "args": {
+        "expected": "text"
+      }
+    },
+    {
+      "code": "E4023",
+      "name": "registry_message_fallback",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The message at {location} must have a fallback template that renders no statistic that can be absent or suppressed.",
+      "args": {}
+    },
+    {
+      "code": "E4024",
+      "name": "registry_reference_kind",
+      "area": "registry",
+      "location": "pointer",
+      "template": "The statistic '{name}' named at {location} must be {expected}.",
+      "args": {
+        "name": "text",
+        "expected": "text"
+      }
+    },
+    {
       "code": "E5001",
       "name": "table_no_header",
       "area": "table",
@@ -1403,6 +1432,16 @@
       "args": {
         "index": "integer",
         "earlier": "integer"
+      }
+    },
+    {
+      "code": "E5011",
+      "name": "table_declared_column",
+      "area": "table",
+      "location": "pointer",
+      "template": "The column '{column}' that the declaration names at {location} is not a column of the data.",
+      "args": {
+        "column": "text"
       }
     },
     {
@@ -1923,6 +1962,16 @@
       }
     },
     {
+      "code": "E6078",
+      "name": "formula_binomial_counts",
+      "area": "formula",
+      "location": "none",
+      "template": "A row of the analysis sample holds events of '{column}' or trials that are not integers with 0 <= events <= trials.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
       "code": "E6101",
       "name": "formula_ir_inconsistent",
       "area": "formula",
@@ -1983,6 +2032,49 @@
       }
     },
     {
+      "code": "E7007",
+      "name": "results_empty_sample",
+      "area": "results",
+      "location": "none",
+      "template": "The {sample} sample has no rows, so the audits cannot run.",
+      "args": {
+        "sample": "text"
+      }
+    },
+    {
+      "code": "E7008",
+      "name": "results_family_unknown",
+      "area": "results",
+      "location": "none",
+      "template": "The family '{name}' is not one of {expected}.",
+      "args": {
+        "name": "text",
+        "expected": "values"
+      }
+    },
+    {
+      "code": "E7009",
+      "name": "results_access_refused",
+      "area": "results",
+      "location": "none",
+      "template": "Outcome access at {tier} needs {requirement}.",
+      "args": {
+        "tier": "text",
+        "requirement": "text"
+      }
+    },
+    {
+      "code": "E7010",
+      "name": "results_file_suffix",
+      "area": "results",
+      "location": "none",
+      "template": "The {file} must be written to a file whose name {rule} '.internal.json'.",
+      "args": {
+        "file": "text",
+        "rule": "text"
+      }
+    },
+    {
       "code": "E7020",
       "name": "results_person_count_shown",
       "area": "results",
@@ -2007,7 +2099,7 @@
       "name": "results_quantile_shown",
       "area": "results",
       "location": "pointer",
-      "template": "The quantile at {location} must be suppressed in a shareable document, because n times min(p, 1 - p) is below {limit}.",
+      "template": "The quantile at {location} must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below {limit}.",
       "args": {
         "limit": "integer"
       }

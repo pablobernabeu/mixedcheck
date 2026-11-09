@@ -1,0 +1,93 @@
+{
+  "description": "Valid results documents: internal and shareable documents, with and without a disclosure unit, at T0, T1 and T2, with findings that are not available, a document written in another layout and strings that are not in NFC, each giving no issue.",
+  "cases": [
+    {
+      "id": "results-valid-001",
+      "description": "The example of documents.md (Results document, Example), a shareable document of a planned T1 run with a disclosure unit, with the registry hash of this release: no issue.",
+      "document": "valid/001.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-002",
+      "description": "An internal document of a T0 run without a disclosure unit, whose findings of keys.duplicates, sample.raw_vs_analysis and structure.cluster_sizes write person counts below min_count and quantiles of 4 values: the invariants of a shareable document do not apply, so no issue.",
+      "document": "valid/002.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-003",
+      "description": "The same run in shareable mode: every person count and the real effective_size suppressed, the support rows of the table-sample findings suppressed with the detail 'secondary' and the fallback messages: no issue.",
+      "document": "valid/003.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-004",
+      "description": "The internal document of results-valid-002 indented with two spaces and ended by a line feed: a validator reads any JSON text in the data profile, and only a writer must write canonical bytes.",
+      "document": "valid/004.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-005",
+      "description": "keys.duplicates is not available without a declared observation key: a finding with an empty scope, the availability status alone and no message, statistics or support.",
+      "document": "valid/005.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-006",
+      "description": "A document without findings: findings may be empty, whereas the access log has at least one entry.",
+      "document": "valid/006.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-007",
+      "description": "The formula holds 'e' followed by U+0301, a string that is not in NFC, which the data profile allows in a string that is not a name.",
+      "document": "valid/007.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-008",
+      "description": "An internal document of an exploratory run at T0, T1 and T2 with the disclosure unit 'pupil': outcome.minority_events for 'pupil' and outcome.separation with the verdict none, its optimum and margin written, and the solver named in software.packages.",
+      "document": "valid/008.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-009",
+      "description": "The same run in shareable mode: the optimum and margin, which are internal_only, and the counts below min_count are suppressed, and the median minority count, whose quantile rule holds for 20 values, is suppressed as a count below min_count.",
+      "document": "valid/009.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-010",
+      "description": "inputs holds the registry hash alone, which is the one required member, and the document has no findings.",
+      "document": "valid/010.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-valid-011",
+      "description": "29 February of 2024, a leap year, and of 2000, a leap year although divisible by 100: both days exist.",
+      "document": "valid/011.json",
+      "expected": {
+        "issues": []
+      }
+    }
+  ]
+}

@@ -31,6 +31,7 @@ REGISTRY_SCOPE_PARTS: dict[str, tuple[str, ...]] = {
     "fixed_term_by_factor": ("factor", "term"),
     "grouping_column_pair": ("first", "second"),
     "grouping_factor": ("factor",),
+    "grouping_factor_or_model": ("factor",),
     "grouping_factor_pair": ("first", "second"),
     "model": (),
     "random_term": ("factor", "term"),

@@ -18,6 +18,7 @@ reads: [formula, grouping_factors, predictors]
 fitted_model: false
 sample: design
 scope: model
+applies_when: The IR has at least one random term.
 availability:
   - reason: too_large
     condition: Z has more than max_z_columns columns.
@@ -39,17 +40,26 @@ statistics:
       eigenvalues of C at or below rank_tolerance. For the gaussian family
       class, let X be the fixed-effects columns that the sequential rule keeps,
       P = I - X(X'X)^-1 X', Z the random-effects matrix of the IR on the design
-      sample and W = Z'PZ. For other family classes, W = Z'Z and the residual
-      is left out. Each covariance parameter k has a symmetric basis matrix A_k
-      over the columns of Z: 1 at the diagonal position of the column in every
-      level of the term's factor for a variance, and 1 at the two positions of
-      the pair of columns in every level for a covariance. The Gram matrix M
-      has M_kl = tr(A_k W A_l W) for covariance parameters, M_ks = tr(A_k W)
-      between a covariance parameter and the residual, and M_ss = n - rank(X),
-      with n the number of rows of the design sample. A parameter vanishes when
-      its diagonal element of M is at or below rank_tolerance times the largest
-      diagonal element. C is M restricted to the other parameters and scaled
-      to C_kl = M_kl / sqrt(M_kk M_ll).
+      sample, D the residual basis, which is I without weights and diag(1/w)
+      for weights w, and W = Z'PZ. For other family classes, W = Z'Z, and the
+      residual and the weights are left out. Each covariance parameter k has a
+      symmetric basis matrix A_k over the columns of Z: 1 at the diagonal
+      position of the column in every level of the term's factor for a
+      variance, and 1 at the two positions of the pair of columns in every
+      level for a covariance. The Gram matrix M has M_kl = tr(A_k W A_l W) for
+      covariance parameters, M_ks = tr(A_k Z'PDPZ) between a covariance
+      parameter and the residual, and M_ss = tr(PDPD), which is n - rank(X)
+      without weights, with n the number of rows of the design sample. A
+      covariance parameter vanishes when M_kk is at or below rank_tolerance
+      times tr(A_k Z'Z A_k Z'Z), the same element of its unprojected basis, and
+      the residual when M_ss is at or below rank_tolerance times tr(DD), which
+      is n without weights, so that the test does not depend on the units of
+      the columns. C is M restricted to the other parameters and scaled to
+      C_kl = M_kl / sqrt(M_kk M_ll). Its eigenvalues and eigenvectors are
+      computed in one call of LAPACK's solver for symmetric matrices, through
+      eigen(symmetric = TRUE) in R and numpy.linalg.eigh in Python, which
+      differ only in rounding, and confounded_parameters takes its
+      eigenvectors from the same call.
   verdict:
     kind: category
     values: [identified, necessary_condition_met, not_identified]
@@ -63,26 +73,34 @@ statistics:
       The smallest eigenvalue of C, a scale-free index of how close the design
       comes to confounding parameters. It is a heuristic, absent when C is
       empty.
-  null_parameters:
+  vanishing_parameters:
     kind: names
     definition: >-
-      The vanishing parameters, followed by the parameters k of C with
-      sqrt(d_k) at least null_loading times the largest sqrt(d_j), where d_k
-      is the sum of v_ik squared over an orthonormal basis v_1, ..., v_r of
-      the eigenvectors of C whose eigenvalues are at or below rank_tolerance,
-      the diagonal of the projector onto their span. The projector does not
-      depend on the basis chosen, so that every confounded parameter is named
-      however the eigenvalues at rounding level are ordered. The list is empty
-      when no eigenvalue is at or below rank_tolerance. Parameters are named
-      as the IR names them, in their IR order.
+      The vanishing parameters, which the fixed effects absorb, named as the
+      IR names them (ir.md, Covariance parameters) in their IR order.
+  confounded_parameters:
+    kind: names
+    definition: >-
+      The parameters k of C with sqrt(d_k) at least null_loading times the
+      largest sqrt(d_j), where d_k is the sum of v_ik squared over an
+      orthonormal basis v_1, ..., v_r of the eigenvectors of C whose
+      eigenvalues are at or below rank_tolerance, the diagonal of the
+      projector onto their span, named as the IR names them in their IR order.
+      The projector does not depend on the basis chosen, so that every
+      confounded parameter is named however the eigenvalues at rounding level
+      are ordered. The list is empty when no eigenvalue is at or below
+      rank_tolerance.
 thresholds: {}
 parameters:
   rank_tolerance:
     value: 0.0000000001
+    proximity_factor: 10
     definition: >-
-      The relative tolerance below which an eigenvalue of the scaled Gram
-      matrix, or a diagonal element of the Gram matrix relative to the largest,
-      counts as zero.
+      The relative tolerance at or below which an eigenvalue of the scaled
+      Gram matrix, or the ratio of a diagonal element of the Gram matrix to the
+      same element of the unprojected basis, counts as zero. A finding is
+      near_threshold when any eigenvalue of C, or any of these ratios, lies
+      within the proximity factor of it (registry.md, Parameters).
     sources:
       - kind: convention
         citation: >-
@@ -110,10 +128,12 @@ decision:
   rules:
     - finding: consequential
       condition: verdict is not_identified.
+      statistics: [verdict]
       thresholds: []
       message: not_identified
     - finding: consistent
       condition: verdict is necessary_condition_met.
+      statistics: [verdict]
       thresholds: []
       message: necessary_only
   otherwise:
@@ -124,21 +144,25 @@ messages:
   not_identified:
     template: >-
       The design does not identify the covariance parameters of the random
-      part: the Gram matrix of their bases has rank {rank} for {parameters}
-      parameters, and {null} cannot be separated from each other.
+      part: the Gram matrix of their bases has rank {rank} for {parameters}.
+      Parameters that the fixed effects absorb: {vanishing}. Parameters that
+      cannot be separated from one another: {confounded}.
     args:
       rank: {source: statistic, name: rank}
-      parameters: {source: statistic, name: parameters}
-      null: {source: statistic, name: null_parameters}
+      parameters: {source: statistic, name: parameters, noun: [parameter, parameters]}
+      vanishing: {source: statistic, name: vanishing_parameters}
+      confounded: {source: statistic, name: confounded_parameters}
   necessary_only:
     template: >-
-      The bases of the {parameters} covariance parameters are linearly
-      independent on the latent scale, which is necessary for identification
-      in this family but does not establish it.
+      The covariance parameters have linearly independent bases on the latent
+      scale ({parameters} in all), which is necessary for identification in
+      this family but does not establish it.
     args:
       parameters: {source: statistic, name: parameters}
   identified:
-    template: The design identifies all {parameters} covariance parameters, the residual variance included.
+    template: >-
+      The design identifies every covariance parameter, the residual variance
+      included ({parameters} in all).
     args:
       parameters: {source: statistic, name: parameters}
 remedies:

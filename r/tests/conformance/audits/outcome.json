@@ -1,0 +1,1161 @@
+{
+  "description": "Cases of the T1 checks outcome.constant_clusters, outcome.minority_events, outcome.boundary_shares and outcome.zero_shares and of the T2 check outcome.separation: their decisions and messages, family filters, availability, findings for the model as a whole, binary, binomial and categorical outcomes, the tiers that a run reaches and the refusals E6069, E6078, E7007, E7008 and E7009.",
+  "cases": [
+    {
+      "id": "audits-outcome-001",
+      "description": "A Gaussian outcome that varies within every level of subject: constant_levels is 0, the share 0% and the message none_constant. Without a declaration, there is no disclosure unit and the by_unit counts resolve as person counts.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [2.1, 2.5, 3, 1.8, 2.2, 2.9, 3.3, 3.1, 3.6, 2.4, 2, 2.8],
+        "x": [1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'subject' that has two or more rows."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-002",
+      "description": "A binary outcome with the family binomial and no trials, so the class is bernoulli. One of the four subjects has only events, a share of exactly 25%, which reaches the threshold many. outcome.minority_events counts 9 events, 7 non-events and one level without a minority event. The median level minority count is 1, at position 2 of the sorted counts 0, 1, 2 and 2, and the minority count is divided by the 2 kept columns.",
+      "checks": ["outcome.constant_clusters", "outcome.minority_events"],
+      "data": {
+        "y": [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        "x": [1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6, 4, 5, 6, 7],
+        "subject": ["s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2", "s3", "s3", "s3", "s3", "s4", "s4", "s4", "s4"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 1 of the 4 levels of 'subject' with two or more rows (25%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'subject' slopes rest on the other levels."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.25, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 16}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          },
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The outcome has 9 events and 7 non-events, or 3.5 minority events per fixed-effects column. One of the two classes is absent in 1 of the 4 levels of 'subject', counting the levels with one row, and the median level has 1 minority event."},
+            "statistics": {
+              "events": {"kind": "count", "value": 9, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 7, "count_class": "person"},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_without_minority": {"kind": "count", "value": 1, "count_class": "person"},
+              "median_minority": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "events_per_column": {"kind": "real", "value": 3.5}
+            },
+            "support": {"rows": {"value": 16}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-003",
+      "description": "One of five subjects is constant, a share of 20%, below the threshold many, so the threshold any decides: message some.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0],
+        "x": [1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4", "s5", "s5", "s5"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "some", "text": "The outcome is constant within 1 of the 5 levels of 'subject' with two or more rows."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 5, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 15}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-004",
+      "description": "Every subject has one row, so multi_row_levels is 0, constant_share is absent, the message is no_levels and the finding is not_assessable with the prerequisite level_with_two_rows.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [2.1, 2.5, 3, 1.8, 2.2, 2.9],
+        "x": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s2", "s3", "s4", "s5", "s6"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "level_with_two_rows"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_levels", "text": "No level of 'subject' has two or more rows, so variation within levels cannot be assessed."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-005",
+      "description": "The outcome has three categories and the declared event level 'correct', so 'wrong' and 'skip' both count as 0: the subject with only 'wrong' and 'skip' is constant, as is the subject with only 'correct'. The measurement binary gives the class bernoulli without a family, and the event level makes outcome.minority_events available.",
+      "checks": ["outcome.constant_clusters", "outcome.minority_events"],
+      "data": {
+        "y": ["correct", "correct", "correct", "wrong", "skip", "wrong", "correct", "wrong", "skip", "skip", "correct", "wrong"],
+        "x": [1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"y": {"role": "outcome", "measurement": "binary", "event_level": "correct"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 2 of the 4 levels of 'subject' with two or more rows (50%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'subject' slopes rest on the other levels."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.5, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          },
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The outcome has 5 events and 7 non-events, or 2.5 minority events per fixed-effects column. One of the two classes is absent in 2 of the 4 levels of 'subject', counting the levels with one row, and the median level has 0 minority events."},
+            "statistics": {
+              "events": {"kind": "count", "value": 5, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 7, "count_class": "person"},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels_without_minority": {"kind": "count", "value": 2, "count_class": "person"},
+              "median_minority": {"kind": "count", "value": 0, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "events_per_column": {"kind": "real", "value": 2.5}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-006",
+      "description": "A binomial outcome with the trials column n. A level is constant when all its rows have no events or all have as many events as trials: s1 (2 of 2 and 3 of 3) and s2 (0 of 2 and 0 of 3) are, whereas s3 (2 of 2 and 0 of 3) and s4 (1 of 2 twice) are not. outcome.minority_events sums events and trials, and the median of the five level minority counts 0, 0, 2, 2 and 3 is at position 3.",
+      "checks": ["outcome.constant_clusters", "outcome.minority_events"],
+      "data": {
+        "k": [2, 3, 0, 0, 2, 0, 1, 1, 1, 2],
+        "n": [2, 3, 2, 3, 2, 3, 2, 2, 3, 3],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4", "s5", "s5"]
+      },
+      "formula": "k ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 2 of the 5 levels of 'subject' with two or more rows (40%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'subject' slopes rest on the other levels."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 5, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 5}, "dominated": false}}
+          },
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The outcome has 12 events and 13 non-events, or 6.0 minority events per fixed-effects column. One of the two classes is absent in 2 of the 5 levels of 'subject', counting the levels with one row, and the median level has 2 minority events."},
+            "statistics": {
+              "events": {"kind": "count", "value": 12, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 13, "count_class": "person"},
+              "levels": {"kind": "count", "value": 5, "count_class": "person"},
+              "levels_without_minority": {"kind": "count", "value": 2, "count_class": "person"},
+              "median_minority": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.5, "n": 5}},
+              "events_per_column": {"kind": "real", "value": 6}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-007",
+      "description": "An ordinal outcome without an event level has no response vector, so a level is constant when its labels, compared after NFC, take one value: the composed and decomposed spellings of 'tr\u00e8s' are one label.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": ["tr\u00e8s", "tre\u0300s", "tr\u00e8s", "low", "mid", "low", "mid", "mid", "high", "low", "low", "low"],
+        "x": [1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"y": {"role": "outcome", "measurement": "ordinal"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 2 of the 4 levels of 'subject' with two or more rows (50%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'subject' slopes rest on the other levels."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.5, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-008",
+      "description": "Subjects crossed with items, with the subject declared as the participant unit and so the disclosure unit. Each item occurs with four subjects, so its counts of levels resolve as non-person counts, while each subject is its own member and its counts resolve as person counts. The findings come in the order of their factors, item before subject.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3", "s3", "s3", "s4", "s4", "s4"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3", "i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}],
+        "variables": {"y": {"role": "outcome", "measurement": "binary"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'item' that has two or more rows."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 1 of the 4 levels of 'subject' with two or more rows (25%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'subject' slopes rest on the other levels."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.25, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-009",
+      "description": "The data of audits-outcome-002 at T0: the run reads no outcome, so the T1 checks yield no finding.",
+      "checks": ["outcome.constant_clusters", "outcome.minority_events"],
+      "data": {
+        "y": [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        "x": [1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6, 4, 5, 6, 7],
+        "subject": ["s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2", "s3", "s3", "s3", "s3", "s4", "s4", "s4", "s4"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "family": "binomial",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-outcome-010",
+      "description": "A model without grouping factors: outcome.constant_clusters has no scope element, and outcome.minority_events yields one finding for the model as a whole, with an empty scope, without the statistics of levels and with the message events_model.",
+      "checks": ["outcome.constant_clusters", "outcome.minority_events"],
+      "data": {
+        "y": [1, 0, 1, 1, 0, 1, 1, 0, 1, 0],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events_model", "text": "The outcome has 6 events and 4 non-events, or 2.0 minority events per fixed-effects column."},
+            "statistics": {
+              "events": {"kind": "count", "value": 6, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 4, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 2}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "rows", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-011",
+      "description": "A bernoulli outcome of the strings 'yes' and 'no' without a declared event level: outcome.minority_events and outcome.separation are not available, with the pointer of the missing event level as the detail.",
+      "checks": ["outcome.minority_events", "outcome.separation"],
+      "data": {
+        "y": ["yes", "no", "yes", "yes", "no", "no"],
+        "x": [1, 2, 3, 4, 5, 6]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/variables/y/event_level"}}
+          },
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/variables/y/event_level"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-012",
+      "description": "The family gaussian is not among the families of outcome.minority_events, outcome.zero_shares and outcome.separation, so none of them yields a finding, not even one that is not available.",
+      "checks": ["outcome.minority_events", "outcome.separation", "outcome.zero_shares"],
+      "data": {
+        "y": [1, 0, 1, 1, 0, 0],
+        "x": [1, 2, 3, 4, 5, 6]
+      },
+      "formula": "y ~ x",
+      "family": "gaussian",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-outcome-013",
+      "description": "A logical outcome needs no event level. The subject s3 has one row: outcome.constant_clusters does not count it, while outcome.minority_events counts it among the levels without a minority event. The median of the three level minority counts 0, 1 and 1 is at position 2.",
+      "checks": ["outcome.constant_clusters", "outcome.minority_events"],
+      "data": {
+        "y": [true, false, true, false, false, true, true],
+        "x": [1, 2, 3, 4, 5, 6, 7],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2", "s3"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'subject' that has two or more rows."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 7}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The outcome has 4 events and 3 non-events, or 1.5 minority events per fixed-effects column. One of the two classes is absent in 1 of the 3 levels of 'subject', counting the levels with one row, and the median level has 1 minority event."},
+            "statistics": {
+              "events": {"kind": "count", "value": 4, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels_without_minority": {"kind": "count", "value": 1, "count_class": "person"},
+              "median_minority": {"kind": "count", "value": 1, "count_class": "person", "quantile": {"p": 0.5, "n": 3}},
+              "events_per_column": {"kind": "real", "value": 1.5}
+            },
+            "support": {"rows": {"value": 7}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-014",
+      "description": "The level A3 of a occurs only in rows whose outcome is missing, so the design sample keeps three columns, while the analysis sample would keep two. events_per_column divides by kept of design.rank_deficiency on the design sample: 4 / 3.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "y": [1, 0, 1, 1, 0, 0, 1, 0, null, null],
+        "a": ["A1", "A1", "A1", "A1", "A2", "A2", "A2", "A2", "A3", "A3"]
+      },
+      "formula": "y ~ a",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events_model", "text": "The outcome has 4 events and 4 non-events, or 1.3 minority events per fixed-effects column."},
+            "statistics": {
+              "events": {"kind": "count", "value": 4, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 4, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 1.3333333333333333}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-015",
+      "description": "A binomial row with 3 events of 2 trials gives E6078 for the response when the analysis sample is read at T1.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "k": [3, 1, 2],
+        "n": [2, 2, 2],
+        "x": [1, 2, 3]
+      },
+      "formula": "k ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "issue": {"code": "E6078", "message": "A row of the analysis sample holds events of 'k' or trials that are not integers with 0 <= events <= trials."}
+      }
+    },
+    {
+      "id": "audits-outcome-016",
+      "description": "The only row with an outcome has a missing x, so the design sample has rows but the analysis sample of a T1 run has none, and audit() refuses with E7007, naming the analysis sample.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [null, null, 2.5, null],
+        "x": [1, 2, null, 4],
+        "g": ["g1", "g1", "g2", "g2"]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "issue": {"code": "E7007", "message": "The analysis sample has no rows, so the audits cannot run."}
+      }
+    },
+    {
+      "id": "audits-outcome-017",
+      "description": "The trials column n of the response is a predictor, so audit() refuses with E6069 before any check.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "k": [1, 2, 0, 1],
+        "n": [2, 3, 2, 3],
+        "subject": ["s1", "s1", "s2", "s2"]
+      },
+      "formula": "k ~ n + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "issue": {"code": "E6069", "message": "The column 'n' is an outcome, is derived from one or holds the trials of the response, so the outcome-blind checks cannot read it."}
+      }
+    },
+    {
+      "id": "audits-outcome-018",
+      "description": "A bounded score from 0 to 10 with 2 of 20 rows at the ceiling and 3 at the floor, exactly 15%, which does not exceed the threshold: message within_bounds.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": [0, 0, 0, 10, 10, 5, 6, 7, 3, 4, 8, 2, 9, 1, 5, 6, 4, 3, 7, 8],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+      },
+      "formula": "score ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome", "measurement": "bounded_score", "bounds": [0, 10]}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.boundary_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "within_bounds", "text": "Of the rows, 15.0% are at the lowest possible score and 10.0% at the highest, no more than 15% at either bound."},
+            "statistics": {
+              "rows": {"kind": "count", "value": 20, "count_class": "person"},
+              "at_floor": {"kind": "count", "value": 3, "count_class": "person"},
+              "at_ceiling": {"kind": "count", "value": 2, "count_class": "person"},
+              "floor_share": {"kind": "ratio", "value": 0.15, "count_class": "person"},
+              "ceiling_share": {"kind": "ratio", "value": 0.1, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-019",
+      "description": "4 of the 20 rows of the analysis sample are at the ceiling, 20%, above the threshold: message at_bounds. The values 11 and -1 lie outside the bounds and count at neither bound, and the row with a missing score is not in the analysis sample.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": [0, 10, 10, 10, 10, 5, 6, 7, 3, 4, 8, 2, 9, 1, 5, 11, -1, 3, 7, null, 8],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+      },
+      "formula": "score ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome", "measurement": "bounded_score", "bounds": [0, 10]}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.boundary_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "at_bounds", "text": "Of the rows, 5.0% are at the lowest possible score and 20.0% at the highest, more than 15% at a bound. Consider a binomial or beta-binomial model when the maximum is a number of items, or an item-level model when item responses exist, and report any interaction on both scales."},
+            "statistics": {
+              "rows": {"kind": "count", "value": 20, "count_class": "person"},
+              "at_floor": {"kind": "count", "value": 1, "count_class": "person"},
+              "at_ceiling": {"kind": "count", "value": 4, "count_class": "person"},
+              "floor_share": {"kind": "ratio", "value": 0.05, "count_class": "person"},
+              "ceiling_share": {"kind": "ratio", "value": 0.2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-020",
+      "description": "Without a declaration, the measurement of the outcome is not declared, so the check is not available, with the pointer of the measurement as the detail. The name 'score/total' is escaped in the pointer as RFC 6901 requires.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score/total": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4]
+      },
+      "formula": "`score/total` ~ x",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.boundary_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/variables/score~1total/measurement"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-021",
+      "description": "The declaration gives the outcome a role and no measurement level: not available.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4]
+      },
+      "formula": "score ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.boundary_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/variables/score/measurement"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-022",
+      "description": "The outcome is declared continuous, so applies_when fails and the check yields no finding.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4]
+      },
+      "formula": "score ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome", "measurement": "continuous"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-outcome-023",
+      "description": "A bounded score whose column holds strings is not a numeric column, so applies_when fails and the check yields no finding.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": ["1", "2", "3", "4"],
+        "x": [1, 2, 3, 4]
+      },
+      "formula": "score ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome", "measurement": "bounded_score", "bounds": [1, 4]}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-outcome-024",
+      "description": "With the response log(score), the check reads the values of the column before the transform: the rows whose score is 1, the lower bound, are at the floor although their logarithm is 0, 4 of 16 rows or 25%: message at_bounds.",
+      "checks": ["outcome.boundary_shares"],
+      "data": {
+        "score": [1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+      },
+      "formula": "log(score) ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"score": {"role": "outcome", "measurement": "bounded_score", "bounds": [1, 9]}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.boundary_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "at_bounds", "text": "Of the rows, 25.0% are at the lowest possible score and 6.2% at the highest, more than 15% at a bound. Consider a binomial or beta-binomial model when the maximum is a number of items, or an item-level model when item responses exist, and report any interaction on both scales."},
+            "statistics": {
+              "rows": {"kind": "count", "value": 16, "count_class": "person"},
+              "at_floor": {"kind": "count", "value": 4, "count_class": "person"},
+              "at_ceiling": {"kind": "count", "value": 1, "count_class": "person"},
+              "floor_share": {"kind": "ratio", "value": 0.25, "count_class": "person"},
+              "ceiling_share": {"kind": "ratio", "value": 0.0625, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 16}, "contributors": {"basis": "rows", "distinct": {"value": 16}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-025",
+      "description": "A count outcome with the family poisson and four sites: 9 of the 20 counts are 0 and every count of s1 is 0. The check grades no finding. outcome.constant_clusters also finds s1 constant.",
+      "checks": ["outcome.constant_clusters", "outcome.zero_shares"],
+      "data": {
+        "count": [0, 0, 0, 0, 0, 0, 1, 2, 0, 3, 1, 4, 2, 0, 1, 2, 3, 0, 5, 1],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        "site": ["s1", "s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2", "s2", "s3", "s3", "s3", "s3", "s3", "s4", "s4", "s4", "s4", "s4"]
+      },
+      "formula": "count ~ x + (1 | site)",
+      "family": "poisson",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "site"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 1 of the 4 levels of 'site' with two or more rows (25%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'site' slopes rest on the other levels."},
+            "statistics": {
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "constant_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0.25, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          },
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "site"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros", "text": "Of the 20 counts, 45.0% are 0, and every count is 0 in 1 of the 4 levels of 'site'. Many zeros alone do not indicate zero inflation in a model with random effects."},
+            "statistics": {
+              "rows": {"kind": "count", "value": 20, "count_class": "person"},
+              "zeros": {"kind": "count", "value": 9, "count_class": "person"},
+              "zero_share": {"kind": "ratio", "value": 0.45, "count_class": "person"},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "all_zero_levels": {"kind": "count", "value": 1, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-026",
+      "description": "A count outcome declared with the measurement count, which gives the class poisson without a family, in a model without grouping factors: one finding for the model as a whole. The value -0 is compared by value and counts as 0.",
+      "checks": ["outcome.zero_shares"],
+      "data": {
+        "count": [0, 2, -0.0, 1, 3, 0, 5, 1, 0, 2],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "formula": "count ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"count": {"role": "outcome", "measurement": "count"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros_model", "text": "Of the 10 counts, 40.0% are 0. Many zeros alone do not indicate zero inflation."},
+            "statistics": {
+              "rows": {"kind": "count", "value": 10, "count_class": "person"},
+              "zeros": {"kind": "count", "value": 4, "count_class": "person"},
+              "zero_share": {"kind": "ratio", "value": 0.4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "rows", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-027",
+      "description": "The family negative_binomial has the class poisson. Five of the six counts are 0, and every count of g2 is 0.",
+      "checks": ["outcome.zero_shares"],
+      "data": {
+        "count": [0, 0, 1, 0, 0, 0],
+        "x": [1, 2, 3, 4, 5, 6],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2"]
+      },
+      "formula": "count ~ x + (1 | g)",
+      "family": "negative_binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros", "text": "Of the 6 counts, 83.3% are 0, and every count is 0 in 1 of the 2 levels of 'g'. Many zeros alone do not indicate zero inflation in a model with random effects."},
+            "statistics": {
+              "rows": {"kind": "count", "value": 6, "count_class": "person"},
+              "zeros": {"kind": "count", "value": 5, "count_class": "person"},
+              "zero_share": {"kind": "ratio", "value": 0.8333333333333334, "count_class": "person"},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "all_zero_levels": {"kind": "count", "value": 1, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-028",
+      "description": "Events and non-events alternate along x, so the only coefficients with s x'b >= 0 for every observation are 0: the verified optimum and margin are 0 and the verdict is none.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 1, 0, 1, 0, 1],
+        "x": [-2, -1, 0, 1, 2, 3]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none", "text": "The fixed effects do not separate the events from the non-events."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 3, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 3, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "none"},
+              "optimum": {"kind": "real", "value": 0},
+              "margin": {"kind": "real", "value": 0}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-029",
+      "description": "x separates the events from the non-events completely. On the columns scaled to a largest absolute value of 1, the first program reaches 4 at b = (b0, 1) for every b0 from -1/3 to 1/3, and the second a margin of 1/3 at b = (0, 1). Over the optimal face, b0 ranges from -1/3 to 1/3 and the slope from 1 - 1e-6/4 to 1, so both columns are involved.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 1, 1, 1],
+        "x": [-3, -2, -1, 1, 2, 3]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, through '(Intercept)' and 'x', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 3, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 3, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "complete"},
+              "optimum": {"kind": "real", "value": 4},
+              "margin": {"kind": "real", "value": 0.3333333333333333},
+              "bounds": {"kind": "reals", "value": [-0.3333333333333333, 0.3333333333333333, 0.99999975, 1]},
+              "columns_involved": {"kind": "names", "value": ["(Intercept)", "x"]}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-030",
+      "description": "An event and a non-event share x = 0, so the separation by x is quasi-complete: the margin is 0 and the first program reaches 3 with the intercept fixed at 0. Only the column x is involved.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 1, 1, 1],
+        "x": [-2, -1, 0, 0, 1, 2]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, through 'x', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 3, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 3, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "quasi"},
+              "optimum": {"kind": "real", "value": 3},
+              "margin": {"kind": "real", "value": 0},
+              "bounds": {"kind": "reals", "value": [0, 0, 0.9999996666666666, 1]},
+              "columns_involved": {"kind": "names", "value": ["x"]}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-031",
+      "description": "The level A2 of a has only events while A1 and A3 have both classes: the intercept and a[A3] are fixed at 0 and a[A2] reaches its bound. The verdict is quasi through a[A2] alone, with three kept columns.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [1, 0, 1, 1, 1, 0, 1],
+        "a": ["A1", "A1", "A2", "A2", "A2", "A3", "A3"]
+      },
+      "formula": "y ~ a",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, through 'a[A2]', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 5, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 2, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "quasi"},
+              "optimum": {"kind": "real", "value": 3},
+              "margin": {"kind": "real", "value": 0},
+              "bounds": {"kind": "reals", "value": [0, 0, 0.9999996666666666, 1, 0, 0]},
+              "columns_involved": {"kind": "names", "value": ["a[A2]"]}
+            },
+            "support": {"rows": {"value": 7}, "contributors": {"basis": "rows", "distinct": {"value": 7}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-032",
+      "description": "Every row is an event, so both_classes is false: the message is one_class and the finding is not_assessable with the prerequisite both_outcome_classes. The verdict is absent, and so are the optimum and the margin, since the linear programs are not solved.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [1, 1, 1, 1, 1, 1],
+        "x": [1, 2, 3, 4, 5, 6]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "not_assessable", "reason": "prerequisite_unmet", "detail": "both_outcome_classes"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "one_class", "text": "The analysis sample holds only events or only non-events, so separation cannot be assessed."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 6, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 0, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-033",
+      "description": "A binomial outcome: the row with 0 of 2 events gives one observation with s = -1, the row with 1 of 2 one with each sign and the row with 2 of 2 one with s = 1, so the observations at x = 0 fix the intercept at 0 and the verdict is quasi through x.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "k": [0, 1, 2],
+        "n": [2, 2, 2],
+        "x": [-1, 0, 1]
+      },
+      "formula": "k ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, through 'x', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 2, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 2, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "quasi"},
+              "optimum": {"kind": "real", "value": 2},
+              "margin": {"kind": "real", "value": 0},
+              "bounds": {"kind": "reals", "value": [0, 0, 0.9999995, 1]},
+              "columns_involved": {"kind": "names", "value": ["x"]}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "rows", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-034",
+      "description": "The data of audits-outcome-029 at T1: outcome.separation is a T2 check, so a run that reaches T1 only yields no finding of it.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 1, 1, 1],
+        "x": [-3, -2, -1, 1, 2, 3]
+      },
+      "formula": "y ~ x",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-outcome-035",
+      "description": "A family name that audit() does not accept, 'binomal', gives E7008 at the first step, listing the accepted names in their order.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "y": [1, 1, 0, 0, 1, 0],
+        "x": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "family": "binomal",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "issue": {"code": "E7008", "message": "The family 'binomal' is not one of 'gaussian', 'binomial', 'poisson', 'negative_binomial', 'beta', 'gamma', 'inverse_gaussian' or 'cumulative'."}
+      }
+    },
+    {
+      "id": "audits-outcome-036",
+      "description": "A T1 access with a one-sided formula has no outcome to read, so audit() refuses with E7009 once the IR shows that the formula has no response.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "y": [1, 1, 0, 0, 1, 0],
+        "x": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "~ x + (1 | subject)",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "issue": {"code": "E7009", "message": "Outcome access at T1 needs a formula with a response."}
+      }
+    }
+  ]
+}

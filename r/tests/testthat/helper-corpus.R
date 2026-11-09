@@ -1,12 +1,18 @@
-# Helpers that run the cases of the conformance corpora installed with the
-# package (fixtures/conformance/, described in each directory's README.md).
+# Helpers that run the cases of the conformance corpora, which
+# spec/tools/vendor.py copies from fixtures/conformance/ into tests/conformance/
+# (each directory's README.md describes its corpus).
 # Inputs are built from bytes and strings read by the strict reader, never
 # from non-ASCII string literals, which a C locale would leave unmarked.
 
+# The directory of a corpus, or the conformance directory itself.
+corpus_directory <- function(...) {
+  test_path("..", "conformance", ...)
+}
+
 corpus_cases <- function(directory, file) {
-  path <- system.file("fixtures", "conformance", directory, file, package = "mixedcheck")
-  if (!nzchar(path)) {
-    stop(sprintf("The corpus file %s/%s is not installed.", directory, file))
+  path <- corpus_directory(directory, file)
+  if (!file.exists(path)) {
+    stop(sprintf("The corpus file %s/%s is missing.", directory, file))
   }
   cases <- read_json_strict(path, "data")[["cases"]]
   # Cases that only another language can hold are left to it.
@@ -176,7 +182,7 @@ run_json_cases <- function(cases) {
 
 # The path of an input file of a corpus, relative to its directory.
 corpus_file <- function(directory, path) {
-  file.path(system.file("fixtures", "conformance", directory, package = "mixedcheck"), path)
+  file.path(corpus_directory(directory), path)
 }
 
 # Compares a list of issues with the expected list exactly: the codes, the

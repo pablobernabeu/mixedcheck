@@ -15,8 +15,9 @@ fitted_model: false
 sample: design
 scope: fixed_term
 applies_when: >-
-  The term is a main effect, and the fixed part has at least two main-effect
-  terms.
+  The term is a main effect, the fixed part has at least two main-effect
+  terms, and the sequential rule, applied as for df, keeps at least one column
+  of the term.
 availability: []
 statistics:
   df:
@@ -24,22 +25,34 @@ statistics:
     count_class: non_person
     definition: >-
       The number of columns of this term that the sequential rule keeps when it
-      is applied to the intercept followed by the columns of the main-effect
-      terms, as for gvif.
+      is applied to a column of ones, whether or not the fixed part has an
+      intercept, followed by the columns of the main-effect terms in column
+      order. These kept columns, without the column of ones, are the columns
+      of gvif.
   gvif:
     kind: real
     definition: >-
       det(R_TT) det(R_OO) / det(R), where R is the matrix of Pearson
-      correlations, over the rows of the design sample, between the columns of
-      the main-effect terms that the sequential rule keeps when it is applied
-      to the intercept followed by these columns, T are the columns of this
-      term, O the other columns and the determinant of an empty matrix is 1.
-      It is absent when df is 0.
+      correlations, over the rows of the design sample, between the kept
+      columns of the main-effect terms, T are the kept columns of this term,
+      O the other kept columns and the determinant of an empty matrix is 1. It
+      is computed as the product over the columns j of T of (a_j / b_j)^2,
+      which equals the ratio of determinants: the columns are centred, with
+      means summed exactly and divided once as ir.md (Centring) computes
+      means, and scaled to unit Euclidean length, b_j is the norm of the
+      residual of column j after orthogonal projection onto the columns of O
+      and the earlier columns of T, in that order, and a_j the norm of its
+      residual after projection onto the earlier columns of T alone, each
+      computed as the sequential rule computes residuals (ir.md). Its relative
+      error grows with its value, as for any method, so the two packages
+      compare it within a tolerance that grows with it (conventions.md,
+      Comparison across languages).
   gvif_per_df:
     kind: real
     definition: >-
       gvif raised to the power 1/df, which equals the variance inflation factor
-      for a term with one column. It is absent when df is 0.
+      for a term with one column. It is compared within the same tolerance as
+      gvif.
 thresholds:
   moderate:
     statistic: gvif_per_df
@@ -51,7 +64,7 @@ thresholds:
       A widely quoted rule of thumb treats a variance inflation factor above 5
       or 10 as a problematic amount of collinearity. Comparing the factor per
       degree of freedom with it extends the rule to terms with several
-      columns.
+      columns, an extension of this project that the sources do not state.
     sources:
       - kind: literature
         citation: >-
@@ -67,6 +80,15 @@ thresholds:
           Journal of the American Statistical Association, 87(417), 178-183.
         doi: 10.1080/01621459.1992.10475190
         full_text_read: false
+      - kind: derivation
+        citation: >-
+          Fox and Monette (1992) define the generalised variance inflation
+          factor and the dimension-adjusted GVIF^(1/(2 df)), which car's
+          documentation describes as comparable across terms of different
+          dimension. Comparing GVIF^(1/df) with 5 and 10 is the same as
+          comparing GVIF^(1/(2 df)) with the square roots of 5 and 10, about
+          2.24 and 3.16, which reduces to the rule of thumb for a term with one
+          column.
   high:
     statistic: gvif_per_df
     comparator: '>='
@@ -88,10 +110,12 @@ decision:
   rules:
     - finding: detectable_inconsequential
       condition: gvif_per_df reaches high.
+      statistics: [gvif_per_df]
       thresholds: [high]
       message: high
     - finding: detectable_inconsequential
       condition: gvif_per_df reaches moderate.
+      statistics: [gvif_per_df]
       thresholds: [moderate]
       message: moderate
   otherwise:
@@ -105,6 +129,11 @@ messages:
       {per_df} per degree of freedom, at or above {threshold}, so the design
       estimates its coefficients with much less precision than uncorrelated
       predictors would allow.
+    fallback: >-
+      '{term}' has a generalised variance inflation factor per degree of
+      freedom at or above {threshold}, so the design estimates its
+      coefficients with much less precision than uncorrelated predictors would
+      allow.
     args:
       term: {source: scope, name: term}
       gvif: {source: statistic, name: gvif, digits: 2}
@@ -114,6 +143,9 @@ messages:
     template: >-
       '{term}' has a generalised variance inflation factor of {gvif}, or
       {per_df} per degree of freedom, at or above {threshold}.
+    fallback: >-
+      '{term}' has a generalised variance inflation factor per degree of
+      freedom at or above {threshold}.
     args:
       term: {source: scope, name: term}
       gvif: {source: statistic, name: gvif, digits: 2}
@@ -122,11 +154,15 @@ messages:
   low:
     template: >-
       '{term}' has a generalised variance inflation factor of {gvif}, or
-      {per_df} per degree of freedom.
+      {per_df} per degree of freedom, below {threshold}.
+    fallback: >-
+      '{term}' has a generalised variance inflation factor per degree of
+      freedom below {threshold}.
     args:
       term: {source: scope, name: term}
       gvif: {source: statistic, name: gvif, digits: 2}
       per_df: {source: statistic, name: gvif_per_df, digits: 2}
+      threshold: {source: threshold, name: moderate}
 remedies:
   - id: combine_predictors
     description: >-

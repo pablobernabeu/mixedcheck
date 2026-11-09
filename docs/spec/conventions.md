@@ -297,7 +297,7 @@ Python uses `hmac.new(key, message, hashlib.sha256).hexdigest()` and compares di
 
 ### Keys
 
-A commitment key is 32 bytes. The package creates it from the operating system's cryptographically secure generator: `secrets.token_bytes(32)` in Python and, in R on Unix-alikes, `readBin("/dev/urandom", "raw", 32L)`. Base R on Windows offers no access to the system generator. Until M2 settles the R route on Windows, either through a short in-house C routine that calls BCryptGenRandom or by requiring a key from the user, creating a key there without one supplied gives E1312. Keys never come from R's or numpy's random number generators, which a seed set by the user determines and whose state the package must not change.
+A commitment key is 32 bytes. The package creates it from the operating system's cryptographically secure generator: `secrets.token_bytes(32)` in Python and, in R on Unix-alikes, `readBin("/dev/urandom", "raw", 32L)`. Base R on Windows offers no access to the system generator, and the R package has no compiled code that could call BCryptGenRandom, so on Windows it requires a key from the user: creating a key there without one supplied, as `audit()` does when the caller gives no key, gives E1312 (03-execution-plan.md, M2). A user can create a key with any secure generator outside R, for example `openssl rand -hex 32` or `python3 -c "print(__import__('secrets').token_hex(32))"`, and should keep it with the internal sidecar, not with the shareable files. Keys never come from R's or numpy's random number generators, which a seed set by the user determines and whose state the package must not change.
 
 The user may supply a key as 64 lower-case hexadecimal digits (E1311 otherwise), for example to show that two results documents commit to the same outcome column. The key identifier is the first 16 hexadecimal digits of the SHA-256 digest of the 32 key bytes (`key_id` in defs.schema.json). It lets a verifier find the key, and reveals nothing of a random key.
 
@@ -310,10 +310,10 @@ A commitment is written as a `keyed_commitment` object (defs.schema.json) with t
 | covers | Message |
 |---|---|
 | data_file | the bytes of a raw data file as stored, before any decoding |
-| analysis_table | the canonical bytes of the analysis table with its observation keys, as M2 defines them |
+| analysis_table | the canonical bytes of the analysis table with its observation keys, as [documents.md](documents.md) (Analysis table commitment) defines them |
 | outcome_column | the canonical bytes of the outcome column with its observation keys, as [documents.md](documents.md) (Outcome column commitment) defines them |
 
-Verification finds the key by its identifier in the sidecar (E1313 if it is absent), recomputes the digest and compares it with the recorded one (E1314 if they differ). keyed_commitment() computes a commitment of any of the three kinds to the bytes that the caller supplies. Until M2 defines the canonical analysis table and the table reader whose values the outcome column commitment holds, the packages build the message of the data_file kind only, and a caller who commits to another kind supplies the message that this table defines.
+Verification finds the key by its identifier in the sidecar (E1313 if it is absent), recomputes the digest and compares it with the recorded one (E1314 if they differ). keyed_commitment() computes a commitment of any of the three kinds to the bytes that the caller supplies. `audit()` builds the messages of all three kinds from the data it reads, and a caller who commits to an analysis table or an outcome column outside `audit()` supplies the message that documents.md defines.
 
 ### Example
 
@@ -356,7 +356,7 @@ The reasons for not_available are the same in both languages:
 | declaration_missing | the check needs a declaration field that is absent | the JSON Pointer of the field in the declaration |
 | not_expressible | the engine cannot express the model or rung | the engine's package name |
 | too_large | the problem exceeds a size limit in the registry | the limit, if the registry entry names one |
-| privacy_suppressed | the privacy filter suppressed the output | the privacy rule, if the registry names one |
+| privacy_suppressed | the privacy filter suppressed the output | the step of the filter that suppressed it ([privacy.md](privacy.md), Steps) |
 | planned | the feature arrives in a later release | none, and 'version' holds the release, such as '1.1' |
 
 The call `not_available('planned 1.1')` in 03-execution-plan.md therefore produces `{"reason": "planned", "value": "not_available", "version": "1.1"}`.
@@ -497,10 +497,10 @@ Both packages must give the same output for the same input (02-decisions.md, Q2 
 
 - Error codes, issues with their messages and locations, canonical bytes and hashes match exactly, and so do IRs, plans and every member of a results document other than those below.
 - The members of a results document that record what wrote it, `created`, `software` and the package version in `versions`, are not compared.
-- The values of statistics of kind real or reals match when |x − y| ≤ 1e-12 + 1e-9 × max(|x|, |y|) for each pair x and y, and 'NaN', 'Infinity' and '-Infinity' match only themselves. Such statistics come from sums, determinants, eigenvalues and singular values that the two languages compute with different orders of summation and different linear-algebra libraries, so that their last digits can differ (02-decisions.md, Q5). The coefficient bounds and the optimum of outcome.separation match within the parameter bound_tolerance of its registry entry instead (02-decisions.md, Q2).
+- The values of statistics of kind real or reals match when |x − y| ≤ 1e-12 + 1e-9 × max(|x|, |y|) for each pair x and y, and 'NaN', 'Infinity' and '-Infinity' match only themselves. Such statistics come from sums, determinants, eigenvalues and singular values that the two languages compute with different orders of summation and different linear-algebra libraries, so that their last digits can differ (02-decisions.md, Q5). Three exceptions follow from how the values are computed. gvif and gvif_per_df of design.collinearity match when |x − y| ≤ 1e-12 + max(1e-9, 1e-13 × M) × M with M = max(|x|, |y|), since the relative error of a variance inflation factor grows with its value whatever the method, by about 1e-15 times the value in a review of registry 0.1.0. The coefficient bounds of outcome.separation match within the parameter bound_tolerance of its registry entry, and its optimum and margin when |x − y| ≤ bound_tolerance × max(1, |x|, |y|), since they come from different solvers and the optimum grows with the number of rows (02-decisions.md, Q2).
 - A message matches when its text is identical, or when the two texts differ only in the renderings of real statistics whose values match by the rule above and whose two renderings are the neighbouring roundings at the statistic's digits on either side of one rounding boundary.
 - A finding that is near_threshold in either language may differ in its finding status, its message and its threshold_proximity, because its decision compares a real statistic with a threshold within the statistic's tolerance (registry.md, Thresholds).
-- Counts, ratios, booleans, categories, names and labels match exactly. A ratio is the double nearest to the quotient of two exact counts, which both languages compute alike, and so is the largest share of a support (documents.md, Support).
+- Counts, ratios, booleans, categories, names and labels match exactly. A ratio is the double nearest to the quotient of two exact counts, which both languages compute alike.
 
 ## Error reporting
 

@@ -1,0 +1,1095 @@
+{
+  "description": "Cases of the identifiability checks: the Gram matrix of the covariance parameters, the degrees of freedom between levels, levels against the dimension of a random term and random effects confounded with the residual.",
+  "cases": [
+    {
+      "id": "audits-identifiability-001",
+      "description": "A random intercept of a factor with three levels of two rows: the Gram matrix of the variance and the residual has full rank, so identified.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "identified", "text": "The design identifies every covariance parameter, the residual variance included (2 in all)."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0.36754446796632395},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "identified"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-002",
+      "description": "One row per level: the projected bases of the intercept variance and the residual are proportional, so C has an eigenvalue 0, both parameters are confounded and the design does not identify them.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part: the Gram matrix of their bases has rank 1 for 2 parameters. Parameters that the fixed effects absorb: none. Parameters that cannot be separated from one another: '1 | g: var((Intercept))' and 'residual'."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": ["1 | g: var((Intercept))", "residual"]},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-003",
+      "description": "The grouping factor is also a fixed effect: the projection removes the basis of its intercept variance, which vanishes, and the residual alone remains in C, so not_identified with one vanishing parameter and none confounded.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ g + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part: the Gram matrix of their bases has rank 1 for 2 parameters. Parameters that the fixed effects absorb: '1 | g: var((Intercept))'. Parameters that cannot be separated from one another: none."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 1},
+              "vanishing_parameters": {"kind": "names", "value": ["1 | g: var((Intercept))"]},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-004",
+      "description": "The family 'poisson' gives the class poisson: the unprojected basis without a residual has full rank, so necessary_condition_met.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [0, 1, 2, 0, 3, 1],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "poisson",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "necessary_only", "text": "The covariance parameters have linearly independent bases on the latent scale (1 in all), which is necessary for identification in this family but does not establish it."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 1},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "necessary_condition_met"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-005",
+      "description": "For a class other than gaussian, the bases are not projected, so a grouping factor that is also a fixed effect still meets the necessary condition.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [0, 1, 2, 0, 3, 1],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ g + (1 | g)",
+      "family": "poisson",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "necessary_only", "text": "The covariance parameters have linearly independent bases on the latent scale (1 in all), which is necessary for identification in this family but does not establish it."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 1},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "necessary_condition_met"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-006",
+      "description": "Two grouping factors with identical partitions: their intercept variances have the same basis, so they are confounded with each other and the residual is not.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "g": ["a", "a", "b", "b", "c", "c"],
+        "h": ["x", "x", "y", "y", "z", "z"]
+      },
+      "formula": "y ~ 1 + (1 | g) + (1 | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part: the Gram matrix of their bases has rank 2 for 3 parameters. Parameters that the fixed effects absorb: none. Parameters that cannot be separated from one another: '1 | g: var((Intercept))' and '1 | h: var((Intercept))'."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": ["1 | g: var((Intercept))", "1 | h: var((Intercept))"]},
+              "parameters": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-007",
+      "description": "A correlated random slope: the variances, the covariance and the residual, four parameters named as the IR names them, are identified.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "x": [1, 2, 3, 5, 2, 2, 4, 1, 3, 6, 1, 2],
+        "g": ["a", "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c"]
+      },
+      "formula": "y ~ x + (1 + x | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "identified", "text": "The design identifies every covariance parameter, the residual variance included (4 in all)."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0.009934307254401274},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "identified"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-008",
+      "description": "Precision weights: the residual basis is diag(1/w), and the design identifies both parameters.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "w": [1, 2, 1, 4, 2, 1, 0.5, 1],
+        "g": ["a", "a", "a", "b", "b", "c", "c", "c"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "weights": "w",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "identified", "text": "The design identifies every covariance parameter, the residual variance included (2 in all)."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0.5548950274097455},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "identified"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-009",
+      "description": "A model without random terms: gram_rank yields no finding (applies_when).",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 4, 3]
+      },
+      "formula": "y ~ x",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-identifiability-010",
+      "description": "Uncorrelated random intercept and slope of a frozen factor with simple coding, one row per subject and condition: the identity is a combination of the two bases, so the variances and the residual are confounded.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "cond": ["A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ cond + (1 + cond || subject)",
+      "coding": {"cond": {"contrast": "simple", "frozen": true}},
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part: the Gram matrix of their bases has rank 2 for 3 parameters. Parameters that the fixed effects absorb: none. Parameters that cannot be separated from one another: '1 | subject: var((Intercept))', '0 + cond | subject: var(cond[B])' and 'residual'."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": ["1 | subject: var((Intercept))", "0 + cond | subject: var(cond[B])", "residual"]},
+              "parameters": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-011",
+      "description": "The same design with treatment coding: the bases of the two variances and the residual are linearly independent, so the same data identify every parameter.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "cond": ["A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ cond + (1 + cond || subject)",
+      "coding": {"cond": {"frozen": true}},
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "identified", "text": "The design identifies every covariance parameter, the residual variance included (3 in all)."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0.21922359359558494},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "identified"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-012",
+      "description": "A random term of indicators of a factor with 126 declared categories over 40 levels gives Z 5040 columns, more than max_z_columns: not_available with the reason too_large and the detail max_z_columns.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40],
+        "a": ["c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001", "c002", "c003", "c001"],
+        "g": ["g01", "g02", "g03", "g04", "g05", "g06", "g07", "g08", "g09", "g10", "g11", "g12", "g13", "g14", "g15", "g16", "g17", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "g25", "g26", "g27", "g28", "g29", "g30", "g31", "g32", "g33", "g34", "g35", "g36", "g37", "g38", "g39", "g40"]
+      },
+      "formula": "y ~ 1 + (0 + a | g)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "y", "type": "number"}, {"name": "a", "type": "string", "categories": ["c001", "c002", "c003", "c004", "c005", "c006", "c007", "c008", "c009", "c010", "c011", "c012", "c013", "c014", "c015", "c016", "c017", "c018", "c019", "c020", "c021", "c022", "c023", "c024", "c025", "c026", "c027", "c028", "c029", "c030", "c031", "c032", "c033", "c034", "c035", "c036", "c037", "c038", "c039", "c040", "c041", "c042", "c043", "c044", "c045", "c046", "c047", "c048", "c049", "c050", "c051", "c052", "c053", "c054", "c055", "c056", "c057", "c058", "c059", "c060", "c061", "c062", "c063", "c064", "c065", "c066", "c067", "c068", "c069", "c070", "c071", "c072", "c073", "c074", "c075", "c076", "c077", "c078", "c079", "c080", "c081", "c082", "c083", "c084", "c085", "c086", "c087", "c088", "c089", "c090", "c091", "c092", "c093", "c094", "c095", "c096", "c097", "c098", "c099", "c100", "c101", "c102", "c103", "c104", "c105", "c106", "c107", "c108", "c109", "c110", "c111", "c112", "c113", "c114", "c115", "c116", "c117", "c118", "c119", "c120", "c121", "c122", "c123", "c124", "c125", "c126"]}, {"name": "g", "type": "string"}]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "too_large", "detail": "max_z_columns"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-013",
+      "description": "Three levels and an intercept that uses one of them: budget 2, with the intercept the only consuming term. 'h' has no random intercept and yields no finding (applies_when).",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 4, 5, 7],
+        "g": ["a", "a", "b", "b", "c", "c"],
+        "h": ["u", "v", "u", "v", "u", "v"]
+      },
+      "formula": "y ~ x + (1 | g) + (0 + x | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'g' has 3 levels and 2 degrees of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 2, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-014",
+      "description": "The grouping factor is also a fixed effect: its columns use up every level, so budget 0 and no_budget, consequential, with the intercept and 'g' as consuming terms.",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ g + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_budget", "text": "No degrees of freedom between the 3 levels of 'g' remain after the fixed effects, so the variance of its random intercept is not identified under REML. Fixed terms that use up these levels: '(Intercept)' and 'g'."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 0, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)", "g"]},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-015",
+      "description": "Two levels used up by the intercept and a covariate constant within levels: budget 0.",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 1, 1, 3, 3, 3],
+        "g": ["a", "a", "a", "b", "b", "b"]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_budget", "text": "No degrees of freedom between the 2 levels of 'g' remain after the fixed effects, so the variance of its random intercept is not identified under REML. Fixed terms that use up these levels: '(Intercept)' and 'x'."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 0, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)", "x"]},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-016",
+      "description": "Without a fixed intercept and with 'x' varying within levels, no fixed term uses a level: budget equals levels and consuming_terms is empty.",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 4, 6, 5],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ 0 + x + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'g' has 3 levels and 3 degrees of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 3, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": []},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-017",
+      "description": "'x1' and 'x2' each vary within levels, but their sum is constant within levels, so 'x2' lowers the budget to 1 although neither column is constant within levels: the budget is computed by rank.",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x1": [1, 2, 0, 1, 3, 4],
+        "x2": [2, 1, 5, 4, 4, 3],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ x1 + x2 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'g' has 3 levels and 1 degree of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 1, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)", "x2"]},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-018",
+      "description": "One level, which the intercept uses up: budget 0 and the message renders '1 level'.",
+      "checks": ["identifiability.df_budget"],
+      "data": {
+        "y": [1, 2, 3],
+        "g": ["a", "a", "a"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_budget", "text": "No degrees of freedom between the 1 level of 'g' remain after the fixed effects, so the variance of its random intercept is not identified under REML. Fixed terms that use up these levels: '(Intercept)'."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 0, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
+              "levels": {"kind": "count", "value": 1, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 1}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-019",
+      "description": "A random intercept with three levels, every level informative: adequate.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 3 of the 3 levels of 'g', all columns of '1 | g' vary, and the term has 1 random effect for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 2, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-020",
+      "description": "A random slope whose columns are all in the fixed part (counterparts) with two levels: bound 1 is below dimension 2, so the fit is guaranteed to be singular.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 1, 3, 5],
+        "g": ["a", "a", "a", "b", "b", "b"]
+      },
+      "formula": "y ~ x + (1 + x | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 + x | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "guaranteed", "text": "'1 + x | g' has 2 random effects for each level of 'g', but with 2 levels the covariance matrix of these effects has rank 1 at most, so the fit will be singular. A fit reported as non-singular would suggest that the optimiser stopped early."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 1, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-021",
+      "description": "Four levels, of which two vary in 'x': informative_levels 2 is at most dimension 2, so a singular fit is likely.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x": [1, 2, 3, 4, 5, 5, 6, 6],
+        "g": ["a", "a", "b", "b", "c", "c", "d", "d"]
+      },
+      "formula": "y ~ x + (1 + x | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 + x | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "likely", "text": "In only 2 levels of 'g' do all columns of '1 + x | g' vary, no more than its 2 random effects for each level, so a singular fit is likely."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 3, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-022",
+      "description": "A random slope of 'z', which is not in the fixed part: the sequential rule keeps 'z' after the fixed-effects columns, so counterparts is false and bound equals levels, 2, which is not below dimension 2. Both levels are informative: likely.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1, 2, 3, 4],
+        "z": [1, 2, 1, 3],
+        "g": ["a", "a", "b", "b"]
+      },
+      "formula": "y ~ 1 + (1 + z | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 + z | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "likely", "text": "In only 2 levels of 'g' do all columns of '1 + z | g' vary, no more than its 2 random effects for each level, so a singular fit is likely."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 2, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": false},
+              "dimension": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 2, "count_class": "person"},
+              "levels": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-023",
+      "description": "One level of a random intercept that the fixed intercept duplicates: bound 0 is below dimension 1, guaranteed.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1, 2, 3],
+        "g": ["a", "a", "a"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "guaranteed", "text": "'1 | g' has 1 random effect for each level of 'g', but with 1 level the covariance matrix of these effects has rank 0 at most, so the fit will be singular. A fit reported as non-singular would suggest that the optimiser stopped early."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 0, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 1, "count_class": "person"},
+              "levels": {"kind": "count", "value": 1, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 1}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-024",
+      "description": "Two random terms, ordered by factor and then term: a random slope of 'x' in three levels that all vary, and a random intercept of 'h': both adequate.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "x": [1, 2, 4, 1, 3, 2, 5, 1, 2],
+        "g": ["a", "a", "a", "b", "b", "b", "c", "c", "c"],
+        "h": ["u", "v", "w", "u", "v", "w", "u", "v", "w"]
+      },
+      "formula": "y ~ x + (1 + x | g) + (1 | h)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 + x | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 3 of the 3 levels of 'g', all columns of '1 + x | g' vary, and the term has 2 random effects for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 2, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "h", "term": "1 | h"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 3 of the 3 levels of 'h', all columns of '1 | h' vary, and the term has 1 random effect for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 2, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-025",
+      "description": "One row per subject and item: the intercept of 'subject:item' alone has no replicated cell, so confounded, whereas the intercepts of 'item' and 'subject' have replicated cells.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item) + (1 | subject:item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "item", "term": "1 | item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "replicated", "text": "Combinations of a level of 'item' and a cell of '1 | item' that have two or more rows: 3 of 3."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 3, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | item"]},
+              "replicated_cells": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "1 | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "replicated", "text": "Combinations of a level of 'subject' and a cell of '1 | subject' that have two or more rows: 2 of 2."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 2, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | subject"]},
+              "replicated_cells": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject:item", "term": "1 | subject:item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "confounded", "text": "Each combination of a level of 'subject:item' and a cell of '1 | subject:item' has one row, so the random effects of '1 | subject:item' are confounded with the residual and not identified."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 6, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | subject:item"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-026",
+      "description": "A correlated term of a factor with one row per subject and condition: confounded.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "cond": ["A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ cond + (1 + cond | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "1 + cond | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "confounded", "text": "Each combination of a level of 'subject' and a cell of '1 + cond | subject' has one row, so the random effects of '1 + cond | subject' are confounded with the residual and not identified."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 6, "count_class": "person"},
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": true},
+              "intercept_alone": {"kind": "boolean", "value": false},
+              "pattern_terms": {"kind": "names", "value": ["1 + cond | subject"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-027",
+      "description": "Uncorrelated terms of a frozen factor with one row per subject and condition: each term's pattern covers both one-column terms of 'subject', no cell is replicated and neither is correlated or an intercept alone, so coding_dependent for both.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "cond": ["A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ cond + (1 + cond || subject)",
+      "coding": {"cond": {"contrast": "simple", "frozen": true}},
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "0 + cond | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "coding_dependent", "text": "Each combination of a level of 'subject' and a cell of '1 | subject' and '0 + cond | subject' has one row. With uncorrelated random effects, '0 + cond | subject' is identified only through the restriction that the coding imposes, if at all, and the result changes with the coding. identifiability.gram_rank decides whether the coding chosen identifies it."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 6, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": false},
+              "pattern_terms": {"kind": "names", "value": ["1 | subject", "0 + cond | subject"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "1 | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "coding_dependent", "text": "Each combination of a level of 'subject' and a cell of '1 | subject' and '0 + cond | subject' has one row. With uncorrelated random effects, '1 | subject' is identified only through the restriction that the coding imposes, if at all, and the result changes with the coding. identifiability.gram_rank decides whether the coding chosen identifies it."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 6, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": false},
+              "pattern_terms": {"kind": "names", "value": ["1 | subject", "0 + cond | subject"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-028",
+      "description": "The family 'binomial' without a trials column and one row per level: bernoulli, consequential.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [0, 1, 1, 0],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "binomial",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "bernoulli", "text": "Each combination of a level of 'g' and a cell of '1 | g' has one row, so '1 | g' acts as an observation-level effect, whose variance ungrouped binary data do not identify."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 4, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | g"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-029",
+      "description": "The family 'poisson' and one row per level: overdispersion, consistent.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [0, 3, 1, 2],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "poisson",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "overdispersion", "text": "Each combination of a level of 'g' and a cell of '1 | g' has one row, so '1 | g' acts as an observation-level effect, which models overdispersion in this family."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 4, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | g"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-030",
+      "description": "The family 'gamma' of the class other with one row per level: confounded, as for the class gaussian.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [1.5, 2.5, 0.5, 3],
+        "g": ["a", "b", "c", "d"]
+      },
+      "formula": "y ~ 1 + (1 | g)",
+      "family": "gamma",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "g", "term": "1 | g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "confounded", "text": "Each combination of a level of 'g' and a cell of '1 | g' has one row, so the random effects of '1 | g' are confounded with the residual and not identified."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 4, "count_class": "person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | g"]},
+              "replicated_cells": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-031",
+      "description": "An uncorrelated numeric slope: the pattern of each one-column term of 'g' includes the column 'x', which is not coded from a factor, so neither term yields a finding (applies_when).",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 1, 2, 3],
+        "g": ["a", "a", "a", "b", "b", "b"]
+      },
+      "formula": "y ~ x + (1 + x || g)",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-identifiability-032",
+      "description": "A correlated term of a factor with two rows in every combination of subject and condition: replicated, with the counts of cells.",
+      "checks": ["identifiability.residual_confounding"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "cond": ["A", "B", "A", "B", "A", "A", "B", "B"],
+        "subject": ["s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2"]
+      },
+      "formula": "y ~ cond + (1 + cond | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "1 + cond | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "replicated", "text": "Combinations of a level of 'subject' and a cell of '1 + cond | subject' that have two or more rows: 4 of 4."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 4, "count_class": "person"},
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": true},
+              "intercept_alone": {"kind": "boolean", "value": false},
+              "pattern_terms": {"kind": "names", "value": ["1 + cond | subject"]},
+              "replicated_cells": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-033",
+      "description": "With pupils as the disclosure unit and two pupils in every school, the counts of the levels of 'school' resolve as non-person counts, and so do budget, bound and the counts of cells, which take the class of the levels they derive from.",
+      "checks": ["identifiability.df_budget", "identifiability.levels_vs_dimension", "identifiability.residual_confounding"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S1", "S1", "S2", "S2", "S3", "S3"],
+        "pupil": ["p1", "p2", "p3", "p4", "p5", "p6"]
+      },
+      "formula": "y ~ 1 + (1 | school)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "role": "participant"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'school' has 3 levels and 2 degrees of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
+              "levels": {"kind": "count", "value": 3, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 6}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school", "term": "1 | school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 3 of the 3 levels of 'school', all columns of '1 | school' vary, and the term has 1 random effect for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "levels": {"kind": "count", "value": 3, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 6}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.residual_confounding",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school", "term": "1 | school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "replicated", "text": "Combinations of a level of 'school' and a cell of '1 | school' that have two or more rows: 3 of 3."},
+            "statistics": {
+              "cells": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "columns": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "correlated": {"kind": "boolean", "value": false},
+              "intercept_alone": {"kind": "boolean", "value": true},
+              "pattern_terms": {"kind": "names", "value": ["1 | school"]},
+              "replicated_cells": {"kind": "count", "value": 3, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    }
+  ]
+}

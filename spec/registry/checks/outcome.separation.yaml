@@ -5,14 +5,18 @@ tier: T2
 summary: >-
   Tests by linear programming whether the fixed-effects columns separate the
   events from the non-events completely or quasi-completely, in which case the
-  maximum-likelihood estimates of the fixed effects diverge, with or without
-  random effects. An all-0 or all-1 cell is neither necessary nor sufficient
-  for separation, which depends only on the column space of the fixed effects
-  and so does not change with the coding. Because different solver settings
-  can return different optimal vertices, the check reports the verdict with the
-  range of each coefficient over the optimal face, which both packages compare
-  within bound_tolerance. The check relates the outcome to the predictors, so
-  Stream B runs it only in its exploratory mode (02-decisions.md, Q2 and Q3).
+  maximum-likelihood estimates of the fixed effects diverge (Albert & Anderson,
+  1984), with random effects as without them. An all-0 or all-1 cell is
+  neither necessary nor sufficient for separation, which depends only on the
+  column space of the fixed effects, so the verdict does not change with the
+  coding. The programs run in an external solver, lpSolve in R and HiGHS
+  through scipy in Python, with the settings stated below. Each solution is
+  verified in double arithmetic before the verdict is decided, so that both
+  packages decide on the same verified quantities, and the range of each
+  coefficient over the optimal face is reported, because different solvers
+  can return different optimal vertices. The check relates the outcome to the
+  predictors, so Stream B runs it only in its exploratory mode
+  (02-decisions.md, Q2 and Q3).
 reads: [declaration, formula, outcome, predictors]
 fitted_model: false
 sample: analysis
@@ -20,15 +24,40 @@ families: [bernoulli, binomial]
 scope: model
 availability:
   - reason: package_missing
-    condition: In R, lpSolveAPI is not installed. In Python, scipy provides the solver.
+    condition: In R, lpSolve is not installed. In Python, scipy provides the solver.
     packages:
-      R: [lpSolveAPI]
+      R: [lpSolve]
   - reason: declaration_missing
     condition: >-
       The family class is bernoulli, the outcome takes values other than 0 and
-      1, as numbers or logical values, and the declaration gives no event level.
+      1, as numbers or logical values, in the analysis sample, and the
+      declaration gives no event level.
     pointer: /variables/{outcome}/event_level
 statistics:
+  columns:
+    kind: count
+    count_class: non_person
+    definition: >-
+      The number of fixed-effects columns of the analysis sample that the
+      sequential rule keeps, the columns of the linear programs.
+  events:
+    kind: count
+    count_class: person
+    suppress_with: [non_events]
+    definition: >-
+      The number of observations, as verdict defines them, with s = 1: the
+      rows with an event, and for the binomial family class the rows with k
+      above 0.
+  non_events:
+    kind: count
+    count_class: person
+    suppress_with: [events]
+    definition: >-
+      The number of observations with s = -1: the rows without an event, and
+      for the binomial family class the rows with k below n.
+  both_classes:
+    kind: boolean
+    definition: Whether events and non_events are both above 0.
   verdict:
     kind: category
     values: [none, quasi, complete]
@@ -39,72 +68,176 @@ statistics:
       otherwise. For the binomial family class, a row with k events of n
       trials gives an observation with s = 1 when k is above 0 and one with
       s = -1 when k is below n. The first linear program maximises the sum over
-      observations of s x'b subject to s x'b >= 0 for every observation and -1
-      <= b_j <= 1 for every coefficient, with optimum v1. The second maximises
-      t subject to s x'b >= t for every observation, the same bounds on b and t
-      <= 1, with optimum v2. The verdict is complete when v2 is above
-      separation_tolerance, quasi when v1 is above separation_tolerance, and
-      none otherwise.
+      observations of s x'b subject to s x'b >= 0 for every observation and
+      -1 <= b_j <= 1 for every coefficient. The second maximises t subject to
+      s x'b >= t for every observation, the same bounds on b and t <= 1. In R,
+      each program is solved with lpSolve::lp() with scale = 0, since the
+      columns are already scaled, and b_j = c_j - 1 with 0 <= c_j <= 2 as the
+      solver's variables. In Python, it is solved with
+      scipy.optimize.linprog() with method 'highs-ds' and the options
+      primal_feasibility_tolerance and dual_feasibility_tolerance set to 1e-9.
+      A solution is verified when the solver reports an optimum and every u =
+      s x'b, computed from the returned b in double arithmetic, is at least
+      minus feasibility_tolerance. A verified solution with some u below 0
+      meets the constraints only within that tolerance, and a solver can
+      reach a large optimum through such a violation on data that no b other
+      than 0 separates in exact arithmetic, so the finding is then
+      near_threshold, whichever program it solves. The verdict is complete
+      when the verified margin of the second program is above
+      separation_tolerance, quasi otherwise when the verified optimum of the
+      first is above separation_tolerance, and none otherwise. When
+      both_classes is false, the programs are not solved, and verdict,
+      optimum, margin, bounds and columns_involved are absent. The verdict is
+      also absent when either program has no verified solution.
   optimum:
     kind: real
+    internal_only: true
     definition: >-
-      v1, the optimum of the first linear program, which the two packages
-      compare within bound_tolerance, as they compare bounds.
+      v1, the sum over observations of u for the verified solution of the
+      first program, summed exactly and rounded once, as ir.md (Centring)
+      sums values. It is absent when the first program has no verified
+      solution or is not solved. The two packages compare it within bound_tolerance relative to
+      the larger of 1 and the two values (conventions.md, Comparison across
+      languages).
+  margin:
+    kind: real
+    internal_only: true
+    definition: >-
+      v2, the smaller of 1 and the smallest u for the verified solution of
+      the second program, which is its optimal t and so does not depend on
+      which optimal solution the solver returns when t reaches its bound of 1.
+      It is absent when the second program has no verified solution or is not
+      solved, and it is compared as optimum is.
   bounds:
     kind: reals
+    internal_only: true
     definition: >-
-      For each kept column in column order, the smallest and the largest value
-      of b_j over the optimal face of the first program, the set of b that
-      meets its constraints with a sum of s x'b of at least v1 minus
-      separation_tolerance, as the pairs (smallest, largest) laid out in one
-      list. Both packages compare these values within bound_tolerance.
+      When verdict is quasi or complete, for each kept column in column order,
+      the smallest and the largest value of b_j over the optimal face of the
+      first program, the set of b that meets its constraints with a sum of
+      s x'b of at least optimum minus separation_tolerance, each found by a
+      linear program solved and verified as above, as the pairs (smallest,
+      largest) laid out in one list. Both packages compare these values within
+      bound_tolerance. It is absent otherwise, or when one of these programs
+      has no verified solution.
   columns_involved:
     kind: names
+    internal_only: true
     definition: >-
       The kept columns whose largest value in bounds is above
-      separation_tolerance or whose smallest value is below minus
-      separation_tolerance, in column order.
+      involvement_tolerance or whose smallest value is below minus
+      involvement_tolerance, in column order, absent when bounds is absent.
 thresholds: {}
 parameters:
   separation_tolerance:
     value: 0.000001
+    proximity_factor: 10
     definition: >-
-      The value above which an optimum of the linear programs, computed on
-      columns scaled to a largest absolute value of 1, indicates separation.
+      The value above which the verified margin or optimum, computed on
+      columns scaled to a largest absolute value of 1, indicates separation,
+      so that complete means separation with a margin above it on the scaled
+      columns. A finding is near_threshold when the margin or the optimum lies
+      within the proximity factor of it (registry.md, Parameters).
     sources:
       - kind: convention
         citation: >-
-          Set by this project for registry 0.1.0, well above the default
-          feasibility tolerances of lpSolve and of HiGHS in scipy.
+          Set by this project for registry 0.1.0, well above the feasibility
+          tolerances of lpSolve, 1e-10 by default, and of HiGHS as the check
+          sets them, 1e-9.
+  feasibility_tolerance:
+    value: 0.0000001
+    definition: >-
+      The amount by which a value u of a returned solution may fall below 0
+      and the solution still count as verified.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0. In a review of registry
+          0.1.0, lpSolve with scale = 0 returned solutions whose smallest u
+          lay near -1.3e-8 on data of 200 rows, and HiGHS with its default
+          tolerance of 1e-7 accepted violations up to that tolerance, which
+          made data that overlap in exact arithmetic quasi-separated. On 2,000
+          rows that only b = 0 separates in exact arithmetic, with one event
+          and one non-event a gap g apart around 0.5, lpSolve returned an
+          optimum near 500 with smallest u = -g for g = 1e-8 and 1e-9, where
+          HiGHS at 1e-9 returned b = 0, so a verified solution with some u
+          below 0 makes the finding near_threshold.
+  involvement_tolerance:
+    value: 0.00001
+    proximity_factor: 10
+    definition: >-
+      The absolute value above which a bound of a coefficient over the optimal
+      face involves its column in the separation. It is ten times
+      separation_tolerance, so that bounds that the two packages compare
+      within bound_tolerance name the same columns, and a finding is
+      near_threshold when a bound lies within the proximity factor of it.
+    sources:
+      - kind: convention
+        citation: Set by this project for registry 0.1.0.
   bound_tolerance:
     value: 0.000001
     definition: >-
-      The absolute difference within which the coefficient bounds and the
-      optimum from the two packages agree (02-decisions.md, Q2, and
-      conventions.md, Comparison across languages).
+      The difference within which the coefficient bounds from the two packages
+      agree, and, relative to the larger of 1 and the two values, the optimum
+      and the margin (02-decisions.md, Q2, and conventions.md, Comparison
+      across languages).
     sources:
       - kind: decision
         citation: 02-decisions.md, Q2
 decision:
   rules:
+    - finding: consistent
+      condition: events or non_events is 0.
+      statistics: [events, non_events, both_classes]
+      thresholds: []
+      message: one_class
+    - finding: consistent
+      condition: verdict is absent.
+      statistics: [verdict]
+      thresholds: []
+      message: no_solution
     - finding: consequential
       condition: verdict is complete.
+      statistics: [verdict]
       thresholds: []
       message: complete
     - finding: consequential
       condition: verdict is quasi.
+      statistics: [verdict]
       thresholds: []
       message: quasi
   otherwise:
     finding: consistent
     message: none
-assessability: []
+assessability:
+  - value: not_assessable
+    reason: prerequisite_unmet
+    prerequisite: both_outcome_classes
+    condition: both_classes is false.
+  - value: not_assessable
+    reason: prerequisite_unmet
+    prerequisite: verified_solution
+    condition: verdict is absent.
 messages:
+  one_class:
+    template: >-
+      The analysis sample holds only events or only non-events, so separation
+      cannot be assessed.
+    args: {}
+  no_solution:
+    template: >-
+      The solver gave no verified optimum of the linear programs, so
+      separation could not be assessed.
+    args: {}
   complete:
     template: >-
       The fixed effects separate the events from the non-events completely,
       through {columns}, so the estimates of these coefficients diverge and
       their Wald statistics are unreliable.
+    fallback: >-
+      The fixed effects separate the events from the non-events completely, so
+      the estimates of some coefficients diverge and their Wald statistics are
+      unreliable.
     args:
       columns: {source: statistic, name: columns_involved}
   quasi:
@@ -112,6 +245,10 @@ messages:
       The fixed effects separate the events from the non-events
       quasi-completely, through {columns}, so the estimates of these
       coefficients diverge and their Wald statistics are unreliable.
+    fallback: >-
+      The fixed effects separate the events from the non-events
+      quasi-completely, so the estimates of some coefficients diverge and
+      their Wald statistics are unreliable.
     args:
       columns: {source: statistic, name: columns_involved}
   none:
@@ -145,6 +282,13 @@ references:
       1-10.
     doi: 10.1093/biomet/71.1.1
     full_text_read: false
+  - kind: derivation
+    citation: >-
+      Albert and Anderson (1984) prove the result for logistic regression. In
+      a model with random effects, the likelihood conditional on any value of
+      the random effects increases monotonically along a separating direction
+      of the fixed effects, and so does its integral over the random effects,
+      so the estimates of the fixed effects diverge there too.
   - kind: literature
     citation: >-
       Konis, K. (2007). Linear programming algorithms for detecting separated

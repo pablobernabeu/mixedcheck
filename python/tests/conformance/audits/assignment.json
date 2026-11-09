@@ -1,0 +1,922 @@
+{
+  "description": "Cases of assignment.constant_within_unit, assignment.unit_in_random_part and assignment.design_df: declared and inferred levels, mixed units, coverage by a random intercept, coarser grouping factors, design degrees of freedom with and without blocks, units nested within their parents, the rows and levels of an assignment, a missing declaration or assignment block and the counts of units resolved for the disclosure unit.",
+  "cases": [
+    {
+      "id": "audits-assignment-001",
+      "description": "arm is declared as randomised between classes with school as a block. It is constant within each of the four classes, each with three pupils of the disclosure unit, the one unit with the role participant, so the counts of classes are non-person counts. The model has a random intercept for class, and the fixed part leaves out the block school: messages constant, unit_present and blocks_missing, with two design degrees of freedom.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "blocks_missing", "text": "The assignment of 'arm' was blocked by 'school', which the fixed part does not include. 'class', to which 'arm' was assigned at a level between units that is declared, leaves 2 degrees of freedom between its 4 levels after the fixed effects."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": ["school"]},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_present", "text": "A random intercept of the model is on a grouping factor that matches 'class', the unit by which 'arm' was randomised, at a level between units that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "present"},
+              "coarser_factors": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-002",
+      "description": "The block school is in the fixed part, which uses one more degree of freedom between classes: message design_df with 1 degree of freedom, in the singular.",
+      "checks": ["assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + school + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "design_df", "text": "'class', the unit to which 'arm' was assigned at a level between units that is declared, has 4 levels and leaves 1 degree of freedom between them after the fixed effects."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-003",
+      "description": "With school and a class-level covariate z in the fixed part, the four fixed columns that are constant within classes use the four classes, so design_df is 0 and the finding is consequential with the message no_df.",
+      "checks": ["assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"],
+        "z": [1, 1, 1, 2, 2, 2, 4, 4, 4, 3, 3, 3]
+      },
+      "formula": "y ~ arm + school + z + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "no_df", "text": "No degrees of freedom remain between the 4 levels of 'class' after the fixed effects, so the effect of 'arm', assigned to 'class' at a level between units that is declared, cannot be compared with variation between units."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-004",
+      "description": "One pupil of class c2 has the other arm, so arm takes two values within 1 of the 4 classes: message mixed, consequential. The level stays declared as between_unit, so the other two checks apply. The arm that varies within c2 adds a column to the within-class part, which gives 3 design degrees of freedom.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "T", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "mixed", "text": "'arm' takes more than one value within 1 of the 4 levels of 'class', the unit to which it was assigned between units, a level that is declared. Check these levels for data errors or contamination before the analysis."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "blocks_missing", "text": "The assignment of 'arm' was blocked by 'school', which the fixed part does not include. 'class', to which 'arm' was assigned at a level between units that is declared, leaves 3 degrees of freedom between its 4 levels after the fixed effects."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": ["school"]},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_present", "text": "A random intercept of the model is on a grouping factor that matches 'class', the unit by which 'arm' was randomised, at a level between units that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "present"},
+              "coarser_factors": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-005",
+      "description": "The assignment does not declare its level, and arm is constant within every class, so the level is inferred as between_unit and every message says that it is inferred from the data.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is inferred from the data."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "inferred_from_the_data"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "blocks_missing", "text": "The assignment of 'arm' was blocked by 'school', which the fixed part does not include. 'class', to which 'arm' was assigned at a level between units that is inferred from the data, leaves 2 degrees of freedom between its 4 levels after the fixed effects."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": ["school"]},
+              "level_source": {"kind": "category", "value": "inferred_from_the_data"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_present", "text": "A random intercept of the model is on a grouping factor that matches 'class', the unit by which 'arm' was randomised, at a level between units that is inferred from the data."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "present"},
+              "coarser_factors": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "inferred_from_the_data"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-006",
+      "description": "Without a declared level, arm varies within every class, as in a crossover, so the pooled agreement of the most frequent value, 8 of 12 rows, is below 99%, the level is inferred as within_unit and no check applies.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "C", "T", "C", "T", "C", "C", "T", "C", "T", "C", "T"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-assignment-007",
+      "description": "The level is declared as within_unit, although arm is constant within classes, so no check applies.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "within_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-assignment-008",
+      "description": "The declaration has units but no assignment block, so each check is not available, with the pointer /assignment as its detail and an empty scope.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/assignment"}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/assignment"}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/assignment"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-009",
+      "description": "Without a declaration there is no assignment block, so each check is not available.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/assignment"}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/assignment"}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "declaration_missing", "detail": "/assignment"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-010",
+      "description": "The assignment is not randomised, so assignment.unit_in_random_part does not apply, while assignment.constant_within_unit does.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | school)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": false, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-011",
+      "description": "The only random intercept is on school, whose levels each contain whole classes: coverage is absent and school is a coarser factor, so the finding is consequential with the message unit_missing.",
+      "checks": ["assignment.unit_in_random_part"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | school)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_missing", "text": "'arm' was randomised by 'class', at a level between units that is declared, but no random intercept of the model is on a grouping factor that matches the 4 levels of 'class'. Grouping factors at higher levels, which do not account for the dependence between rows of one 'class': 'school'. Add a random intercept for 'class', analyse 'class' means or use cluster-robust inference at that level."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "absent"},
+              "coarser_factors": {"kind": "names", "value": ["school"]},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-012",
+      "description": "class has a random slope without an intercept and pupil, with one row per level, has a random intercept, so neither gives coverage. class divides the rows like the unit and so is not a coarser factor, and the levels of pupil do not contain whole classes: message unit_missing_alone.",
+      "checks": ["assignment.unit_in_random_part"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (0 + x | class) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_missing_alone", "text": "'arm' was randomised by 'class', at a level between units that is declared, but no random intercept of the model is on a grouping factor that matches the 4 levels of 'class', so the model ignores the dependence between rows of one 'class'. Add a random intercept for 'class', analyse 'class' means or use cluster-robust inference at that level."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "absent"},
+              "coarser_factors": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-013",
+      "description": "The random intercept is on the column room, which divides the rows of the assignment into the same groups as the classes, so coverage is present although the grouping factor has another name.",
+      "checks": ["assignment.unit_in_random_part"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"],
+        "room": ["r1", "r1", "r1", "r2", "r2", "r2", "r3", "r3", "r3", "r4", "r4", "r4"]
+      },
+      "formula": "y ~ arm + x + (1 | room)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_present", "text": "A random intercept of the model is on a grouping factor that matches 'class', the unit by which 'arm' was randomised, at a level between units that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "present"},
+              "coarser_factors": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-014",
+      "description": "Classes are labelled 1 and 2 within each school and declared with id_scope within_parent, so the levels of the unit combine school and class and number four. The grouping factor school:class of (1 | school/class) divides the rows into the same groups, which gives coverage, and school, each of whose levels contains whole classes, is a coarser factor.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["1", "1", "1", "2", "2", "2", "1", "1", "1", "2", "2", "2"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | school/class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "within_parent", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "design_df", "text": "'class', the unit to which 'arm' was assigned at a level between units that is declared, has 4 levels and leaves 2 degrees of freedom between them after the fixed effects."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "design_df": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "missing_blocks": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_present", "text": "A random intercept of the model is on a grouping factor that matches 'class', the unit by which 'arm' was randomised, at a level between units that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "present"},
+              "coarser_factors": {"kind": "names", "value": ["school"]},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-015",
+      "description": "The data of audits-assignment-014 with (1 | school) + (1 | class): the grouping factor class joins the classes with the same label in the two schools, so it does not match the unit, and each of its levels contains whole levels of the unit, as each level of school does. Both are coarser factors, in the order in which they arise in the IR.",
+      "checks": ["assignment.unit_in_random_part"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["1", "1", "1", "2", "2", "2", "1", "1", "1", "2", "2", "2"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | school) + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "within_parent", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_missing", "text": "'arm' was randomised by 'class', at a level between units that is declared, but no random intercept of the model is on a grouping factor that matches the 4 levels of 'class'. Grouping factors at higher levels, which do not account for the dependence between rows of one 'class': 'school' and 'class'. Add a random intercept for 'class', analyse 'class' means or use cluster-robust inference at that level."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "coverage": {"kind": "category", "value": "absent"},
+              "coarser_factors": {"kind": "names", "value": ["school", "class"]},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-016",
+      "description": "Each class has one row, so no level of the unit has two rows of the assignment and no check applies.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 4.2, 2.9, 3.5],
+        "arm": ["T", "C", "T", "C"],
+        "class": ["c1", "c2", "c3", "c4"],
+        "school": ["S1", "S1", "S2", "S2"],
+        "pupil": ["p01", "p02", "p03", "p04"]
+      },
+      "formula": "y ~ arm + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-assignment-017",
+      "description": "arm is not in the formula, so a row with a missing arm stays in the design sample but is not a row of the assignment: class c1 is constant over its two other rows.",
+      "checks": ["assignment.constant_within_unit"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", null, "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-018",
+      "description": "The values of arm are compared after NFC, so the composed and decomposed spellings of 'caf\u00e9' are one value and every class is constant.",
+      "checks": ["assignment.constant_within_unit"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["caf\u00e9", "cafe\u0301", "caf\u00e9", "tea", "tea", "tea", "cafe\u0301", "cafe\u0301", "caf\u00e9", "tea", "tea", "tea"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-019",
+      "description": "No unit has the role participant and the declaration names no disclosure unit, so there is no disclosure unit and the by_unit counts of classes resolve as person counts.",
+      "checks": ["assignment.constant_within_unit"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ arm + x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "other"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-020",
+      "description": "Each class has one pupil, the disclosure unit, seen at two waves, so no class occurs with two pupils, class is finer than the disclosure unit and the by_unit counts resolve as person counts.",
+      "checks": ["assignment.constant_within_unit"],
+      "data": {
+        "y": [3.1, 4.2, 2.9, 3.5, 4, 3.3, 2.8, 3.6],
+        "arm": ["T", "T", "C", "C", "T", "T", "C", "C"],
+        "class": ["c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3", "p4", "p4"],
+        "wave": [1, 2, 1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ arm + wave + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "class", "columns": ["class"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'class' (4 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 4, "count_class": "person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-assignment-021",
+      "description": "The declaration assigns the column arm, which the data lack, so audit() refuses the run with E5011 at the pointer of the assigned column, the first place in the order of E2007 that names a missing column.",
+      "checks": ["assignment.constant_within_unit"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit", "blocks": ["school"]}]
+      },
+      "expected": {
+        "issue": {"code": "E5011", "message": "The column 'arm' that the declaration names at /assignment/0/column is not a column of the data.", "pointer": "/assignment/0/column"}
+      }
+    },
+    {
+      "id": "audits-assignment-022",
+      "description": "arm is assigned to pupils, each seen at two waves, blocked by class, whose classes are labelled within schools. The label columns of the block are school and class, and the fixed part holds class but not school, so missing_blocks names class. Each pupil is one member of the disclosure unit, so the counts of pupils resolve as person counts.",
+      "checks": ["assignment.constant_within_unit", "assignment.unit_in_random_part", "assignment.design_df"],
+      "data": {
+        "y": [3.1, 3.4, 2.8, 2.6, 3.9, 4.1, 2.5, 2.9, 3.6, 3.3, 2.7, 3, 4.2, 3.8, 2.4, 2.2],
+        "arm": ["T", "T", "C", "C", "T", "T", "C", "C", "T", "T", "C", "C", "T", "T", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["1", "1", "1", "1", "2", "2", "2", "2", "1", "1", "1", "1", "2", "2", "2", "2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3", "p4", "p4", "p5", "p5", "p6", "p6", "p7", "p7", "p8", "p8"],
+        "wave": [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ arm + class + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "within_parent", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "pupil", "randomised": true, "level": "between_unit", "blocks": ["class"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.constant_within_unit",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "pupil"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "constant", "text": "'arm' is constant within every level of 'pupil' (8 in all), the unit to which it was assigned between units, a level that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 8, "count_class": "person"},
+              "mixed_units": {"kind": "count", "value": 0, "count_class": "person"},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 16}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "pupil"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "blocks_missing", "text": "The assignment of 'arm' was blocked by 'class', which the fixed part does not include. 'pupil', to which 'arm' was assigned at a level between units that is declared, leaves 5 degrees of freedom between its 8 levels after the fixed effects."},
+            "statistics": {
+              "units": {"kind": "count", "value": 8, "count_class": "person"},
+              "design_df": {"kind": "count", "value": 5, "count_class": "person"},
+              "missing_blocks": {"kind": "names", "value": ["class"]},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 16}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "assignment.unit_in_random_part",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "pupil"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unit_present", "text": "A random intercept of the model is on a grouping factor that matches 'pupil', the unit by which 'arm' was randomised, at a level between units that is declared."},
+            "statistics": {
+              "units": {"kind": "count", "value": 8, "count_class": "person"},
+              "coverage": {"kind": "category", "value": "present"},
+              "coarser_factors": {"kind": "names", "value": []},
+              "level_source": {"kind": "category", "value": "declared"}
+            },
+            "support": {"rows": {"value": 16}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-"""The declaration and YAML corpora, run from the installed package:
-declarations written in JSON and YAML, read, converted and checked in the five
-stages of the validator (fixtures/conformance/declarations/README.md and
+"""The declaration and YAML corpora: declarations written in JSON and YAML,
+read, converted and checked in the five stages of the validator
+(fixtures/conformance/declarations/README.md and
 fixtures/conformance/yaml/README.md).
 
 Reading YAML needs PyYAML, installed with the extra 'yaml'. Without it, the

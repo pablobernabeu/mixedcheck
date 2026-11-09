@@ -136,6 +136,15 @@ jobs:
                      if f"src/mixedcheck/{name}" not in in_sdist]
           missing += [f"{wheel.name}: mixedcheck/{name}" for name in vendored
                       if f"mixedcheck/{name}" not in in_wheel]
+          # The conformance corpora are vendored into tests/, which the sdist
+          # carries and the wheel does not.
+          conformance = Path("python/tests/conformance")
+          missing += [f"{sdist.name}: tests/conformance/{name}" for name in sorted(
+                          path.relative_to(conformance).as_posix()
+                          for path in conformance.rglob("*") if path.is_file())
+                      if f"tests/conformance/{name}" not in in_sdist]
+          if any(name.startswith("tests/") for name in in_wheel):
+              missing.append(f"{wheel.name} holds tests/, which it should not")
           if "src/mixedcheck/py.typed" not in in_sdist:
               missing.append(f"{sdist.name}: src/mixedcheck/py.typed")
           if "mixedcheck/py.typed" not in in_wheel:
@@ -144,7 +153,7 @@ jobs:
               missing.append(f"{sdist.name}: LICENSE")
           if not any(name.endswith(".dist-info/licenses/LICENSE") for name in in_wheel):
               missing.append(f"{wheel.name}: the licence")
-          sys.exit("\n".join(["Missing from the distributions:", *missing]) if missing else 0)
+          sys.exit("\n".join(["Problems with the distributions:", *missing]) if missing else 0)
           PY
           uv tool run --from twine twine check --strict "$RUNNER_TEMP"/dist/*
 

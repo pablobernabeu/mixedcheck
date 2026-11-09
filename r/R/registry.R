@@ -80,6 +80,7 @@ registry_scope_parts <- list(
   fixed_term_by_factor = c("factor", "term"),
   grouping_column_pair = c("first", "second"),
   grouping_factor = "factor",
+  grouping_factor_or_model = "factor",
   grouping_factor_pair = c("first", "second"),
   model = character(0),
   random_term = c("factor", "term")

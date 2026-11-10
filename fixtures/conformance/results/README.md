@@ -8,13 +8,13 @@ These cases test `validate_results()`, the validator of results documents and of
 | version.json | 10 | stage 2: E1441 at `/results_version` before every other check, and versions left to the structural check |
 | structure.json | 29 | stage 3: every structural keyword that the schema uses, days in a month, E1207 with E1406, sorting and the cap at 100 with W1490 |
 | rules.json | 15 | stage 4: E7001 to E7006, the comparison of scopes after NFC, the order of prefixes and sorting |
-| shareable.json | 18 | the invariants E7020 to E7023 of stage 4 and E7024 of stage 5, with by_unit ratios, the order in which a value gets its one issue, the exception for 'secondary', quantiles without n and internal documents |
-| registry.json | 13 | stage 5: W7090, E7040 to E7044, with the exception of the scope grouping_factor_or_model, and E7025, with n beside a count that differs, beside a suppressed count and beside its count |
+| shareable.json | 18 | the invariants E7020 to E7023 of stage 4, with k as the document records it, which E7046 of stage 5 compares with the registry, and E7024 of stage 5, with by_unit ratios, the order in which a value gets its one issue, the exception for 'secondary', quantiles without n and internal documents |
+| registry.json | 20 | stage 5: W7090, E7040 to E7046, with the exception of the scope grouping_factor_or_model, the class person of a by_unit count without a disclosure unit, E7025, with n beside a count that differs, beside a suppressed count and beside its count, and E7045 and E7041 for a statistic without the quantile of its entry, a quantile with another p and a quantile on a statistic whose entry gives none, in internal and shareable documents |
 | stages.json | 7 | the order of the five stages |
 | sidecar.json | 23 | reading, version, structure and rules of the sidecar, the results file hash, missing keys, the order of the issues of verification and E1314 for the data file, the analysis table and the outcome column |
 | valid.json | 11 | valid internal and shareable documents, among them the example of documents.md, with and without a disclosure unit, at T0, T1 and T2 |
 
-The cases cover every rule of documents.md on results documents and sidecars, the five stages of validation and their order, W7090, the n of a quantile (E7025) and the invariants of a shareable document (E7020 to E7024). Every case file and every input file is listed in spec/vendoring.json, so that the packages' tests read them from their copies of the corpora, and every case file in parity/corpora.json with the kind 'results'.
+The cases cover every rule of documents.md on results documents and sidecars, the five stages of validation and their order, W7090, the quantiles that the entries give with their p and n (E7041, E7045 and E7025), the parameters of the filter (E7046) and the invariants of a shareable document (E7020 to E7024). Every case file and every input file is listed in spec/vendoring.json, so that the packages' tests read them from their copies of the corpora, and every case file in parity/corpora.json with the kind 'results'.
 
 ## Format
 

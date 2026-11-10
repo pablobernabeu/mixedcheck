@@ -102,11 +102,19 @@
 * The messages of findings write a real statistic of at least 1e15 in
   absolute value in scientific notation, such as 2e+20, as the
   [registry specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/registry.md)
-  (Messages) states.
+  (Messages) states, and a positive one whose rounding shows only zeros as
+  under the smallest positive value, such as under 0.1, so that 1 minority
+  event for 21 fixed-effects columns no longer reads as none.
 
 * `validate_results()` reports E7025 when the quantile of a statistic writes
   an n although the count that gives n is not written in its finding, or an
   n other than that count, in every document.
+
+* `validate_results()` reports E7045 when a statistic lacks the quantile that
+  its registry entry gives it, or has one that its entry does not give, and
+  E7041 when the p of a quantile differs from the entry's, in every
+  document, so that a shareable document cannot leave a minimum out of the
+  quantile rule.
 
 * In a C locale, `validate_declaration()`, `formula_ir()` and `audit()` keep
   apart column names outside ASCII and names that hold the text into which
@@ -122,14 +130,28 @@
   the rows without a key value when they would give back rows that a
   predictor removes, never writes the smallest eigenvalue of
   identifiability.gram_rank and suppresses outcome.separation for a fixed
-  part that codes one variable, such as one factor, as the
+  part that codes one variable, such as one factor, or whose values two rows
+  share, in the design or the analysis sample, as the
   [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
   states.
 
+* The privacy filter of `audit()` writes the detail 'secondary' or
+  'quantile' in place of 'min_count' where that detail would bound a
+  suppressed count and, in a run that reads the outcome, suppresses the reals
+  of the outcome-blind checks on the design sample where they would give
+  back the rows or levels without an outcome. A shareable document records
+  the IR hash of the IR without the constants of its mean centrings.
+
+* `validate_results()` reports E7046 when a parameter of the privacy filter
+  that a document records differs from the registry, and E7041 when a count
+  that resolves by unit is not a person count in a document without a
+  disclosure unit.
+
 * In a draft declaration, a unit whose name or columns are inferred counts
-  as absent, together with the assignments to it and a disclosure unit that
-  names it, and outcome.boundary_shares is not available when the bounds of
-  a bounded score are inferred.
+  as absent, as does a unit declared within_parent in it, together with the
+  assignments to them and a disclosure unit that names one, and
+  outcome.boundary_shares is not available when the bounds of a bounded
+  score are inferred.
 
 * MIXEDCHECK_TIME accepts only the ASCII digits 0 to 9.
 
@@ -143,3 +165,11 @@
 * identifiability.gram_rank forms the elements between random terms with
   one sparse product for each term, so that a model with hundreds of random
   terms takes seconds instead of minutes.
+
+* identifiability.gram_rank compares the basis of each covariance parameter
+  with its unprojected basis level by level, so that a factor with one level
+  of one row and another of hundreds of thousands no longer has its
+  variance reported as absorbed by the fixed effects, and a covariance whose
+  basis cancels across the levels vanishes, as the
+  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
+  states.

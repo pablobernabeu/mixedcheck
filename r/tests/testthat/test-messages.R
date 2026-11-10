@@ -1,22 +1,24 @@
 # The rendering of real statistics in messages (registry.md, Messages),
-# compared with Python's f-strings.
+# compared with the vectors of the number corpus.
 #
-# message-reals.txt.xz holds 20,966 doubles, as the 16 hexadecimal digits of
-# their bits, each with the strings that Python 3.13 writes for it with 0 to 6
-# digits: f"{x:z.{d}f}" below 1e15 in absolute value and f"{x:.{d}e}" from 1e15
-# on. They are random bit patterns, log-uniform values from 1e-7 to 1e22, the
-# 400 neighbours of 1e15 on each side, every power of ten from 1e-323 to 1e308
-# with both neighbours, 2,500 decimals at or above 1e15 that a double holds
-# exactly and that lie halfway between two roundings of the mantissa, odd
-# multiples of 2^-(d + 1) below 1e15, which lie halfway between two roundings
-# to d decimal places, the doubles nearest to the decimals at which the
-# rounding of the mantissa carries into the exponent with their neighbours,
-# the 20 largest doubles, the smallest subnormal doubles and integers near
-# 2^53, most of them with both signs, from a fixed seed. A Python script that
-# is part of neither package wrote them.
+# numbers/message_reals.txt.xz holds doubles, as the 16 hexadecimal digits of
+# their bits, each with its renderings with 0 to 6 digits, which
+# fixtures/conformance/tools/make_message_reals.py writes with Python's format()
+# and checks against exact rounding. They are random bit patterns, values from
+# 1e-7 to 1e22, the neighbours of 1e15, every power of ten from 1e-323 to
+# 1e308 with both neighbours, decimals that lie halfway between two roundings
+# of the mantissa or to d decimal places and the doubles nearest to such
+# decimals that a double does not hold, the doubles nearest to the decimals at
+# which the rounding carries into a new digit or into the exponent, the
+# largest doubles, the smallest subnormal doubles and the doubles near 2^53,
+# most of them with both signs (fixtures/conformance/numbers/README.md).
 
 message_real_vectors <- function() {
-  connection <- xzfile(test_path("message-reals.txt.xz"))
+  path <- corpus_directory("numbers", "message_reals.txt.xz")
+  if (!file.exists(path)) {
+    stop("The corpus file numbers/message_reals.txt.xz is missing.")
+  }
+  connection <- xzfile(path)
   on.exit(close(connection))
   parts <- strsplit(readLines(connection), "\t", fixed = TRUE)
   list(
@@ -25,9 +27,9 @@ message_real_vectors <- function() {
   )
 }
 
-test_that("reals are rendered as Python's f-strings write them", {
+test_that("reals are rendered as the vectors of the number corpus give them", {
   vectors <- message_real_vectors()
-  expect_identical(length(vectors$x), 20966L)
+  expect_gt(length(vectors$x), 20000L)
   rendered <- t(vapply(vectors$x, real_text, character(7L), digits = 0:6))
   wrong <- which(rendered != vectors$text, arr.ind = TRUE)
   expect_identical(nrow(wrong), 0L, label = paste(head(rendered[wrong]), collapse = " "))
@@ -64,4 +66,34 @@ test_that("the message of design.scale_disparity renders a large ratio in scient
                  sd_ratio = 1e299, condition_number = 1)
   expect_match(render_message(entry, "disparate", list(), values),
                "differ by a factor of 1e+299, or one", fixed = TRUE)
+})
+
+test_that("a positive real whose rounding has only zeros renders as under the smallest value", {
+  # The double nearest to 0.05 lies above it, and the double before it below.
+  below <- 0.05 - 2^-57
+  expect_identical(below, 0.049999999999999996)
+  expect_identical(real_text(0.05, 1L), "0.1")
+  expect_identical(real_text(below, 1L), "under 0.1")
+  expect_identical(real_text(below, 0:2), c("under 1", "under 0.1", "0.05"))
+  expect_identical(real_text(1 / 21, 1L), "under 0.1")
+  # 0.5 is a tie, which rounds half to even to 0, and the double after it
+  # rounds up.
+  expect_identical(real_text(0.5, 0L), "under 1")
+  expect_identical(real_text(0.5 + 2^-53, 0L), "1")
+  expect_identical(real_text(1.5, 0L), "2")
+  expect_identical(real_text(0.0625, 3L), "0.062")
+  # Subnormal doubles, the smallest of them included.
+  expect_identical(real_text(2^-1074, 0:6), c("under 1", paste0("under 0.", strrep("0", 0:5), "1")))
+  expect_identical(real_text(2^-1022 - 2^-1074, 6L), "under 0.000001")
+  # Zero and negative values keep their fixed rendering.
+  expect_identical(real_text(0, 1L), "0.0")
+  expect_identical(real_text(-2^-1074, 0:1), c("0", "0.0"))
+  expect_identical(real_text(-below, 1L), "0.0")
+  expect_identical(real_text(-0.5, 0L), "0")
+  entry <- registry_entry("outcome.minority_events")
+  expect_identical(
+    render_message(entry, "events_model", list(),
+                   list(events = 1, non_events = 20, events_per_column = 1 / 21)),
+    "The outcome has 1 event and 20 non-events, or under 0.1 minority events per fixed-effects column."
+  )
 })

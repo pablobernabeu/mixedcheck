@@ -270,10 +270,16 @@
     },
     {
       "id": "results-shareable-015",
-      "description": "A document whose min_count is 5 writes a person count of 7: the invariants use the parameters that the document records, so no issue.",
+      "description": "A document whose min_count is 5 writes a person count of 7: the invariants of stage 4 use the parameters that the document records, so it finds no issue, and stage 5 reports E7046 at min_count, which the registry gives as 10.",
       "document": "shareable/015.json",
       "expected": {
-        "issues": []
+        "issues": [
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/min_count must be 10, as the privacy block of the registry states.",
+            "pointer": "/privacy/min_count"
+          }
+        ]
       }
     },
     {

@@ -157,17 +157,31 @@ privacy_ratios <- function(finding, k) {
 }
 
 # Step 6: the relations within a finding, suppress_with, part_of and the n
-# of quantiles, with step 5, until no value changes. part_of reads the
-# internal values of a person total and of the parts that steps 1 to 5 left
-# written, so that its result does not depend on the order of the rules.
+# of quantiles, with step 5, until no value or detail changes. part_of reads
+# the internal values of a person total and of the parts that steps 1 to 5
+# left written, so that its result does not depend on the order of the
+# rules. suppress_with and the n of a quantile also replace the detail
+# 'min_count' that step 3 gave, which would show that the value is below k
+# and so bound the suppressed statistic or the n: 'secondary' when a
+# statistic that suppress_with names, and that does not name this one in its
+# own suppress_with, is suppressed with another detail, and 'quantile' when
+# the count that gives n is suppressed.
 privacy_within <- function(finding, k) {
   defined <- finding$entry[["statistics"]]
   repeat {
-    before <- length(finding$suppressed)
+    before <- finding$suppressed
     for (name in names(finding$values)) {
-      with <- unlist(defined[[name]][["suppress_with"]])
-      if (any(with %in% names(finding$suppressed))) {
+      with <- intersect(unlist(defined[[name]][["suppress_with"]]), names(finding$suppressed))
+      if (length(with)) {
         finding <- privacy_suppress(finding, name, "secondary")
+        # Only for a statistic derived from the suppressed one, which does
+        # not name it back as the parts of a total do.
+        derived_from <- with[finding$suppressed[with] != "min_count" & !vapply(with, function(s) {
+          name %in% unlist(defined[[s]][["suppress_with"]])
+        }, NA)]
+        if (identical(finding$suppressed[[name]], "min_count") && length(derived_from)) {
+          finding$suppressed[name] <- "secondary"
+        }
       }
     }
     part_of <- unlist(lapply(defined, function(s) s[["part_of"]] %||% NA_character_))
@@ -187,10 +201,13 @@ privacy_within <- function(finding, k) {
       n <- finding$statistics[[name]]$quantile[["n"]]
       if (!is.null(n) && n %in% names(finding$suppressed)) {
         finding <- privacy_suppress(finding, name, "quantile")
+        if (identical(finding$suppressed[[name]], "min_count")) {
+          finding$suppressed[name] <- "quantile"
+        }
       }
     }
     finding <- privacy_ratios(finding, k)
-    if (length(finding$suppressed) == before) {
+    if (identical(finding$suppressed, before)) {
       return(finding)
     }
   }
@@ -261,8 +278,34 @@ privacy_across <- function(run, findings, k) {
         privacy_missing_key_close(run, samples[setdiff(names(samples), "table")], k)) {
       findings[[i]] <- privacy_suppress(findings[[i]], "missing_key_rows", "secondary")
     }
+    if (finding_samples[i] == "design") {
+      findings[[i]] <- privacy_design_reals(run, findings[[i]], items,
+                                            attr(marks, "rule_1")[["design"]])
+    }
   }
   findings
+}
+
+# Rule 5: the reals of a finding on the design sample when rule 1 suppresses
+# the rows of the design sample, and those of a finding whose scope names a
+# grouping factor when rule 1 suppresses the levels, or the levels with at
+# least two rows, of that factor in the design sample. The design sample
+# loses a value of rule 1 only beside the analysis sample, so the rule
+# applies only when the run read the outcome. marks are the marks of rule 1
+# for the design sample.
+privacy_design_reals <- function(run, finding, items, marks) {
+  suppressed <- marks$rows
+  factor <- finding$scope$factor
+  if (!suppressed && !is.null(factor)) {
+    i <- privacy_item_index(items, list(value_codes(run, factor_keys(run, factor))))
+    suppressed <- !is.na(i) && any(marks$items[[i]][c("levels", "levels_with_two_rows")])
+  }
+  if (!suppressed) {
+    return(finding)
+  }
+  names <- Filter(function(name) finding$statistics[[name]]$kind %in% c("real", "reals"),
+                  names(finding$values))
+  privacy_suppress(finding, names, "secondary")
 }
 
 # Rule 4: whether the rows of the table with a missing value in a column of
@@ -426,6 +469,8 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
       }
     }
   }
+  # Rule 5 reads the quantities of the design sample that rule 1 suppresses.
+  rule_1 <- marks
   for (sample in names(quantities)) {
     for (i in seq_along(quantities[[sample]]$items)) {
       item <- quantities[[sample]]$items[[i]]
@@ -441,6 +486,7 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
       }
     }
   }
+  attr(marks, "rule_1") <- rule_1
   marks
 }
 
@@ -575,21 +621,23 @@ privacy_decision <- function(finding, run, k) {
 }
 
 # Whether the filter suppresses a finding of outcome.separation as a whole
-# beyond the rule on its decision: when the design sample has at most two
-# kept columns, kept of design.rank_deficiency or 0 without its finding, or
+# beyond the rule on its decision: when the design sample, or the analysis
+# sample on which the check ran, has at most two kept columns, kept of
+# design.rank_deficiency or 0 without its finding for the design sample,
 # when its kept columns other than the intercept belong to terms that read
-# one variable alone, and, for the class binomial, when the rows with k = 0,
-# with k = n or with both classes, which the rows of the analysis sample,
-# events and non_events give back, number fewer than k, 0 included.
+# one variable alone, or when two of its rows share the values of every
+# kept column, and, for the class binomial, when the rows with k = 0, with
+# k = n or with both classes, which the rows of the analysis sample, events
+# and non_events give back, number fewer than k, 0 included.
 privacy_separation <- function(finding, run, k) {
   required <- run$results[["design.rank_deficiency"]]
   kept <- if (length(required)) required[[1L]]$values$kept else 0
-  terms <- run$ir$fixed$terms
-  column_terms <- vapply(run$ir$fixed$columns, function(column) column$term + 1, 0)
-  variables <- unique(unlist(lapply(terms[unique(column_terms[run$x_kept])], function(term) {
-    vapply(term$variables, function(v) v$variable, "")
-  })))
-  if (kept <= 2 || length(variables) <= 1L) {
+  analysis <- match(run$analysis, run$design)
+  if (kept <= 2 || sum(run$analysis_kept) <= 2 ||
+      separation_one_variable(run, run$x_kept) ||
+      separation_one_variable(run, run$analysis_kept) ||
+      separation_shared_values(run$x[, run$x_kept, drop = FALSE]) ||
+      separation_shared_values(run$x[analysis, run$analysis_kept, drop = FALSE])) {
     return(TRUE)
   }
   if (run$family_class != "binomial") {
@@ -599,6 +647,34 @@ privacy_separation <- function(finding, run, k) {
   events <- finding$values$events
   non_events <- finding$values$non_events
   any(c(rows - events, rows - non_events, events + non_events - rows) < k)
+}
+
+# Whether the kept fixed-effects columns other than the intercept, as a
+# logical over the columns of X, belong to terms that read one variable
+# alone, or to none.
+separation_one_variable <- function(run, kept) {
+  terms <- run$ir$fixed$terms
+  column_terms <- vapply(run$ir$fixed$columns, function(column) column$term + 1, 0)
+  variables <- unique(unlist(lapply(terms[unique(column_terms[kept])], function(term) {
+    vapply(term$variables, function(v) v$variable, "")
+  })))
+  length(variables) <= 1L
+}
+
+# Whether two rows of a matrix of kept columns hold equal values in every
+# column, so that the columns divide the rows into combinations of which one
+# holds two rows or more. The rows are sorted and each compared with the
+# next.
+separation_shared_values <- function(x) {
+  n <- nrow(x)
+  if (n < 2L) {
+    return(FALSE)
+  }
+  # Adding 0 turns -0 into 0, which the sort could otherwise place apart.
+  x <- x + 0
+  x <- x[do.call(order, c(unname(lapply(seq_len(ncol(x)), function(j) x[, j])),
+                          list(method = "radix"))), , drop = FALSE]
+  any(rowSums(x[-1L, , drop = FALSE] == x[-n, , drop = FALSE]) == ncol(x))
 }
 
 # --- Steps 10 and 11 ----------------------------------------------------------------------

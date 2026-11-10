@@ -46,6 +46,8 @@ FILES = {
     "hash": ["sha256", "sections"],
     "hmac": ["rfc4231", "commitments"],
 }
+# Files of these directories that hold no cases, which their own tests check.
+OTHER_FILES = {"numbers": ["message_reals.txt.xz"]}
 CODEC_FILES = {
     "json/rfc8785",
     "json/syntax",
@@ -149,9 +151,8 @@ class CanonicaliserCorporaTestCase(unittest.TestCase):
         for directory, stems in FILES.items():
             with self.subTest(directory=directory):
                 on_disk = sorted(path.name for path in (CORPORA / directory).iterdir())
-                self.assertEqual(
-                    on_disk, sorted([f"{stem}.json" for stem in stems] + ["README.md"])
-                )
+                expected = [f"{stem}.json" for stem in stems] + ["README.md"]
+                self.assertEqual(on_disk, sorted(expected + OTHER_FILES.get(directory, [])))
                 readme = (CORPORA / directory / "README.md").read_text(encoding="utf-8")
                 for stem in stems:
                     document = self.files[f"{directory}/{stem}"]

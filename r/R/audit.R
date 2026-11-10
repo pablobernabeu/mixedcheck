@@ -213,8 +213,11 @@ audit <- function(data, formula, declaration = NULL, family = NULL, coding = NUL
       minimal = minimal
     )
   }
+  # A shareable document hashes the IR without the constants of its 'mean'
+  # centrings, which are means over the design sample (documents.md, inputs).
+  hashed <- if (arguments$privacy == "shareable") ir_without_means(ir) else ir
   inputs$model <- list(formula = arguments$formula, family_class = family_class,
-                       ir_hash = canonical_hash(ir, "hashable"))
+                       ir_hash = canonical_hash(hashed, "hashable"))
   inputs$data <- data_commitments(data, declaration, response, arguments$key)
   document <- list(
     results_version = "0.1.0",
@@ -633,4 +636,22 @@ audit_privacy <- function(run, mode) {
     privacy$disclosure_unit <- list(name = run$disclosure$name, source = run$disclosure$source)
   }
   privacy
+}
+
+# The IR that the IR hash of a shareable document covers: each 'mean'
+# centring holds the significant digits of its constant in place of the
+# constant, as before the data are seen (ir.md, The IR document), since the
+# constant is a mean over the design sample, which an unkeyed hash would let
+# a reader confirm by search.
+ir_without_means <- function(ir) {
+  for (i in seq_along(ir$predictors)) {
+    centring <- ir$predictors[[i]]$centring
+    if (identical(centring$rule, "mean") && !is.null(centring$constant)) {
+      ir$predictors[[i]]$centring <- list(
+        rule = "mean", sample = centring$sample,
+        significant_digits = centring$constant$significant_digits
+      )
+    }
+  }
+  ir
 }

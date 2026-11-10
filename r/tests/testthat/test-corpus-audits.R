@@ -2,7 +2,8 @@
 # 00 01 02 ... 1F and MIXEDCHECK_TIME set to 0, and its findings, or the issue
 # that refuses the run, are compared with the expected ones as
 # fixtures/conformance/audits/README.md describes. Every document that
-# audit() returns is validated with validate_results().
+# audit() returns is validated with validate_results(), and every program of
+# outcome.separation is solved through its dual.
 
 audit_corpus_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -50,47 +51,110 @@ reals_match <- function(x, y, check, name) {
   abs(x - y) <= 1e-12 + 1e-9 * m
 }
 
-# Whether two message texts match: identical, or different only in numbers
-# that are the neighbouring roundings, at the same number of decimal places,
-# on either side of one rounding boundary.
-message_texts_match <- function(a, b) {
-  if (identical(a, b)) {
-    return(TRUE)
+# The value of a real statistic that a finding writes, as a double, with
+# 'NaN', 'Infinity' and '-Infinity' read as those values, or NULL when the
+# finding does not write it.
+written_real <- function(finding, name) {
+  value <- unlist(finding[["statistics"]][[name]][["value"]])
+  if (is.null(value)) {
+    return(NULL)
   }
-  pattern <- "-?[0-9]+(\\.[0-9]+)?(e[+-][0-9]+)?"
-  numbers_a <- regmatches(a, gregexpr(pattern, a))[[1L]]
-  numbers_b <- regmatches(b, gregexpr(pattern, b))[[1L]]
-  if (length(numbers_a) != length(numbers_b) ||
-      !identical(gsub(pattern, "#", a), gsub(pattern, "#", b))) {
-    return(FALSE)
-  }
-  differ <- numbers_a != numbers_b
-  all(mapply(neighbouring_roundings, numbers_a[differ], numbers_b[differ]))
+  if (is.character(value)) c("NaN" = NaN, "Infinity" = Inf, "-Infinity" = -Inf)[[value]] else value
 }
 
-# Whether two numbers, in fixed or in scientific notation, are the
-# neighbouring roundings with the same number of decimal places on either
-# side of one rounding boundary. A carry out of the leading digit of a
-# mantissa makes 9.99e+20 and 1.00e+21 neighbours.
-neighbouring_roundings <- function(x, y) {
-  read <- function(text) {
-    parts <- strsplit(text, "e", fixed = TRUE)[[1L]]
-    list(places = nchar(sub("^[^.]*\\.?", "", parts[1L])),
-         units = as.numeric(gsub(".", "", parts[1L], fixed = TRUE)),
-         exponent = if (length(parts) > 1L) as.integer(parts[2L]) else NA_integer_)
+# The form of a message that the text of a finding renders, the template or
+# the fallback, with the renderings of its arguments other than real
+# statistics, in the order of the form. A real statistic must render as
+# registry.md (Messages) renders the value that the finding writes, so that
+# the form can render only when the finding writes it. NULL when the text
+# renders neither form.
+message_form <- function(finding) {
+  entry <- registry_entry(finding[["check"]])
+  message <- entry[["messages"]][[finding[["message"]][["id"]]]]
+  text <- finding[["message"]][["text"]]
+  for (form in c("template", "fallback")) {
+    template <- message[[form]]
+    if (is.null(template)) {
+      next
+    }
+    pieces <- regmatches(template, gregexpr("\\{[a-z][a-z0-9_]*\\}", template),
+                         invert = NA)[[1L]]
+    pattern <- character(0)
+    renders <- TRUE
+    for (i in seq_along(pieces)) {
+      piece <- pieces[i]
+      if (i %% 2L == 1L) {
+        pattern <- c(pattern, regex_literal(piece))
+        next
+      }
+      arg <- message[["args"]][[substr(piece, 2L, nchar(piece) - 1L)]]
+      kind <- if (identical(arg[["source"]], "statistic")) {
+        entry[["statistics"]][[arg[["name"]]]][["kind"]]
+      }
+      if (!identical(kind, "real")) {
+        pattern <- c(pattern, "(.*?)")
+        next
+      }
+      value <- written_real(finding, arg[["name"]])
+      if (is.null(value)) {
+        renders <- FALSE
+        break
+      }
+      pattern <- c(pattern, regex_literal(real_text(value, arg[["digits"]])))
+    }
+    if (!renders) {
+      next
+    }
+    found <- regmatches(text, regexec(paste0("^", paste(pattern, collapse = ""), "$"), text,
+                                      perl = TRUE))[[1L]]
+    if (length(found)) {
+      return(list(form = form, arguments = found[-1L]))
+    }
   }
-  x <- read(x)
-  y <- read(y)
-  if (x$places != y$places || is.na(x$exponent) != is.na(y$exponent)) {
+  NULL
+}
+
+# A regular expression that matches the text literally.
+regex_literal <- function(text) {
+  gsub("([][{}()|^$.*+?\\\\])", "\\\\\\1", text, perl = TRUE)
+}
+
+# Whether the messages of two findings of a check match (conventions.md,
+# Comparison across languages): they have the same identifier, both texts
+# render its template, or both its fallback, every argument other than a
+# real statistic renders identically, the two values of every real statistic
+# that the form renders match within the tolerance, and each text renders
+# the values of its own finding. The renderings of a real may then differ in
+# any way, as neighbouring roundings, in their notation on either side of
+# 1e15 or as under 0.1 and 0.1.
+message_texts_match <- function(actual, expected) {
+  if (!identical(actual[["message"]][["id"]], expected[["message"]][["id"]])) {
     return(FALSE)
   }
-  if (is.na(x$exponent) || x$exponent == y$exponent) {
-    return(abs(x$units - y$units) == 1)
+  a <- message_form(actual)
+  b <- message_form(expected)
+  if (is.null(a) || !identical(a, b)) {
+    return(FALSE)
   }
-  low <- if (x$exponent < y$exponent) x else y
-  high <- if (x$exponent < y$exponent) y else x
-  high$exponent - low$exponent == 1L && sign(low$units) == sign(high$units) &&
-    abs(low$units) == 10^(low$places + 1) - 1 && abs(high$units) == 10^low$places
+  check <- expected[["check"]]
+  entry <- registry_entry(check)
+  message <- entry[["messages"]][[expected[["message"]][["id"]]]]
+  template <- message[[a$form]]
+  for (placeholder in names(message[["args"]])) {
+    name <- message[["args"]][[placeholder]][["name"]]
+    if (!identical(message[["args"]][[placeholder]][["source"]], "statistic") ||
+        !identical(entry[["statistics"]][[name]][["kind"]], "real") ||
+        !grepl(paste0("{", placeholder, "}"), template, fixed = TRUE)) {
+      next
+    }
+    x <- written_real(actual, name)
+    y <- written_real(expected, name)
+    same <- if (all(is.finite(c(x, y)))) reals_match(x, y, check, name) else identical(x, y)
+    if (!same) {
+      return(FALSE)
+    }
+  }
+  TRUE
 }
 
 # Compares one finding with its expected form: exactly, apart from the
@@ -148,11 +212,11 @@ expect_audit_finding <- function(actual, expected, exact, label) {
     }
   }
   if (!near && !is.null(expected[["message"]])) {
-    text <- actual[["message"]][["text"]]
-    if (!message_texts_match(text, expected[["message"]][["text"]])) {
-      expect_identical(text, expected[["message"]][["text"]], label = paste(label, "message"))
-    } else {
+    if (message_texts_match(actual, expected)) {
       succeed()
+    } else {
+      fail(sprintf("%s message: '%s' does not match the expected '%s'.", label,
+                   actual[["message"]][["text"]], expected[["message"]][["text"]]))
     }
   }
 }
@@ -184,10 +248,19 @@ run_audit_corpus_case <- function(case) {
     return(invisible())
   }
   # Without lpSolve, outcome.separation is not available (package_missing).
+  # With it, the dual gives a verified solution of every program of the
+  # corpus, so that the program itself is never solved.
+  formulations <- character(0)
   if ("outcome.separation" %in% unlist(case[["checks"]])) {
     skip_if_not_installed("lpSolve")
+    solver <- separation_solver
+    local_mocked_bindings(separation_solver = function(formulation, ...) {
+      formulations <<- c(formulations, formulation)
+      solver(formulation, ...)
+    })
   }
   expect_audit_findings(run_audit_case(case, "internal"), expected[["findings"]], case, case$id)
+  expect_false("primal" %in% formulations, label = paste(case$id, "solves a program itself"))
   if (!is.null(expected[["shareable"]])) {
     expect_audit_findings(run_audit_case(case, "shareable"), expected[["shareable"]], case,
                           paste(case$id, "shareable"))
@@ -206,14 +279,60 @@ for (file in c("assignment.json", "design.json", "identifiability.json", "keys.j
   }
 }
 
-test_that("message texts match across one rounding boundary only", {
-  expect_true(message_texts_match("a factor of 1.25 here", "a factor of 1.26 here"))
-  expect_true(message_texts_match("a factor of 9.99 here", "a factor of 10.00 here"))
-  expect_true(message_texts_match("a factor of 2e+20 here", "a factor of 3e+20 here"))
-  expect_true(message_texts_match("a factor of 9.99e+20 here", "a factor of 1.00e+21 here"))
-  expect_false(message_texts_match("a factor of 1.25 here", "a factor of 1.27 here"))
-  expect_false(message_texts_match("a factor of 1.2 here", "a factor of 1.25 here"))
-  expect_false(message_texts_match("a factor of 9.98e+20 here", "a factor of 1.00e+21 here"))
-  expect_false(message_texts_match("a factor of 2e+20 here", "a factor of 2e+21 here"))
-  expect_false(message_texts_match("a factor of 1000000000000000 here", "a factor of 1e+15 here"))
+# A finding of a check with the given statistics and message, whose text is
+# rendered from them unless 'text' gives it.
+message_finding <- function(check, id, values, scope = list(), text = NULL,
+                            written = names(values)) {
+  entry <- registry_entry(check)
+  statistics <- lapply(names(values), function(name) {
+    list(kind = entry[["statistics"]][[name]][["kind"]],
+         value = if (name %in% written) values[[name]])
+  })
+  names(statistics) <- names(values)
+  list(check = check, scope = scope, statistics = statistics,
+       message = list(id = id, text = text %||% render_message(entry, id, scope, values, written)))
+}
+
+test_that("messages match by their values, whatever the renderings of their reals", {
+  gvif <- function(value, term = "x", id = "high") {
+    message_finding("design.collinearity", id, list(df = 1, gvif = value, gvif_per_df = value),
+                    scope = list(term = term))
+  }
+  ratio <- function(value) {
+    message_finding("design.scale_disparity", "disparate",
+                    list(scaled_columns = c("x1", "x2"), sd_ratio = value))
+  }
+  events <- function(per_column, events = 1, text = NULL, written = c("events", "non_events",
+                                                                       "events_per_column")) {
+    message_finding("outcome.minority_events", "events_model",
+                    list(events = events, non_events = 20, events_per_column = per_column),
+                    text = text, written = written)
+  }
+  # Values within the tolerance whose renderings differ by several units of
+  # the last place, in notation, as under 0.1 and 0.1 or as neighbouring
+  # roundings.
+  pairs <- list(list(gvif(4e5), gvif(400000.015)), list(ratio(2e9), ratio(2000000001.5)),
+                list(ratio(999999999999999.875), ratio(1e15)),
+                list(events(0.049999999999999996), events(0.05)),
+                list(gvif(1.255), gvif(1.255 + 1e-12)))
+  for (pair in pairs) {
+    expect_false(identical(pair[[1L]]$message$text, pair[[2L]]$message$text))
+    expect_true(message_texts_match(pair[[1L]], pair[[2L]]))
+    expect_true(message_texts_match(pair[[2L]], pair[[1L]]))
+  }
+  expect_true(message_texts_match(events(1 / 21), events(1 / 21)))
+  fallback <- events(1 / 21, written = c("events", "non_events"))
+  expect_true(message_texts_match(fallback, fallback))
+  # An argument other than a real that differs, values outside the
+  # tolerance, a text that does not render its own value, a template against
+  # its fallback and two messages.
+  expect_false(message_texts_match(gvif(2, term = "x"), gvif(2, term = "z")))
+  expect_false(message_texts_match(events(1 / 21, events = 1), events(1 / 21, events = 2)))
+  expect_false(message_texts_match(events(1 / 21), events(0.1)))
+  expect_false(message_texts_match(gvif(4e5), gvif(400000.02)))
+  wrong <- "The outcome has 1 event and 20 non-events, or 0.0 minority events per fixed-effects column."
+  expect_false(message_texts_match(events(1 / 21), events(1 / 21, text = wrong)))
+  expect_false(message_texts_match(events(1 / 21, text = wrong), events(1 / 21, text = wrong)))
+  expect_false(message_texts_match(events(1 / 21), fallback))
+  expect_false(message_texts_match(gvif(7, id = "moderate"), gvif(7, id = "high")))
 })

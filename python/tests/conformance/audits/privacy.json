@@ -782,7 +782,7 @@
     },
     {
       "id": "audits-privacy-011",
-      "description": "A T1 run on a binary outcome without missing values or a disclosure unit, with 20 subjects of two rows. The design and analysis samples have the same rows and subjects, so the rows, the contributors and the levels of 'subject' of the design sample are suppressed with the detail 'secondary' wherever a design-sample finding writes them, and the budget of identifiability.df_budget with the levels. In the analysis sample, no subject has one row, so the levels with two rows are suppressed, constant_share with them as a ratio, and the finding of outcome.constant_clusters, whose rules read both, as a whole. outcome.minority_events keeps its 20 levels, but 12 of them lack a class, so the other 8, which the levels minus levels_without_minority would give, are fewer than min_count and levels_without_minority is suppressed as a part of the levels. Its median of 0 minority events is suppressed below min_count.",
+      "description": "A T1 run on a binary outcome without missing values or a disclosure unit, with 20 subjects of two rows. The design and analysis samples have the same rows and subjects, so the rows, the contributors and the levels of 'subject' of the design sample are suppressed with the detail 'secondary' wherever a design-sample finding writes them, and the budget of identifiability.df_budget with the levels. In the analysis sample, no subject has one row, so the levels with two rows are suppressed, constant_share with them as a ratio, and the finding of outcome.constant_clusters, whose rules read both, as a whole. outcome.minority_events keeps its 20 levels, but 12 of them lack a class, so the other 8, which the levels minus levels_without_minority would give, are fewer than min_count and levels_without_minority is suppressed as a part of the levels. Its median of 0 minority events is suppressed below min_count. The median of structure.cluster_sizes, 2 rows, is a quantile of 20 levels that the quantile rule allows, but the levels that give its n are suppressed, so it takes the detail 'quantile' in place of 'min_count', which would show that the quantile rule held and so that the levels number at least 20 (privacy.md, Within a finding).",
       "checks": ["identifiability.df_budget", "outcome.constant_clusters", "outcome.minority_events", "structure.cluster_sizes"],
       "data": {
         "y": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
@@ -915,7 +915,7 @@
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
@@ -1243,7 +1243,7 @@
     },
     {
       "id": "audits-privacy-018",
-      "description": "The same separation by 'x' with a third kept column 'z', balanced across both classes: the verdict is complete, and over the optimal face the intercept and the coefficient of 'z' range from -1 to 1, so all three columns are involved. With three kept columns in the design sample, the shareable finding keeps its verdict, while the number of kept columns, the optimum, the margin, the bounds and the involved columns are internal_only, so the message falls back to the text that names no column.",
+      "description": "The same separation by 'x' with a third kept column 'z', balanced across both classes: the verdict is complete, and over the optimal face the intercept and the coefficient of 'z' range from -1 to 1, so all three columns are involved. The kept columns take four combinations of values, each held by five rows, as two factors of two levels would, so the shareable finding is suppressed as a whole with the detail 'decision' whatever its verdict, since complete shows that each combination holds one class (privacy.md, Decisions).",
       "checks": ["outcome.separation"],
       "data": {
         "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -1284,20 +1284,7 @@
             "check_version": 1,
             "tier": "T2",
             "scope": {},
-            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, so the estimates of some coefficients diverge and their Wald statistics are unreliable."},
-            "statistics": {
-              "events": {"kind": "count", "value": 10, "count_class": "person"},
-              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
-              "both_classes": {"kind": "boolean", "value": true},
-              "bounds": {"kind": "reals", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "columns_involved": {"kind": "names", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "margin": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "optimum": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "verdict": {"kind": "category", "value": "complete"}
-            },
-            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
           }
         ]
       }
@@ -3528,7 +3515,7 @@
     },
     {
       "id": "audits-privacy-053",
-      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of four subjects is missing. The design sample has 40 rows and 20 subjects with two rows, the analysis sample 36 rows and 16 subjects with two rows: the rows, the contributors, the levels and the levels with two rows of the design sample each exceed those of the analysis sample by fewer than min_count, so every count that measures them on the design sample is suppressed with the detail 'secondary', and so are the supports. varying_levels and informative_levels of structure.within_between and cells and replicated_cells of identifiability.residual_confounding measure no quantity but equal the suppressed 20, as informative_levels of identifiability.levels_vs_dimension does, so they are suppressed too, and bound is suppressed with levels. The messages fall back to their texts without values, while within_share, the non-person dimension and the names stay, and icc, which is internal_only, is suppressed.",
+      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of four subjects is missing. The design sample has 40 rows and 20 subjects with two rows, the analysis sample 36 rows and 16 subjects with two rows: the rows, the contributors, the levels and the levels with two rows of the design sample each exceed those of the analysis sample by fewer than min_count, so every count that measures them on the design sample is suppressed with the detail 'secondary', and so are the supports. varying_levels and informative_levels of structure.within_between and cells and replicated_cells of identifiability.residual_confounding measure no quantity but equal the suppressed 20, as informative_levels of identifiability.levels_vs_dimension does, so they are suppressed too, and bound is suppressed with levels. within_share is a real over the design sample, whose rows are suppressed, so rule 5 suppresses it too, since beside the rows of the analysis sample it could give back the rows without an outcome (privacy.md, Across findings). The messages fall back to their texts without values, while the non-person dimension and the names stay, and icc, which is internal_only, is suppressed.",
       "checks": ["identifiability.levels_vs_dimension", "identifiability.residual_confounding", "structure.within_between"],
       "data": {
         "y": [2.3, 3.1, 4.3, 5.1, 6.3, null, 8.3, 9.1, 10.3, 11.1, 12.3, 13.1, 14.3, 15.1, 16.3, null, 18.3, 19.1, 20.3, 21.1, 22.3, 23.1, 24.3, 25.1, 26.3, null, 28.3, 29.1, 30.3, 31.1, 32.3, 33.1, 34.3, 35.1, 36.3, null, 38.3, 39.1, 40.3, 41.1],
@@ -3640,7 +3627,7 @@
               "slope_requested": {"kind": "boolean", "value": false},
               "status": {"kind": "category", "value": "within"},
               "varying_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
-              "within_share": {"kind": "real", "value": 0.007462686567164179}
+              "within_share": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
             "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
           }
@@ -3649,7 +3636,7 @@
     },
     {
       "id": "audits-privacy-054",
-      "description": "'x' takes the values -1, 0 and 1, the outcome is 0 at -1 and 1 at 1, and both classes occur at 0, with 'z' taking the same values in both classes there, so the verdict is quasi with the optimum 12 and the margin 0, and only the slope of 'x' is bounded away from 0 on the optimal face. With three kept columns and 10 rows of each class, the shareable finding keeps its verdict, and the involved columns, which are internal_only, leave the message to its fallback.",
+      "description": "'x' takes the values -1, 0 and 1, the outcome is 0 at -1 and 1 at 1, and both classes occur at 0, with 'z' taking the same values in both classes there, so the verdict is quasi with the optimum 12 and the margin 0, and only the slope of 'x' is bounded away from 0 on the optimal face. The kept columns take combinations of values that several rows share, so the shareable finding is suppressed as a whole with the detail 'decision' whatever its verdict (privacy.md, Decisions).",
       "checks": ["outcome.separation"],
       "data": {
         "y": [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
@@ -3690,20 +3677,7 @@
             "check_version": 1,
             "tier": "T2",
             "scope": {},
-            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, so the estimates of some coefficients diverge and their Wald statistics are unreliable."},
-            "statistics": {
-              "events": {"kind": "count", "value": 10, "count_class": "person"},
-              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
-              "both_classes": {"kind": "boolean", "value": true},
-              "bounds": {"kind": "reals", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "columns_involved": {"kind": "names", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "margin": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "optimum": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
-              "verdict": {"kind": "category", "value": "quasi"}
-            },
-            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
           }
         ]
       }
@@ -4201,6 +4175,620 @@
               "spellings": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
             },
             "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-062",
+      "description": "A T1 run on a binary outcome without missing values, with 10 subjects of two rows, the disclosure unit, and arm assigned between subjects. The design and analysis samples hold the same rows, so the levels of 'subject' and the units of the assignment lose their value in the design sample with the detail 'secondary', and informative_levels, a part of the levels, with them. design_df of assignment.design_df, budget of identifiability.df_budget and bound of identifiability.levels_vs_dimension, 9 each, are below min_count, but each is derived from a suppressed count of levels, so it takes the detail 'secondary' in place of 'min_count', which beside the detail of the levels would show that they number exactly 10 (privacy.md, Within a finding). The messages fall back to their texts without values.",
+      "checks": ["assignment.design_df", "identifiability.df_budget", "identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        "x": [-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1],
+        "arm": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b"],
+        "subject": ["s01", "s01", "s02", "s02", "s03", "s03", "s04", "s04", "s05", "s05", "s06", "s06", "s07", "s07", "s08", "s08", "s09", "s09", "s10", "s10"],
+        "trial": [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "subject", "randomised": true, "level": "between_unit"}],
+        "observation": {"key": ["subject", "trial"]}
+      },
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Check the events per subject.",
+      "expected": {
+        "findings": [
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "design_df", "text": "'subject', the unit to which 'arm' was assigned at a level between units that is declared, has 10 levels and leaves 9 degrees of freedom between them after the fixed effects."},
+            "statistics": {
+              "design_df": {"kind": "count", "value": 9, "count_class": "person"},
+              "level_source": {"kind": "category", "value": "declared"},
+              "missing_blocks": {"kind": "names", "value": []},
+              "units": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'subject' has 10 levels and 9 degrees of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 9, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "1 | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 10 of the 10 levels of 'subject', all columns of '1 | subject' vary, and the term has 1 random effect for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 9, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "assignment.design_df",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm", "unit": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "design_df", "text": "The privacy rules do not allow the levels of 'subject', the unit to which 'arm' was assigned at a level between units that is declared, and the degrees of freedom between them to be shown."},
+            "statistics": {
+              "design_df": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "level_source": {"kind": "category", "value": "declared"},
+              "missing_blocks": {"kind": "names", "value": []},
+              "units": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "The privacy rules do not allow the levels of 'subject' and the degrees of freedom between them to be shown."},
+            "statistics": {
+              "budget": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
+              "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "1 | subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "'1 | subject' has 1 random effect for each level of 'subject', and more levels than that vary in all its columns."},
+            "statistics": {
+              "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-063",
+      "description": "A column z that varies only in the three rows without an outcome: the design sample keeps three columns, the intercept, x and z, but the analysis sample keeps the intercept and x alone, on which x separates the 10 events from the 10 non-events completely. The filter applies its rules on kept columns to the analysis sample too, so the shareable finding is suppressed as a whole with the detail 'decision', since its verdict would locate the values of x that hold each class (privacy.md, Decisions). design.rank_deficiency still shows the three kept columns of the design sample, whose rows and contributors lose their value beside the analysis sample.",
+      "checks": ["design.rank_deficiency", "outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null],
+        "x": [0.05, 0.1, 0.15000000000000002, 0.2, 0.25, 0.30000000000000004, 0.35000000000000003, 0.4, 0.45, 0.5, 0.55, 0.6000000000000001, 0.65, 0.7000000000000001, 0.75, 0.8, 0.8500000000000001, 0.9, 0.9500000000000001, 1.0, 0.33, 0.62, 0.91],
+        "z": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
+      },
+      "formula": "y ~ x + z",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Check for separation.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "full_rank", "text": "The fixed-effects columns are linearly independent (3 in all)."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": []},
+              "dropped_terms": {"kind": "names", "value": []},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 23}, "contributors": {"basis": "rows", "distinct": {"value": 23}, "dominated": false}}
+          },
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, through '(Intercept)' and 'x', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": [-0.55, -0.4999999, 0.9999998, 1]},
+              "columns": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "columns_involved": {"kind": "names", "value": ["(Intercept)", "x"]},
+              "events": {"kind": "count", "value": 10, "count_class": "person"},
+              "margin": {"kind": "real", "value": 0.025},
+              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
+              "optimum": {"kind": "real", "value": 5},
+              "verdict": {"kind": "category", "value": "complete"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "full_rank", "text": "The fixed-effects columns are linearly independent (3 in all)."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": []},
+              "dropped_terms": {"kind": "names", "value": []},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "rows", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-064",
+      "description": "z is the square of x, which takes three values, and the outcome is 1 exactly where x is 0, so the three kept columns separate the 12 events from the 26 non-events completely, as the indicators of a factor of three levels would. The kept columns read two variables, but they take three combinations of values, each held by 12 or 13 rows, so the shareable finding is suppressed as a whole with the detail 'decision', since complete shows that each combination holds one class and the events and the sizes of the combinations would show which (privacy.md, Decisions).",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "x": [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "z": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+      },
+      "formula": "y ~ x + z",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Check for separation.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, through 'x' and 'z', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": [0, 7.142857142857142e-08, -1, 1, -1, -0.9999999615384615]},
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "columns_involved": {"kind": "names", "value": ["x", "z"]},
+              "events": {"kind": "count", "value": 12, "count_class": "person"},
+              "margin": {"kind": "real", "value": 0.5},
+              "non_events": {"kind": "count", "value": 26, "count_class": "person"},
+              "optimum": {"kind": "real", "value": 26},
+              "verdict": {"kind": "category", "value": "complete"}
+            },
+            "support": {"rows": {"value": 38}, "contributors": {"basis": "rows", "distinct": {"value": 38}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-065",
+      "description": "x, which takes a different value in every row, separates the 10 events from the 10 non-events completely, and z, which takes the same values in both classes, is involved through the range of its coefficient over the optimal face. No two rows share the values of the kept columns, which read two variables, so the shareable finding keeps its verdict, while the number of kept columns, the optimum, the margin, the bounds and the involved columns are internal_only, and the message falls back to the text that names no column.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "x": [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
+        "z": [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5]
+      },
+      "formula": "y ~ x + z",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Check for separation.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, through '(Intercept)', 'x' and 'z', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": [-0.575, -0.474999905, 0.9999998, 1, -0.041666666666666664, 0.125]},
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "columns_involved": {"kind": "names", "value": ["(Intercept)", "x", "z"]},
+              "events": {"kind": "count", "value": 10, "count_class": "person"},
+              "margin": {"kind": "real", "value": 0.04},
+              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
+              "optimum": {"kind": "real", "value": 5},
+              "verdict": {"kind": "category", "value": "complete"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, so the estimates of some coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "columns_involved": {"kind": "names", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "events": {"kind": "count", "value": 10, "count_class": "person"},
+              "margin": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
+              "optimum": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "verdict": {"kind": "category", "value": "complete"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-066",
+      "description": "Three rows lie on z = 0, with a non-event between two events along x, the other events have z above 0 and the other non-events z below 0, so the verdict is quasi with the margin 0, and only the coefficient of z is bounded away from 0 on the optimal face. No two rows share the values of the kept columns, so the shareable finding keeps its verdict, and the involved columns, which are internal_only, leave the message to its fallback.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0],
+        "x": [0.1, 0.2, 0.3, 0.4, 0.45, 0.45, 0.5, 0.5, 0.55, 0.55, 0.6, 0.6, 0.65, 0.65, 0.7, 0.7, 0.75, 0.75, 0.8, 0.85],
+        "z": [0, 0, 0, 1, 2, -1, 3, -2, 1, -3, 2, -1, 3, -2, -3, 1, 2, -1, -2, -3]
+      },
+      "formula": "y ~ x + z",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Check for separation.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, through 'z', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": [0, 0, 0, 0, 0.9999999090909091, 1]},
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "columns_involved": {"kind": "names", "value": ["z"]},
+              "events": {"kind": "count", "value": 10, "count_class": "person"},
+              "margin": {"kind": "real", "value": 0},
+              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
+              "optimum": {"kind": "real", "value": 11},
+              "verdict": {"kind": "category", "value": "quasi"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, so the estimates of some coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "columns_involved": {"kind": "names", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "events": {"kind": "count", "value": 10, "count_class": "person"},
+              "margin": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "non_events": {"kind": "count", "value": 10, "count_class": "person"},
+              "optimum": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "verdict": {"kind": "category", "value": "quasi"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-067",
+      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of 10 subjects is missing. The design sample has 40 rows and the analysis sample 30, which differ by min_count, so the rows of the design sample stay written, and so do the standard deviations and the condition number of design.scale_disparity. Every subject keeps a row, so the levels of 'subject' in the design sample lose their value beside those of the analysis sample, the contributors and the levels with two rows with them, and within_share of structure.within_between, whose scope names 'subject', is suppressed by rule 5, since beside the counts of the analysis sample it could give back the levels without an outcome (privacy.md, Across findings). The counts of structure.within_between are suppressed with the levels with two rows, and its message falls back to the text without values.",
+      "checks": ["design.scale_disparity", "structure.within_between"],
+      "data": {
+        "y": [0, null, 1, null, 0, null, 1, null, 0, null, 1, null, 0, null, 1, null, 0, null, 1, null, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0],
+        "x": [0, 1, 1, 3, 2, 5, 3, 4, 0, 2, 1, 4, 2, 3, 3, 5, 0, 3, 1, 2, 2, 4, 3, 6, 0, 1, 1, 3, 2, 5, 3, 4, 0, 2, 1, 4, 2, 3, 3, 5],
+        "subject": ["s01", "s01", "s02", "s02", "s03", "s03", "s04", "s04", "s05", "s05", "s06", "s06", "s07", "s07", "s08", "s08", "s09", "s09", "s10", "s10", "s11", "s11", "s12", "s12", "s13", "s13", "s14", "s14", "s15", "s15", "s16", "s16", "s17", "s17", "s18", "s18", "s19", "s19", "s20", "s20"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Check the events per subject.",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x' lies between 0.001 and 1000, and the largest is 1.0 times the smallest at most."},
+            "statistics": {
+              "condition_number": {"kind": "real", "value": 3.423172927246805},
+              "scaled_columns": {"kind": "names", "value": ["x"]},
+              "sd_largest": {"kind": "real", "value": 1.601081365347039},
+              "sd_ratio": {"kind": "real", "value": 1},
+              "sd_smallest": {"kind": "real", "value": 1.601081365347039}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is within with respect to 'subject': it varies within 20 of its 20 levels with two or more rows."},
+            "statistics": {
+              "icc": {"kind": "real", "value": 0.13503836317135554},
+              "informative_levels": {"kind": "count", "value": 20, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 20, "count_class": "person"},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "within"},
+              "varying_levels": {"kind": "count", "value": 20, "count_class": "person"},
+              "within_share": {"kind": "real", "value": 0.4451112778194548}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x' lies between 0.001 and 1000, and the largest is 1.0 times the smallest at most."},
+            "statistics": {
+              "condition_number": {"kind": "real", "value": 3.423172927246805},
+              "scaled_columns": {"kind": "names", "value": ["x"]},
+              "sd_largest": {"kind": "real", "value": 1.601081365347039},
+              "sd_ratio": {"kind": "real", "value": 1},
+              "sd_smallest": {"kind": "real", "value": 1.601081365347039}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "structure.within_between",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject", "term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "status", "text": "As inferred from the data, 'x' is within with respect to 'subject'."},
+            "statistics": {
+              "icc": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "informative_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "multi_row_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "slope_requested": {"kind": "boolean", "value": false},
+              "status": {"kind": "category", "value": "within"},
+              "varying_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "within_share": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-068",
+      "description": "A T1 run on a binary outcome without missing values, so that the design and analysis samples hold the same rows and the rows of the design sample lose their value. The generalised variance inflation factors of design.collinearity and the standard deviations, their ratio and the condition number of design.scale_disparity are reals over the design sample, which beside the rows of the analysis sample could give back the rows without an outcome, so rule 5 suppresses them with the detail 'secondary', and the messages fall back to their texts without values (privacy.md, Across findings).",
+      "checks": ["design.collinearity", "design.scale_disparity"],
+      "data": {
+        "y": [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        "x1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 3, 5, 7, 9, 2, 4, 6, 8, 10],
+        "x2": [200, 100, 400, 300, 600, 500, 800, 700, 1000, 900, 300, 200, 500, 400, 700, 600, 900, 800, 100, 1000]
+      },
+      "formula": "y ~ x1 + x2",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Check the events.",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x1' has a generalised variance inflation factor of 1.66, or 1.66 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1.6591504662075693},
+              "gvif_per_df": {"kind": "real", "value": 1.6591504662075693}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x2' has a generalised variance inflation factor of 1.66, or 1.66 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1.6591504662075693},
+              "gvif_per_df": {"kind": "real", "value": 1.6591504662075693}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x1' and 'x2' lies between 0.001 and 1000, and the largest is 100.0 times the smallest at most."},
+            "statistics": {
+              "condition_number": {"kind": "real", "value": 5.940669915190351},
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": 294.6898458772509},
+              "sd_ratio": {"kind": "real", "value": 100},
+              "sd_smallest": {"kind": "real", "value": 2.946898458772509}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "rows", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x1' has a generalised variance inflation factor per degree of freedom below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "gvif_per_df": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "rows", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x2' has a generalised variance inflation factor per degree of freedom below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "gvif_per_df": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "rows", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x1' and 'x2' lies between 0.001 and 1000, and the largest is at most 1000 times the smallest."},
+            "statistics": {
+              "condition_number": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "sd_ratio": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "sd_smallest": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "rows", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-069",
+      "description": "Two factors of two levels, a and b, with 13, 7, 8 and 12 rows in the combinations a1:b1, a1:b2, a2:b1 and a2:b2, and the outcome 1 exactly in a2:b2: the main effects separate the 12 events from the 28 non-events completely, through the three kept columns. The kept columns read two variables, but four combinations of their values hold all the rows, so the shareable finding is suppressed as a whole with the detail 'decision', since complete shows that each combination holds one class, and of the sets of combinations that main effects can separate only a2:b2 holds 12 rows, so that the events and the sizes of the combinations would show which (privacy.md, Decisions).",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "a": ["a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a1", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2", "a2"],
+        "b": ["b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b2", "b2", "b2", "b2", "b2", "b2", "b2", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b1", "b2", "b2", "b2", "b2", "b2", "b2", "b2", "b2", "b2", "b2", "b2", "b2"]
+      },
+      "formula": "y ~ a + b",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Check for separation.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, through '(Intercept)', 'a[a2]' and 'b[b2]', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": [-1, -0.99999996, 0.99999975, 1, 0.9999998, 1]},
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "columns_involved": {"kind": "names", "value": ["(Intercept)", "a[a2]", "b[b2]"]},
+              "events": {"kind": "count", "value": 12, "count_class": "person"},
+              "margin": {"kind": "real", "value": 0.3333333333333333},
+              "non_events": {"kind": "count", "value": 28, "count_class": "person"},
+              "optimum": {"kind": "real", "value": 25},
+              "verdict": {"kind": "category", "value": "complete"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "rows", "distinct": {"value": 40}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
           }
         ]
       }

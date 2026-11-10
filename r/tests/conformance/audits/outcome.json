@@ -1253,6 +1253,38 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-outcome-040",
+      "description": "1 event and 20 non-events in a model without grouping factors whose fixed part keeps 21 columns, the intercept and the indicators of 20 levels of a: events_per_column is 1/21, whose rendering with 1 digit, 0.0, has no digit other than 0, so that the message writes under 0.1 (registry.md, Messages).",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "y": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "a": ["a01", "a02", "a03", "a04", "a05", "a06", "a07", "a08", "a09", "a10", "a11", "a12", "a13", "a14", "a15", "a16", "a17", "a18", "a19", "a20", "a21"]
+      },
+      "formula": "y ~ a",
+      "family": "binomial",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exact": ["outcome.minority_events:events_per_column"],
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events_model", "text": "The outcome has 1 event and 20 non-events, or under 0.1 minority events per fixed-effects column."},
+            "statistics": {
+              "events": {"kind": "count", "value": 1, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 20, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 0.047619047619047616}
+            },
+            "support": {"rows": {"value": 21}, "contributors": {"basis": "rows", "distinct": {"value": 21}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

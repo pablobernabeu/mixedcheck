@@ -2180,6 +2180,24 @@
       "args": {}
     },
     {
+      "code": "E7045",
+      "name": "results_quantile_member",
+      "area": "results",
+      "location": "pointer",
+      "template": "The statistic at {location} must have a quantile exactly when the registry entry of the check gives it one.",
+      "args": {}
+    },
+    {
+      "code": "E7046",
+      "name": "results_privacy_parameter",
+      "area": "results",
+      "location": "pointer",
+      "template": "The value at {location} must be {expected}, as the privacy block of the registry states.",
+      "args": {
+        "expected": "values"
+      }
+    },
+    {
       "code": "E7060",
       "name": "results_duplicate_pseudonym",
       "area": "results",

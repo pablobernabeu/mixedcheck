@@ -134,8 +134,11 @@ point_digits <- function(text, digits) {
 # scientific notation when the double is finite and at least 1e15 in absolute
 # value, a bound that the double 10^15 holds exactly, in fixed notation when
 # it is finite and smaller, and as 'NaN', 'Infinity' or '-Infinity'
-# otherwise. 'digits' may hold several numbers of places, for each of which
-# the value is rendered from one expansion of the double.
+# otherwise. A double above 0 whose fixed rendering has no digit other than
+# 0 is written as 'under' and the smallest positive value at that number of
+# places, which the rendering itself decides. 'digits' may hold several
+# numbers of places, for each of which the value is rendered from one
+# expansion of the double.
 real_text <- function(x, digits) {
   digits <- as.integer(digits)
   if (is.nan(x)) {
@@ -149,8 +152,15 @@ real_text <- function(x, digits) {
   }
   parts <- double_parts(x)
   exact <- scaled_digits(parts$m, parts$e, 1)
-  render <- if (abs(x) >= powers_of_ten[16L]) scientific_decimal else fixed_decimal
-  vapply(digits, function(d) render(exact$digits[[1L]], exact$q, parts$negative, d), "")
+  if (abs(x) >= powers_of_ten[16L]) {
+    return(vapply(digits, function(d) {
+      scientific_decimal(exact$digits[[1L]], exact$q, parts$negative, d)
+    }, ""))
+  }
+  vapply(digits, function(d) {
+    text <- fixed_decimal(exact$digits[[1L]], exact$q, parts$negative, d)
+    if (parts$negative || grepl("[1-9]", text)) text else paste0("under ", point_digits("1", d))
+  }, "")
 }
 
 # The exact value of a non-zero double, held as its decimal digits 'value'

@@ -36,17 +36,22 @@ audit_check_identifiability_gram_rank <- function(run, entry, elements) {
   zq <- if (is.null(q)) NULL else as.matrix(Matrix::crossprod(scaled$z, q))
   found <- gram_of_bases(scaled, zq, bases)
   gram <- found$gram
-  original <- found$original
   names <- bases$names
+  # A covariance parameter vanishes when its largest level ratio, or its
+  # cancellation ratio, is at or below the tolerance, or when no level
+  # holds a part of its unprojected basis.
+  cancellation <- diag(gram) / found$level_sums
+  vanishing <- is.na(found$largest) | found$largest <= tolerance |
+    diag(gram) <= tolerance * found$level_sums
+  ratios <- c(found$largest, cancellation)
   if (gaussian) {
     residual <- residual_gram(run, bases, scaled, q, zq, found$traces)
     gram <- rbind(cbind(gram, residual$cross), c(residual$cross, residual$own))
-    original <- c(original, residual$basis)
     names <- c(names, "residual")
+    vanishing <- c(vanishing, residual$own <= tolerance * residual$basis)
+    ratios <- c(ratios, residual$own / residual$basis)
   }
   total <- length(names)
-  ratio <- diag(gram) / original
-  vanishing <- diag(gram) <= tolerance * original
   others <- which(!vanishing)
   eigenvalues <- numeric(0)
   confounded <- character(0)
@@ -82,7 +87,7 @@ audit_check_identifiability_gram_rank <- function(run, entry, elements) {
   list(check_element(statistics, rules = c(
     verdict == "not_identified",
     verdict == "necessary_condition_met"
-  ), proximity = list(rank_tolerance = c(eigenvalues, ratio[is.finite(ratio)]))))
+  ), proximity = list(rank_tolerance = c(eigenvalues, ratios[is.finite(ratios)]))))
 }
 
 # The number of elements of a block of W in gram_of_bases() above which the
@@ -151,9 +156,12 @@ covariance_bases <- function(run) {
 
 # The Gram matrix M_kl = tr(A_k W A_l W) of the covariance parameters, with
 # W = Z'Z - (Z'Q)(Z'Q)' for zq = Z'Q, or W = Z'Z without zq, for Z scaled as
-# scaled_random_columns() scales it, the same elements tr(A_k Z'Z A_k Z'Z) of
-# the unprojected bases (original) and, for each random term, the trace of
-# each block of W between two of its columns (traces). For blocks (x, y) of
+# scaled_random_columns() scales it, for each parameter the largest ratio of
+# the element tr(A_kL W A_kL W) of its basis in a level L to the same element
+# of its unprojected basis, over the levels where the latter is not 0
+# (largest, NA without such a level), and the sum of the former over the
+# levels (level_sums), and, for each random term, the trace of each block of
+# W between two of its columns (traces). For blocks (x, y) of
 # A_k and (u, v) of A_l, the trace adds the sum over the levels L and L' of
 # W[y_L, u_L'] W[v_L', x_L], the sum of the elements of W[y, u] times those
 # of W[x, v]. For each random term t and each chunk of its levels, one
@@ -185,20 +193,26 @@ gram_of_bases <- function(scaled, zq, bases, chunk = gram_chunk_elements) {
   })
   traces <- list()
   diagonals <- list()
+  projected <- list()
   for (t in seq_len(count)) {
     qt <- widths[t]
     jt <- terms[[t]]$count
     values <- terms[[t]]$values
-    # The diagonal of each block of Z'Z within the term, in its own rows,
-    # and the trace of the block of W.
+    # The diagonal of each block of Z'Z and of W within the term, an
+    # element for each level, and the trace of the block of W.
     traces[[t]] <- matrix(0, qt, qt)
     diagonals[[t]] <- list()
+    projected[[t]] <- list()
     for (d in seq_len(qt)) {
       for (c in seq_len(qt)) {
         product <- rowsum(values[, c] * values[, d], terms[[t]]$level, reorder = TRUE)[, 1L]
         diagonals[[t]][[(d - 1L) * qt + c]] <- product
-        traces[[t]][c, d] <- sum(product) - if (is.null(zq)) 0 else
-          sum(zq[positions[[t]][[c]], , drop = FALSE] * zq[positions[[t]][[d]], , drop = FALSE])
+        if (!is.null(zq)) {
+          product <- product - rowSums(zq[positions[[t]][[c]], , drop = FALSE] *
+                                         zq[positions[[t]][[d]], , drop = FALSE])
+        }
+        projected[[t]][[(d - 1L) * qt + c]] <- product
+        traces[[t]][c, d] <- sum(product)
       }
     }
     later <- which(owner >= t)
@@ -268,19 +282,35 @@ gram_of_bases <- function(scaled, zq, bases, chunk = gram_chunk_elements) {
       gram[k, l] <- gram[l, k] <- total
     }
   }
-  original <- vapply(bases$blocks, function(blocks) {
-    diagonal <- diagonals[[blocks[[1L]]$term]]
+  # For each parameter, the element tr(A_kL W A_kL W) of its basis in each
+  # level L, from the diagonals of the blocks of W, and the same element of
+  # its unprojected basis, from those of Z'Z: the sum over its blocks a and
+  # b of the products of the diagonals of the blocks (a$y, b$x) and
+  # (a$x, b$y), level by level.
+  level_element <- function(blocks, diagonal) {
     q <- widths[blocks[[1L]]$term]
     total <- 0
     for (a in blocks) {
       for (b in blocks) {
-        total <- total + sum(diagonal[[(b$column_x - 1L) * q + a$column_y]] *
-                               diagonal[[(b$column_y - 1L) * q + a$column_x]])
+        total <- total + diagonal[[(b$column_x - 1L) * q + a$column_y]] *
+          diagonal[[(b$column_y - 1L) * q + a$column_x]]
       }
     }
     total
-  }, 0)
-  list(gram = gram, original = original, traces = traces)
+  }
+  largest <- rep(NA_real_, parameters)
+  level_sums <- numeric(parameters)
+  for (k in seq_len(parameters)) {
+    blocks <- bases$blocks[[k]]
+    part <- level_element(blocks, projected[[blocks[[1L]]$term]])
+    unprojected <- level_element(blocks, diagonals[[blocks[[1L]]$term]])
+    level_sums[k] <- sum(part)
+    held <- unprojected > 0
+    if (any(held)) {
+      largest[k] <- max(part[held] / unprojected[held])
+    }
+  }
+  list(gram = gram, largest = largest, level_sums = level_sums, traces = traces)
 }
 
 # The elements of the Gram matrix that involve the residual for the class

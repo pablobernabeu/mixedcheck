@@ -310,10 +310,11 @@ test_that("messages match by their values, whatever the renderings of their real
   }
   # Values within the tolerance whose renderings differ by several units of
   # the last place, in notation, as under 0.1 and 0.1 or as neighbouring
-  # roundings.
+  # roundings. The doubles before 1e15 and 0.05 are built by arithmetic, since
+  # R's parser can misround literals of 17 significant digits on macOS on arm64.
   pairs <- list(list(gvif(4e5), gvif(400000.015)), list(ratio(2e9), ratio(2000000001.5)),
-                list(ratio(999999999999999.875), ratio(1e15)),
-                list(events(0.049999999999999996), events(0.05)),
+                list(ratio(1e15 - 0.125), ratio(1e15)),
+                list(events(0.05 - 2^-57), events(0.05)),
                 list(gvif(1.255), gvif(1.255 + 1e-12)))
   for (pair in pairs) {
     expect_false(identical(pair[[1L]]$message$text, pair[[2L]]$message$text))

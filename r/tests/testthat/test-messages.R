@@ -41,8 +41,10 @@ test_that("reals are rendered as the vectors of the number corpus give them", {
 })
 
 test_that("the notation changes at 1e15, by the double before rounding", {
-  # The double before 1e15.
-  below <- 999999999999999.875
+  # The double before 1e15. Doubles that need 17 significant digits are built
+  # by arithmetic, since R's parser can misround such literals where long
+  # double has no more precision than double (macOS on arm64).
+  below <- 1e15 - 0.125
   expect_identical(real_text(below, 0L), "1000000000000000")
   expect_identical(real_text(below, 2L), "999999999999999.88")
   expect_identical(real_text(1e15, 0L), "1e+15")
@@ -71,7 +73,7 @@ test_that("the message of design.scale_disparity renders a large ratio in scient
 test_that("a positive real whose rounding has only zeros renders as under the smallest value", {
   # The double nearest to 0.05 lies above it, and the double before it below.
   below <- 0.05 - 2^-57
-  expect_identical(below, 0.049999999999999996)
+  expect_true(below < 0.05 && below + 2^-57 == 0.05)
   expect_identical(real_text(0.05, 1L), "0.1")
   expect_identical(real_text(below, 1L), "under 0.1")
   expect_identical(real_text(below, 0:2), c("under 1", "under 0.1", "0.05"))

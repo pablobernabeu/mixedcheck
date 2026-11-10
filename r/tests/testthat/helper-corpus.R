@@ -48,38 +48,40 @@ capture_issues <- function(f) {
   tryCatch(list(value = f()), mixedcheck_error = function(e) list(issues = e$issues))
 }
 
+# Compares the one issue of a result with the expected issue, its code, its
+# message as bytes and its offset or pointer, or their absence, in one
+# expectation.
 expect_issue <- function(result, expected, label) {
   if (is.null(result$issues)) {
     fail(sprintf("%s: expected %s, got no issue.", label, expected[["code"]]))
     return(invisible())
   }
-  expect_length(result$issues, 1L)
   issue <- result$issues[[1L]]
-  expect_identical(issue[["code"]], expected[["code"]], label = label)
-  expect_identical(utf8_bytes(issue[["message"]]), utf8_bytes(expected[["message"]]), label = label)
-  if (!is.null(expected[["offset"]])) {
-    expect_identical(issue[["offset"]], as.integer(expected[["offset"]]), label = label)
-  } else {
-    expect_null(issue[["offset"]], label = label)
-  }
-  if (!is.null(expected[["pointer"]])) {
-    expect_identical(utf8_bytes(issue[["pointer"]]), utf8_bytes(expected[["pointer"]]), label = label)
-  } else {
-    expect_null(issue[["pointer"]], label = label)
-  }
+  bytes <- function(text) if (is.null(text)) NULL else utf8_bytes(text)
+  offset <- expected[["offset"]]
+  expect_same(
+    list(count = length(result$issues), code = issue[["code"]],
+         message = bytes(issue[["message"]]), offset = issue[["offset"]],
+         pointer = bytes(issue[["pointer"]])),
+    list(count = 1L, code = expected[["code"]], message = bytes(expected[["message"]]),
+         offset = if (!is.null(offset)) as.integer(offset), pointer = bytes(expected[["pointer"]])),
+    label = label
+  )
 }
 
+# Compares the canonical bytes of a value read, their hash and, for a
+# number, its bits with the expected ones in one expectation.
 expect_canonical <- function(result, expected, profile, label) {
   if (!is.null(result$issues)) {
     fail(sprintf("%s: expected canonical bytes, got %s.", label, result$issues[[1L]][["code"]]))
     return(invisible())
   }
   bytes <- canonical_bytes(result$value, profile)
-  expect_identical(bytes, utf8_bytes(expected[["canonical"]]), label = label)
-  expect_identical(hash_bytes(bytes), expected[["sha256"]], label = label)
-  if (!is.null(expected[["bits"]])) {
-    expect_identical(mixedcheck:::double_bits(result$value), expected[["bits"]], label = label)
-  }
+  bits <- if (!is.null(expected[["bits"]])) mixedcheck:::double_bits(result$value)
+  expect_same(list(bytes = bytes, sha256 = hash_bytes(bytes), bits = bits),
+              list(bytes = utf8_bytes(expected[["canonical"]]), sha256 = expected[["sha256"]],
+                   bits = expected[["bits"]]),
+              label = label)
 }
 
 profiles <- c("plain", "data", "hashable")
@@ -163,8 +165,9 @@ run_writer_case <- function(case) {
     } else if (!is.null(result$issues)) {
       fail(sprintf("%s: expected canonical bytes, got %s.", label, result$issues[[1L]][["code"]]))
     } else {
-      expect_identical(result$value, utf8_bytes(expected[["canonical"]]), label = label)
-      expect_identical(hash_bytes(result$value), expected[["sha256"]], label = label)
+      expect_same(list(bytes = result$value, sha256 = hash_bytes(result$value)),
+                  list(bytes = utf8_bytes(expected[["canonical"]]), sha256 = expected[["sha256"]]),
+                  label = label)
     }
   }
 }

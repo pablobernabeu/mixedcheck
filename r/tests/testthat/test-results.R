@@ -88,7 +88,7 @@ test_that("write_results() writes the canonical bytes and the sidecar with the r
   example_bytes <- canonical_bytes(example, "data")
   expect_length(example_bytes, 5715L)
   expect_identical(hash_bytes(example_bytes),
-                   "sha256:8dd371152e9753d27dfde5936b9f6d9e21db2a6a1ea3f84636f279621740ff52")
+                   "sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92")
   written <- read_json_strict(sidecar, "data")
   expect_identical(written$results_hash, hash$value)
   expect_identical(written[names(results$sidecar)], results$sidecar)

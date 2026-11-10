@@ -47,39 +47,40 @@ expect_table_columns <- function(result, expected, label) {
     return(invisible())
   }
   table <- result$value
-  expect_true(is.data.frame(table), label = label)
-  expect_identical(length(table), length(expected), label = label)
   types <- attr(table, "types")
-  expect_identical(lapply(names(table), utf8_bytes),
-                   lapply(expected, function(column) utf8_bytes(column[["name"]])),
-                   label = label)
-  expect_identical(lapply(names(types), utf8_bytes), lapply(names(table), utf8_bytes),
-                   label = label)
+  expect_same(
+    list(data_frame = is.data.frame(table), columns = length(table),
+         names = lapply(names(table), utf8_bytes), type_names = lapply(names(types), utf8_bytes)),
+    list(data_frame = TRUE, columns = length(expected),
+         names = lapply(expected, function(column) utf8_bytes(column[["name"]])),
+         type_names = lapply(names(table), utf8_bytes)),
+    label = label
+  )
+  # The facts of each column, compared in one expectation.
   for (j in seq_along(expected)) {
     column <- expected[[j]]
     type <- column[["type"]]
-    where <- paste(label, "column", j)
-    expect_identical(unname(types[j]), type, label = where)
     want <- expected_column_values(column[["values"]], type)
     got <- table[[j]]
-    expect_identical(length(got), length(want), label = where)
+    known <- !is.na(want)
+    facts <- list(type = unname(types[j]), length = length(got))
+    expected_facts <- list(type = type, length = length(want))
     if (type %in% c("integer", "number")) {
-      expect_true(is.double(got), label = where)
-      expect_identical(is.na(got) & !is.nan(got), is.na(want) & !is.nan(want), label = where)
-      expect_identical(is.nan(got), is.nan(want), label = where)
-      known <- !is.na(want)
-      expect_true(all(got[known] == want[known]), label = where)
+      facts <- c(facts, list(double = is.double(got), na = is.na(got) & !is.nan(got),
+                             nan = is.nan(got), equal = all(got[known] == want[known])))
+      expected_facts <- c(expected_facts, list(double = TRUE, na = is.na(want) & !is.nan(want),
+                                               nan = is.nan(want), equal = TRUE))
     } else if (type == "boolean") {
-      expect_identical(got, want, label = where)
+      facts$values <- got
+      expected_facts$values <- want
     } else {
-      expect_true(is.character(got), label = where)
-      expect_identical(is.na(got), is.na(want), label = where)
-      known <- !is.na(want)
-      expect_identical(lapply(got[known], utf8_bytes), lapply(want[known], utf8_bytes),
-                       label = where)
-      expect_true(all(Encoding(got[known & has_non_ascii_bytes(got)]) == "UTF-8"),
-                  label = where)
+      facts <- c(facts, list(character = is.character(got), na = is.na(got),
+                             bytes = lapply(got[known], utf8_bytes),
+                             utf8 = all(Encoding(got[known & has_non_ascii_bytes(got)]) == "UTF-8")))
+      expected_facts <- c(expected_facts, list(character = TRUE, na = is.na(want),
+                                               bytes = lapply(want[known], utf8_bytes), utf8 = TRUE))
     }
+    expect_same(facts, expected_facts, label = paste(label, "column", j))
   }
 }
 
@@ -97,11 +98,11 @@ expect_table_samples <- function(table, case, label) {
   }
   samples <- design_samples(ir$value, table)
   expected <- case[["expected"]]
-  expect_identical(samples$design_sample - 1L, as.integer(unlist(expected[["design_sample"]])),
-                   label = paste(label, "design sample"))
-  expect_identical(samples$analysis_sample - 1L,
-                   as.integer(unlist(expected[["analysis_sample"]])),
-                   label = paste(label, "analysis sample"))
+  expect_same(samples$design_sample - 1L, as.integer(unlist(expected[["design_sample"]])),
+              label = paste(label, "design sample"))
+  expect_same(samples$analysis_sample - 1L,
+              as.integer(unlist(expected[["analysis_sample"]])),
+              label = paste(label, "analysis sample"))
 }
 
 run_table_cases <- function(file) {
@@ -132,10 +133,10 @@ for (file in c("edgezoo.json", "edge.json", "input.json", "records.json", "heade
 test_that("the table corpus holds 194 cases, 10 of them with a formula", {
   files <- c("edgezoo.json", "edge.json", "input.json", "records.json", "header.json",
              "values.json", "inference.json", "keys.json", "precedence.json", "samples.json")
-  expect_identical(sum(vapply(files, function(file) length(corpus_cases("tables", file)), 0L)),
-                   194L)
+  expect_same(sum(vapply(files, function(file) length(corpus_cases("tables", file)), 0L)),
+              194L)
   with_formula <- vapply(files, function(file) {
     sum(vapply(corpus_cases("tables", file), function(case) !is.null(case[["formula"]]), NA))
   }, 0L)
-  expect_identical(sum(with_formula), 10L)
+  expect_same(sum(with_formula), 10L)
 })

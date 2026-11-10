@@ -16,7 +16,7 @@ repository with the design that governs them.
 | `spec/` | the shared specification and the vendoring script in `spec/tools/` |
 | `fixtures/` | the shared test fixtures |
 | `parity/` | the cross-language harness |
-| `sim/` | the validation studies on the HPC, never shipped |
+| `sim/` | the disclosure-attack tests of the privacy filter and the validation studies to run on the HPC, never shipped |
 | `paper/` | the JOSS paper |
 | `docs/` | the design documents in `docs/design/`, the specifications in `docs/spec/` and the provenance log |
 
@@ -122,6 +122,15 @@ Python package installed with its extra 'yaml', as
 
 ```bash
 python3 parity/parity.py --python /path/to/venv/bin/python --r-lib /path/to/rlib
+```
+
+The disclosure-attack tests attack the shareable documents of the R package
+and fail when one gives back a value that the privacy filter undertakes to
+hide. They need the R package installed with lpSolve, as
+[sim/disclosure/README.md](../sim/disclosure/README.md) describes:
+
+```bash
+Rscript sim/disclosure/run.R --cores 4
 ```
 
 Continuous integration runs these checks on every push to main and every pull

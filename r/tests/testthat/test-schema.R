@@ -146,3 +146,29 @@ test_that("uniqueItems compares canonical forms in time proportional to the item
   distinct <- list(1, TRUE, "1", NULL, list(1), list(`1` = 1))
   expect_identical(schema_issues(distinct, "urn:test:unique", bundle), list())
 })
+
+test_that("a value is valid without a second validation only when identical to a valid one", {
+  # The store of values found valid groups them by the text of their
+  # serialisation, which writes 1 and 1 + 2^-52 alike, and compares them
+  # with identical(), so that the second quantile is still above its
+  # maximum of 1. A condition of if decides as the full validator does.
+  bundle <- new_schema_bundle(lapply(unname(schema_bundle()$schemas), with_compiled_conditions))
+  node <- schema_node(list(`$ref` = "#/$defs/statistic"), "urn:mixedcheck:schema:results")
+  statistic <- function(p) list(kind = "real", value = 0.5, quantile = list(p = p))
+  expect_identical(schema_issues(statistic(1), node, bundle), list())
+  expect_identical(schema_issues(statistic(1), node, bundle), list())
+  expect_identical(bundle$valid_count, 1L)
+  issues <- finish_issues(schema_issues(statistic(1 + 2^-52), node, bundle))
+  expect_identical(vapply(issues, function(issue) issue$code, ""), "E1410")
+  expect_identical(issues[[1L]]$pointer, "/quantile/p")
+  condition <- resolve_reference(bundle, "#/$defs/statistic",
+                                  "urn:mixedcheck:schema:results")
+  conditions <- lapply(condition$schema$allOf[-1L], function(sub) sub[["if"]])
+  for (value in list(statistic(1), list(kind = "count", value = 2L), list(value = 1), "count",
+                     list(kind = 3))) {
+    expect_identical(
+      vapply(conditions, function(c) attr(c, "mixedcheck_condition")(value), NA),
+      vapply(conditions, function(c) simple_schema_valid(value, c), NA)
+    )
+  }
+})

@@ -1,9 +1,12 @@
 # The identifiability checks, in the parts that the audit corpus cannot
 # reach: the Gram matrix against its definition on dense matrices, at
-# extreme magnitudes and in chunks of levels, the proximity band of
-# rank_tolerance, a level of many rows beside a level of one row, the limits
-# of max_z_columns and max_parameters, the budget against the literal
-# sequential rule and the rank of each level.
+# extreme magnitudes, with weights that differ by many orders of magnitude
+# and in chunks of levels, the proximity band of rank_tolerance and the
+# bounds on rounding errors that make a value near it, with fixed-effects
+# columns far from orthogonal and on confounded designs that stay clear, a
+# level of many rows beside a level of one row, the limits of max_z_columns
+# and max_parameters, the budget against the literal sequential rule and the
+# rank of each level.
 
 identifiability_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -56,7 +59,7 @@ gram_by_definition <- function(data, formula, weights = NULL, gaussian = TRUE) {
   if (gaussian) {
     cross <- vapply(bases, function(a) trace(a %*% t(z) %*% p %*% d %*% p %*% z), 0)
     gram <- rbind(cbind(gram, cross), c(cross, trace(p %*% d %*% p %*% d)))
-    vanishing <- c(vanishing, gram[nrow(gram), nrow(gram)] <= 1e-10 * trace(d %*% d))
+    vanishing <- c(vanishing, ncol(x) == n)
   }
   others <- which(!vanishing)
   scaled <- gram[others, others] / sqrt(outer(diag(gram)[others], diag(gram)[others]))
@@ -152,7 +155,145 @@ test_that("identifiability.gram_rank keeps a variance that a level of many rows 
   run <- new_run(NULL, table, ir, "gaussian", "T0", model, design_build(ir, model, table))
   found <- run_check(run, registry_entry("identifiability.gram_rank"))[[1L]]
   expect_identical(found$statistics$verdict$value, "identified")
+  expect_identical(found$status$threshold_proximity$value, "clear")
   expect_length(found$statistics$vanishing_parameters$value, 0L)
+})
+
+# The run of a model at T0 without audit(), for designs larger than a run
+# of all the checks would allow in a test.
+gram_rank_run <- function(data, formula, weights = NULL) {
+  table <- run_data(data, NULL)$table
+  ir <- formula_ir(formula, data = data, weights = weights)
+  model <- design_model(ir, table, analysis = FALSE)
+  new_run(NULL, table, ir, "gaussian", "T0", model, design_build(ir, model, table))
+}
+
+test_that("identifiability.gram_rank bounds the rounding error of every value it compares", {
+  # One level of n - 1 rows and one of one row beside the fixed part 1 + x,
+  # with x = 1, -1, 1, ... and n even, give PZ of rank 1 and W = a vv' with
+  # a = 1 - 2 / n, so that every largest level ratio is a^2, every
+  # cancellation ratio is 2 and C has the eigenvalues 2 + s, 2 - s, 0 and 0
+  # for s = sqrt(1 + 3 / (n - 2)). The elements of W cancel to within about
+  # 2^-52 n^2 / 5, so that an eigenvalue of 0 is computed as about 2e-11,
+  # -2e-7 and 7e-7 for n of 1e3, 1e5 and 7e5, where each value lies within
+  # its bound and the bounds make the finding near_threshold. The bounds
+  # leave the rank undecided at every n, so the verdict, which another
+  # orthonormal basis or BLAS can change from 1e5, is tested at 1e3 alone,
+  # where the errors lie well below the tolerance.
+  entry <- registry_entry("identifiability.gram_rank")
+  for (n in c(1e3, 1e5, 7e5)) {
+    if (n > 1e3) {
+      skip_on_cran()
+    }
+    data <- data.frame(y = rep(0, n), x = rep(c(1, -1), length.out = n),
+                       g = c(rep("big", n - 1), "small"))
+    run <- gram_rank_run(data, "y ~ x + (1 + x | g)")
+    element <- audit_check_identifiability_gram_rank(run, entry, NULL)[[1L]]
+    compared <- element$proximity$rank_tolerance
+    a <- 1 - 2 / n
+    s <- sqrt(1 + 3 / (n - 2))
+    exact <- c(rep(a^2, 3L), rep(2, 3L), 2 + s, 2 - s, 0, 0)
+    expect_length(compared, length(exact))
+    expect_true(all(abs(as.vector(compared) - exact) <= attr(compared, "bound")), label = n)
+    if (n == 1e3) {
+      expect_identical(element$statistics$verdict, "not_identified")
+    }
+    expect_true(finding_near_threshold(entry, element$statistics, element), label = n)
+  }
+})
+
+test_that("identifiability.gram_rank bounds the error of a basis of X that is far from orthogonal", {
+  # x2 = x1 + 2^-22 w, exact in doubles, which the sequential rule keeps
+  # with a residual ratio of about 1.4e-7, has the span of 1, x1 and w, so
+  # that y ~ x1 + w gives the same exact values with a well-conditioned
+  # basis. The rounding of the basis of x1 and x2 changes the level ratios
+  # by about 1e-10, far more than the sums over the rows explain.
+  local_seed(3)
+  entry <- registry_entry("identifiability.gram_rank")
+  n <- 100L
+  w <- round(runif(n, -1, 1) * 1024) / 1024
+  x1 <- rep(c(1, -1), length.out = n)
+  data <- data.frame(y = 0, x1 = x1, x2 = x1 + w * 2^-22, w = w,
+                     g = c(rep("big", n - 1L), "small"))
+  run <- gram_rank_run(data, "y ~ x1 + x2 + (1 + w | g)")
+  expect_true(all(run$x_kept))
+  found <- audit_check_identifiability_gram_rank(run, entry, NULL)[[1L]]$proximity$rank_tolerance
+  run <- gram_rank_run(data, "y ~ x1 + w + (1 + w | g)")
+  reference <- audit_check_identifiability_gram_rank(run, entry, NULL)[[1L]]$proximity$rank_tolerance
+  expect_length(found, length(reference))
+  error <- abs(as.vector(found) - as.vector(reference))
+  expect_gt(max(error), 1e-11)
+  expect_true(all(error <= attr(found, "bound") + attr(reference, "bound")))
+})
+
+test_that("identifiability.gram_rank leaves exactly confounded designs of 1,000 rows clear", {
+  # An intercept for each row beside the residual, a factor and a copy of
+  # it with other labels, and a slope of two values with two rows in each
+  # level confound parameters exactly. Their eigenvalues of 0 are computed
+  # within about 1e-15, and their bounds of about 5e-12 decide the rank.
+  local_seed(11)
+  entry <- registry_entry("identifiability.gram_rank")
+  n <- 1000L
+  pairs <- rep(seq_len(n / 2L), each = 2L)
+  data <- data.frame(y = 0, x = rnorm(n), slope = rep(0:1, length.out = n),
+                     g = sprintf("g%02d", rep(1:10, length.out = n)),
+                     obs = sprintf("o%04d", seq_len(n)),
+                     pair = sprintf("p%03d", pairs), copy = sprintf("c%03d", pairs))
+  for (formula in c("y ~ x + (1 | g) + (1 | obs)", "y ~ x + (1 | pair) + (1 | copy)",
+                    "y ~ slope + (1 + slope | pair)")) {
+    found <- run_check(gram_rank_run(data, formula), entry)[[1L]]
+    expect_identical(found$statistics$verdict$value, "not_identified", label = formula)
+    expect_identical(found$status$threshold_proximity$value, "clear", label = formula)
+  }
+})
+
+test_that("a value is near rank_tolerance in its band or within its bound of the tolerance", {
+  entry <- registry_entry("identifiability.gram_rank")
+  near <- function(value, bound) {
+    element <- check_element(list(), proximity = list(rank_tolerance = compared_values(value, bound)))
+    finding_near_threshold(entry, list(), element)
+  }
+  expect_false(near(1e-7, 0))
+  expect_true(near(1e-7, 1e-7))
+  expect_false(near(1e-7, 9e-8))
+  expect_false(near(1e-13, 0))
+  expect_false(near(-1e-13, 1e-11))
+  expect_true(near(-1e-13, 1e-10))
+  expect_false(near(1.7e-9, 7e-10))
+  expect_true(near(5e-10, 0))
+  expect_true(near(2e-11, 0))
+  expect_true(near(1, Inf))
+})
+
+test_that("identifiability.gram_rank keeps the residual for weights that differ by many orders of magnitude", {
+  # f isolates the first row, which P takes to 0, and gives it the smallest
+  # weight, so that D = diag(m / w) holds 1 for it and the pattern of the
+  # other rows divided by the ratio. C does not depend on the ratio, and the
+  # residual has n - rank(X) = 4 degrees of freedom. tr(PDPD) / tr(DD) falls
+  # below rank_tolerance from a ratio of about 1e6, and tr(PDPD) =
+  # sum(d^2) - 2 sum(h d^2) + ||Q'DQ||^2 cancels to rounding error from
+  # about 1e8.
+  entry <- registry_entry("identifiability.gram_rank")
+  pattern <- c(1, 1.5, 2, 1, 3, 1.2, 2.5)
+  data <- data.frame(y = 1:7, f = c("iso", "A", "A", "A", "B", "B", "B"),
+                     g = c("g1", "g1", "g2", "g3", "g1", "g2", "g3"), w = pattern)
+  expected <- gram_by_definition(data, "y ~ f + (1 | g)", "w")
+  expect_equal(expected$rank, 2)
+  for (ratio in 10^(0:12)) {
+    data$w <- c(1, rep(ratio, 6L)) * pattern
+    found <- run_check(gram_rank_run(data, "y ~ f + (1 | g)", "w"), entry)[[1L]]
+    label <- paste("ratio", ratio)
+    expect_identical(found$statistics$verdict$value, "identified", label = label)
+    expect_identical(found$status$threshold_proximity$value, "clear", label = label)
+    expect_equal(found$statistics$smallest_eigenvalue$value, expected$smallest, tolerance = 1e-9,
+                 label = label)
+  }
+  # The residual vanishes exactly when X has rank n, here with a level of f
+  # for every row.
+  data$f <- letters[1:7]
+  found <- run_check(gram_rank_run(data, "y ~ f + (1 | g)", "w"), entry)[[1L]]
+  expect_identical(found$statistics$vanishing_parameters$value, c("1 | g: var((Intercept))", "residual"))
+  expect_identical(found$status$threshold_proximity$value, "clear")
 })
 
 test_that("identifiability.gram_rank runs up to max_z_columns columns of Z", {

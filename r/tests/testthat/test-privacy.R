@@ -79,14 +79,16 @@ test_that("shareable mode is the default and writes no commitment key", {
 
 test_that("a part of a total cannot be recovered from the total and the other part", {
   # 40 subjects of two rows, 3 of which lack 'x', so that 3 rows leave the
-  # design sample: rows_raw - rows_kept would give rows_dropped.
+  # design sample: rows_raw - rows_kept would give rows_dropped. The two parts
+  # name each other and both have the detail 'secondary', so that neither
+  # shows which part is below k.
   data <- data.frame(y = seq_len(80) / 4, x = c(NA, NA, NA, seq_len(77) %% 7),
                      subject = rep(sprintf("s%02d", 1:40), each = 2))
   found <- audit_both(data, "y ~ x + (1 | subject)")
   internal <- finding_of(found$internal, "sample.raw_vs_analysis")
   expect_identical(written(internal, "rows_dropped"), 3)
   shared <- finding_of(found$shareable, "sample.raw_vs_analysis")
-  expect_identical(detail(shared, "rows_dropped"), "min_count")
+  expect_identical(detail(shared, "rows_dropped"), "secondary")
   expect_null(recover_difference(written(shared, "rows_raw"), written(shared, "rows_kept")))
   expect_identical(detail(shared, "rows_kept"), "secondary")
   # Nor from the sizes of the table and the design sample, which other
@@ -165,7 +167,8 @@ test_that("a ratio or a real with a written denominator does not give back its n
                       reason = "Zeros.")
   shared <- finding_of(found$shareable, "outcome.zero_shares")
   expect_identical(written(shared, "rows"), 40)
-  expect_identical(detail(shared, "zeros"), "min_count")
+  # A part of a person total below k has the detail 'secondary'.
+  expect_identical(detail(shared, "zeros"), "secondary")
   expect_identical(detail(shared, "zero_share"), "ratio")
   # 7 events among 40 rows: events_per_column times the written number of
   # kept columns would give back the minority events.
@@ -175,7 +178,7 @@ test_that("a ratio or a real with a written denominator does not give back its n
   kept <- written(finding_of(found$shareable, "design.rank_deficiency"), "kept")
   expect_identical(kept, 2)
   shared <- finding_of(found$shareable, "outcome.minority_events")
-  expect_identical(detail(shared, "events"), "min_count")
+  expect_identical(detail(shared, "events"), "secondary")
   expect_identical(detail(shared, "non_events"), "secondary")
   expect_identical(detail(shared, "events_per_column"), "secondary")
 })
@@ -223,7 +226,7 @@ test_that("quartiles of many levels are written, and minima and maxima never", {
   expect_identical(shared$statistics$median$quantile, list(n = 40, p = 0.5))
   expect_identical(detail(shared, "smallest"), "quantile")
   expect_identical(detail(shared, "largest"), "quantile")
-  expect_identical(detail(shared, "singletons"), "min_count")
+  expect_identical(detail(shared, "singletons"), "secondary")
 })
 
 test_that("the sizes of two samples do not give back the rows that a missing outcome removes", {
@@ -248,8 +251,10 @@ test_that("the sizes of two samples do not give back the rows that a missing out
 })
 
 test_that("levels and levels with two rows do not give back the levels with one row", {
-  # 20 subjects, 3 of them with one row.
-  subject <- c(rep(sprintf("s%02d", 1:17), each = 2), sprintf("s%02d", 18:20))
+  # 20 subjects, 3 of them with one row and 17 with three. The levels with
+  # one row and with two or more are parts of the levels, and both have the
+  # detail 'secondary', which does not show which part is below k.
+  subject <- c(rep(sprintf("s%02d", 1:17), each = 3), sprintf("s%02d", 18:20))
   data <- data.frame(y = seq_along(subject) / 3, x = seq_along(subject) %% 5,
                      subject = subject)
   found <- audit_both(data, "y ~ x + (1 | subject)")
@@ -257,9 +262,112 @@ test_that("levels and levels with two rows do not give back the levels with one 
   between <- finding_of(found$shareable, "structure.within_between", factor = "subject",
                         term = "x")
   expect_identical(written(sizes, "levels"), 20)
-  expect_identical(detail(sizes, "singletons"), "min_count")
+  expect_identical(detail(sizes, "singletons"), "secondary")
   expect_null(recover_difference(written(sizes, "levels"), written(between, "multi_row_levels")))
   expect_identical(detail(between, "multi_row_levels"), "secondary")
+  # 15 subjects of one row and 5 of six: the 5 levels with two or more rows
+  # are below k, and the 15 levels with one row would give them back beside
+  # the 20 levels.
+  subject <- c(rep(sprintf("s%02d", 1:5), each = 6), sprintf("s%02d", 6:20))
+  data <- data.frame(y = seq_along(subject) / 3, x = seq_along(subject) %% 5,
+                     subject = subject)
+  found <- audit_both(data, "y ~ x + (1 | subject)")
+  sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "subject")
+  between <- finding_of(found$shareable, "structure.within_between", factor = "subject",
+                        term = "x")
+  expect_identical(written(sizes, "levels"), 20)
+  expect_identical(detail(sizes, "singletons"), "secondary")
+  expect_identical(detail(between, "multi_row_levels"), "secondary")
+})
+
+test_that("two parts of a written total do not show which is below k", {
+  # 20 subjects of three trials, the first 9 keys repeated identically and
+  # the next 9 with another x: 18 duplicated keys, 9 identical and 9
+  # conflicting. Details that showed both below k would bound each by
+  # 18 - 9 from below and give back 9 and 9.
+  keys <- data.frame(subject = rep(sprintf("s%02d", 1:20), each = 3), trial = rep(1:3, 20),
+                     x = seq_len(60) %% 7 + 0.5)
+  conflicting <- keys[10:18, ]
+  conflicting$x <- conflicting$x + 1
+  data <- rbind(keys, keys[1:9, ], conflicting)
+  data$y <- seq_len(78) %% 11 + 0.5
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant")
+  ), observation = list(key = list("subject", "trial")))
+  found <- audit_both(data, "y ~ x + (1 | subject)", declaration = declaration)
+  shared <- finding_of(found$shareable, "keys.duplicates")
+  expect_identical(written(shared, "duplicated_keys"), 18)
+  expect_identical(c(detail(shared, "identical_keys"), detail(shared, "conflicting_keys")),
+                   c("secondary", "secondary"))
+})
+
+test_that("a count below k that a later rule suppresses has the detail 'secondary'", {
+  # 20 subjects of two rows, 4 of them with the assigned column z: the 4
+  # units of the assignment's rows lose their value as a sample against the
+  # design sample, so that the detail 'min_count' cannot show that the 20
+  # levels exceed them by k or more.
+  subject <- rep(sprintf("s%02d", 1:20), each = 2)
+  z <- ifelse(subject <= "s04", c("a", "b")[(seq_along(subject) %/% 2) %% 2 + 1], NA)
+  data <- data.frame(y = seq_along(subject) / 3, subject = subject, z = z,
+                     stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant")
+  ), assignment = list(list(column = "z", unit = "subject", randomised = TRUE,
+                            level = "between_unit")))
+  found <- audit_both(data, "y ~ 1 + (1 | subject)", declaration = declaration)
+  shared <- finding_of(found$shareable, "assignment.constant_within_unit", column = "z")
+  expect_identical(detail(shared, "units"), "secondary")
+  expect_identical(written(finding_of(found$shareable, "structure.cluster_sizes",
+                                      factor = "subject"), "levels"), 20)
+})
+
+test_that("a count that measures no quantity is written whatever a suppressed quantity holds", {
+  # 20 subjects, 2 of one row and 18 of three, with x constant within each:
+  # the budget of 20 - 2 = 18 equals the 18 levels with two or more rows,
+  # which rule 2 suppresses, and is written, since writing it shows nothing
+  # that the levels and the consuming terms do not.
+  sizes <- c(1, 1, rep(3, 18))
+  subject <- rep(sprintf("s%02d", seq_along(sizes)), sizes)
+  data <- data.frame(y = (seq_along(subject) * 5) %% 13 + 0.25,
+                     x = rep(seq_along(sizes) %% 3 + 0.5, sizes), subject = subject)
+  found <- audit_both(data, "y ~ x + (1 | subject)")
+  budget <- finding_of(found$shareable, "identifiability.df_budget", factor = "subject")
+  expect_identical(c(written(budget, "levels"), written(budget, "budget")), c(20, 18))
+  expect_identical(detail(finding_of(found$shareable, "structure.within_between",
+                                     factor = "subject", term = "x"), "multi_row_levels"),
+                   "secondary")
+})
+
+test_that("the rows and levels do not show that a level has one row", {
+  # 12 subjects, 3 of one row and 9 of two: 21 rows are fewer than twice the
+  # 12 levels, so at least 3 levels have one row and the smallest is 1.
+  subject <- c(sprintf("a%02d", 1:3), rep(sprintf("b%02d", 1:9), each = 2))
+  data <- data.frame(y = seq_along(subject) / 3, x = seq_along(subject) %% 5,
+                     subject = subject)
+  found <- audit_both(data, "y ~ x + (1 | subject)")
+  sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "subject")
+  expect_identical(written(sizes, "rows"), 21)
+  expect_identical(detail(sizes, "levels"), "secondary")
+  expect_identical(detail(sizes, "singletons"), "secondary")
+  expect_null(written(sizes, "contributors"))
+  # 9 subjects of one row and 31 of ten: the lower quartile of 10 at
+  # position 10 bounds the 31 largest sizes, so 319 rows would show that
+  # the 9 smallest levels hold one row each beside the 40 levels.
+  sizes <- c(rep(1, 9), rep(10, 31))
+  data <- data.frame(y = seq_len(sum(sizes)) / 7, subject = rep(sprintf("s%02d", 1:40), sizes))
+  found <- audit_both(data, "y ~ 1 + (1 | subject)")
+  shared <- finding_of(found$shareable, "structure.cluster_sizes", factor = "subject")
+  expect_identical(written(shared, "rows"), 319)
+  expect_null(written(shared, "levels"))
+  expect_null(written(shared, "lower_quartile"))
+  # With 11 rows in each of those 9 levels, the levels and quartiles are
+  # written.
+  sizes <- c(rep(11, 9), rep(10, 31))
+  data <- data.frame(y = seq_len(sum(sizes)) / 7, subject = rep(sprintf("s%02d", 1:40), sizes))
+  found <- audit_both(data, "y ~ 1 + (1 | subject)")
+  shared <- finding_of(found$shareable, "structure.cluster_sizes", factor = "subject")
+  expect_identical(written(shared, "levels"), 40)
+  expect_identical(written(shared, "lower_quartile"), 10)
 })
 
 test_that("the rows of a pair of columns are a sample of their own", {
@@ -494,7 +602,7 @@ test_that("the dominance rule is written as a boolean without the share", {
   expect_true(contributors$dominated)
   expect_identical(contributors$distinct$value, 12)
   expect_identical(detail(shared, "levels"), "dominance")
-  expect_identical(detail(shared, "effective_size"), "dominance")
+  expect_identical(detail(shared, "effective_size"), "internal_only")
 })
 
 test_that("a T1 finding that rests on a suppressed outcome count is suppressed as a whole", {

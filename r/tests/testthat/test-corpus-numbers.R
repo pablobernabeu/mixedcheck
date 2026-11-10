@@ -5,8 +5,8 @@
 run_decimal_constants <- function(cases) {
   for (case in cases) {
     x <- mixedcheck:::bits_double(case[["double"]])
-    expect_identical(mixedcheck:::decimal_string(x, case[["digits"]]), case[["expected"]][["decimal"]],
-                     label = case$id)
+    expect_same(mixedcheck:::decimal_string(x, case[["digits"]]), case[["expected"]][["decimal"]],
+                label = case$id)
   }
 }
 

@@ -49,7 +49,9 @@
 #   it, the one name that the statistic holds is taken as a grouping factor,
 #   a column or a unit, in that order.
 # - proximity: for each parameter with a proximity_factor, by name, the
-#   computed values that the entry compares with it.
+#   computed values that the entry compares with it, with the attribute
+#   'bound' holding a bound on the rounding error of each when the
+#   definition gives one (compared_values()).
 # - near_threshold: TRUE when the definition makes the finding near_threshold
 #   for another reason.
 # - rows: the rows of the table that the statistics count, over which by_unit
@@ -828,8 +830,9 @@ decision_thresholds <- function(entry) {
 
 # Whether the finding is near_threshold: a real statistic within the
 # proximity band of a threshold that a rule of the decision names, a value
-# compared with a parameter that has a proximity factor within its band, or
-# the check's own flag (registry.md, Thresholds and Parameters).
+# compared with a parameter that has a proximity factor within its band or
+# within its bound of the parameter's value, or the check's own flag
+# (registry.md, Thresholds and Parameters).
 finding_near_threshold <- function(entry, values, element) {
   if (isTRUE(element$near_threshold)) {
     return(TRUE)
@@ -856,8 +859,9 @@ finding_near_threshold <- function(entry, values, element) {
     }
     t <- json_number_values(entry[["parameters"]][[name]][["value"]])
     f <- json_number_values(factor)
-    s <- abs(element$proximity[[name]])
-    if (any(s >= t / f & s <= t * f, na.rm = TRUE)) {
+    b <- attr(element$proximity[[name]], "bound") %||% 0
+    s <- abs(as.vector(element$proximity[[name]]))
+    if (any((s >= t / f & s <= t * f) | abs(s - t) <= b, na.rm = TRUE)) {
       return(TRUE)
     }
   }

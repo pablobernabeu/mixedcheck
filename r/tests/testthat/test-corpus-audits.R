@@ -161,8 +161,9 @@ message_texts_match <- function(actual, expected) {
 # values of real statistics, compared within the tolerance or bit for bit
 # for those that 'exact' lists, the message text, and, for a finding that is
 # near_threshold in the expected findings or in the run, the finding status,
-# the message and threshold_proximity, and for outcome.separation also the
-# values that its solver decides (conventions.md, Comparison across
+# the message and threshold_proximity, and for outcome.separation and
+# identifiability.gram_rank also the values that their solver or their
+# comparisons with rank_tolerance decide (conventions.md, Comparison across
 # languages).
 expect_audit_finding <- function(actual, expected, exact, label) {
   check <- expected[["check"]]
@@ -172,6 +173,8 @@ expect_audit_finding <- function(actual, expected, exact, label) {
   near <- near(expected) || near(actual)
   solved <- if (near && check == "outcome.separation") {
     c("verdict", "optimum", "margin", "bounds", "columns_involved")
+  } else if (near && check == "identifiability.gram_rank") {
+    c("rank", "verdict", "vanishing_parameters", "confounded_parameters", "smallest_eigenvalue")
   } else {
     character(0)
   }
@@ -192,8 +195,8 @@ expect_audit_finding <- function(actual, expected, exact, label) {
     }
     finding
   }
-  expect_identical(rawToChar(canonical_bytes(strip(actual), "data")),
-                   rawToChar(canonical_bytes(strip(expected), "data")), label = label)
+  expect_same(rawToChar(canonical_bytes(strip(actual), "data")),
+              rawToChar(canonical_bytes(strip(expected), "data")), label = label)
   for (name in reals) {
     x <- actual[["statistics"]][[name]][["value"]]
     y <- expected[["statistics"]][[name]][["value"]]
@@ -202,12 +205,12 @@ expect_audit_finding <- function(actual, expected, exact, label) {
     }
     here <- paste(label, name)
     if (paste0(check, ":", name) %in% exact) {
-      expect_identical(mixedcheck:::double_bits(unlist(x)), mixedcheck:::double_bits(unlist(y)),
-                       label = here)
+      expect_same(mixedcheck:::double_bits(unlist(x)), mixedcheck:::double_bits(unlist(y)),
+                  label = here)
     } else {
       expect_length(x, length(y))
       if (length(x) == length(y)) {
-        expect_true(all(mapply(reals_match, x, y, check, name)), label = here)
+        expect_holds(all(mapply(reals_match, x, y, check, name)), label = here)
       }
     }
   }

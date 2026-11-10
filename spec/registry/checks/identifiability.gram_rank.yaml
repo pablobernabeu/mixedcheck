@@ -59,17 +59,31 @@ statistics:
       level for a covariance. The Gram matrix M has M_kl = tr(A_k W A_l W) for
       covariance parameters, M_ks = tr(A_k Z'PDPZ) between a covariance
       parameter and the residual, and M_ss = tr(PDPD), which is n - rank(X)
-      without weights, with n the number of rows of the design sample. A
-      covariance parameter vanishes when M_kk is at or below rank_tolerance
-      times tr(A_k Z'Z A_k Z'Z), the same element of its unprojected basis, and
-      the residual when M_ss is at or below rank_tolerance times tr(DD), which
-      is n without weights, so that the test does not depend on the units of
-      the columns. C is M restricted to the other parameters and scaled to
-      C_kl = M_kl / sqrt(M_kk M_ll). Its eigenvalues and eigenvectors are
-      computed in one call of LAPACK's solver for symmetric matrices, through
-      eigen(symmetric = TRUE) in R and numpy.linalg.eigh in Python, which
-      differ only in rounding, and confounded_parameters takes its
-      eigenvectors from the same call.
+      without weights, with n the number of rows of the design sample. For a
+      level L of the factor of its term, A_kL is the part of A_k at the
+      columns of Z in level L, so that A_k is the sum of the A_kL over the
+      levels. The level ratio of a covariance parameter k in L is
+      tr(A_kL W A_kL W) divided by tr(A_kL Z'Z A_kL Z'Z), the same element of
+      its unprojected basis in L, for each level where the latter is not 0,
+      and its cancellation ratio is M_kk divided by the sum of
+      tr(A_kL W A_kL W) over the levels. A covariance parameter vanishes when
+      no level gives it a level ratio, when its largest level ratio is at or
+      below rank_tolerance, so that P takes its basis to 0 in every level, or
+      when its cancellation ratio is at or below rank_tolerance, so that the
+      parts of its basis in the levels cancel. The residual vanishes when M_ss
+      is at or below rank_tolerance times tr(DD), which is n without weights.
+      These ratios do not depend on the units of the columns. A level ratio
+      compares a level with itself, so that a level whose column lies almost
+      in the span of X does not hide another level whose column does not, as
+      M_kk divided by tr(A_k Z'Z A_k Z'Z) does when the first level holds far
+      more rows: for a random intercept beside a fixed intercept, with one
+      level of one row and one of N - 1 rows, that quotient falls below 1e-10
+      from N of about 2e5. C is M restricted to the other parameters and
+      scaled to C_kl = M_kl / sqrt(M_kk M_ll). Its eigenvalues and
+      eigenvectors are computed in one call of LAPACK's solver for symmetric
+      matrices, through eigen(symmetric = TRUE) in R and numpy.linalg.eigh in
+      Python, which differ only in rounding, and confounded_parameters takes
+      its eigenvectors from the same call.
   verdict:
     kind: category
     values: [identified, necessary_condition_met, not_identified]
@@ -112,10 +126,11 @@ parameters:
     proximity_factor: 10
     definition: >-
       The relative tolerance at or below which an eigenvalue of the scaled
-      Gram matrix, or the ratio of a diagonal element of the Gram matrix to the
-      same element of the unprojected basis, counts as zero. A finding is
-      near_threshold when any eigenvalue of C, or any of these ratios, lies
-      within the proximity factor of it (registry.md, Parameters).
+      Gram matrix, the largest level ratio or the cancellation ratio of a
+      covariance parameter, or the ratio of M_ss to tr(DD), counts as zero. A
+      finding is near_threshold when any eigenvalue of C, or any of these
+      ratios, lies within the proximity factor of it (registry.md,
+      Parameters).
     sources:
       - kind: convention
         citation: >-

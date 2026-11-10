@@ -19,6 +19,17 @@ Each case in the script states its expected error codes by hand, from [conventio
 
 The cases of numbers/read.json that R's as.numeric() misconverts were found once by comparing R 4.3.3's as.numeric() with Python's float() on about 450,000 generated decimal strings, and the script lists them. Their expected values come from float() and exact fractions, not from R.
 
+## make_message_reals.py
+
+The script writes the vectors of the rendering of real statistics in messages, [numbers/message_reals.txt.xz](../numbers/README.md), with the standard library of Python 3.11 or later, whose format() has the option 'z'. From the repository root:
+
+```bash
+python3 fixtures/conformance/tools/make_message_reals.py           # write the file
+python3 fixtures/conformance/tools/make_message_reals.py --check   # exit with status 1 if the file differs
+```
+
+Both compare the decompressed text, and the script writes the file only when the text differs, since the bytes that xz writes for the same text can differ between versions of liblzma. spec/tools/test_message_reals.py runs the same comparison. The script renders each double with format(), as [registry.md](../../../docs/spec/registry.md) (Messages) describes, and stops unless the rendering equals the exact binary value of the double rounded half to even with exact fractions. It builds the doubles from their bits, from integers and from decimal strings, never with the mathematical functions of the C library, and draws the random ones from a SplitMix64 generator with a fixed seed, so that its output depends neither on the platform nor on Python's random module. Python 3.11, 3.12, 3.13 and 3.14 write the same text.
+
 ## make_table_corpus.py
 
 The script writes the table corpus in [tables/](../tables/README.md): one JSON file for each group of cases and a directory of the same name with the CSV inputs, byte for byte. It reads the edgezoo inputs from docs/design/evidence/decisions/E-verify/edgezoo as stored and needs only the standard library of Python 3.11 or later and spec/tools/compile_registry.py. From the repository root:

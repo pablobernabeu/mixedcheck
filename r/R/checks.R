@@ -232,22 +232,38 @@ declared_units <- function(declaration) {
       found[[unit[["name"]]]] <- unit
     }
   }
-  found
+  # A unit nested with id_scope 'within_parent' in a unit that counts as
+  # absent counts as absent too, since its levels cannot be formed without
+  # the label columns of its parent, recursively.
+  repeat {
+    orphans <- vapply(found, function(unit) {
+      identical(unit[["id_scope"]], "within_parent") && unit_nesting_declared(declaration, unit) &&
+        is.null(named_member(found, unit[["nested_in"]]))
+    }, NA)
+    if (!any(orphans)) {
+      return(found)
+    }
+    found <- found[!orphans]
+  }
 }
 
-# The parent of a declared unit, or NULL when the unit is not nested or its
-# nesting counts as absent (registry.md, Terms).
+# Whether a declared unit names a parent in nested_in and neither nested_in,
+# id_scope nor membership is inferred, so that it counts as nested.
+unit_nesting_declared <- function(declaration, unit) {
+  !is.null(unit[["nested_in"]]) &&
+    !any(vapply(c("nested_in", "id_scope", "membership"), function(member) {
+      declaration_inferred(declaration, path_pointer("units", unit$index - 1L, member))
+    }, NA))
+}
+
+# The parent of a declared unit, or NULL when the unit is not nested, its
+# nesting counts as absent or its parent counts as absent (registry.md,
+# Terms).
 unit_parent <- function(declaration, unit) {
-  parent <- unit[["nested_in"]]
-  if (is.null(parent)) {
+  if (!unit_nesting_declared(declaration, unit)) {
     return(NULL)
   }
-  for (member in c("nested_in", "id_scope", "membership")) {
-    if (declaration_inferred(declaration, path_pointer("units", unit$index - 1L, member))) {
-      return(NULL)
-    }
-  }
-  declared_units(declaration)[[parent]]
+  named_member(declared_units(declaration), unit[["nested_in"]])
 }
 
 # The label columns of a declared unit, as keys: its columns, preceded, while

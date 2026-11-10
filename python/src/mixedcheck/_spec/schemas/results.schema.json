@@ -140,7 +140,7 @@
           }
         },
         "model": {
-          "description": "The model that the checks concern: the formula as the caller gave it, the family class (registry.md, Family classes) and the hash of its canonical IR (ir.md).",
+          "description": "The model that the checks concern: the formula as the caller gave it, the family class (registry.md, Family classes) and the hash of its canonical IR (ir.md), which in a shareable document leaves out the constants of 'mean' centrings (documents.md, inputs).",
           "type": "object",
           "additionalProperties": false,
           "required": ["family_class", "formula", "ir_hash"],

@@ -1,8 +1,9 @@
 # The identifiability checks, in the parts that the audit corpus cannot
 # reach: the Gram matrix against its definition on dense matrices, at
 # extreme magnitudes and in chunks of levels, the proximity band of
-# rank_tolerance, the limits of max_z_columns and max_parameters, the budget
-# against the literal sequential rule and the rank of each level.
+# rank_tolerance, a level of many rows beside a level of one row, the limits
+# of max_z_columns and max_parameters, the budget against the literal
+# sequential rule and the rank of each level.
 
 identifiability_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -12,8 +13,8 @@ identifiability_finding <- function(data, formula, check, ...) {
 }
 
 # The Gram matrix of identifiability.gram_rank by its definition, with P, D,
-# Z and the bases A_k as dense matrices, and its rank and smallest
-# eigenvalue as the entry decides them.
+# Z, the bases A_k and their parts A_kL in the levels as dense matrices, and
+# its rank and smallest eigenvalue as the entry decides them.
 gram_by_definition <- function(data, formula, weights = NULL, gaussian = TRUE) {
   ir <- formula_ir(formula, data = data, weights = weights)
   m <- design_matrices(ir, data)
@@ -24,42 +25,51 @@ gram_by_definition <- function(data, formula, weights = NULL, gaussian = TRUE) {
   d <- if (is.null(weights)) diag(n) else diag(1 / m$weights)
   w <- if (gaussian) t(z) %*% p %*% z else crossprod(z)
   w0 <- crossprod(z)
-  bases <- list()
+  trace <- function(a) sum(diag(a))
+  parts <- list()
   for (t in seq_along(ir$random)) {
     q <- length(ir$random[[t]]$columns)
     positions <- which(m$z_columns$term == t)
     columns <- lapply(seq_len(q), function(c) positions[seq(c, length(positions), by = q)])
     for (j in seq_len(q)) {
       for (k in j:q) {
-        a <- matrix(0, ncol(z), ncol(z))
-        a[cbind(columns[[j]], columns[[k]])] <- 1
-        a[cbind(columns[[k]], columns[[j]])] <- 1
-        bases[[length(bases) + 1L]] <- a
+        parts[[length(parts) + 1L]] <- lapply(seq_along(columns[[j]]), function(level) {
+          a <- matrix(0, ncol(z), ncol(z))
+          a[columns[[j]][level], columns[[k]][level]] <- 1
+          a[columns[[k]][level], columns[[j]][level]] <- 1
+          a
+        })
       }
     }
   }
-  trace <- function(a) sum(diag(a))
+  bases <- lapply(parts, function(levels) Reduce(`+`, levels))
   gram <- outer(seq_along(bases), seq_along(bases), Vectorize(function(k, l) {
     trace(bases[[k]] %*% w %*% bases[[l]] %*% w)
   }))
-  original <- vapply(bases, function(a) trace(a %*% w0 %*% a %*% w0), 0)
+  vanishing <- vapply(seq_along(parts), function(k) {
+    projected <- vapply(parts[[k]], function(a) trace(a %*% w %*% a %*% w), 0)
+    unprojected <- vapply(parts[[k]], function(a) trace(a %*% w0 %*% a %*% w0), 0)
+    held <- unprojected > 0
+    !any(held) || max(projected[held] / unprojected[held]) <= 1e-10 ||
+      gram[k, k] <= 1e-10 * sum(projected)
+  }, NA)
   if (gaussian) {
     cross <- vapply(bases, function(a) trace(a %*% t(z) %*% p %*% d %*% p %*% z), 0)
     gram <- rbind(cbind(gram, cross), c(cross, trace(p %*% d %*% p %*% d)))
-    original <- c(original, trace(d %*% d))
+    vanishing <- c(vanishing, gram[nrow(gram), nrow(gram)] <= 1e-10 * trace(d %*% d))
   }
-  vanishing <- diag(gram) <= 1e-10 * original
   others <- which(!vanishing)
   scaled <- gram[others, others] / sqrt(outer(diag(gram)[others], diag(gram)[others]))
   values <- eigen(scaled, symmetric = TRUE, only.values = TRUE)$values
-  list(rank = nrow(gram) - sum(vanishing) - sum(values <= 1e-10), smallest = min(values))
+  list(rank = nrow(gram) - sum(vanishing) - sum(values <= 1e-10), smallest = min(values),
+       vanishing = sum(vanishing))
 }
 
 test_that("identifiability.gram_rank agrees with the Gram matrix of its definition", {
   local_seed(7)
   formulas <- c("y ~ x + (1 + x | g)", "y ~ x + cond + (1 | g) + (0 + z | h)",
                 "y ~ 1 + (1 + x + z | g) + (1 | h)", "y ~ x + (1 | g) + (1 | g:h)",
-                "y ~ cond + (1 + cond | g)")
+                "y ~ cond + (1 + cond | g)", "y ~ g + (1 + x | g)")
   for (i in seq_along(formulas)) {
     n <- 24L
     data <- data.frame(y = rnorm(n), x = round(rnorm(n), 1), z = round(runif(n), 1),
@@ -74,6 +84,7 @@ test_that("identifiability.gram_rank agrees with the Gram matrix of its definiti
                                      gaussian = is.null(setting$family))
       label <- paste(formulas[i], names(setting))
       expect_identical(found$statistics$rank$value, as.double(expected$rank), label = label)
+      expect_length(found$statistics$vanishing_parameters$value, expected$vanishing)
       expect_equal(found$statistics$smallest_eigenvalue$value, expected$smallest,
                    tolerance = 1e-9, label = label)
     }
@@ -102,6 +113,46 @@ test_that("identifiability.gram_rank is near_threshold for values in the band of
   expect_identical(found$status$threshold_proximity$value, "clear")
   expect_identical(found$statistics$confounded_parameters$value,
                    list("0 + x | g: var(x)", "0 + x2 | g: var(x2)"))
+})
+
+test_that("identifiability.gram_rank is near_threshold for a largest level ratio in the band", {
+  # The fixed part g * x holds x in every level, so that the column of x2 =
+  # x + eps * noise in a level keeps eps * noise, orthogonal to X, and its
+  # level ratio is (eps^2 * 4 / 30)^2 in each level.
+  x <- rep(1:4, 3L)
+  noise <- rep(c(1, -1, -1, 1), 3L)
+  slope <- function(eps) {
+    data <- data.frame(y = 1:12, x = x, x2 = x + eps * noise, g = rep(c("a", "b", "c"), each = 4L))
+    identifiability_finding(data, "y ~ g * x + (0 + x2 | g)", "identifiability.gram_rank")
+  }
+  found <- slope(5e-3)
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
+  expect_identical(found$statistics$vanishing_parameters$value, list("0 + x2 | g: var(x2)"))
+  found <- slope(1e-2)
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
+  expect_identical(found$statistics$verdict$value, "identified")
+  found <- slope(2e-2)
+  expect_identical(found$status$threshold_proximity$value, "clear")
+  expect_identical(found$statistics$verdict$value, "identified")
+  found <- slope(1e-3)
+  expect_identical(found$status$threshold_proximity$value, "clear")
+  expect_identical(found$statistics$verdict$value, "not_identified")
+})
+
+test_that("identifiability.gram_rank keeps a variance that a level of many rows would hide", {
+  # With one level of n - 1 rows and one of one row beside an intercept, M_kk
+  # divided by tr(A_k Z'Z A_k Z'Z) is about 4 / n^2, 4.4e-11 here, whereas
+  # the level of one row has a level ratio of about 1.
+  skip_on_cran()
+  n <- 3e5
+  data <- data.frame(y = rep(0, n), g = c(rep("big", n - 1), "small"))
+  table <- run_data(data, NULL)$table
+  ir <- formula_ir("y ~ 1 + (1 | g)", data = data)
+  model <- design_model(ir, table, analysis = FALSE)
+  run <- new_run(NULL, table, ir, "gaussian", "T0", model, design_build(ir, model, table))
+  found <- run_check(run, registry_entry("identifiability.gram_rank"))[[1L]]
+  expect_identical(found$statistics$verdict$value, "identified")
+  expect_length(found$statistics$vanishing_parameters$value, 0L)
 })
 
 test_that("identifiability.gram_rank runs up to max_z_columns columns of Z", {
@@ -195,7 +246,8 @@ test_that("identifiability.gram_rank sums the Gram matrix over chunks of levels"
       for (chunk in c(1, 7, 40)) {
         found <- gram_of_bases(scaled, zq, bases, chunk = chunk)
         expect_equal(found$gram, whole$gram, tolerance = 1e-12, label = paste(formula, chunk))
-        expect_equal(found$original, whole$original, tolerance = 1e-12)
+        expect_equal(found$largest, whole$largest, tolerance = 1e-12)
+        expect_equal(found$level_sums, whole$level_sums, tolerance = 1e-12)
         expect_equal(found$traces, whole$traces, tolerance = 1e-12)
       }
     }

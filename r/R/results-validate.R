@@ -387,9 +387,10 @@ bn_compare <- function(a, b) {
   if (a[top] < b[top]) -1L else 1L
 }
 
-# Stage 5: W7090 for a document of another registry, and otherwise the rules
-# that compare each finding with the registry entry of its check (E7040 to
-# E7044 and E7025) and, in a shareable document, E7024.
+# Stage 5: W7090 for a document of another registry, and otherwise the rule
+# that compares the parameters of the filter with the registry (E7046) and
+# the rules that compare each finding with the registry entry of its check
+# (E7040 to E7045 and E7025) and, in a shareable document, E7024.
 results_registry_issues <- function(d) {
   if (!identical(d[["inputs"]][["registry_hash"]], registry_hash())) {
     return(list(raw_issue("W7090", "/inputs/registry_hash")))
@@ -402,6 +403,26 @@ results_registry_issues <- function(d) {
   privacy <- d[["privacy"]]
   shareable <- identical(privacy[["mode"]], "shareable")
   k <- privacy[["min_count"]]
+  # The parameters of the filter equal those of the registry, so that a
+  # document cannot lower the k that stage 4 reads from it.
+  parameters <- read_registry()[["privacy"]]
+  for (member in list("min_count", c("dominance", "contributors"), c("dominance", "share"),
+                      "rounding_base", "zeros_disclosive")) {
+    expected <- parameters[[member]]
+    given <- privacy[[member]]
+    same <- if (is.numeric(expected)) {
+      is.numeric(given) && given == expected
+    } else {
+      identical(given, expected)
+    }
+    if (!same) {
+      add("E7046", paste0("/privacy/", paste(member, collapse = "/")),
+          list(expected = list(expected)))
+    }
+  }
+  # Without a disclosure unit, every by_unit count is a person count
+  # (registry.md, Statistics and counts).
+  by_unit_class <- if (is.null(privacy[["disclosure_unit"]])) "person"
   findings <- d[["findings"]]
   for (i in seq_along(findings)) {
     finding <- findings[[i]]
@@ -456,9 +477,24 @@ results_registry_issues <- function(d) {
         add("E7041", paste0(at, "/kind"), list(expected = list(defined[["kind"]])))
       }
       class <- statistic[["count_class"]]
-      if (!is.null(class) && isTRUE(defined[["count_class"]] %in% c("person", "non_person")) &&
-          class != defined[["count_class"]]) {
-        add("E7041", paste0(at, "/count_class"), list(expected = list(defined[["count_class"]])))
+      expected <- defined[["count_class"]]
+      if (identical(expected, "by_unit")) {
+        expected <- by_unit_class
+      }
+      if (!is.null(class) && !is.null(expected) && class != expected) {
+        add("E7041", paste0(at, "/count_class"), list(expected = list(expected)))
+      }
+      # A statistic has a quantile exactly when its entry gives it one, with
+      # the entry's p, so that the quantile rule of stage 4 reaches every
+      # quantile of a shareable document.
+      quantile <- statistic[["quantile"]]
+      if (is.null(quantile) != is.null(defined[["quantile"]])) {
+        add("E7045", at)
+      } else if (!is.null(quantile)) {
+        p <- json_number_values(defined[["quantile"]][["p"]])
+        if (quantile[["p"]] != p) {
+          add("E7041", paste0(at, "/quantile/p"), list(expected = list(p)))
+        }
       }
       if (shareable && identical(defined[["kind"]], "ratio") && !is.null(statistic[["value"]]) &&
           ratio_hides_count(statistics, entry, defined, statistic[["count_class"]], k)) {

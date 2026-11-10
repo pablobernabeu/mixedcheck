@@ -21,7 +21,9 @@ applies_when: >-
   rows of the assignment.
 availability:
   - reason: declaration_missing
-    condition: The declaration has no assignment block.
+    condition: >-
+      The declaration has no assignment block, or every entry of the block
+      counts as absent (registry.md, Terms).
     pointer: /assignment
 statistics:
   units:

@@ -1119,6 +1119,70 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-identifiability-035",
+      "description": "A level whose slope the fixed effects absorb, with values 400 times those of the other level, hides nothing: the other level's column is orthogonal to X and gives a level ratio of 1, whereas M_kk divided by tr(A_k Z'Z A_k Z'Z) is about 1e-11, so the variance does not vanish and C, with the off-diagonal element 1/2, has the eigenvalues 1/2 and 3/2.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 4, 2, 5, 3, 6],
+        "x": [400, 400, 400, 400, 1, -1],
+        "g": ["a", "a", "a", "a", "b", "b"]
+      },
+      "formula": "y ~ g + (0 + x | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "identified", "text": "The design identifies every covariance parameter, the residual variance included (2 in all)."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": []},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0.5},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "identified"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-identifiability-036",
+      "description": "A covariance whose basis cancels across the levels: with v = P z for the intercept column z of the level of three rows, the projected columns of the intercept are v and -v and those of the slope v and v, so that the parts of the covariance's basis, 2vv' and -2vv', cancel. Its level ratios are 1/16 and 9/16 and its cancellation ratio 0, so it vanishes, and the two variances, each with the basis 2vv', are confounded beside the residual.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "y": [1, 4, 2, 5],
+        "x": [1, 1, 1, -1],
+        "site": ["big", "big", "big", "small"]
+      },
+      "formula": "y ~ 1 + (1 + x | site)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part: the Gram matrix of their bases has rank 2 for 4 parameters. Parameters that the fixed effects absorb: '1 + x | site: cov((Intercept), x)'. Parameters that cannot be separated from one another: '1 + x | site: var((Intercept))' and '1 + x | site: var(x)'."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": ["1 + x | site: var((Intercept))", "1 + x | site: var(x)"]},
+              "parameters": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0},
+              "vanishing_parameters": {"kind": "names", "value": ["1 + x | site: cov((Intercept), x)"]},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
     }
   ]
 }

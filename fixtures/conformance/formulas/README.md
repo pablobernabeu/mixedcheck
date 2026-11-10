@@ -34,7 +34,7 @@ Each file is a JSON object with a `description` and a list of `cases`, read with
 
 - `rows`: the rows of `data` in the design sample, numbered from 0 in the order of the arrays, as in Python. `design_matrices()` returns row positions counted from 1 in R and from 0 in Python.
 - `x`: one array per row of the design sample, with the values of the fixed-part columns in IR order.
-- `x_dropped`: the columns of X that the sequential rule drops, in column order.
+- `x_dropped`: the columns of X that the sequential rule drops, in column order. Every residual that the rule compares lies at least a factor of 10 from its tolerance, so that both languages drop the same columns (conventions.md, Comparison across languages).
 - `z_columns` and `z`, when the model has random terms: for each column of Z in order, the index of its random term, the label of its level and the name of its column, then one array per row of the design sample with the values of Z. The tests and the parity harness also check that Z stores as many entries as ir.md (Z) requires, one for each row and each column of a random term, zero or not.
 
 The values are doubles, compared exactly, since contrasts, products and centred values are computed in double arithmetic as ir.md specifies. The response, trials, offset and weight vectors are not included: the corpus gives only X, Z and the design sample, and the response and offset vectors can hold logarithms, which can differ in the last bit between platforms. The parity harness compares the vectors across the languages.

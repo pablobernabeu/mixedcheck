@@ -510,23 +510,45 @@ test_that("a T1 finding that rests on a suppressed outcome count is suppressed a
 
 test_that("the values of outcome.separation that locate a cell are never written", {
   skip_if_not_installed("lpSolve")
-  # Complete separation by 'x' with a balanced 'z', three kept columns.
-  data <- data.frame(y = c(rep(0, 12), rep(1, 12)), x = rep(c(-2, 2), each = 12),
-                     z = rep(c(-3, 3), 12))
-  found <- audit_both(data, "y ~ x + z", family = "binomial", outcome_access = "T2",
-                      reason = "Separation.", exploratory = TRUE)
-  internal <- finding_of(found$internal, "outcome.separation")
-  expect_identical(written(internal, "verdict"), "complete")
-  shared <- finding_of(found$shareable, "outcome.separation")
-  expect_identical(written(shared, "verdict"), "complete")
+  separation <- function(data, formula) {
+    found <- audit_both(data, formula, family = "binomial", outcome_access = "T2",
+                        reason = "Separation.", exploratory = TRUE)
+    lapply(found, finding_of, check = "outcome.separation")
+  }
+  # Complete separation by 'x' with 'z', three kept columns whose values no
+  # two rows share.
+  data <- data.frame(y = c(rep(0, 12), rep(1, 12)), x = 1:24,
+                     z = rep(c(-3, 3, -1, 1), 6))
+  found <- separation(data, "y ~ x + z")
+  expect_identical(written(found$internal, "verdict"), "complete")
+  expect_identical(written(found$shareable, "verdict"), "complete")
   for (name in c("bounds", "columns_involved", "margin", "optimum")) {
-    expect_identical(detail(shared, name), "internal_only")
+    expect_identical(detail(found$shareable, name), "internal_only")
   }
   # With two kept columns, the verdict would name a cell of one predictor.
-  found <- audit_both(data, "y ~ x", family = "binomial", outcome_access = "T2",
-                      reason = "Separation.", exploratory = TRUE)
-  shared <- finding_of(found$shareable, "outcome.separation")
-  expect_identical(shared$status$availability$detail, "decision")
+  expect_identical(separation(data, "y ~ x")$shareable$status$availability$detail, "decision")
+  # With two factors of two levels, complete shows that each combination
+  # holds one class, so the finding is suppressed whatever its verdict.
+  data$x <- rep(c(-2, 2), each = 12)
+  found <- separation(data, "y ~ x + z")
+  expect_identical(written(found$internal, "verdict"), "complete")
+  expect_identical(found$shareable$status$availability$detail, "decision")
+  # A column that varies only in rows without an outcome leaves the analysis
+  # sample two kept columns, on which the verdict would name a cell of 'x'.
+  data <- data.frame(y = c(rep(0, 12), rep(1, 12), NA, NA), x = c(1:24, 7.5, 18.5),
+                     z = c(rep(0, 24), 1, 1))
+  found <- separation(data, "y ~ x + z")
+  expect_identical(written(found$internal, "verdict"), "complete")
+  expect_identical(found$shareable$status$availability$detail, "decision")
+})
+
+test_that("two rows share the values of the kept columns of outcome.separation", {
+  expect_false(separation_shared_values(cbind(1, c(1, 2, 3))))
+  expect_true(separation_shared_values(cbind(1, c(1, 2, 1))))
+  # -0 and 0 are the same value.
+  expect_true(separation_shared_values(cbind(1, c(0, 2, -0), c(5, 6, 5))))
+  expect_false(separation_shared_values(cbind(1, c(0, 2, 0), c(5, 6, 4))))
+  expect_false(separation_shared_values(cbind(1, 3)))
 })
 
 test_that("the software of a document does not show that an outcome class is empty", {
@@ -877,4 +899,20 @@ test_that("a check that writes labels must name their factor", {
   element <- check_element(list(flagged = c("A", "B"), flagged_levels = 12), rules = TRUE)
   expect_error(assemble_finding(run, entry, list(factor = "school"), element),
                "gave no factor for the labels")
+})
+
+test_that("the IR hash of a shareable document leaves out the constants of mean centrings", {
+  declaration <- list(vocabulary = "0.1.0", table = list(fields = list(
+    list(name = "y", type = "number"), list(name = "x", type = "number")
+  )))
+  data <- data.frame(y = c(1, 2, 3, 4), x = c(1, 2, 4, 8))
+  coding <- list(x = list(centring = "mean", significant_digits = 4))
+  found <- audit_both(data, "y ~ x", declaration = declaration, coding = coding)
+  # The shareable document hashes the IR as it is before the data are seen.
+  before <- formula_ir("y ~ x", declaration, coding = coding)
+  expect_null(before$predictors$x$centring$constant)
+  expect_identical(found$shareable$inputs$model$ir_hash, canonical_hash(before, "hashable"))
+  after <- formula_ir("y ~ x", declaration, data, coding = coding)
+  expect_identical(after$predictors$x$centring$constant$value, "3.75")
+  expect_identical(found$internal$inputs$model$ir_hash, canonical_hash(after, "hashable"))
 })

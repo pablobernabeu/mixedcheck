@@ -392,7 +392,7 @@ test_that("messages render every kind of argument as registry.md describes", {
   expect_identical(real_text(-0.06, 1L), "-0.1")
   expect_identical(real_text(0, 2L), "0.00")
   expect_identical(real_text(1234.5678, 2L), "1234.57")
-  expect_identical(real_text(1e-30, 3L), "0.000")
+  expect_identical(real_text(1e-30, 3L), "under 0.001")
   expect_identical(real_text(1e21, 1L), "1.0e+21")
   expect_identical(real_text(0.005, 2L), "0.01")
   expect_identical(real_text(NaN, 2L), "NaN")

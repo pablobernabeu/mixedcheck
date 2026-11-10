@@ -225,6 +225,8 @@ audit_check_outcome_separation <- function(run, entry, elements) {
                      involvement = parameter("involvement_tolerance"))
   x <- run$x[match(run$analysis, run$design), , drop = FALSE]
   kept <- sequential_rule(x)
+  # The privacy filter reads the kept columns of the analysis sample.
+  run$analysis_kept <- kept
   x <- x[, kept, drop = FALSE]
   for (j in seq_len(ncol(x))) {
     x[, j] <- x[, j] / max(abs(x[, j]))

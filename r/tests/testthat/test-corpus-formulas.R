@@ -18,24 +18,24 @@ expect_corpus_matrices <- function(ir, data, expected, label) {
   }
   m <- result$value
   rows <- as.integer(unlist(expected[["rows"]]))
-  expect_identical(m$design_sample - 1L, rows, label = paste(label, "rows"))
+  expect_same(m$design_sample - 1L, rows, label = paste(label, "rows"))
   width <- length(ir$fixed$columns)
   x <- matrix(as.double(unlist(expected[["x"]])), ncol = width, byrow = TRUE)
-  expect_identical(unname(m$x), x, label = paste(label, "X"))
-  expect_identical(m$x_columns, vapply(ir$fixed$columns, function(column) column$name, ""),
-                   label = paste(label, "names of X"))
-  expect_identical(as.character(colnames(m$x)), m$x_columns, label = paste(label, "names of X"))
-  expect_identical(m$x_dropped, as.character(unlist(expected[["x_dropped"]])),
-                   label = paste(label, "dropped columns"))
+  expect_same(unname(m$x), x, label = paste(label, "X"))
+  expect_same(m$x_columns, vapply(ir$fixed$columns, function(column) column$name, ""),
+              label = paste(label, "names of X"))
+  expect_same(as.character(colnames(m$x)), m$x_columns, label = paste(label, "names of X"))
+  expect_same(m$x_dropped, as.character(unlist(expected[["x_dropped"]])),
+              label = paste(label, "dropped columns"))
   if (is.null(expected[["z"]])) {
-    expect_identical(dim(m$z), c(length(rows), 0L), label = paste(label, "Z"))
+    expect_same(dim(m$z), c(length(rows), 0L), label = paste(label, "Z"))
     return(invisible())
   }
   expect_s4_class(m$z, "dgCMatrix")
   columns <- expected[["z_columns"]]
   z <- matrix(unlist(expected[["z"]]), ncol = length(columns), byrow = TRUE)
-  expect_identical(unname(as.matrix(m$z)), z, label = paste(label, "Z"))
-  expect_identical(m$z_columns, data.frame(
+  expect_same(unname(as.matrix(m$z)), z, label = paste(label, "Z"))
+  expect_same(m$z_columns, data.frame(
     term = vapply(columns, function(column) as.integer(column$term) + 1L, 0L),
     level = vapply(columns, function(column) column$level, ""),
     column = vapply(columns, function(column) column$column, ""),
@@ -44,7 +44,7 @@ expect_corpus_matrices <- function(ir, data, expected, label) {
   # One stored entry for each row and each column of a random term, zero or
   # not (ir.md, Z).
   widths <- sum(vapply(ir$random, function(term) length(term$columns), 0L))
-  expect_identical(length(m$z@x), length(rows) * widths, label = paste(label, "entries of Z"))
+  expect_same(length(m$z@x), length(rows) * widths, label = paste(label, "entries of Z"))
 }
 
 run_formula_case <- function(case) {
@@ -64,8 +64,9 @@ run_formula_case <- function(case) {
     return(invisible())
   }
   bytes <- canonical_bytes(result$value, "hashable")
-  expect_identical(bytes, canonical_bytes(expected[["ir"]], "hashable"), label = case$id)
-  expect_identical(hash_bytes(bytes), expected[["ir_hash"]], label = case$id)
+  expect_same(list(ir = bytes, ir_hash = hash_bytes(bytes)),
+              list(ir = canonical_bytes(expected[["ir"]], "hashable"), ir_hash = expected[["ir_hash"]]),
+              label = case$id)
   if (!is.null(expected[["matrices"]])) {
     expect_corpus_matrices(result$value, data, expected[["matrices"]], case$id)
   }
@@ -89,10 +90,10 @@ test_that("the formula corpus holds 250 cases, 33 with matrices and 9 with their
   cases <- unlist(lapply(formula_files, function(file) corpus_cases("formulas", file)),
                   recursive = FALSE)
   expect_length(cases, 250L)
-  expect_identical(sum(vapply(cases, function(case) {
+  expect_same(sum(vapply(cases, function(case) {
     !is.null(case[["expected"]][["matrices"]])
   }, NA)), 33L)
-  expect_identical(sum(vapply(cases, function(case) {
+  expect_same(sum(vapply(cases, function(case) {
     !is.null(case[["expected"]][["ir"]]) && !is.null(case[["expected"]][["issue"]])
   }, NA)), 9L)
 })

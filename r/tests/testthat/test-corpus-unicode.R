@@ -13,22 +13,22 @@ test_that("every case of unicode utf8.json, hashable.json and c_locale.json pass
 
 test_that("every case of unicode normalisation.json passes", {
   for (case in corpus_cases("unicode", "normalisation.json")) {
-    expect_identical(mixedcheck:::is_normalisable(case[["string"]]), case[["expected"]][["normalisable"]],
-                     label = case$id)
-    expect_identical(codepoints(mixedcheck:::comparison_form(case[["string"]])),
-                     codepoints(case[["expected"]][["form"]]), label = case$id)
+    expect_same(mixedcheck:::is_normalisable(case[["string"]]), case[["expected"]][["normalisable"]],
+                label = case$id)
+    expect_same(codepoints(mixedcheck:::comparison_form(case[["string"]])),
+                codepoints(case[["expected"]][["form"]]), label = case$id)
   }
 })
 
 test_that("every case of unicode order.json passes", {
   for (case in corpus_cases("unicode", "order.json")) {
     if (!is.null(case[["first"]])) {
-      expect_identical(mixedcheck:::compare_identifiers(case[["first"]], case[["second"]]),
-                       as.integer(case[["expected"]][["order"]]), label = case$id)
+      expect_same(mixedcheck:::compare_identifiers(case[["first"]], case[["second"]]),
+                  as.integer(case[["expected"]][["order"]]), label = case$id)
     } else {
       sorted <- mixedcheck:::sort_identifiers(unlist(case[["strings"]]))
-      expect_identical(lapply(sorted, codepoints),
-                       lapply(unlist(case[["expected"]][["sorted"]]), codepoints), label = case$id)
+      expect_same(lapply(sorted, codepoints),
+                  lapply(unlist(case[["expected"]][["sorted"]]), codepoints), label = case$id)
     }
   }
 })

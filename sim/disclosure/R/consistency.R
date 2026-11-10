@@ -1,0 +1,234 @@
+# Attack (a), inference by consistency search (sim/disclosure/README.md).
+# Every table of a family is audited in shareable mode, each document is
+# reduced to what the adversary can use, and the tables whose reduced
+# documents are identical form a group: the adversary who holds the document
+# knows only that the table is one of its group. A hidden value that takes
+# one value across a group, while the family lets it vary among the tables
+# that hide it with the same detail, is determined by the document.
+
+# The reals whose values depend on the values of predictors as well as on
+# counts. A family whose predictors are not all two-valued, with the counts
+# of each value among its parameters, would hand the adversary predictor
+# values that no document gives, so the reductions of its documents mask
+# these reals and the numbers with a decimal point that messages render.
+dh_predictor_reals <- c(
+  "design.collinearity" = "gvif", "design.collinearity" = "gvif_per_df",
+  "design.scale_disparity" = "condition_number", "design.scale_disparity" = "sd_largest",
+  "design.scale_disparity" = "sd_ratio", "design.scale_disparity" = "sd_smallest",
+  "identifiability.gram_rank" = "smallest_eigenvalue",
+  "structure.within_between" = "within_share", "structure.within_between" = "icc",
+  "outcome.separation" = "margin", "outcome.separation" = "optimum",
+  "outcome.separation" = "bounds"
+)
+
+dh_mask_reals <- function(document) {
+  document$findings <- lapply(document$findings, function(finding) {
+    masked <- dh_predictor_reals[names(dh_predictor_reals) == finding$check]
+    for (name in intersect(names(finding$statistics), masked)) {
+      if (!is.null(finding$statistics[[name]]$value)) {
+        finding$statistics[[name]]$value <- "masked"
+      }
+    }
+    if (!is.null(finding$message$text) && length(masked)) {
+      finding$message$text <- gsub("[0-9]+\\.[0-9]+", "#", finding$message$text)
+    }
+    finding
+  })
+  document
+}
+
+# The number of the n values behind a quantile that equal its value, for the
+# quantiles of registry 0.1.0: the level sizes of structure.cluster_sizes
+# and the minority counts by level of outcome.minority_events. privacy.md
+# (Guarantees) accepts a quantile that k or more of its n values share.
+dh_quantile_shared <- function(ns, result, finding) {
+  run <- result$run
+  factor <- finding$scope$factor
+  if (is.null(factor)) {
+    return(NA_integer_)
+  }
+  codes <- ns$value_codes(run, ns$factor_keys(run, factor))
+  if (finding$check == "structure.cluster_sizes") {
+    sizes <- tabulate(codes[run$design])
+    return(sizes[sizes > 0L])
+  }
+  if (finding$check == "outcome.minority_events") {
+    level <- codes[run$analysis]
+    trials <- run$trials %||% rep(1, length(level))
+    present <- !is.na(level)
+    events <- tapply(run$response[present], level[present], sum)
+    totals <- tapply(trials[present], level[present], sum)
+    return(as.numeric(pmin(events, totals - events)))
+  }
+  NA_integer_
+}
+
+# Audits every table of a family at the family's k and returns the grid
+# with, for each table, the two reductions of its document, its hidden
+# values and the issues of validation.
+dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, intervals = FALSE) {
+  old <- dh_set_k(ns, family$k)
+  on.exit(dh_set_k(ns, old), add = TRUE)
+  reals <- isTRUE(family$reals)
+  # The interval audit runs once for each document that a worker has not yet
+  # audited.
+  audited <- new.env(parent = emptyenv())
+  one <- function(i) tryCatch(one_table(i), error = function(e) list(error = conditionMessage(e)))
+  one_table <- function(i) {
+    case <- family$build(as.list(grid[i, , drop = FALSE]))
+    result <- dh_run(ns, case)
+    if (!is.null(result$error)) {
+      return(result[c("error", "empty")])
+    }
+    document <- if (reals) result$document else dh_mask_reals(result$document)
+    targets <- dh_targets(result)
+    targets$shared <- NA_real_
+    quantiles <- which(targets$member %in% c("smallest", "lower_quartile", "median",
+                                             "upper_quartile", "largest", "median_minority"))
+    for (j in quantiles) {
+      finding <- Find(function(f) isTRUE(f$available) && dh_finding_id(f) == targets$finding[j],
+                      result$findings)
+      values <- dh_quantile_shared(ns, result, finding)
+      value <- suppressWarnings(as.numeric(targets$value[j]))
+      targets$shared[j] <- if (is.na(value)) NA_real_ else sum(values == value)
+    }
+    full <- dh_reduce(document)
+    lp <- NULL
+    if (intervals && is.null(audited[[full]])) {
+      assign(full, TRUE, envir = audited)
+      shared <- stats::setNames(as.list(targets$shared), paste0(targets$finding, " | ",
+                                                               targets$member))
+      lp <- iv_audit(result$document, dh_capture$entries, iv_internal(result), shared)
+    }
+    list(full = full, strict = dh_reduce(document, strict = TRUE),
+         targets = targets, issues = result$issues, lp = lp)
+  }
+  runs <- if (cores > 1L) {
+    parallel::mclapply(seq_len(nrow(grid)), one, mc.cores = cores, mc.preschedule = TRUE)
+  } else {
+    lapply(seq_len(nrow(grid)), one)
+  }
+  list(family = family, grid = grid, runs = runs)
+}
+
+# The determinations of a run of a family. Returns a data frame with one row
+# for each hidden value or person-count parameter that a group of interior
+# tables determines, with the mode of the reduction, the target, its value,
+# the size of the group and the parameters of its first table, and the
+# verdict: 'leak' when the strict reduction determines it, 'accepted' when
+# only the full reduction does, or when the value is a quantile shared by k
+# or more values or a count derived through suppress_with from written
+# statistics.
+dh_determinations <- function(ran, k = ran$family$k) {
+  family <- ran$family
+  grid <- ran$grid
+  runs <- ran$runs
+  failed <- vapply(runs, function(r) !is.list(r) || !is.null(r$error), NA)
+  interior <- dh_interior(family, grid) & !failed
+  targets <- do.call(rbind, lapply(which(!failed), function(i) {
+    t <- runs[[i]]$targets
+    if (!nrow(t)) {
+      return(NULL)
+    }
+    t$table <- i
+    t
+  }))
+  if (is.null(targets)) {
+    targets <- data.frame(table = integer(0), finding = character(0), member = character(0),
+                          detail = character(0), value = character(0), kind = character(0),
+                          class = character(0), shared = numeric(0), derived = logical(0),
+                          stringsAsFactors = FALSE)
+  }
+  # Determinations of reals and names are left to the counts that they
+  # derive from, which the families vary.
+  targets <- targets[!targets$kind %in% c("real", "reals", "names"), , drop = FALSE]
+  # A family probes the hidden values whose counts it varies independently.
+  targets <- targets[grepl(family$probe, paste(targets$finding, "|", targets$member)), ,
+                     drop = FALSE]
+  targets$key <- paste(targets$finding, targets$member, targets$detail, sep = " | ")
+  variation <- tapply(targets$value, targets$key, function(v) length(unique(v)))
+  persons <- names(family$params)[vapply(family$params, function(p) p$person, NA)]
+  found <- list()
+  for (mode in c("strict", "full")) {
+    keys <- vapply(runs, function(r) if (is.list(r) && is.null(r$error)) r[[mode]] else NA_character_,
+                   "")
+    groups <- split(seq_along(keys), keys)
+    for (group in groups) {
+      inside <- group[interior[group]]
+      if (!length(inside)) {
+        next
+      }
+      mine <- targets[targets$table %in% group, , drop = FALSE]
+      common <- names(which(table(mine$key) == length(group)))
+      for (key in common) {
+        values <- unique(mine$value[mine$key == key])
+        if (length(values) == 1L && variation[[key]] > 1L) {
+          row <- mine[mine$key == key, , drop = FALSE][1L, ]
+          found[[length(found) + 1L]] <- data.frame(
+            mode = mode, target = key, value = values, class = row$class,
+            shared = row$shared, derived = any(mine$derived[mine$key == key]),
+            group = length(group), table = inside[1L], stringsAsFactors = FALSE)
+        }
+      }
+      for (p in persons) {
+        values <- unique(grid[[p]][group])
+        below <- unique(grid[[p]][!failed & grid[[p]] < k])
+        if (length(values) == 1L && values < k && length(below) > 1L) {
+          found[[length(found) + 1L]] <- data.frame(
+            mode = mode, target = paste("parameter", p), value = as.character(values),
+            class = "person", shared = NA_real_, derived = FALSE, group = length(group),
+            table = inside[1L],
+            stringsAsFactors = FALSE)
+        }
+      }
+    }
+  }
+  if (!length(found)) {
+    return(data.frame(mode = character(0), target = character(0), value = character(0),
+                      class = character(0), shared = numeric(0), derived = logical(0),
+                      group = integer(0), table = integer(0), verdict = character(0),
+                      stringsAsFactors = FALSE))
+  }
+  found <- do.call(rbind, found)
+  strict <- paste(found$table, found$target)[found$mode == "strict"]
+  found$verdict <- ifelse(found$mode == "strict", "leak", "accepted")
+  found <- found[found$mode == "strict" | !paste(found$table, found$target) %in% strict, ,
+                 drop = FALSE]
+  # A quantile shared by k or more of its values, and a count derived from a
+  # written statistic through suppress_with, are accepted (privacy.md,
+  # Guarantees).
+  shared <- !is.na(found$shared) & found$shared >= k
+  found$verdict[shared | found$derived] <- "accepted"
+  found
+}
+
+# The search on one family: every table of the family, and, when that finds
+# a determination, the tables of the family widened by widen values beyond
+# every end of a range that is not a natural bound. The widened tables can
+# join a group and so remove a determination that only the limits of the
+# family made, and they are never reported themselves, so a determination
+# that remains does not rest on those limits.
+dh_search <- function(ns, family, cores = 1L, widen = 1L, intervals = FALSE) {
+  base <- dh_grid(family)
+  ran <- dh_run_family(ns, family, base, cores = cores, intervals = intervals)
+  found <- dh_determinations(ran)
+  if (!any(found$verdict == "leak") || widen < 1L) {
+    return(list(ran = ran, found = found, widened = 0L))
+  }
+  wide <- dh_grid(family, widen = widen)
+  key <- function(grid) do.call(paste, c(unname(as.list(grid)), sep = ","))
+  extra <- wide[!key(wide) %in% key(base), , drop = FALSE]
+  # Only the widened tables next to a group that makes a leak can join it.
+  strict <- vapply(ran$runs, function(r) if (is.list(r) && is.null(r$error)) r$strict else
+    NA_character_, "")
+  groups <- which(strict %in% strict[found$table[found$verdict == "leak"]])
+  near <- vapply(seq_len(nrow(extra)), function(i) {
+    distance <- apply(abs(sweep(as.matrix(base[groups, , drop = FALSE]), 2L,
+                                unlist(extra[i, , drop = FALSE]))), 1L, max)
+    any(distance <= widen)
+  }, NA)
+  extra <- extra[near, , drop = FALSE]
+  more <- dh_run_family(ns, family, extra, cores = cores)
+  ran <- list(family = family, grid = rbind(base, extra), runs = c(ran$runs, more$runs))
+  list(ran = ran, found = dh_determinations(ran), widened = nrow(extra))
+}

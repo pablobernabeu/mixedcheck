@@ -12,7 +12,8 @@ schema_bundle <- function() {
     directory <- installed_path("spec", "schemas")
     files <- sort(list.files(directory, pattern = "\\.schema\\.json$", full.names = TRUE),
                   method = "radix")
-    bundle <- new_schema_bundle(lapply(files, read_json_strict, profile = "hashable"))
+    schemas <- lapply(files, read_json_strict, profile = "hashable")
+    bundle <- new_schema_bundle(lapply(schemas, with_compiled_conditions))
     mixedcheck_cache$schemas <- bundle
   }
   bundle
@@ -25,6 +26,9 @@ new_schema_bundle <- function(schemas) {
   names(schemas) <- vapply(schemas, function(s) s[["$id"]], "")
   bundle$schemas <- schemas
   bundle$resolved <- new.env(hash = TRUE, parent = emptyenv())
+  bundle$by_base <- new.env(hash = TRUE, parent = emptyenv())
+  bundle$valid <- new.env(hash = TRUE, parent = emptyenv())
+  bundle$valid_count <- 0L
   bundle$patterns <- new.env(hash = TRUE, parent = emptyenv())
   bundle
 }
@@ -44,8 +48,24 @@ schema_node <- function(schema, base, ref = NA_character_) {
 }
 
 # Resolves a reference such as 'urn:mixedcheck:schema:defs#/$defs/name' or
-# '#/$defs/line' against the identifier of the document that holds it.
+# '#/$defs/line' against the identifier of the document that holds it. The
+# nodes are kept by base and reference as written, so that a reference met
+# again is a lookup.
 resolve_reference <- function(bundle, ref, base) {
+  known <- bundle$by_base[[base]]
+  if (is.null(known)) {
+    known <- new.env(hash = TRUE, parent = emptyenv())
+    assign(base, known, envir = bundle$by_base)
+  }
+  node <- known[[ref]]
+  if (is.null(node)) {
+    node <- resolve_absolute_reference(bundle, ref, base)
+    assign(ref, node, envir = known)
+  }
+  node
+}
+
+resolve_absolute_reference <- function(bundle, ref, base) {
   hash <- regexpr("#", ref, fixed = TRUE)
   document <- if (hash > 0L) substr(ref, 1L, hash - 1L) else ref
   fragment <- if (hash > 0L) substring(ref, hash + 1L) else ""
@@ -109,10 +129,29 @@ has_json_type <- function(value, type) {
   identical(json_kind(value), type)
 }
 
+# Whether a value of the given JSON kind has one of the types, as
+# has_json_type() decides for each.
+has_any_json_type <- function(value, kind, types) {
+  any(types == kind) || (any(types == "integer") && is_json_integer(value))
+}
+
+# Whether a value equals an item of an enum, as json_equal() decides.
+in_enum <- function(value, items) {
+  for (item in items) {
+    if (json_equal(value, item)) {
+      return(TRUE)
+    }
+  }
+  FALSE
+}
+
 # Equality of JSON values as JSON Schema defines it: the same type, numbers by
 # value, strings by code points, arrays item by item and objects member by
 # member, whatever the order of their members.
 json_equal <- function(left, right) {
+  if (is.character(left) && is.character(right)) {
+    return(identical(charToRaw(left), charToRaw(right)))
+  }
   kind <- json_kind(left)
   if (!identical(kind, json_kind(right))) {
     return(FALSE)
@@ -173,6 +212,120 @@ schema_valid <- function(bundle, value, node) {
   length(validate_schema_node(bundle, value, node, "")) == 0L
 }
 
+# Whether a value meets the condition of if: by the closure that
+# with_compiled_conditions() attached to it, which decides as
+# simple_schema_valid() does, or by the validator when that is NA.
+condition_valid <- function(bundle, value, condition, base) {
+  compiled <- attr(condition, "mixedcheck_condition", exact = TRUE)
+  if (!is.null(compiled)) {
+    valid <- compiled(value)
+    if (!is.na(valid)) {
+      return(valid)
+    }
+  }
+  schema_valid(bundle, value, schema_node(condition, base))
+}
+
+# A schema with each condition of if that is an object given the attribute
+# 'mixedcheck_condition', a closure from compile_condition(), so that the
+# validator evaluates the many conditions of the results schema without
+# reading their keywords again for each value. The values of enum, const
+# and default are data and are left as they are.
+with_compiled_conditions <- function(schema) {
+  if (!is.list(schema)) {
+    return(schema)
+  }
+  keys <- names(schema)
+  for (i in seq_along(schema)) {
+    if (!is.null(keys) && keys[i] %in% c("enum", "const", "default")) {
+      next
+    }
+    member <- with_compiled_conditions(schema[[i]])
+    if (identical(keys[i], "if") && is.list(member)) {
+      attr(member, "mixedcheck_condition") <- compile_condition(member)
+    }
+    member_keys <- names(member)
+    if (is.list(member) && "if" %in% member_keys &&
+        all(member_keys == "if" | member_keys == "then" | member_keys == "else")) {
+      attr(member, "mixedcheck_conditional") <- TRUE
+    }
+    if (!is.null(member)) {
+      schema[[i]] <- member
+    }
+  }
+  schema
+}
+
+# A closure that gives, for a value, what simple_schema_valid() gives for the
+# schema: TRUE, FALSE or NA.
+compile_condition <- function(schema) {
+  if (isTRUE(schema)) {
+    return(function(value) TRUE)
+  }
+  if (isFALSE(schema)) {
+    return(function(value) FALSE)
+  }
+  if (!is.list(schema) || !all(names(schema) %in% simple_keywords)) {
+    return(function(value) NA)
+  }
+  types <- unlist(schema[["type"]])
+  enum <- schema[["enum"]]
+  strings <- unlist(Filter(is.character, enum))
+  has_const <- "const" %in% names(schema)
+  const <- schema[["const"]]
+  required <- unlist(schema[["required"]])
+  properties <- lapply(schema[["properties"]], compile_condition)
+  property_names <- names(properties)
+  not <- if (!is.null(schema[["not"]])) compile_condition(schema[["not"]])
+  function(value) {
+    kind <- json_kind(value)
+    if (!is.null(types) && !has_any_json_type(value, kind, types)) {
+      return(FALSE)
+    }
+    if (!is.null(enum)) {
+      found <- if (kind == "string") {
+        # Strings equal as R compares them, confirmed byte for byte.
+        bytes <- charToRaw(value)
+        any(vapply(strings[strings == value], function(item) identical(charToRaw(item), bytes), NA))
+      } else {
+        in_enum(value, enum)
+      }
+      if (!found) {
+        return(FALSE)
+      }
+    }
+    if (has_const && !json_equal(value, const)) {
+      return(FALSE)
+    }
+    known <- TRUE
+    if (kind == "object") {
+      keys <- names(value)
+      for (key in required) {
+        if (!any(keys == key)) {
+          return(FALSE)
+        }
+      }
+      # The result does not depend on the order of the members.
+      at <- match(property_names, keys)
+      for (j in which(!is.na(at))) {
+        valid <- properties[[j]](value[[at[j]]])
+        if (isFALSE(valid)) {
+          return(FALSE)
+        }
+        known <- known && !is.na(valid)
+      }
+    }
+    if (!is.null(not)) {
+      valid <- not(value)
+      if (isTRUE(valid)) {
+        return(FALSE)
+      }
+      known <- known && !is.na(valid)
+    }
+    if (known) TRUE else NA
+  }
+}
+
 # The keywords of the schemas that simple_schema_valid() decides.
 simple_keywords <- c("type", "enum", "const", "not", "required", "properties", "title",
                      "description")
@@ -193,15 +346,13 @@ simple_schema_valid <- function(value, schema) {
     return(NA)
   }
   types <- schema[["type"]]
-  if (!is.null(types) &&
-      !any(vapply(unlist(types), function(type) has_json_type(value, type), NA))) {
+  if (!is.null(types) && !has_any_json_type(value, json_kind(value), unlist(types))) {
     return(FALSE)
   }
-  if (!is.null(schema[["enum"]]) &&
-      !any(vapply(schema[["enum"]], function(item) json_equal(value, item), NA))) {
+  if (!is.null(schema[["enum"]]) && !in_enum(value, schema[["enum"]])) {
     return(FALSE)
   }
-  if ("const" %in% names(schema) && !json_equal(value, schema[["const"]])) {
+  if (any(names(schema) == "const") && !json_equal(value, schema[["const"]])) {
     return(FALSE)
   }
   known <- TRUE
@@ -231,7 +382,10 @@ simple_schema_valid <- function(value, schema) {
 
 # The pointer of a member or item: its token escaped and appended.
 child_pointer <- function(pointer, token) {
-  paste0(pointer, "/", gsub("/", "~1", gsub("~", "~0", token, fixed = TRUE), fixed = TRUE))
+  if (is.character(token) && (grepl("~", token, fixed = TRUE) || grepl("/", token, fixed = TRUE))) {
+    token <- gsub("/", "~1", gsub("~", "~0", token, fixed = TRUE), fixed = TRUE)
+  }
+  paste0(pointer, "/", token)
 }
 
 # The type keywords that apply to a value unconditionally, in the order of
@@ -252,15 +406,25 @@ unconditional_types <- function(bundle, value, node, branches) {
   ref <- schema[["$ref"]]
   if (!is.null(ref)) {
     target <- resolve_reference(bundle, ref, node$base)
-    if (!target$ref %in% profile_definitions) {
+    if (!any(profile_definitions == target$ref)) {
       found <- c(found, unconditional_types(bundle, value, target, branches))
     }
   }
   for (sub in schema[["allOf"]]) {
+    if (conditional_only(sub)) {
+      # The step below for a subschema of if, then and else alone.
+      branch <- if (condition_valid(bundle, value, sub[["if"]], node$base)) "then" else "else"
+      branches$found <- c(branches$found, branch)
+      if (!is.null(sub[[branch]])) {
+        found <- c(found, unconditional_types(bundle, value, schema_node(sub[[branch]], node$base),
+                                              branches))
+      }
+      next
+    }
     found <- c(found, unconditional_types(bundle, value, schema_node(sub, node$base), branches))
   }
   if (!is.null(schema[["if"]])) {
-    branch <- if (schema_valid(bundle, value, schema_node(schema[["if"]], node$base))) "then" else "else"
+    branch <- if (condition_valid(bundle, value, schema[["if"]], node$base)) "then" else "else"
     branches$found <- c(branches$found, branch)
     if (!is.null(schema[[branch]])) {
       found <- c(found, unconditional_types(bundle, value, schema_node(schema[[branch]], node$base),
@@ -283,16 +447,62 @@ validate_schema_node <- function(bundle, value, node, pointer, typed = FALSE, br
     return(list(raw_issue("E1423", pointer)))
   }
   if (!typed) {
+    known <- known_valid_key(bundle, value, schema, node$base)
+    if (!is.null(known) && known_valid(bundle, known, value)) {
+      return(list())
+    }
     branches <- new.env(parent = emptyenv())
     branches$found <- character(0)
     branches$used <- 0L
+    kind <- json_kind(value)
     for (types in unconditional_types(bundle, value, node, branches)) {
-      if (!any(vapply(types, function(type) has_json_type(value, type), NA))) {
-        return(list(raw_issue("E1401", pointer, list(expected = types, found = json_kind(value)))))
+      if (!has_any_json_type(value, kind, types)) {
+        return(list(raw_issue("E1401", pointer, list(expected = types, found = kind))))
       }
     }
+    issues <- apply_schema(bundle, value, node, pointer, branches)
+    if (!is.null(known) && !length(issues)) {
+      remember_valid(bundle, known, value)
+    }
+    return(issues)
   }
   apply_schema(bundle, value, node, pointer, branches)
+}
+
+# The values found valid against a schema of $ref alone, the subschema of
+# a member or an item that names a definition, kept for the session: a
+# value that is identical, bit for bit, to one of them is valid without a
+# second validation, since its issues depend on the definition and the
+# value alone. Results documents repeat many statistics, statuses and
+# findings. Values are grouped by the definition and the text of their
+# serialisation, and compared with identical(), so that the doubles that
+# the text rounds alike stay apart. A value whose key exceeds 2,000 bytes is
+# not kept, and the store is emptied when it holds 10,000 values.
+known_valid_key <- function(bundle, value, schema, base) {
+  if (!is.list(schema) || length(schema) != 1L || !identical(names(schema), "$ref")) {
+    return(NULL)
+  }
+  key <- paste0(resolve_reference(bundle, schema[["$ref"]], base)$ref, "\n",
+                rawToChar(serialize(value, NULL, ascii = TRUE)))
+  if (nchar(key, type = "bytes") > 2000L) NULL else key
+}
+
+known_valid <- function(bundle, key, value) {
+  for (known in bundle$valid[[key]]) {
+    if (identical(known, value, num.eq = FALSE, single.NA = FALSE)) {
+      return(TRUE)
+    }
+  }
+  FALSE
+}
+
+remember_valid <- function(bundle, key, value) {
+  if (bundle$valid_count >= 10000L) {
+    bundle$valid <- new.env(hash = TRUE, parent = emptyenv())
+    bundle$valid_count <- 0L
+  }
+  assign(key, c(bundle$valid[[key]], list(value)), envir = bundle$valid)
+  bundle$valid_count <- bundle$valid_count + 1L
 }
 
 # The title that E1406 and E1418 name: the node's own, or that of the first
@@ -308,6 +518,14 @@ schema_title <- function(bundle, node) {
   if (is.list(schema) && !is.null(schema[["title"]])) schema[["title"]] else "value of the required form"
 }
 
+alternative_keywords <- c("anyOf", "oneOf")
+
+# Whether a schema holds if, with then or else, and no other keyword, as
+# with_compiled_conditions() marks it.
+conditional_only <- function(schema) {
+  isTRUE(attr(schema, "mixedcheck_conditional", exact = TRUE))
+}
+
 apply_schema <- function(bundle, value, node, pointer, branches) {
   schema <- node$schema
   base <- node$base
@@ -315,13 +533,28 @@ apply_schema <- function(bundle, value, node, pointer, branches) {
   ref <- schema[["$ref"]]
   if (!is.null(ref)) {
     target <- resolve_reference(bundle, ref, base)
-    if (!target$ref %in% profile_definitions) {
+    if (!any(profile_definitions == target$ref)) {
       issues <- c(issues, validate_schema_node(bundle, value, target, pointer, typed = TRUE,
                                                branches = branches))
       issues <- c(issues, definition_issues(bundle, value, target, pointer))
     }
+    if (length(schema) == 1L) {
+      # A schema of $ref alone has no other keyword to apply.
+      return(issues)
+    }
   }
   for (sub in schema[["allOf"]]) {
+    if (conditional_only(sub)) {
+      # A subschema of if, then and else alone applies the branch that
+      # unconditional_types() recorded, as apply_schema() would.
+      branches$used <- branches$used + 1L
+      branch <- sub[[branches$found[branches$used]]]
+      if (!is.null(branch)) {
+        issues <- c(issues, validate_schema_node(bundle, value, schema_node(branch, base), pointer,
+                                                 typed = TRUE, branches = branches))
+      }
+      next
+    }
     issues <- c(issues, validate_schema_node(bundle, value, schema_node(sub, base), pointer,
                                              typed = TRUE, branches = branches))
   }
@@ -333,11 +566,10 @@ apply_schema <- function(bundle, value, node, pointer, branches) {
                                                pointer, typed = TRUE, branches = branches))
     }
   }
-  if (!is.null(schema[["enum"]]) &&
-      !any(vapply(schema[["enum"]], function(item) json_equal(value, item), NA))) {
+  if (!is.null(schema[["enum"]]) && !in_enum(value, schema[["enum"]])) {
     issues <- c(issues, list(raw_issue("E1405", pointer, list(allowed = schema[["enum"]]))))
   }
-  if ("const" %in% names(schema) && !json_equal(value, schema[["const"]])) {
+  if (any(names(schema) == "const") && !json_equal(value, schema[["const"]])) {
     issues <- c(issues, list(raw_issue("E1405", pointer, list(allowed = list(schema[["const"]])))))
   }
   kind <- json_kind(value)
@@ -350,7 +582,7 @@ apply_schema <- function(bundle, value, node, pointer, branches) {
   } else if (kind == "object") {
     issues <- c(issues, object_issues(bundle, value, schema, base, pointer))
   }
-  for (keyword in c("anyOf", "oneOf")) {
+  for (keyword in alternative_keywords) {
     if (!is.null(schema[[keyword]])) {
       issues <- c(issues, alternative_issues(bundle, value, keyword, schema[[keyword]], base, pointer))
     }
@@ -400,7 +632,7 @@ array_issues <- function(bundle, value, schema, base, pointer) {
   issues <- list()
   prefix <- schema[["prefixItems"]]
   items <- schema[["items"]]
-  for (i in seq_along(value)) {
+  for (i in seq_len(if (is.null(items)) min(length(prefix), length(value)) else length(value))) {
     sub <- if (i <= length(prefix)) prefix[[i]] else items
     if (!is.null(sub)) {
       issues <- c(issues, validate_schema_node(bundle, value[[i]], schema_node(sub, base),
@@ -436,7 +668,7 @@ object_issues <- function(bundle, value, schema, base, pointer) {
   issues <- list()
   keys <- names(value)
   for (key in unlist(schema[["required"]])) {
-    if (!key %in% keys) {
+    if (!any(keys == key)) {
       issues <- c(issues, list(raw_issue("E1402", pointer, list(key = key))))
     }
   }
@@ -468,12 +700,14 @@ object_issues <- function(bundle, value, schema, base, pointer) {
   properties <- schema[["properties"]]
   patterns <- schema[["patternProperties"]]
   additional <- schema[["additionalProperties"]]
+  if (is.null(properties) && is.null(patterns) && is.null(additional)) {
+    # No member has a schema to meet, as for most subschemas of allOf.
+    return(issues)
+  }
+  listed <- match(keys, names(properties))
   for (i in seq_along(keys)) {
     key <- keys[i]
-    subs <- list()
-    if (key %in% names(properties)) {
-      subs <- c(subs, list(properties[[key]]))
-    }
+    subs <- if (is.na(listed[i])) list() else list(properties[[listed[i]]])
     for (pattern in names(patterns)) {
       if (schema_pattern_matches(bundle, pattern, key)) {
         subs <- c(subs, list(patterns[[pattern]]))
@@ -486,7 +720,11 @@ object_issues <- function(bundle, value, schema, base, pointer) {
       }
       subs <- list(additional)
     }
-    if (any(vapply(subs, isFALSE, NA))) {
+    refused <- FALSE
+    for (sub in subs) {
+      refused <- refused || isFALSE(sub)
+    }
+    if (refused) {
       issues <- c(issues, list(raw_issue("E1404", pointer, list(key = key))))
       next
     }

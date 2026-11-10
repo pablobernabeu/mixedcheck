@@ -3,7 +3,7 @@
   "cases": [
     {
       "id": "audits-privacy-001",
-      "description": "Without a disclosure unit, the counts of the levels of 'subject' resolve as person counts and a contributor is a level of the grouping factor. The 4 levels are fewer than min_count, so the finding fails the minimum-count rule: its person counts and its real effective_size are suppressed with the detail 'min_count_rule', whatever their values, and the distinct contributors of the support with 'min_count', since they are below min_count. The boolean intercept stays, the support keeps its 12 rows, the quantiles keep p but not n, since the count of levels that gives n is suppressed, and the message falls back to the text without values.",
+      "description": "Without a disclosure unit, the counts of the levels of 'subject' resolve as person counts and a contributor is a level of the grouping factor. The 4 levels are fewer than min_count, so the finding fails the minimum-count rule: its person counts are suppressed with the detail 'min_count_rule', whatever their values, effective_size, which is internal_only, with 'internal_only', and the distinct contributors of the support with 'min_count', since they are below min_count. The boolean intercept stays, the support keeps its 12 rows, the quantiles keep p but not n, since the count of levels that gives n is suppressed, and the message falls back to the text without values.",
       "checks": ["structure.cluster_sizes"],
       "data": {
         "y": [3.1, 2.4, 5, 4.2, 3.3, 2.8, 4.9, 5.5, 3.6, 2.2, 4.1, 3.9],
@@ -45,7 +45,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'subject' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
@@ -63,7 +63,7 @@
     },
     {
       "id": "audits-privacy-002",
-      "description": "With pupils as the disclosure unit, the levels of 'pupil', each holding one pupil, resolve as a person count and those of 'school', each holding ten pupils, as a non-person count, so both are written. The sizes of 2 rows of the pupils are person counts below min_count, of which the median is suppressed with the detail 'min_count' and the minimum, the maximum and the quartiles, which the quantile rule suppresses since 20 times 25 is below 10 times 100, with the detail 'quantile' whatever their value, while the sizes of 20 rows of the two schools are quantiles of 2 values, which the quantile rule suppresses: the minimum and the maximum always, the median since 2 times 5 is below 10 times 10 and the quartiles since 2 times 25 is below 10 times 100. effective_size is suppressed with lower_quartile, which with the rows and the levels would give back the sizes.",
+      "description": "With pupils as the disclosure unit, the levels of 'pupil', each holding one pupil, resolve as a person count and those of 'school', each holding ten pupils, as a non-person count, so both are written. The sizes of 2 rows of the pupils are person counts below min_count, of which the median is suppressed with the detail 'min_count' and the minimum, the maximum and the quartiles, which the quantile rule suppresses since 20 times 25 is below 10 times 100, with the detail 'quantile' whatever their value, while the sizes of 20 rows of the two schools are quantiles of 2 values, which the quantile rule suppresses: the minimum and the maximum always, the median since 2 times 5 is below 10 times 10 and the quartiles since 2 times 25 is below 10 times 100. effective_size is internal_only, since with the rows and the levels it would give back the sum of the squared sizes.",
       "checks": ["structure.cluster_sizes"],
       "data": {
         "y": [10, 17, 12.5, 19.5, 15, 10.5, 17.5, 13, 20, 15.5, 11, 18, 13.5, 20.5, 16, 11.5, 18.5, 14, 21, 16.5, 12, 19, 14.5, 10, 17, 12.5, 19.5, 15, 10.5, 17.5, 13, 20, 15.5, 11, 18, 13.5, 20.5, 16, 11.5, 18.5],
@@ -130,14 +130,14 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'pupil' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 20, "count_class": "person"},
               "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "rows": {"kind": "count", "value": 40, "count_class": "person"},
-              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
@@ -151,7 +151,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'school' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 2}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 2, "count_class": "non_person"},
@@ -169,7 +169,7 @@
     },
     {
       "id": "audits-privacy-003",
-      "description": "Zeros are disclosive: the duplicate counts of keys.duplicates and rows_dropped are person counts of 0 and are suppressed, and rows_kept is suppressed with rows_dropped. Every row of the table is in the design sample, so the size of the table, rows of keys.duplicates and rows_raw, and the support of both findings on the table are suppressed with the detail 'secondary', since the table and the design sample would give back the rows that a missing value removes. The message unique renders only names, so it keeps its template.",
+      "description": "Zeros are disclosive: the duplicate counts of keys.duplicates and rows_dropped are person counts of 0 and are suppressed with the detail 'secondary', since each is a part of a total whose details would otherwise show which part lies below min_count, and rows_kept is suppressed with rows_dropped. Every row of the table is in the design sample, so the size of the table, rows of keys.duplicates and rows_raw, and the support of both findings on the table are suppressed with the detail 'secondary', since the table and the design sample would give back the rows that a missing value removes. The message unique renders only names, so it keeps its template.",
       "checks": ["keys.duplicates", "sample.raw_vs_analysis"],
       "data": {
         "y": [20, 23, 21.75, 20.5, 23.5, 22.25, 21, 24, 22.75, 21.5, 20.25, 23.25, 22, 20.75, 23.75, 22.5, 21.25, 20, 23, 21.75, 20.5, 23.5, 22.25, 21, 24, 22.75, 21.5, 20.25, 23.25, 22, 20.75, 23.75, 22.5, 21.25, 20, 23, 21.75, 20.5, 23.5, 22.25],
@@ -231,12 +231,12 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "unique", "text": "Every row has its own value of the observation key 'pupil' and 'wave'."},
             "statistics": {
-              "conflicting_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
-              "duplicate_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "conflicting_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "duplicate_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "duplicated_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
-              "identical_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "identical_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "key_columns": {"kind": "names", "value": ["pupil", "wave"]},
-              "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
             "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
@@ -254,7 +254,7 @@
               "incomplete_columns": {"kind": "names", "value": []},
               "new_singletons": {"kind": "names", "value": []},
               "reference_emptied": {"kind": "names", "value": []},
-              "rows_dropped": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "rows_dropped": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows_kept": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows_raw": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
@@ -265,7 +265,7 @@
     },
     {
       "id": "audits-privacy-004",
-      "description": "Without a disclosure unit, 12 subjects have their two rows under one key value with different values of 'x', so conflicting_keys is 12 and identical_keys 0. The 0 is suppressed, and conflicting_keys with it, since duplicated_keys, which is written, minus either gives back the other. Both rows of six subjects have a missing 'x', so 12 of the 40 rows leave the design sample: rows_raw, rows_kept and rows_dropped are all at least min_count and are written, and so are the rows of both findings on the table. The 20 subjects of the table and the 14 of the design sample differ by fewer than min_count, so the contributors of both findings on the table are suppressed with the detail 'secondary'.",
+      "description": "Without a disclosure unit, 12 subjects have their two rows under one key value with different values of 'x', so conflicting_keys is 12 and identical_keys 0. The 0 is suppressed, and conflicting_keys with it, since duplicated_keys, which is written, minus either gives back the other, both with the detail 'secondary', which does not show which of the two lies below min_count. missing_key_rows, 0, has the detail 'secondary' of the rule on rows without a key value. Both rows of six subjects have a missing 'x', so 12 of the 40 rows leave the design sample: rows_raw, rows_kept and rows_dropped are all at least min_count and are written, and so are the rows of both findings on the table. The 20 subjects of the table and the 14 of the design sample differ by fewer than min_count, so the contributors of both findings on the table are suppressed with the detail 'secondary'.",
       "checks": ["keys.duplicates", "sample.raw_vs_analysis"],
       "data": {
         "y": [3, 4, 5, 6, 7, 8, 3.5, 4.5, 5.5, 6.5, 7.5, 3, 4, 5, 6, 7, 8, 3.5, 4.5, 5.5, 6.5, 7.5, 3, 4, 5, 6, 7, 8, 3.5, 4.5, 5.5, 6.5, 7.5, 3, 4, 5, 6, 7, 8, 3.5],
@@ -330,9 +330,9 @@
               "conflicting_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "duplicate_rows": {"kind": "count", "value": 24, "count_class": "person"},
               "duplicated_keys": {"kind": "count", "value": 12, "count_class": "person"},
-              "identical_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "identical_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "key_columns": {"kind": "names", "value": ["subject", "trial"]},
-              "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows": {"kind": "count", "value": 40, "count_class": "person"}
             },
             "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
@@ -361,7 +361,7 @@
     },
     {
       "id": "audits-privacy-005",
-      "description": "The second row of four subjects has a missing 'x', so 4 of the 40 rows leave the design sample: rows_dropped is suppressed below min_count and rows_kept with it. The table has fewer than min_count rows more than the design sample, so rows_raw and the support of sample.raw_vs_analysis, which reads the table, are suppressed with the detail 'secondary', whereas the 36 rows of the design sample stay written in structure.cluster_sizes: the larger sample loses its size. The four subjects become levels with one row, and singletons is a person count below min_count.",
+      "description": "The second row of four subjects has a missing 'x', so 4 of the 40 rows leave the design sample: rows_dropped is below min_count and rows_kept would give it back, so both are suppressed with the detail 'secondary'. The table has fewer than min_count rows more than the design sample, so rows_raw and the support of sample.raw_vs_analysis, which reads the table, are suppressed with the detail 'secondary', whereas the 36 rows of the design sample stay written in structure.cluster_sizes: the larger sample loses its size. The four subjects become levels with one row, and singletons is a person count below min_count, suppressed with the levels with two rows with the detail 'secondary'. The 36 rows are fewer than twice the 20 levels, so beside them the levels would show that at least 4 levels have one row and that the smallest size is 1: the levels are suppressed with the detail 'secondary', and with them the contributors of the support and the n of each quantile, so that the median of 2 rows takes the detail 'quantile' (privacy.md, Across findings, rule 3).",
       "checks": ["sample.raw_vs_analysis", "structure.cluster_sizes"],
       "data": {
         "y": [7, 9.33, 8.67, 8, 7.33, 9.67, 9, 8.33, 7.67, 7, 9.33, 8.67, 8, 7.33, 9.67, 9, 8.33, 7.67, 7, 9.33, 8.67, 8, 7.33, 9.67, 9, 8.33, 7.67, 7, 9.33, 8.67, 8, 7.33, 9.67, 9, 8.33, 7.67, 7, 9.33, 8.67, 8],
@@ -427,7 +427,7 @@
               "incomplete_columns": {"kind": "names", "value": ["x"]},
               "new_singletons": {"kind": "names", "value": ["subject"]},
               "reference_emptied": {"kind": "names", "value": []},
-              "rows_dropped": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "rows_dropped": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows_kept": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows_raw": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
@@ -441,18 +441,18 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'subject' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
-              "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "levels": {"kind": "count", "value": 20, "count_class": "person"},
-              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
+              "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
+              "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "rows": {"kind": "count", "value": 36, "count_class": "person"},
-              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
-              "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
-              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 20}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
+              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
+              "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
-            "support": {"rows": {"value": 36}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+            "support": {"rows": {"value": 36}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
           }
         ]
       }
@@ -750,7 +750,7 @@
               "incomplete_columns": {"kind": "names", "value": []},
               "new_singletons": {"kind": "names", "value": []},
               "reference_emptied": {"kind": "names", "value": []},
-              "rows_dropped": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "rows_dropped": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows_kept": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "rows_raw": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
@@ -764,7 +764,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'school' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 2}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 2, "count_class": "non_person"},
@@ -910,14 +910,14 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'subject' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
-              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
@@ -1005,7 +1005,7 @@
     },
     {
       "id": "audits-privacy-013",
-      "description": "A model without grouping factors and with 6 zeros among 40 counts: zeros is a person count below min_count, so zero_share, whose numerator it is, is suppressed as a ratio, whereas the 40 rows stay. The rule of the decision reads no statistic, so the finding stays, with the fallback message.",
+      "description": "A model without grouping factors and with 6 zeros among 40 counts: zeros is a person count below min_count, suppressed with the detail 'secondary' as a part of the rows, so zero_share, whose numerator it is, is suppressed as a ratio, whereas the 40 rows stay. The rule of the decision reads no statistic, so the finding stays, with the fallback message.",
       "checks": ["outcome.zero_shares"],
       "data": {
         "count": [0, 3, 1, 4, 2, 0, 5, 2, 1, 3, 0, 2, 6, 1, 0, 3, 2, 4, 1, 0, 2, 3, 5, 1, 0, 2, 4, 1, 3, 2, 1, 2, 3, 4, 2, 1, 5, 3, 2, 1],
@@ -1043,7 +1043,7 @@
             "statistics": {
               "rows": {"kind": "count", "value": 40, "count_class": "person"},
               "zero_share": {"kind": "ratio", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "ratio"}},
-              "zeros": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}
+              "zeros": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
             "support": {"rows": {"value": 40}, "contributors": {"basis": "rows", "distinct": {"value": 40}, "dominated": false}}
           }
@@ -1052,7 +1052,7 @@
     },
     {
       "id": "audits-privacy-014",
-      "description": "12 of 40 counts are 0, so zeros and zero_share are written, and every count is 0 in 5 of the 20 subjects: all_zero_levels resolves as a person count without a disclosure unit and is suppressed, so the message falls back to the text without values.",
+      "description": "12 of 40 counts are 0, so zeros and zero_share are written, and every count is 0 in 5 of the 20 subjects: all_zero_levels resolves as a person count without a disclosure unit and is suppressed with the detail 'secondary' as a part of the levels, so the message falls back to the text without values.",
       "checks": ["outcome.zero_shares"],
       "data": {
         "count": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 4, 1, 4, 2, 2, 3, 3, 4, 4, 1, 2, 2, 3, 3, 4, 4, 2, 1, 3, 2, 4, 3, 2, 4, 3, 1, 4],
@@ -1090,7 +1090,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "zeros", "text": "The statistics give the zeros of the counts and the levels of 'subject' in which every count is 0 as far as they can be shown. Many zeros alone do not indicate zero inflation in a model with random effects."},
             "statistics": {
-              "all_zero_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "all_zero_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "levels": {"kind": "count", "value": 20, "count_class": "person"},
               "rows": {"kind": "count", "value": 40, "count_class": "person"},
               "zero_share": {"kind": "ratio", "value": 0.3, "count_class": "person"},
@@ -1103,7 +1103,7 @@
     },
     {
       "id": "audits-privacy-015",
-      "description": "6 events and 34 non-events in a model without grouping factors: events is suppressed below min_count, and non_events with it, since the rows minus non_events give back the events, and so is events_per_column, which with the kept columns of design.rank_deficiency gives back the minority count.",
+      "description": "6 events and 34 non-events in a model without grouping factors: events is below min_count and the rows minus non_events give it back, so both are suppressed with the detail 'secondary', which does not show which of the two lies below min_count, and so is events_per_column, which with the kept columns of design.rank_deficiency gives back the minority count.",
       "checks": ["outcome.minority_events"],
       "data": {
         "y": [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
@@ -1140,7 +1140,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "events_model", "text": "The statistics give the events and non-events of the outcome as far as they can be shown."},
             "statistics": {
-              "events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "events_per_column": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "non_events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
@@ -1291,7 +1291,7 @@
     },
     {
       "id": "audits-privacy-019",
-      "description": "Ten subjects, the disclosure unit, each meet the four items once. The labels of 'item' occur with several subjects and resolve as non-person counts, while those of 'subject' and the combinations, which hold one subject each, resolve as person counts. Every subject occurs with more than one item, so second_in_several equals levels_second and the subjects with one item, their difference, number 0: second_in_several is suppressed as a part of levels_second. first_in_several equals levels_first too, but both are non-person counts and stay written.",
+      "description": "Ten subjects, the disclosure unit, each meet the four items once. The labels of 'item' occur with several subjects and resolve as non-person counts, while those of 'subject' and the combinations, which hold one subject each, resolve as person counts. Every subject occurs with more than one item, so second_in_several equals levels_second and the subjects with one item, their difference, number 0: second_in_several is suppressed as a part of levels_second. first_in_several equals levels_first too, but both are non-person counts and stay written. The 40 combinations hold one row each, so beside the 40 rows of the design sample their number would show that none holds two rows, and it is suppressed with the detail 'secondary' (privacy.md, Across findings, rule 3), so the message falls back to the relation.",
       "checks": ["structure.label_incidence"],
       "data": {
         "y": [1, 2.75, 2, 1.25, 3, 2.25, 1.5, 3.25, 2.5, 1.75, 1, 2.75, 2, 1.25, 3, 2.25, 1.5, 3.25, 2.5, 1.75, 1, 2.75, 2, 1.25, 3, 2.25, 1.5, 3.25, 2.5, 1.75, 1, 2.75, 2, 1.25, 3, 2.25, 1.5, 3.25, 2.5, 1.75],
@@ -1335,9 +1335,9 @@
             "tier": "T0",
             "scope": {"first": "item", "second": "subject"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "relation", "text": "In the design sample, 'item' has 4 labels and 'subject' has 10 labels, which occur in 40 combinations. Relation from the labels: crossed."},
+            "message": {"id": "relation", "text": "In the design sample, the relation of 'item' and 'subject' from the labels is: crossed."},
             "statistics": {
-              "combinations": {"kind": "count", "value": 40, "count_class": "person"},
+              "combinations": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "composite": {"kind": "boolean", "value": false},
               "declared": {"kind": "category", "value": "none"},
               "first_in_several": {"kind": "count", "value": 4, "count_class": "non_person"},
@@ -1554,7 +1554,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'school' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 4}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 4, "count_class": "non_person"},
@@ -2398,7 +2398,7 @@
               "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
             },
-            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": true}}
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": true}}
           }
         ]
       }
@@ -2456,7 +2456,7 @@
               "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
             },
-            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
           }
         ]
       }
@@ -2498,14 +2498,14 @@
               "labels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "spellings": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
             },
-            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
           }
         ]
       }
     },
     {
       "id": "audits-privacy-037",
-      "description": "The inputs of audits-structure-031 in shareable mode. In structure.aliased_factors for first 'session', second 'subject', coarser_levels, informative_levels, informative_rows and rows are suppressed since the finding has fewer than min_count contributors, so the message nested falls back to its text without those values. In structure.cluster_sizes for factor 'session', effective_size, largest, levels, lower_quartile, median, rows, singletons, smallest and upper_quartile are suppressed since the finding has fewer than min_count contributors, so the message sizes falls back to its text without those values. In structure.cluster_sizes for factor 'subject', effective_size, largest, levels, lower_quartile, median, rows, singletons, smallest and upper_quartile are suppressed since the finding has fewer than min_count contributors, so the message sizes falls back to its text without those values.",
+      "description": "The inputs of audits-structure-031 in shareable mode. In structure.aliased_factors for first 'session', second 'subject', coarser_levels, informative_levels, informative_rows and rows are suppressed since the finding has fewer than min_count contributors, so the message nested falls back to its text without those values. In structure.cluster_sizes for factor 'session', largest, levels, lower_quartile, median, rows, singletons, smallest and upper_quartile are suppressed since the finding has fewer than min_count contributors, so the message sizes falls back to its text without those values. In structure.cluster_sizes for factor 'subject', largest, levels, lower_quartile, median, rows, singletons, smallest and upper_quartile are suppressed since the finding has fewer than min_count contributors, so the message sizes falls back to its text without those values. effective_size is internal_only in both.",
       "checks": ["structure.aliased_factors", "structure.cluster_sizes"],
       "data": {
         "y": [1, 2, 3, 4, 5, 6, 7, 8],
@@ -2607,7 +2607,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'session' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
@@ -2628,7 +2628,7 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'subject' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
@@ -2694,7 +2694,7 @@
               "factors_losing_levels": {"kind": "names", "value": []},
               "new_singletons": {"kind": "names", "value": []}
             },
-            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "contributors": {"basis": "rows", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "rows", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
           }
         ]
       }
@@ -3361,14 +3361,14 @@
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
             "message": {"id": "sizes", "text": "The privacy rules do not allow the level sizes of 'session' to be shown in full."},
             "statistics": {
-              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "effective_size": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
               "intercept": {"kind": "boolean", "value": true},
               "largest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 1, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "levels": {"kind": "count", "value": 10, "count_class": "person"},
               "lower_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.25, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "median": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "rows": {"kind": "count", "value": 22, "count_class": "person"},
-              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "singletons": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "smallest": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
               "upper_quartile": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.75, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}}
             },
@@ -3515,7 +3515,7 @@
     },
     {
       "id": "audits-privacy-053",
-      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of four subjects is missing. The design sample has 40 rows and 20 subjects with two rows, the analysis sample 36 rows and 16 subjects with two rows: the rows, the contributors, the levels and the levels with two rows of the design sample each exceed those of the analysis sample by fewer than min_count, so every count that measures them on the design sample is suppressed with the detail 'secondary', and so are the supports. varying_levels and informative_levels of structure.within_between and cells and replicated_cells of identifiability.residual_confounding measure no quantity but equal the suppressed 20, as informative_levels of identifiability.levels_vs_dimension does, so they are suppressed too, and bound is suppressed with levels. within_share is a real over the design sample, whose rows are suppressed, so rule 5 suppresses it too, since beside the rows of the analysis sample it could give back the rows without an outcome (privacy.md, Across findings). The messages fall back to their texts without values, while the non-person dimension and the names stay, and icc, which is internal_only, is suppressed.",
+      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of four subjects is missing. The design sample has 40 rows and 20 subjects with two rows, the analysis sample 36 rows and 16 subjects with two rows: the rows, the contributors, the levels and the levels with two rows of the design sample each exceed those of the analysis sample by fewer than min_count, so every count that measures them on the design sample is suppressed with the detail 'secondary', and so are the supports. varying_levels and informative_levels of structure.within_between, parts of the levels with two rows, and informative_levels of identifiability.levels_vs_dimension, a part of the levels, equal the suppressed 20, so part_of suppresses them, cells and replicated_cells of identifiability.residual_confounding count the levels of 'subject' and those with two rows, since the term has an intercept alone, and are suppressed with them, and bound is suppressed with levels. within_share is a real over the design sample, whose rows are suppressed, so rule 5 suppresses it too, since beside the rows of the analysis sample it could give back the rows without an outcome (privacy.md, Across findings). The messages fall back to their texts without values, while the non-person dimension and the names stay, and icc, which is internal_only, is suppressed.",
       "checks": ["identifiability.levels_vs_dimension", "identifiability.residual_confounding", "structure.within_between"],
       "data": {
         "y": [2.3, 3.1, 4.3, 5.1, 6.3, null, 8.3, 9.1, 10.3, 11.1, 12.3, 13.1, 14.3, 15.1, 16.3, null, 18.3, 19.1, 20.3, 21.1, 22.3, 23.1, 24.3, 25.1, 26.3, null, 28.3, 29.1, 30.3, 31.1, 32.3, 33.1, 34.3, 35.1, 36.3, null, 38.3, 39.1, 40.3, 41.1],
@@ -3909,7 +3909,7 @@
     },
     {
       "id": "audits-privacy-057",
-      "description": "Ten schools, five of them with two classes and 35 rows and five with one class of one row, without a disclosure unit. informative_rows, 35 rows in the schools that hold two or more classes, is at least min_count, but the rows minus informative_rows, the 5 rows of the other schools, are fewer, so informative_rows is suppressed as a part of the rows with the detail 'secondary'. informative_levels is a person count below min_count, so the message nested falls back to its text without values, while coarser_levels and rows stay written.",
+      "description": "Ten schools, five of them with two classes and 35 rows and five with one class of one row, without a disclosure unit. informative_rows, 35 rows in the schools that hold two or more classes, is at least min_count, but the rows minus informative_rows, the 5 rows of the other schools, are fewer, so informative_rows is suppressed as a part of the rows with the detail 'secondary'. informative_levels is a person count below min_count, suppressed with the detail 'secondary' as a part of coarser_levels, so the message nested falls back to its text without values, while coarser_levels and rows stay written.",
       "checks": ["structure.aliased_factors"],
       "data": {
         "y": [6.5, 6.6, 6.7, 6.8, 7.0, 7.1, 7.2, 7.5, 7.6, 7.7, 7.8, 8.0, 8.1, 8.2, 8.5, 8.6, 8.7, 8.8, 9.0, 9.1, 9.2, 9.5, 9.6, 9.7, 9.8, 10.0, 10.1, 10.2, 10.5, 10.6, 10.7, 10.8, 11.0, 11.1, 11.2, 11, 12, 13, 14, 15],
@@ -3951,7 +3951,7 @@
               "coarser": {"kind": "names", "value": ["school"]},
               "coarser_levels": {"kind": "count", "value": 10, "count_class": "person"},
               "finer": {"kind": "names", "value": ["school:class"]},
-              "informative_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
+              "informative_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "informative_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "partition": {"kind": "category", "value": "second_finer"},
               "shared_columns": {"kind": "boolean", "value": true},
@@ -3964,7 +3964,7 @@
     },
     {
       "id": "audits-privacy-058",
-      "description": "Twelve subjects, the disclosure unit, each meet the three items once in one of five sessions, the first of which holds one subject. The levels of 'session' therefore resolve as person counts, and its 5 labels are below min_count, so levels_second and second_in_several are suppressed with the detail 'min_count' and the 15 combinations, a person count of at least min_count that with the 3 written labels of 'item' would give back the 5 sessions of a crossed design, are suppressed with levels_second, with the detail 'secondary'. The finding has 12 contributors and passes the minimum-count rule, so the non-person counts of 'item' stay, and the message falls back to the relation.",
+      "description": "Twelve subjects, the disclosure unit, each meet the three items once in one of five sessions, the first of which holds one subject. The levels of 'session' therefore resolve as person counts, and its 5 labels are below min_count, so levels_second is suppressed with the detail 'min_count' and second_in_several, a part of it, with 'secondary', and the 15 combinations, a person count of at least min_count that with the 3 written labels of 'item' would give back the 5 sessions of a crossed design, are suppressed with levels_second, with the detail 'secondary'. The finding has 12 contributors and passes the minimum-count rule, so the non-person counts of 'item' stay, and the message falls back to the relation.",
       "checks": ["structure.label_incidence"],
       "data": {
         "y": [11.3, 11.6, 11.9, 12.3, 12.6, 12.9, 13.3, 13.6, 13.9, 14.3, 14.6, 14.9, 15.3, 15.6, 15.9, 16.3, 16.6, 16.9, 17.3, 17.6, 17.9, 18.3, 18.6, 18.9, 19.3, 19.6, 19.9, 20.3, 20.6, 20.9, 21.3, 21.6, 21.9, 22.3, 22.6, 22.9],
@@ -4021,7 +4021,7 @@
               "levels_second": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "outer": {"kind": "names", "value": []},
               "relation": {"kind": "category", "value": "crossed"},
-              "second_in_several": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}
+              "second_in_several": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
             },
             "support": {"rows": {"value": 36}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
           }

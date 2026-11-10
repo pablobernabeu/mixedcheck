@@ -14,9 +14,9 @@ test_that("every case of hash sha256.json passes in memory and as a file", {
     if (!is.null(case[["repeat"]])) {
       bytes <- rep(bytes, times = case[["repeat"]])
     }
-    expect_identical(hash_bytes(bytes), case[["expected"]][["sha256"]], label = case$id)
+    expect_same(hash_bytes(bytes), case[["expected"]][["sha256"]], label = case$id)
     writeBin(bytes, path)
-    expect_identical(hash_file(path), case[["expected"]][["sha256"]], label = case$id)
+    expect_same(hash_file(path), case[["expected"]][["sha256"]], label = case$id)
   }
 })
 
@@ -25,8 +25,8 @@ test_that("every case of hash sections.json passes", {
     document <- read_json_strict(utf8_bytes(case[["input"]]), "hashable")
     section <- mixedcheck:::json_pointer_get(document, case[["pointer"]])
     bytes <- canonical_bytes(section, "hashable")
-    expect_identical(bytes, utf8_bytes(case[["expected"]][["canonical"]]), label = case$id)
-    expect_identical(canonical_hash(section, "hashable"), case[["expected"]][["sha256"]], label = case$id)
+    expect_same(bytes, utf8_bytes(case[["expected"]][["canonical"]]), label = case$id)
+    expect_same(canonical_hash(section, "hashable"), case[["expected"]][["sha256"]], label = case$id)
   }
 })
 
@@ -36,7 +36,7 @@ test_that("every case of hmac rfc4231.json passes", {
     if (!is.null(case[["truncate"]])) {
       digest <- substr(digest, 1L, 2L * case[["truncate"]])
     }
-    expect_identical(digest, case[["expected"]][["digest"]], label = case$id)
+    expect_same(digest, case[["expected"]][["digest"]], label = case$id)
   }
 })
 
@@ -45,12 +45,12 @@ test_that("every case of hmac commitments.json passes", {
     expected <- case[["expected"]]
     if (!is.null(case[["covers"]])) {
       commitment <- keyed_commitment(message_bytes(case), case[["key"]], case[["covers"]])
-      expect_identical(commitment, expected[["commitment"]], label = case$id)
+      expect_same(commitment, expected[["commitment"]], label = case$id)
     } else if (!is.null(expected[["issue"]])) {
       result <- capture_issues(function() commitment_key_id(case[["key"]]))
       expect_issue(result, expected[["issue"]], case$id)
     } else {
-      expect_identical(commitment_key_id(case[["key"]]), expected[["key_id"]], label = case$id)
+      expect_same(commitment_key_id(case[["key"]]), expected[["key_id"]], label = case$id)
     }
   }
 })

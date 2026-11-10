@@ -59,20 +59,33 @@ statistics:
       level for a covariance. The Gram matrix M has M_kl = tr(A_k W A_l W) for
       covariance parameters, M_ks = tr(A_k Z'PDPZ) between a covariance
       parameter and the residual, and M_ss = tr(PDPD), which is n - rank(X)
-      without weights, with n the number of rows of the design sample. For a
-      level L of the factor of its term, A_kL is the part of A_k at the
-      columns of Z in level L, so that A_k is the sum of the A_kL over the
-      levels. The level ratio of a covariance parameter k in L is
+      without weights, with n the number of rows of the design sample. With
+      weights, let Q be an orthonormal basis of the span of X, H = QQ', d_r
+      the diagonal elements of D, A the rows r with H_rr above 1/2 and B the
+      others. M_ss, the sum of d_r d_s P_rs^2 over the pairs of rows, is the
+      sum of d_r^2 (1 - 2 H_rr) over B, plus ||Q_B'D_B Q_B||^2, plus twice the
+      sum of d_r d_s H_rs^2 over r in A and s in B, plus the sum of
+      d_r d_s (PP)_rs^2 over r and s in A, with (PP)_rs the inner product of
+      the rows r and s of P. M_ks adds over the blocks (x, y) of A_k and the levels L the sum
+      of d_r (P z_yL)_r (P z_xL)_r over r in A and z_yL'D_B z_xL -
+      z_yL'D_B H z_xL - z_yL'H D_B z_xL + z_yL'H D_B H z_xL, for D_B equal to
+      D in the rows of B and 0 elsewhere. No sum then cancels the share of a
+      row that P takes to 0, which holds the largest element of D when its
+      weight is the smallest, as a row does that a factor of the fixed part
+      isolates. For a level L of the factor of its term, A_kL is the part of
+      A_k at the columns of Z in level L, so that A_k is the sum of the A_kL
+      over the levels. The level ratio of a covariance parameter k in L is
       tr(A_kL W A_kL W) divided by tr(A_kL Z'Z A_kL Z'Z), the same element of
       its unprojected basis in L, for each level where the latter is not 0,
-      and its cancellation ratio is M_kk divided by the sum of
+      and its cancellation ratio is M_kk divided by T_k, the sum of
       tr(A_kL W A_kL W) over the levels. A covariance parameter vanishes when
       no level gives it a level ratio, when its largest level ratio is at or
       below rank_tolerance, so that P takes its basis to 0 in every level, or
       when its cancellation ratio is at or below rank_tolerance, so that the
-      parts of its basis in the levels cancel. The residual vanishes when M_ss
-      is at or below rank_tolerance times tr(DD), which is n without weights.
-      These ratios do not depend on the units of the columns. A level ratio
+      parts of its basis in the levels cancel. The residual vanishes when n
+      equals rank(X), since PDP = 0 exactly when P = 0 for D with a positive
+      diagonal, whereas M_ss / tr(DD) falls with the spread of the weights
+      alone. These ratios do not depend on the units of the columns. A level ratio
       compares a level with itself, so that a level whose column lies almost
       in the span of X does not hide another level whose column does not, as
       M_kk divided by tr(A_k Z'Z A_k Z'Z) does when the first level holds far
@@ -125,12 +138,65 @@ parameters:
     value: 0.0000000001
     proximity_factor: 10
     definition: >-
-      The relative tolerance at or below which an eigenvalue of the scaled
-      Gram matrix, the largest level ratio or the cancellation ratio of a
-      covariance parameter, or the ratio of M_ss to tr(DD), counts as zero. A
-      finding is near_threshold when any eigenvalue of C, or any of these
-      ratios, lies within the proximity factor of it (registry.md,
-      Parameters).
+      The relative tolerance t at or below which an eigenvalue of C and the
+      largest level ratio and the cancellation ratio of a covariance parameter
+      count as zero, the latter compared only for a parameter whose largest
+      level ratio exceeds t. Each such value s has a bound b on its rounding
+      error to first order, and a finding is near_threshold when
+      t/f <= |s| <= t f for the proximity factor f, or when |s| lies within b
+      of t (registry.md, Parameters). Let e = 2^-52 and, for the gaussian
+      family class, p the number of kept columns of X, X_s those columns each
+      divided by its largest absolute value, Q and R the factors of the QR
+      decomposition of X_s, with its columns in the order of R, and
+      eta = ||Q'Q - I||_F + p (ceil(log2(n)) + 1) e + (||X_s - QR||_F +
+      (p + 2)(1 + sqrt(p)) e ||X_s||_F) / sigma, for sigma the smallest
+      singular value of R, each computed, with the elements of Q'Q summed
+      pairwise over the rows. eta bounds the 2-norm of QQ' minus the
+      projector onto the span of X, by Wedin's theorem, and grows with the
+      condition of X_s.
+      Otherwise p = eta = 0. For a level L of a random term, let n_L be its
+      rows, h_L the sum of the squares of the rows of Q in L, or 0, h the
+      largest h_L over the levels of all random terms and alpha_L =
+      e (n_L (1 + 2 sqrt(h_L h)) + (p + 2) h_L + 3) / 2. An element of W
+      between columns i in L and j in L' lies within
+      (alpha_L + alpha_L' + eta) sqrt(s_i s_j), for s_i the sum of the
+      squares of column i. For columns c and d of the random terms over all
+      levels, A_c is the root of the sum over the levels L of
+      alpha_L^2 s_cL, for s_cL the sum of the squares of c in L, F_cd the
+      computed root sum of squares of the elements of W between c and d,
+      N_cd = A_c sqrt(s_d) + sqrt(s_c) A_d and G_cd = F_cd + N_cd +
+      eta sqrt(s_c s_d). M_kl lies within B_kl, the sum over the blocks
+      (x, y) of A_k and (u, v) of A_l of N_yu G_xv + G_yu N_xv +
+      2 e (J + J' + 2) F_yu F_xv, for the numbers of levels J and J' of the
+      two terms, plus 2 eta sqrt(X_k X_l), for X_k the sum of mu^2 below over
+      the levels. The packages sum the products of two blocks in nested sums
+      in which each product passes through at most 2 (J + J') additions. In
+      a level L, let delta_L = 2 alpha_L + eta, omega_c the computed diagonal
+      element of W of c in L, or 0 when it is negative, plus delta_L s_cL,
+      and mu the sum over the blocks (x, y) of A_k of sqrt(omega_x s_yL).
+      tr(A_kL W A_kL W) lies within 3 delta_L mu^2, a level ratio r with
+      unprojected element u within delta_L (3 mu^2 / u + |r|), the largest
+      level ratio within the largest of these, and T_k within V_k, the sum of
+      3 delta_L mu^2 over the levels plus e J times the sum of the absolute
+      values of the elements. The cancellation ratio c
+      lies within (B_kk + |c| V_k) / (T_k - V_k), or Inf when T_k <= V_k.
+      Without weights, M_ss = n - rank(X) is exact and M_ks lies within the
+      sum over the blocks (x, y) of A_k of the sum over the levels of
+      2 alpha_L sqrt(s_xL s_yL) plus (eta + e J) sqrt(s_x s_y). With weights,
+      for epsilon = (1 + p) e + eta and delta = n (1 + p) e + eta, M_ks lies
+      within 2 delta d_B times the sum over the blocks of sqrt(s_x s_y), for
+      d_B the largest d_r over B, plus the sum over the rows r of A, the
+      blocks and the levels of d_r ((|a_y| + g_y) g_x + |a_x| g_y +
+      delta |a_y a_x|), for a_c = (P z_cL)_r and g_c = 2 delta sqrt(s_cL),
+      and M_ss within delta M_ss plus 2 epsilon times the sum of d_r^2 over
+      B, plus the sum of 2 d_r d_s (2 |H_rs| + epsilon) epsilon over r in A
+      and s in B, plus the sum of d_r d_s (2 |(PP)_rs| + zeta) zeta over r
+      and s in A, for zeta = epsilon sqrt(n) (sqrt((PP)_rr) +
+      sqrt((PP)_ss)) + 2 n epsilon^2. Off its diagonal, C_kl lies within
+      E_kl = (|M_kl| + B_kl) / sqrt((M_kk - B_kk)(M_ll - B_ll)) - |C_kl|, and
+      every eigenvalue of C within the root sum of squares of E plus e times
+      the largest eigenvalue, by Weyl's inequality, or Inf when some B_kk
+      reaches M_kk.
     sources:
       - kind: convention
         citation: >-

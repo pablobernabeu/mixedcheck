@@ -190,7 +190,7 @@ Each statistic is an object with the kind of its registry entry, its value and, 
 
 The assignment checks, structure.label_incidence and structure.id_scope_evidence compute their statistics over the rows of an assignment or of a pair of columns, and their `rows` and `contributors` count the design sample, which their entries name.
 
-`rows` and `distinct` are person counts, each written as an object with `value` and, when the value is not written, `availability`, as for statistics. The filter suppresses them with the detail 'min_count' when they are below min_count, and may suppress them with the detail 'secondary' so that the sizes of two samples cannot give back the rows or members that leave one of them ([privacy.md](privacy.md), Across findings).
+`rows` and `distinct` are person counts, each written as an object with `value` and, when the value is not written, `availability`, as for statistics. The filter suppresses them with the detail 'min_count' when they are below min_count, and may suppress them with the detail 'secondary' so that the sizes of two samples cannot give back the rows or members that leave one of them, which for `rows` replaces 'min_count' ([privacy.md](privacy.md), Across findings).
 
 ### Shareable documents
 
@@ -387,7 +387,7 @@ This shareable document records a planned Stream B run on the cluster-randomised
           "availability": {
             "value": "not_available",
             "reason": "privacy_suppressed",
-            "detail": "min_count"
+            "detail": "secondary"
           }
         },
         "duplicated_keys": {
@@ -407,7 +407,7 @@ This shareable document records a planned Stream B run on the cluster-randomised
           "availability": {
             "value": "not_available",
             "reason": "privacy_suppressed",
-            "detail": "min_count"
+            "detail": "secondary"
           }
         },
         "identical_keys": {
@@ -417,7 +417,7 @@ This shareable document records a planned Stream B run on the cluster-randomised
           "availability": {
             "value": "not_available",
             "reason": "privacy_suppressed",
-            "detail": "min_count"
+            "detail": "secondary"
           }
         },
         "missing_key_rows": {
@@ -427,7 +427,7 @@ This shareable document records a planned Stream B run on the cluster-randomised
           "availability": {
             "value": "not_available",
             "reason": "privacy_suppressed",
-            "detail": "min_count"
+            "detail": "secondary"
           }
         },
         "key_columns": {"kind": "names", "value": ["school", "class", "pupil", "wave"]}
@@ -523,12 +523,12 @@ This shareable document records a planned Stream B run on the cluster-randomised
 }
 ```
 
-The counts of levels of 'class' and 'school' are non-person counts, because both units are coarser than the disclosure unit 'pupil'. The duplicate counts of keys.duplicates are person counts of 0, below k = 10, so they are suppressed, whereas the message that the decision chose quotes none of them. The table and the design sample have the same 960 rows and the same 480 pupils, so the size of the table and its contributors are suppressed wherever the document writes them, and 476 of the 480 pupils keep a row in the analysis sample, so the contributors of the design-sample finding are suppressed too, since the two counts would give back the 4 pupils whose outcome is missing in both rows (privacy.md, Across findings). The canonical bytes of the document are 5,715 bytes long, and its results file hash is `sha256:8dd371152e9753d27dfde5936b9f6d9e21db2a6a1ea3f84636f279621740ff52`, which the sidecar records:
+The counts of levels of 'class' and 'school' are non-person counts, because both units are coarser than the disclosure unit 'pupil'. The duplicate counts of keys.duplicates are person counts of 0, below k = 10, so they are suppressed, those that are parts of a total with the detail 'secondary' (privacy.md, Within a finding), whereas the message that the decision chose quotes none of them. The table and the design sample have the same 960 rows and the same 480 pupils, so the size of the table and its contributors are suppressed wherever the document writes them, and 476 of the 480 pupils keep a row in the analysis sample, so the contributors of the design-sample finding are suppressed too, since the two counts would give back the 4 pupils whose outcome is missing in both rows (privacy.md, Across findings). The canonical bytes of the document are 5,715 bytes long, and its results file hash is `sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92`, which the sidecar records:
 
 ```json
 {
   "sidecar_version": "0.1.0",
-  "results_hash": "sha256:8dd371152e9753d27dfde5936b9f6d9e21db2a6a1ea3f84636f279621740ff52",
+  "results_hash": "sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92",
   "keys": [
     {
       "created": "2026-11-08T09:05:30Z",

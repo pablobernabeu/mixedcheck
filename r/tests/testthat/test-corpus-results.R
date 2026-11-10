@@ -20,7 +20,7 @@ expect_results_issues <- function(found, expected, label) {
   if (length(expected)) {
     expect_issues(found, expected, label)
   } else {
-    expect_identical(found$issues, list(), label = label)
+    expect_same(found$issues, list(), label = label)
   }
 }
 
@@ -44,8 +44,8 @@ run_results_cases <- function(file) {
     label <- paste(case$id, "sidecar")
     if (found$error) {
       # An error in the document stops validation before the sidecar.
-      expect_identical(expected[["sidecar_issues"]], list(), label = label)
-      expect_identical(verified, found, label = label)
+      expect_same(expected[["sidecar_issues"]], list(), label = label)
+      expect_same(verified, found, label = label)
     } else {
       # The warning W7090, if any, comes before the issues of the sidecar.
       verified$issues <- verified$issues[seq_along(verified$issues) > length(found$issues)]

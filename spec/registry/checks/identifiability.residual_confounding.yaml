@@ -43,16 +43,19 @@ statistics:
     kind: count
     count_class: by_unit
     resolved_by: [{source: scope, name: factor}, {source: statistic, name: pattern_terms}]
+    measures: levels
     definition: >-
       The number of distinct combinations of a level of the term's grouping
       factor and a pattern of the columns of the pattern terms in the design
       sample, two rows having the same pattern when all these columns are
-      equal.
+      equal. These combinations are the levels of its item, which are the
+      levels of the factor when every level has one pattern.
   replicated_cells:
     kind: count
     count_class: by_unit
     resolved_by: [{source: scope, name: factor}, {source: statistic, name: pattern_terms}]
     part_of: cells
+    measures: levels_with_two_rows
     definition: >-
       The number of those combinations that hold at least two rows. The
       combinations with one row, cells minus replicated_cells, each hold one

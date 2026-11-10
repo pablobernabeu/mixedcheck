@@ -173,3 +173,26 @@
   basis cancels across the levels vanishes, as the
   [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
   states.
+
+* identifiability.gram_rank is near_threshold when rounding error, whose
+  bound grows with the condition of the fixed-effects columns, could move a
+  value that it compares with its rank tolerance across that tolerance, as
+  with one level of a single row beside a few hundred rows or more and a
+  slope, while exactly confounded parameters stay clear up to about 1e5
+  rows. It no longer reports the residual as absorbed by the fixed effects
+  when the weights differ by many orders of magnitude, as the
+  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
+  states.
+
+* `validate_results()` validates a results document in about half the time,
+  and in less for documents whose statistics repeat those of documents
+  validated earlier in the session.
+
+* The privacy filter of `audit()` gives the detail 'secondary', in place of
+  'min_count', to every count below the minimum count that a rule after the
+  minimum-count step suppresses, and to both parts of a total, hides the
+  levels of a factor whose rows are too few for levels without one row,
+  never writes effective_size of structure.cluster_sizes and no longer
+  suppresses a count because it equals a suppressed one, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  states.

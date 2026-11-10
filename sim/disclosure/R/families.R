@@ -1,0 +1,828 @@
+# Families of small tables for the consistency search (attack a). A family
+# is a template whose free parameters are counts: cell sizes, events and
+# missing values. Each parameter lists its values, whether it counts persons
+# and whether each end of its range is a natural bound (0, or a count that
+# the structure of the template fixes) rather than a limit of the family.
+# The search runs every combination of values that valid() accepts, so the
+# families are small enough to be exhaustive.
+
+dh_param <- function(values, person = FALSE, natural = c(min(values) == 0, FALSE)) {
+  list(values = values, person = person, natural = natural)
+}
+
+dh_family <- function(name, params, build, valid = function(p) TRUE, k = 3,
+                      description = "", reals = FALSE, probe = ".", gate = TRUE) {
+  list(name = name, params = params, build = build, valid = valid, k = k,
+       description = description, reals = reals, probe = probe, gate = gate)
+}
+
+# The combinations of the parameters of a family that valid() accepts, as a
+# data frame with one row for each table. widen adds that many values beyond
+# each end of every range that is not a natural bound.
+dh_grid <- function(family, widen = 0L) {
+  values <- lapply(family$params, function(p) {
+    v <- p$values
+    if (widen > 0L) {
+      step <- if (length(v) > 1L) min(diff(v)) else 1L
+      if (!p$natural[1L]) v <- c(min(v) - step * rev(seq_len(widen)), v)
+      if (!p$natural[2L]) v <- c(v, max(v) + step * seq_len(widen))
+    }
+    v
+  })
+  grid <- expand.grid(values, KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+  keep <- vapply(seq_len(nrow(grid)), function(i) {
+    p <- as.list(grid[i, , drop = FALSE])
+    all(unlist(p) >= 0) && isTRUE(family$valid(p))
+  }, NA)
+  grid <- grid[keep, , drop = FALSE]
+  rownames(grid) <- NULL
+  grid
+}
+
+# Whether a table lies inside its family: no parameter at an end of its
+# range that is a limit of the family rather than a natural bound.
+dh_interior <- function(family, grid) {
+  inside <- rep(TRUE, nrow(grid))
+  for (name in names(family$params)) {
+    p <- family$params[[name]]
+    if (!p$natural[1L]) inside <- inside & grid[[name]] > min(p$values)
+    if (!p$natural[2L]) inside <- inside & grid[[name]] < max(p$values)
+  }
+  inside
+}
+
+# Labels with two digits, so that their order is that of their numbers.
+dh_labels <- function(prefix, n) {
+  sprintf("%s%02d", prefix, seq_len(n))
+}
+
+dh_t1 <- function(...) {
+  list(outcome_access = "T1", reason = "Disclosure-attack tests.", ...)
+}
+
+dh_t2 <- function(...) {
+  list(outcome_access = "T2", reason = "Disclosure-attack tests.", exploratory = TRUE, ...)
+}
+
+dh_participant <- function(unit, columns = unit) {
+  list(name = unit, columns = as.list(columns), role = "participant")
+}
+
+
+dh_unit <- function(name, role = "cluster", nested_in = NULL, id_scope = "global",
+                    columns = name) {
+  unit <- list(name = name, columns = as.list(columns), role = role)
+  if (!is.null(nested_in)) {
+    unit$nested_in <- nested_in
+    unit$id_scope <- id_scope
+  }
+  unit
+}
+
+dh_declaration <- function(...) {
+  c(list(vocabulary = "0.1.0"), list(...))
+}
+
+# A covariate that differs between neighbouring rows, and an outcome that
+# differs from it, so that neither is constant within a level by accident.
+dh_covariate <- function(n) (seq_len(n) * 7L) %% 11L + 0.5
+dh_outcome <- function(n) (seq_len(n) * 5L) %% 13L + 0.25
+
+# --- The families ---------------------------------------------------------------------
+
+# Every family of the search, in the order in which they run.
+dh_families <- function() {
+  list(
+    dh_family_sizes(unit = FALSE),
+    dh_family_sizes(unit = TRUE),
+    dh_family_sizes(unit = FALSE, wide = TRUE),
+    dh_family_four_sizes(),
+    dh_family_minority(),
+    dh_family_constant(),
+    dh_family_zeros(),
+    dh_family_bounds(),
+    dh_family_assign(),
+    dh_family_blocks(),
+    dh_family_crossed(unit = FALSE),
+    dh_family_crossed(unit = TRUE),
+    dh_family_labels(),
+    dh_family_nested(),
+    dh_family_aliased(),
+    dh_family_keys(),
+    dh_family_unicode(),
+    dh_family_two_valued(),
+    dh_family_eigen(),
+    dh_family_quartile(),
+    dh_family_assign_school(),
+    dh_family_binomial(),
+    dh_family_factor_separation(),
+    dh_family_two_factor_separation(),
+    dh_family_separation_missing()
+  )
+}
+
+# One grouping factor of subjects with one, two or three rows, a covariate
+# that varies within subjects and second rows without the covariate or the
+# outcome, in a T1 run of a gaussian model. The subjects are the disclosure
+# unit, or there is none. The wide variant has up to k + 1 missing values of
+# each, so that one sample can exceed another by k or more in one quantity
+# and by fewer in another, and a subject of one row without an outcome. Its
+# determinations of attack (a) rest in part on the template, in which every
+# subject keeps a row with the covariate, and are candidates.
+dh_family_sizes <- function(unit, wide = FALSE) {
+  missing <- if (wide) 0:4 else 0:2
+  dh_family(
+    name = paste0("sizes", if (unit) "-unit", if (wide) "-wide"),
+    gate = !wide,
+    probe = "^(structure|identifiability|sample|design|labels)\\.",
+    description = "subjects of one to three rows, missing covariate and outcome, gaussian, T1",
+    params = list(
+      single = dh_param(0:3, person = TRUE),
+      double = dh_param(2:5, person = TRUE),
+      triple = dh_param(0:2, person = TRUE),
+      x_missing = dh_param(missing, person = TRUE),
+      y_missing = dh_param(missing, person = TRUE),
+      single_lost = dh_param(if (wide) 0:1 else 0L, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    valid = function(p) p$x_missing + p$y_missing <= p$double && p$single_lost <= p$single,
+    build = function(p) {
+      sizes <- c(rep(1L, p$single), rep(2L, p$double), rep(3L, p$triple))
+      subjects <- dh_labels("s", length(sizes))
+      subject <- rep(subjects, sizes)
+      second <- sequence(sizes) == 2L
+      n <- length(subject)
+      x <- dh_covariate(n)
+      y <- dh_outcome(n)
+      doubles <- subjects[sizes == 2L]
+      x[subject %in% doubles[seq_len(p$x_missing)] & second] <- NA
+      y[subject %in% doubles[p$x_missing + seq_len(p$y_missing)] & second] <- NA
+      y[subject %in% subjects[sizes == 1L][seq_len(p$single_lost)]] <- NA
+      declaration <- if (unit) dh_declaration(units = list(dh_participant("subject")))
+      list(data = data.frame(y = y, x = x, subject = subject, stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)",
+           args = c(list(declaration = declaration), dh_t1()))
+    }
+  )
+}
+
+# Subjects of one to four rows, with the counts of each size as parameters,
+# in a T0 run, so that the level sizes take up to four values. The family
+# runs at k = 4: written singletons fewer than the position of a quantile
+# bound it from below by 2, which the bound k - 1 of the detail 'min_count'
+# meets at k = 3 only.
+dh_family_four_sizes <- function() {
+  dh_family(
+    name = "four-sizes",
+    k = 4,
+    gate = FALSE,
+    probe = "^structure\\.cluster_sizes",
+    description = "subjects of one to four rows, T0",
+    params = list(
+      one = dh_param(0:5, person = TRUE),
+      two = dh_param(0:4, person = TRUE),
+      three = dh_param(0:3, person = TRUE),
+      four = dh_param(0:3, person = TRUE)
+    ),
+    valid = function(p) p$one + p$two + p$three + p$four >= 4L,
+    build = function(p) {
+      sizes <- rep(1:4, c(p$one, p$two, p$three, p$four))
+      subject <- rep(dh_labels("s", length(sizes)), sizes)
+      n <- length(subject)
+      list(data = data.frame(y = dh_outcome(n), x = dh_covariate(n), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)", args = list())
+    }
+  )
+}
+
+# Subjects of two rows with no, one or two events of a bernoulli outcome, and
+# second rows without the outcome, in a T1 run.
+dh_family_minority <- function() {
+  dh_family(
+    name = "minority",
+    gate = FALSE,
+    probe = "^outcome\\.minority_events",
+    description = "subjects of two rows with no, one or two events, missing outcomes, T1",
+    params = list(
+      none = dh_param(0:3, person = TRUE),
+      one = dh_param(1:4, person = TRUE),
+      both = dh_param(0:3, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$y_missing <= p$one,
+    build = function(p) {
+      kinds <- rep(0:2, c(p$none, p$one, p$both))
+      subject <- rep(dh_labels("s", length(kinds)), each = 2L)
+      y <- as.numeric(rep(kinds, each = 2L) > rep(c(0, 1), length(kinds)))
+      ones <- which(kinds == 1L)[seq_len(p$y_missing)]
+      y[2L * ones] <- NA
+      list(data = data.frame(y = y, x = dh_covariate(length(y)), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)", args = c(list(family = "binomial"), dh_t1()))
+    }
+  )
+}
+
+# Subjects of two rows whose outcome is constant within some of them, and
+# second rows without the outcome, in subjects with and without a constant
+# outcome.
+dh_family_constant <- function() {
+  dh_family(
+    name = "constant",
+    probe = "^outcome\\.constant_clusters",
+    description = "outcome constant within some subjects, missing outcomes, gaussian, T1",
+    params = list(
+      double = dh_param(3:6, person = TRUE),
+      constant = dh_param(0:3, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE),
+      constant_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) {
+      p$constant + p$y_missing <= p$double && p$constant_missing <= p$constant
+    },
+    build = function(p) {
+      subjects <- dh_labels("s", p$double)
+      subject <- rep(subjects, each = 2L)
+      second <- rep(c(FALSE, TRUE), p$double)
+      y <- dh_outcome(length(subject))
+      constant <- subjects[seq_len(p$constant)]
+      y[subject %in% constant & second] <- y[which(subject %in% constant & second) - 1L]
+      others <- setdiff(subjects, constant)
+      y[subject %in% others[seq_len(p$y_missing)] & second] <- NA
+      y[subject %in% constant[seq_len(p$constant_missing)] & second] <- NA
+      list(data = data.frame(y = y, subject = subject, stringsAsFactors = FALSE),
+           formula = "y ~ 1 + (1 | subject)", args = dh_t1())
+    }
+  )
+}
+
+# Counts of two rows by subject, both 0, one 0 or none, with outcomes
+# missing, in a T1 run of a Poisson model.
+dh_family_zeros <- function() {
+  dh_family(
+    name = "zeros",
+    gate = FALSE,
+    probe = "^outcome\\.(zero_shares|constant_clusters)",
+    description = "counts with zeros by subject, missing outcomes, poisson, T1",
+    params = list(
+      single = dh_param(0:2, person = TRUE),
+      double = dh_param(3:6, person = TRUE),
+      triple = dh_param(0:1, person = TRUE),
+      all_zero = dh_param(0:3, person = TRUE),
+      one_zero = dh_param(0:3, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$all_zero + p$one_zero + p$y_missing <= p$double,
+    build = function(p) {
+      subject <- c(rep(dh_labels("s", p$double), each = 2L),
+                   dh_labels("t", p$single), rep(dh_labels("u", p$triple), each = 3L))
+      n <- length(subject)
+      count <- (seq_len(n) %% 4L) + 1
+      first <- seq(1L, n, by = 2L)
+      zero <- first[seq_len(p$all_zero)]
+      count[c(zero, zero + 1L)] <- 0
+      count[first[p$all_zero + seq_len(p$one_zero)]] <- 0
+      missing <- first[p$all_zero + p$one_zero + seq_len(p$y_missing)] + 1L
+      count[missing] <- NA
+      list(data = data.frame(count = count, x = dh_covariate(n), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "count ~ x + (1 | subject)", args = c(list(family = "poisson"), dh_t1()))
+    }
+  )
+}
+
+# A bounded score at its floor, at its ceiling and between them, in a model
+# without grouping factors.
+dh_family_bounds <- function() {
+  dh_family(
+    name = "bounds",
+    probe = "^outcome\\.boundary_shares",
+    description = "bounded score at its floor and ceiling, T1",
+    params = list(
+      at_floor = dh_param(0:4, person = TRUE),
+      at_ceiling = dh_param(0:4, person = TRUE),
+      between = dh_param(1:5, person = TRUE)
+    ),
+    build = function(p) {
+      score <- c(rep(0, p$at_floor), rep(10, p$at_ceiling), 1 + seq_len(p$between) %% 8)
+      declaration <- dh_declaration(variables = list(
+        score = list(role = "outcome", measurement = "bounded_score", bounds = list(0, 10))
+      ))
+      list(data = data.frame(score = score, x = dh_covariate(length(score))),
+           formula = "score ~ x", args = c(list(declaration = declaration), dh_t1()))
+    }
+  )
+}
+
+# Two assignments between subjects, the second missing for the subjects
+# that lack the first and for some more, an assignment that varies within a
+# subject and subjects without an outcome, in a T1 run.
+dh_family_assign <- function() {
+  dh_family(
+    name = "assign",
+    probe = "^assignment\\.",
+    description = "two nested assignments between subjects, missing outcome, T1",
+    params = list(
+      subjects = dh_param(4:7, person = TRUE),
+      z1_missing = dh_param(0:3, person = TRUE),
+      z2_extra = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE),
+      mixed = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    valid = function(p) p$z1_missing + p$z2_extra + p$y_missing + p$mixed <= p$subjects,
+    build = function(p) {
+      subjects <- dh_labels("s", p$subjects)
+      subject <- rep(subjects, each = 2L)
+      index <- match(subject, subjects)
+      z1 <- c("a", "b")[index %% 2L + 1L]
+      z2 <- c("c", "d")[(index %/% 2L) %% 2L + 1L]
+      z1[index <= p$z1_missing] <- NA
+      z2[index <= p$z1_missing + p$z2_extra] <- NA
+      y <- dh_outcome(length(subject))
+      y[index > p$subjects - p$y_missing] <- NA
+      if (p$mixed > 0L) {
+        mixed <- p$subjects - p$y_missing
+        z1[which(index == mixed)[2L]] <- if (z1[which(index == mixed)[1L]] == "a") "b" else "a"
+      }
+      declaration <- dh_declaration(units = list(dh_participant("subject")), assignment = list(
+        list(column = "z1", unit = "subject", randomised = TRUE, level = "between_unit"),
+        list(column = "z2", unit = "subject", randomised = TRUE, level = "between_unit")
+      ))
+      list(data = data.frame(y = y, x = dh_covariate(length(subject)), subject = subject, z1 = z1,
+                             z2 = z2, stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)", args = c(list(declaration = declaration), dh_t1()))
+    }
+  )
+}
+
+# Classes of pupils within schools, the arm assigned by class in blocks of
+# schools, classes of one pupil, classes without an arm and a class whose arm
+# varies, in a T0 run.
+dh_family_blocks <- function() {
+  dh_family(
+    name = "blocks",
+    probe = "^assignment\\.",
+    description = "arm assigned by class within schools, classes of one pupil, T0",
+    params = list(
+      schools = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      single = dh_param(0:3, person = TRUE),
+      arm_missing = dh_param(0:2, person = TRUE),
+      mixed = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    valid = function(p) p$arm_missing + p$mixed <= 2L * p$schools,
+    build = function(p) {
+      classes <- dh_labels("c", 2L * p$schools)
+      pupils <- ifelse(seq_along(classes) <= p$single, 1L, 2L)
+      class <- rep(classes, pupils)
+      school <- dh_labels("S", p$schools)[(match(class, classes) + 1L) %/% 2L]
+      pupil <- dh_labels("p", length(class))
+      index <- match(class, classes)
+      arm <- c("a", "b")[index %% 2L + 1L]
+      arm[index > length(classes) - p$arm_missing] <- NA
+      if (p$mixed > 0L) {
+        mixed <- which(pupils == 2L & seq_along(classes) <= length(classes) - p$arm_missing)
+        rows <- which(index == mixed[length(mixed)])
+        arm[rows[2L]] <- if (arm[rows[1L]] == "a") "b" else "a"
+      }
+      declaration <- dh_declaration(units = list(
+        dh_unit("school"), dh_unit("class", nested_in = "school"),
+        dh_unit("pupil", role = "participant", nested_in = "class")
+      ), assignment = list(list(column = "arm", unit = "class", randomised = TRUE,
+                                level = "between_unit", blocks = list("school"))))
+      list(data = data.frame(y = dh_outcome(length(class)), school = school, class = class,
+                             pupil = pupil, arm = arm, stringsAsFactors = FALSE),
+           formula = "y ~ 1 + (1 | school) + (1 | class)", args = list(declaration = declaration))
+    }
+  )
+}
+
+# Two crossed grouping factors whose combinations hold two rows each, apart
+# from combinations of one row, empty combinations and combinations without
+# an outcome, in a T1 run of a Poisson model. Each row is a pupil, the
+# disclosure unit, or there is none.
+dh_family_crossed <- function(unit) {
+  dh_family(
+    name = paste0("crossed", if (unit) "-unit" else ""),
+    probe = "^structure\\.(label_incidence|connectivity)|g:h",
+    description = "two crossed factors, cells of one row, empty cells, missing outcomes, T1",
+    params = list(
+      g = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      h = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      single = dh_param(0:2, person = TRUE),
+      empty = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:4, person = TRUE)
+    ),
+    build = function(p) {
+      cells <- expand.grid(h = dh_labels("h", p$h), g = dh_labels("g", p$g),
+                           stringsAsFactors = FALSE)[, c("g", "h")]
+      m <- nrow(cells)
+      rows <- rep(2L, m)
+      # The cells changed lie apart, one in each row of g where possible.
+      order <- order(seq_len(m) %% p$h, seq_len(m))
+      rows[order[seq_len(p$empty)]] <- 0L
+      rows[order[p$empty + seq_len(p$single)]] <- 1L
+      lost <- order[p$empty + p$single + seq_len(p$y_missing)]
+      data <- cells[rep(seq_len(m), rows), , drop = FALSE]
+      n <- nrow(data)
+      data$count <- (seq_len(n) %% 4L) + 1
+      data$count[rep(seq_len(m), rows) %in% lost] <- NA
+      data$x <- dh_covariate(n)
+      data$pupil <- dh_labels("p", n)
+      rownames(data) <- NULL
+      declaration <- if (unit) dh_declaration(units = list(dh_participant("pupil")))
+      list(data = data, formula = "count ~ x + (1 | g) + (1 | h) + (1 | g:h)",
+           args = c(list(declaration = declaration, family = "poisson"), dh_t1()))
+    },
+    valid = function(p) p$single + p$empty + p$y_missing <= p$g * p$h - 1L
+  )
+}
+
+# Class labels that recur in two schools or occur in one, without a
+# declared scope, and combinations without a school, in a T0 run.
+dh_family_labels <- function() {
+  dh_family(
+    name = "labels",
+    probe = "^structure\\.(id_scope_evidence|label_incidence)",
+    description = "class labels recurring across schools, undeclared scope, T0",
+    params = list(
+      schools = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      shared = dh_param(0:3, person = TRUE),
+      once = dh_param(2:4, person = TRUE),
+      school_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$school_missing <= p$shared + p$once,
+    build = function(p) {
+      schools <- dh_labels("S", p$schools)
+      classes <- dh_labels("c", p$shared + p$once)
+      combos <- rbind(
+        data.frame(class = classes, school = schools[(seq_along(classes) - 1L) %% p$schools + 1L],
+                   stringsAsFactors = FALSE),
+        data.frame(class = classes[seq_len(p$shared)],
+                   school = schools[seq_len(p$shared) %% p$schools + 1L],
+                   stringsAsFactors = FALSE)
+      )
+      combos$school[seq_len(p$school_missing)] <- NA
+      data <- combos[rep(seq_len(nrow(combos)), each = 2L), , drop = FALSE]
+      n <- nrow(data)
+      data$tx <- rep(seq_len(nrow(combos)) %% 3L, each = 2L)
+      data$y <- dh_outcome(n)
+      data$x <- dh_covariate(n)
+      rownames(data) <- NULL
+      list(data = data, formula = "y ~ x + tx + (1 | school) + (1 | class)", args = list())
+    }
+  )
+}
+
+# Classes whose labels repeat in each school, declared within_parent, with
+# pupils as the disclosure unit, classes of one pupil and pupils without an
+# outcome, in a T1 run.
+dh_family_nested <- function() {
+  dh_family(
+    name = "nested",
+    probe = "school:class|^structure\\.label_incidence",
+    description = "classes within_parent in schools, classes of one pupil, missing outcomes, T1",
+    params = list(
+      schools = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      single = dh_param(0:3, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE),
+      school_missing = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    build = function(p) {
+      m <- 2L * p$schools
+      pupils <- ifelse(seq_len(m) <= p$single, 1L, 2L)
+      combo <- rep(seq_len(m), pupils)
+      school <- dh_labels("S", p$schools)[(combo + 1L) %/% 2L]
+      class <- c("c1", "c2")[(combo - 1L) %% 2L + 1L]
+      n <- length(combo)
+      y <- dh_outcome(n)
+      y[n - seq_len(p$y_missing) + 1L] <- NA
+      school[combo == m & p$school_missing > 0L] <- NA
+      declaration <- dh_declaration(units = list(
+        dh_unit("school"), dh_unit("class", nested_in = "school", id_scope = "within_parent"),
+        dh_unit("pupil", role = "participant", nested_in = "class")
+      ))
+      list(data = data.frame(y = y, x = dh_covariate(n), school = school, class = class,
+                             pupil = dh_labels("p", n), stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | school) + (1 | school:class)",
+           args = c(list(declaration = declaration), dh_t1()))
+    }
+  )
+}
+
+# Sessions within subjects, subjects of one or two sessions and sessions of
+# one row, in a T0 run.
+dh_family_aliased <- function() {
+  dh_family(
+    name = "aliased",
+    gate = FALSE,
+    probe = "^structure\\.aliased_factors",
+    description = "sessions nested in subjects, sessions of one row, T0",
+    params = list(
+      subjects = dh_param(3:5, person = TRUE),
+      two_sessions = dh_param(0:3, person = TRUE),
+      three_sessions = dh_param(0:1, person = TRUE),
+      one_row = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$two_sessions + p$three_sessions <= p$subjects,
+    build = function(p) {
+      sessions <- ifelse(seq_len(p$subjects) <= p$two_sessions, 2L, 1L)
+      sessions[p$subjects - seq_len(p$three_sessions) + 1L] <- 3L
+      session_subject <- rep(seq_len(p$subjects), sessions)
+      rows <- ifelse(seq_along(session_subject) <= p$one_row, 1L, 2L)
+      session <- rep(dh_labels("k", length(session_subject)), rows)
+      subject <- dh_labels("s", p$subjects)[rep(session_subject, rows)]
+      n <- length(session)
+      list(data = data.frame(y = dh_outcome(n), x = dh_covariate(n), subject = subject,
+                             session = session, stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject) + (1 | session)", args = list())
+    }
+  )
+}
+
+# An observation key of subject and trial with rows repeated identically or
+# with another covariate, rows without a subject and rows without the
+# covariate, in a T0 run.
+dh_family_keys <- function() {
+  dh_family(
+    name = "keys",
+    probe = "^(keys\\.duplicates|sample\\.raw_vs_analysis)",
+    description = "observation key with duplicates and missing values, missing covariate, T0",
+    params = list(
+      subjects = dh_param(4:5, person = TRUE),
+      four = dh_param(0:1, person = TRUE),
+      identical = dh_param(0:2, person = TRUE),
+      conflicting = dh_param(0:2, person = TRUE),
+      missing_key = dh_param(0:2, person = TRUE),
+      x_missing = dh_param(0:2, person = TRUE)
+    ),
+    build = function(p) {
+      trials <- c(rep(3L, p$subjects), rep(4L, p$four))
+      base <- data.frame(subject = rep(dh_labels("s", length(trials)), trials),
+                         trial = sequence(trials), stringsAsFactors = FALSE)
+      base$x <- dh_covariate(nrow(base))
+      repeated <- base[seq_len(p$identical), , drop = FALSE]
+      conflicting <- base[p$identical + seq_len(p$conflicting), , drop = FALSE]
+      conflicting$x <- conflicting$x + 1
+      data <- rbind(base, repeated, conflicting)
+      n <- nrow(data)
+      data$subject[nrow(base) - seq_len(p$missing_key) + 1L] <- NA
+      data$x[nrow(base) - p$missing_key - seq_len(p$x_missing) + 1L] <- NA
+      data$y <- dh_outcome(n)
+      declaration <- dh_declaration(units = list(dh_participant("subject")),
+                                    observation = list(key = list("subject", "trial")))
+      list(data = data, formula = "y ~ x + (1 | subject)", args = list(declaration = declaration))
+    }
+  )
+}
+
+# Subject labels of which some have two Unicode spellings, in a T0 run.
+dh_family_unicode <- function() {
+  dh_family(
+    name = "unicode",
+    gate = FALSE,
+    probe = "^labels\\.unicode_forms",
+    description = "labels with two Unicode spellings, T0",
+    params = list(
+      plain = dh_param(3:5, person = TRUE),
+      merged = dh_param(0:3, person = TRUE)
+    ),
+    build = function(p) {
+      plain <- dh_labels("s", p$plain)
+      composed <- paste0("é", seq_len(p$merged))
+      decomposed <- paste0("é", seq_len(p$merged))
+      subject <- c(rep(plain, each = 2L), composed, decomposed)
+      n <- length(subject)
+      list(data = data.frame(y = dh_outcome(n), subject = enc2utf8(subject),
+                             stringsAsFactors = FALSE),
+           formula = "y ~ 1 + (1 | subject)", args = list())
+    }
+  )
+}
+
+# A predictor with the two values -2 and 5, constant within most subjects
+# and varying within some, and subjects without an outcome, in a T1 run. The
+# reals of the document are functions of these counts.
+dh_family_two_valued <- function() {
+  dh_family(
+    name = "two-valued",
+    gate = FALSE,
+    probe = "^(design|structure\\.within_between|identifiability)\\.",
+    description = "predictor of two values, missing outcomes, T1, reals kept",
+    params = list(
+      low = dh_param(2:4, person = TRUE),
+      high = dh_param(2:4, person = TRUE),
+      varying = dh_param(0:2, person = TRUE),
+      low_missing = dh_param(0:2, person = TRUE),
+      high_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$low_missing <= p$low && p$high_missing <= p$high,
+    build = function(p) {
+      kinds <- c(rep("low", p$low), rep("high", p$high), rep("varying", p$varying))
+      subject <- rep(dh_labels("s", length(kinds)), each = 2L)
+      kind <- rep(kinds, each = 2L)
+      x <- ifelse(kind == "low", -2, 5)
+      x[kind == "varying"] <- rep(c(-2, 5), p$varying)
+      y <- dh_outcome(length(x))
+      index <- rep(seq_along(kinds), each = 2L)
+      y[kind == "low" & index <= p$low_missing] <- NA
+      y[kind == "high" & index <= p$low + p$high_missing] <- NA
+      list(data = data.frame(y = y, x = x, subject = subject, stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)", args = dh_t1())
+    },
+    reals = TRUE
+  )
+}
+
+# A condition balanced within subjects of two or four rows, and subjects
+# without an outcome, in a T1 run. The reals are functions of these counts.
+dh_family_eigen <- function() {
+  dh_family(
+    name = "eigen",
+    probe = "^(identifiability\\.gram_rank|structure\\.cluster_sizes)",
+    description = "condition balanced within subjects, missing outcomes, T1, reals kept",
+    params = list(
+      two = dh_param(0:4, person = TRUE),
+      four = dh_param(0:4, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$two + p$four >= 3L && p$y_missing <= p$two,
+    build = function(p) {
+      sizes <- c(rep(2L, p$two), rep(4L, p$four))
+      subject <- rep(dh_labels("s", length(sizes)), sizes)
+      condition <- rep(c("a", "b"), length.out = length(subject))
+      y <- dh_outcome(length(subject))
+      y[match(subject, unique(subject)) <= p$y_missing] <- NA
+      list(data = data.frame(y = y, condition = condition, subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "y ~ condition + (1 | subject)", args = dh_t1())
+    },
+    reals = TRUE
+  )
+}
+
+# Three schools of one to five pupils, the disclosure unit, in a T0 run.
+dh_family_quartile <- function() {
+  dh_family(
+    name = "quartile",
+    gate = FALSE,
+    probe = "^structure\\.cluster_sizes",
+    description = "three schools of one to five pupils, T0",
+    params = list(
+      a = dh_param(1:5, person = TRUE, natural = c(TRUE, FALSE)),
+      b = dh_param(1:5, person = TRUE, natural = c(TRUE, FALSE)),
+      c = dh_param(1:5, person = TRUE, natural = c(TRUE, FALSE))
+    ),
+    build = function(p) {
+      school <- rep(c("A", "B", "C"), c(p$a, p$b, p$c))
+      n <- length(school)
+      declaration <- dh_declaration(units = list(
+        dh_unit("school"), dh_unit("pupil", role = "participant", nested_in = "school")
+      ))
+      list(data = data.frame(y = dh_outcome(n), school = school, pupil = dh_labels("p", n),
+                             stringsAsFactors = FALSE),
+           formula = "y ~ 1 + (1 | school)", args = list(declaration = declaration))
+    }
+  )
+}
+
+# An arm assigned by school, schools of one or two pupils, the disclosure
+# unit, and schools without an arm, in a T0 run.
+dh_family_assign_school <- function() {
+  dh_family(
+    name = "assign-school",
+    gate = FALSE,
+    probe = "^(assignment|structure\\.cluster_sizes)",
+    description = "arm assigned by school, schools of one pupil without an arm, T0",
+    params = list(
+      double = dh_param(3:5, person = TRUE),
+      single = dh_param(0:2, person = TRUE),
+      single_missing = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE)),
+      double_missing = dh_param(0:2, person = TRUE)
+    ),
+    valid = function(p) p$single_missing <= p$single && p$double_missing <= p$double,
+    build = function(p) {
+      pupils <- c(rep(2L, p$double), rep(1L, p$single))
+      schools <- dh_labels("S", length(pupils))
+      school_of_pupil <- rep(seq_along(pupils), pupils)
+      pupil <- rep(dh_labels("p", length(school_of_pupil)), each = 2L)
+      school <- schools[rep(school_of_pupil, each = 2L)]
+      index <- match(school, schools)
+      arm <- c("a", "b")[index %% 2L + 1L]
+      arm[index <= p$double_missing] <- NA
+      arm[index > p$double & index <= p$double + p$single_missing] <- NA
+      n <- length(school)
+      declaration <- dh_declaration(units = list(
+        dh_unit("school"), dh_unit("pupil", role = "participant", nested_in = "school")
+      ), assignment = list(list(column = "arm", unit = "school", randomised = TRUE,
+                                level = "between_unit")))
+      list(data = data.frame(y = dh_outcome(n), school = school, pupil = pupil, arm = arm,
+                             stringsAsFactors = FALSE),
+           formula = "y ~ 1 + (1 | school)", args = list(declaration = declaration))
+    }
+  )
+}
+
+# A binomial outcome of two trials with rows of 0, 1 and 2 events, two
+# covariates that no two rows share and rows without an outcome, in a T2
+# run.
+dh_family_binomial <- function() {
+  dh_family(
+    name = "binomial",
+    gate = FALSE,
+    probe = "^outcome\\.separation",
+    description = "binomial rows with no, some and all events, missing outcomes, T2",
+    params = list(
+      none = dh_param(0:4, person = TRUE),
+      all = dh_param(0:4, person = TRUE),
+      some = dh_param(2:5, person = TRUE),
+      y_missing = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    valid = function(p) p$none + p$all + p$some >= 3L,
+    build = function(p) {
+      k <- c(rep(0, p$none), rep(2, p$all), rep(1, p$some), rep(NA, p$y_missing))
+      n <- length(k)
+      declaration <- dh_declaration(variables = list(
+        k = list(role = "outcome", measurement = "binomial", trials = "n")))
+      list(data = data.frame(k = k, n = 2, x = dh_covariate(n), z = (seq_len(n) * 3L) %% 7L + 0.5),
+           formula = "k ~ x + z", args = c(list(declaration = declaration), dh_t2()))
+    }
+  )
+}
+
+# Three arms of three, four and five rows with any number of events in
+# each, a bernoulli outcome, in a T2 run.
+dh_family_factor_separation <- function() {
+  dh_family(
+    name = "factor-separation",
+    gate = FALSE,
+    probe = "^outcome\\.separation",
+    description = "three arms of different sizes, events by arm, T2",
+    params = list(
+      e1 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE)),
+      e2 = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE)),
+      e3 = dh_param(0:5, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    build = function(p) {
+      arm <- rep(c("a", "b", "c"), c(3L, 4L, 5L))
+      y <- c(rep(1, p$e1), rep(0, 3L - p$e1), rep(1, p$e2), rep(0, 4L - p$e2),
+             rep(1, p$e3), rep(0, 5L - p$e3))
+      list(data = data.frame(y = y, arm = arm, stringsAsFactors = FALSE), formula = "y ~ arm",
+           args = c(list(family = "binomial"), dh_t2()))
+    },
+    reals = TRUE
+  )
+}
+
+# Two factors of two levels whose four combinations hold two to five rows,
+# with any number of events in each, a bernoulli outcome, in a T2 run.
+dh_family_two_factor_separation <- function() {
+  dh_family(
+    name = "two-factor-separation",
+    gate = FALSE,
+    probe = "^outcome\\.separation",
+    description = "two factors of two levels, events by combination, T2",
+    params = list(
+      e11 = dh_param(0:2, person = TRUE, natural = c(TRUE, TRUE)),
+      e12 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE)),
+      e21 = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE)),
+      e22 = dh_param(0:5, person = TRUE, natural = c(TRUE, TRUE))
+    ),
+    build = function(p) {
+      sizes <- 2:5
+      events <- c(p$e11, p$e12, p$e21, p$e22)
+      cell <- rep(1:4, sizes)
+      y <- unlist(lapply(1:4, function(j) c(rep(1, events[j]), rep(0, sizes[j] - events[j]))))
+      list(data = data.frame(y = y, a = c("a1", "a1", "a2", "a2")[cell],
+                             b = c("b1", "b2", "b1", "b2")[cell], stringsAsFactors = FALSE),
+           formula = "y ~ a + b", args = c(list(family = "binomial"), dh_t2()))
+    },
+    reals = TRUE
+  )
+}
+
+# Two covariates and a factor of two levels, the second of which holds two
+# to four rows, some or all of them without an outcome, in a T2 run.
+dh_family_separation_missing <- function() {
+  dh_family(
+    name = "separation-missing",
+    gate = FALSE,
+    probe = "^outcome\\.separation",
+    description = "a rare level whose rows lose their outcome, T2",
+    params = list(
+      rare = dh_param(2:4, person = TRUE, natural = c(FALSE, FALSE)),
+      rare_missing = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE)),
+      events = dh_param(8:12, person = TRUE, natural = c(FALSE, FALSE))
+    ),
+    valid = function(p) p$rare_missing <= p$rare,
+    build = function(p) {
+      n <- 24L + p$rare
+      level <- c(rep("s2", p$rare), rep("s1", 24L))
+      y <- c(rep(c(1, 0), length.out = p$rare), rep(0, 24L))
+      y[p$rare + seq(1L, 24L, length.out = p$events)] <- 1
+      y[seq_len(p$rare_missing)] <- NA
+      list(data = data.frame(y = y, x1 = dh_covariate(n), x2 = (seq_len(n) * 3L) %% 17L + 0.5,
+                             smoker = level, stringsAsFactors = FALSE),
+           formula = "y ~ x1 + x2 + smoker", args = c(list(family = "binomial"), dh_t2()))
+    }
+  )
+}

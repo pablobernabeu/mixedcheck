@@ -57,8 +57,15 @@ privacy_written <- function(finding, name) {
 }
 
 # Suppresses the statistics of a finding that are still written with a
-# detail. A statistic that an earlier step suppressed keeps its detail.
-privacy_suppress <- function(finding, names, detail) {
+# detail. A statistic that an earlier step suppressed keeps its detail,
+# unless replace is TRUE and that detail is 'min_count': a rule after step 3
+# that suppresses a count then gives it the detail 'secondary', so that the
+# detail does not show on which side of k the count lies (privacy.md, Steps).
+privacy_suppress <- function(finding, names, detail, replace = FALSE) {
+  if (replace) {
+    small <- intersect(names, names(finding$suppressed)[finding$suppressed == "min_count"])
+    finding$suppressed[small] <- detail
+  }
   names <- unique(names[vapply(names, privacy_written, NA, finding = finding)])
   if (length(names)) {
     finding$suppressed[names] <- detail
@@ -160,12 +167,13 @@ privacy_ratios <- function(finding, k) {
 # of quantiles, with step 5, until no value or detail changes. part_of reads
 # the internal values of a person total and of the parts that steps 1 to 5
 # left written, so that its result does not depend on the order of the
-# rules. suppress_with and the n of a quantile also replace the detail
-# 'min_count' that step 3 gave, which would show that the value is below k
-# and so bound the suppressed statistic or the n: 'secondary' when a
-# statistic that suppress_with names, and that does not name this one in its
-# own suppress_with, is suppressed with another detail, and 'quantile' when
-# the count that gives n is suppressed.
+# rules. suppress_with, part_of and the n of a quantile also replace the
+# detail 'min_count' that step 3 gave, which would show that the value is
+# below k and so bound the suppressed statistic, its partner or the n:
+# 'secondary' when a statistic that suppress_with names is suppressed, and
+# that statistic names this one back, as the parts of a total do, or is
+# suppressed with another detail, 'secondary' for a part of a person total,
+# and 'quantile' when the count that gives n is suppressed.
 privacy_within <- function(finding, k) {
   defined <- finding$entry[["statistics"]]
   repeat {
@@ -174,12 +182,11 @@ privacy_within <- function(finding, k) {
       with <- intersect(unlist(defined[[name]][["suppress_with"]]), names(finding$suppressed))
       if (length(with)) {
         finding <- privacy_suppress(finding, name, "secondary")
-        # Only for a statistic derived from the suppressed one, which does
-        # not name it back as the parts of a total do.
-        derived_from <- with[finding$suppressed[with] != "min_count" & !vapply(with, function(s) {
-          name %in% unlist(defined[[s]][["suppress_with"]])
-        }, NA)]
-        if (identical(finding$suppressed[[name]], "min_count") && length(derived_from)) {
+        # The parts of a total name each other, and a statistic derived from
+        # another names it alone.
+        back <- vapply(with, function(s) name %in% unlist(defined[[s]][["suppress_with"]]), NA)
+        if (identical(finding$suppressed[[name]], "min_count") &&
+            any(back | finding$suppressed[with] != "min_count")) {
           finding$suppressed[name] <- "secondary"
         }
       }
@@ -194,8 +201,14 @@ privacy_within <- function(finding, k) {
       left <- intersect(parts, finding$left_written)
       counts <- vapply(left, function(part) finding$values[[part]], 0)
       if (length(left) && (any(value - counts < k) || value - sum(counts) < k)) {
-        finding <- privacy_suppress(finding, parts, "secondary")
+        finding <- privacy_suppress(finding, parts, "secondary", replace = TRUE)
       }
+      # A part below k has the detail 'secondary', since the rule above
+      # suppresses the parts at least k whose remainder is below k.
+      small <- parts[vapply(parts, function(part) {
+        !is.null(finding$values[[part]]) && finding$values[[part]] < k
+      }, NA)]
+      finding <- privacy_suppress(finding, small, "secondary", replace = TRUE)
     }
     for (name in names(finding$values)) {
       n <- finding$statistics[[name]]$quantile[["n"]]
@@ -223,10 +236,11 @@ privacy_within <- function(finding, k) {
 # they hold its rows, and one sample when two findings read the same rows.
 # Rule 1 compares every two samples one of which holds the other's rows,
 # rule 2 compares the levels of an item with its levels with one and with two
-# or more rows, rule 3 suppresses the counts that equal a suppressed quantity
-# and rule 4 compares the rows without a key value with the rows that each
-# other sample leaves out. Each suppresses the written counts concerned with
-# the detail 'secondary'.
+# or more rows, rule 3 compares the rows of a sample with the rows that its
+# levels hold when none has one row, and rule 4 compares the rows without a
+# key value with the rows that each other sample leaves out. Each suppresses
+# the counts concerned with the detail 'secondary', which replaces the detail
+# 'min_count' of a count below k.
 privacy_across <- function(run, findings, k) {
   available <- vapply(findings, function(finding) isTRUE(finding$available), NA)
   if (!any(available)) {
@@ -255,6 +269,7 @@ privacy_across <- function(run, findings, k) {
          items = lapply(items, function(codes) privacy_item_quantities(run, codes, rows)))
   })
   crossed <- list()
+  quartiles <- list()
   for (i in which(available)) {
     finding <- findings[[i]]
     if (finding$check == "structure.label_incidence" &&
@@ -266,8 +281,16 @@ privacy_across <- function(run, findings, k) {
         second = privacy_item_index(items, finding$items[["levels_second"]])
       )
     }
+    if (finding$check == "structure.cluster_sizes") {
+      quartiles[[length(quartiles) + 1L]] <- list(
+        sample = finding_samples[i],
+        item = privacy_item_index(items, list(value_codes(run, factor_keys(run, finding$scope$factor)))),
+        quantiles = privacy_written_quantiles(finding)
+      )
+    }
   }
-  marks <- privacy_quantity_marks(quantities, privacy_comparisons(samples, main), crossed, k)
+  marks <- privacy_quantity_marks(quantities, privacy_comparisons(samples, main), crossed,
+                                  quartiles, k)
   factor_items <- vapply(run$factors, function(keys) {
     privacy_item_index(items, list(value_codes(run, keys)))
   }, 0L)
@@ -275,8 +298,10 @@ privacy_across <- function(run, findings, k) {
     findings[[i]] <- privacy_across_finding(run, findings[[i]], finding_samples[i], items,
                                             factor_items, quantities, marks)
     if (findings[[i]]$check == "keys.duplicates" &&
-        privacy_missing_key_close(run, samples[setdiff(names(samples), "table")], k)) {
-      findings[[i]] <- privacy_suppress(findings[[i]], "missing_key_rows", "secondary")
+        (isTRUE(findings[[i]]$values[["missing_key_rows"]] < k) ||
+         privacy_missing_key_close(run, samples[setdiff(names(samples), "table")], k))) {
+      findings[[i]] <- privacy_suppress(findings[[i]], "missing_key_rows", "secondary",
+                                        replace = TRUE)
     }
     if (finding_samples[i] == "design") {
       findings[[i]] <- privacy_design_reals(run, findings[[i]], items,
@@ -406,20 +431,65 @@ privacy_item_quantities <- function(run, codes, rows) {
        levels_with_one_row = sum(sizes == 1L))
 }
 
-# Rules 1 and 2: the quantities that are suppressed, by sample, as the
+# The quantiles of the level sizes that a finding of structure.cluster_sizes
+# writes after steps 1 to 6, as a list of their p and values.
+privacy_written_quantiles <- function(finding) {
+  out <- list()
+  for (name in names(finding$values)) {
+    quantile <- finding$statistics[[name]]$quantile
+    if (!is.null(quantile) && identical(quantile[["n"]], "levels") &&
+        privacy_written(finding, name)) {
+      out[[length(out) + 1L]] <- list(p = quantile[["p"]], value = finding$values[[name]])
+    }
+  }
+  out
+}
+
+# The fewest rows that J levels can hold when none has one row and each
+# written quantile of their sizes, at position ceil(J p) of the sizes in
+# increasing order, bounds the sizes from it on: the sum over the positions
+# of the larger of 2 and the largest quantile at or before the position.
+privacy_rows_without_singletons <- function(levels, quantiles) {
+  floor <- rep(2, levels)
+  for (quantile in quantiles) {
+    position <- quantile_position(levels, quantile$p)
+    if (position >= 1L && position <= levels) {
+      later <- position:levels
+      floor[later] <- pmax(floor[later], quantile$value)
+    }
+  }
+  sum(floor)
+}
+
+# The position ceil(n p), counted from 1, of the p-quantile of n values, p a
+# decimal string m / 10^d, in integer arithmetic, and 1 for the minimum.
+quantile_position <- function(n, p) {
+  if (p %in% c("0", "1")) {
+    return(if (p == "0") 1 else n)
+  }
+  digits <- sub("^0\\.", "", p)
+  scale <- 10^nchar(digits)
+  max(1, (n * as.numeric(digits) + scale - 1) %/% scale)
+}
+
+# Rules 1 to 3: the quantities that are suppressed, by sample, as the
 # logical members rows and contributors and, for each item, levels,
 # levels_with_two_rows and levels_with_one_row. A quantity of an item is
 # compared when the item's counts of levels resolve as person counts in the
 # larger sample, which holds the levels that the difference counts, and rule
-# 2 applies to such items only, in each sample. When
+# 2 applies to such items only, in each sample. A quantity of the sample that
+# loses its value is suppressed when it is below k too, whatever the other
+# sample holds, so that its detail does not show the difference. When
 # rule 1 suppresses the levels of the combinations of two columns that
 # structure.label_incidence finds crossed in a sample in which the levels of
 # both columns stay written, their product gives the value back, so the
 # levels of the combinations in the other sample of each comparison that
 # suppressed them are suppressed too. crossed lists such pairs, each with its
 # sample and the positions of the items of the combinations and of the two
-# columns.
-privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
+# columns. quartiles lists, for each finding of structure.cluster_sizes, its
+# sample, the position of its item and the quantiles that it writes, which
+# rule 3 reads.
+privacy_quantity_marks <- function(quantities, comparisons, crossed, quartiles, k) {
   measures <- c("levels", "levels_with_two_rows", "levels_with_one_row")
   marks <- lapply(quantities, function(sample) {
     list(rows = FALSE, contributors = FALSE,
@@ -427,7 +497,9 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
            structure(logical(3L), names = measures)
          }))
   })
-  close <- function(a, b) a - b >= 0 && a - b < k
+  # The losing quantity is suppressed when the difference is below k, and
+  # when it is itself below k, which for the larger sample implies the first.
+  close <- function(a, b, lose) (a - b >= 0 && a - b < k) || lose < k
   lost <- list()
   for (comparison in comparisons) {
     larger <- quantities[[comparison$larger]]
@@ -435,7 +507,7 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
     loser <- comparison$loser
     other <- if (loser == comparison$larger) comparison$smaller else comparison$larger
     for (member in c("rows", "contributors")) {
-      if (close(larger[[member]], smaller[[member]])) {
+      if (close(larger[[member]], smaller[[member]], quantities[[loser]][[member]])) {
         marks[[loser]][[member]] <- TRUE
       }
     }
@@ -444,7 +516,8 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
         next
       }
       for (measure in measures[1:2]) {
-        if (close(larger$items[[i]][[measure]], smaller$items[[i]][[measure]])) {
+        if (close(larger$items[[i]][[measure]], smaller$items[[i]][[measure]],
+                  quantities[[loser]]$items[[i]][[measure]])) {
           marks[[loser]]$items[[i]][[measure]] <- TRUE
           if (measure == "levels") {
             lost[[length(lost) + 1L]] <- list(sample = loser, other = other, item = i)
@@ -478,11 +551,33 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
         next
       }
       first <- marks[[sample]]$items[[i]]
-      if (item$levels_with_one_row < k || first[["levels"]]) {
+      small <- item$levels_with_one_row < k || item$levels_with_two_rows < k
+      if (small || first[["levels"]]) {
         marks[[sample]]$items[[i]][["levels_with_two_rows"]] <- TRUE
       }
-      if (first[["levels_with_two_rows"]]) {
+      if (small || first[["levels_with_two_rows"]]) {
         marks[[sample]]$items[[i]][["levels_with_one_row"]] <- TRUE
+      }
+      # Rule 3: the rows hold at least one row of each level with one row and
+      # two of each other level, and at least each written quantile of the
+      # sizes from its position on, so rows below that sum without a level of
+      # one row, beside the levels, show that some level has one row.
+      if (marks[[sample]]$items[[i]][["levels_with_one_row"]]) {
+        written <- list()
+        for (q in quartiles) {
+          if (identical(q$sample, sample) && identical(q$item, i)) {
+            written <- q$quantiles
+          }
+        }
+        if (quantities[[sample]]$rows < privacy_rows_without_singletons(item$levels, written)) {
+          marks[[sample]]$items[[i]][["levels"]] <- TRUE
+          # A finding that passes the minimum-count rule shows that each
+          # grouping factor has k levels or more, so rows below 2k would
+          # still show that some level has one row.
+          if (quantities[[sample]]$rows < 2 * k && quantities[[sample]]$contributors >= k) {
+            marks[[sample]]$rows <- TRUE
+          }
+        }
       }
     }
   }
@@ -491,15 +586,18 @@ privacy_quantity_marks <- function(quantities, comparisons, crossed, k) {
 }
 
 # Rules 1 to 3 for one finding on a sample: the support and the counts that
-# measure a suppressed quantity, and then the counts that measure no
-# quantity, are not of class non_person and equal a suppressed quantity of
-# the sample.
+# measure a suppressed quantity, with the detail 'secondary' in place of
+# 'min_count', apart from support.contributors.distinct, whose detail
+# 'min_count' shows that the finding fails the minimum-count rule, as the
+# details of its statistics show too.
 privacy_across_finding <- function(run, finding, sample, items, factor_items, quantities,
                                    marks) {
   own <- finding$entry[["sample"]]
   for (member in c("rows", "distinct")) {
     quantity <- if (member == "rows") "rows" else "contributors"
-    if (marks[[own]][[quantity]] && !member %in% names(finding$support_suppressed)) {
+    detail <- finding$support_suppressed[member]
+    if (marks[[own]][[quantity]] &&
+        (is.na(detail) || (member == "rows" && detail == "min_count"))) {
       finding$support_suppressed[member] <- "secondary"
     }
   }
@@ -530,15 +628,10 @@ privacy_across_finding <- function(run, finding, sample, items, factor_items, qu
       !is.na(i) && marks[[sample]]$items[[i]][[measure]]
     }
     if (suppressed) {
-      finding <- privacy_suppress(finding, name, "secondary")
+      finding <- privacy_suppress(finding, name, "secondary", replace = TRUE)
     }
   }
-  equal <- privacy_suppressed_values(quantities[[sample]], marks[[sample]])
-  names <- Filter(function(name) {
-    is.null(defined[[name]][["measures"]]) && privacy_person(finding, name) &&
-      finding$values[[name]] %in% equal
-  }, names(finding$values))
-  privacy_suppress(finding, names, "secondary")
+  finding
 }
 
 # The position of an item among the items of the rules, or NA for an item
@@ -550,18 +643,6 @@ privacy_item_index <- function(items, item) {
   codes <- privacy_item_codes(item)
   found <- which(vapply(items, identical, NA, codes))
   if (length(found)) found[1L] else NA_integer_
-}
-
-# The values of the quantities of a sample that rules 1 and 2 suppress.
-privacy_suppressed_values <- function(quantities, marks) {
-  values <- c(if (marks$rows) quantities$rows, if (marks$contributors) quantities$contributors)
-  for (i in seq_along(quantities$items)) {
-    item <- quantities$items[[i]]
-    for (measure in names(marks$items[[i]])[marks$items[[i]]]) {
-      values <- c(values, item[[measure]])
-    }
-  }
-  values
 }
 
 # --- Steps 8 and 9 ------------------------------------------------------------------------

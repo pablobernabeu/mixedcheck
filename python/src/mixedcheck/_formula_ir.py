@@ -414,10 +414,12 @@ def _model_column(
         values = series.to_numpy(dtype=np.float64, na_value=np.nan)
         column_type = "number"
     elif isinstance(dtype, pd.StringDtype):
+        # A column of a string dtype whose values are all missing is a string
+        # column, as a character column of NA is in R.
         column_missing = series.isna().to_numpy(dtype=bool)
         # pandas-stubs refuses na_value=None, which pandas accepts.
         objects = cast(Any, series).to_numpy(dtype=object, na_value=None).tolist()
-        return _object_column(objects, name, declared, attr_type, column_missing)
+        return _object_column(objects, name, declared, "string", column_missing)
     elif isinstance(dtype, np.dtype) and dtype.kind == "O":
         return _object_column(series.tolist(), name, declared, attr_type)
     else:
@@ -542,17 +544,7 @@ def build_formula_ir(
     sample_columns: list[str],
 ) -> dict[str, Any]:
     """The stages of ir.md (Errors) on inputs that have crossed the boundary."""
-    # Stage 1: length.
-    if len(formula) > 10000:
-        raise_issue("E6001")
-    # Stage 2: tokens.
-    tokens = formula_tokens(formula)
-    if not any(token.type == "op" and token.text == "~" for token in tokens):
-        raise_issue("E6008")
-    # Stage 3: syntax.
-    tree = formula_parse(tokens, tokens[-1].offset)
-    # Stage 4: structure.
-    _raise_found(structure_issue(tree))
+    tree = formula_tree(formula)
     # Stage 5: expansion.
     model = formula_expand(tree)
     _raise_found(model.issue)
@@ -563,6 +555,35 @@ def build_formula_ir(
     if long is not None:
         raise_issue("E6076", {"name": long})
     return ir
+
+
+def formula_tree(formula: str) -> Formula:
+    """The parsed formula after the first four stages of the builder, which
+    need no data: length, tokens, syntax and structure. The issue of the first
+    stage that fails is raised."""
+    # Stage 1: length.
+    if len(formula) > FORMULA_LIMIT:
+        raise_issue("E6001")
+    # Stage 2: tokens.
+    tokens = formula_tokens(formula)
+    if not any(token.type == "op" and token.text == "~" for token in tokens):
+        raise_issue("E6008")
+    # Stage 3: syntax.
+    tree = formula_parse(tokens, tokens[-1].offset)
+    # Stage 4: structure.
+    _raise_found(structure_issue(tree))
+    return tree
+
+
+def formula_response_key(formula: str) -> str | None:
+    """The response of a formula, as the key by which the IR names its column,
+    or None for a one-sided formula, after the first four stages of the
+    builder, as the validator reads the response of /inputs/model/formula."""
+    tree = formula_tree(formula)
+    if tree.lhs is None:
+        return None
+    node, _ = call_name_node(tree.lhs)
+    return node.key
 
 
 def ir_long_name(ir: dict[str, Any]) -> str | None:

@@ -207,7 +207,8 @@ audit_check_outcome_zero_shares <- function(run, entry, elements) {
 # outcome.separation: whether the kept fixed-effects columns of the analysis
 # sample separate the events from the non-events, by the two linear programs
 # of the entry, solved by lpSolve and verified in double arithmetic, with the
-# range of each coefficient over the optimal face of the first.
+# range of each coefficient over the optimal face of the first, whose
+# objectives are compared with the upper bounds of their multipliers.
 audit_check_outcome_separation <- function(run, entry, elements) {
   outcome <- outcome_values(run, entry)
   if (event_level_missing(run, outcome)) {
@@ -222,7 +223,9 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   tolerances <- list(separation = parameter("separation_tolerance"),
                      feasibility = parameter("feasibility_tolerance"),
                      residue = parameter("residue_tolerance"),
-                     involvement = parameter("involvement_tolerance"))
+                     involvement = parameter("involvement_tolerance"),
+                     optimality = parameter("optimality_tolerance"),
+                     bound = parameter("bound_tolerance"))
   x <- run$x[match(run$analysis, run$design), , drop = FALSE]
   kept <- sequential_rule(x)
   # The privacy filter reads the kept columns of the analysis sample.
@@ -275,7 +278,7 @@ audit_check_outcome_separation <- function(run, entry, elements) {
 # -1 <= b_j <= 1 and t <= 1, and, for a verdict of quasi or complete, the
 # smallest and largest b_j over the optimal face of the first. Returns the
 # statistics optimum, margin, verdict and bounds, each when the definition
-# gives it, and whether a verified solution makes the finding near_threshold.
+# gives it, and whether the solutions make the finding near_threshold.
 separation_programs <- function(a, tolerances) {
   p <- ncol(a)
   sums <- colSums(a)
@@ -284,26 +287,45 @@ separation_programs <- function(a, tolerances) {
   # with margin TRUE, subject to s x'b >= 0, or >= t, sums'b >= floor when
   # floor is given and the bounds: the b of its dual, or of the program
   # itself when the dual has no verified solution. A solution is verified
-  # when every u = s x'b is at least minus the feasibility tolerance, and
-  # one with some u below minus the residue tolerance makes the finding
-  # near_threshold. Without kept columns, b = () is the one solution and
-  # needs no solver.
+  # when every |b_j| is at most 1 and every u = s x'b at least 0, each within
+  # the feasibility tolerance, and, with floor, the sum of the u is at least
+  # floor within it, and one with some u below minus the residue tolerance
+  # makes the finding near_threshold. For the first program and a program of
+  # bounds, certified says whether the objective lies within the optimality
+  # tolerance of the upper bound of the multipliers, and r is the multiplier
+  # of the floor. Without kept columns, b = () is the one solution and needs
+  # no solver.
   solve <- function(objective, margin = FALSE, floor = NULL) {
     if (!p) {
-      return(list(b = numeric(0), u = numeric(nrow(a))))
+      return(list(b = numeric(0), u = numeric(nrow(a)), certified = TRUE, r = 0))
     }
     for (formulation in c("dual", "primal")) {
-      b <- separation_solver(formulation, a, objective, margin, sums, floor)
-      if (is.null(b)) {
+      found <- separation_solver(formulation, a, objective, margin, sums, floor)
+      if (is.null(found)) {
+        next
+      }
+      b <- found$b
+      if (!isTRUE(all(abs(b) <= 1 + tolerances$feasibility))) {
         next
       }
       u <- drop(a %*% b)
-      if (isTRUE(all(u >= -tolerances$feasibility))) {
-        if (any(u < -tolerances$residue)) {
-          near <<- TRUE
-        }
-        return(list(b = b, u = u))
+      if (!isTRUE(all(u >= -tolerances$feasibility))) {
+        next
       }
+      if (!is.null(floor) && exact_sum(u) < floor - tolerances$feasibility) {
+        next
+      }
+      if (any(u < -tolerances$residue)) {
+        near <<- TRUE
+      }
+      if (margin) {
+        return(list(b = b, u = u, certified = TRUE, r = 0))
+      }
+      value <- if (is.null(floor)) exact_sum(u) else sum(objective * b)
+      upper <- separation_upper_bound(a, objective, sums, floor, found$y, found$r)
+      return(list(b = b, u = u,
+                  certified = upper - value <= tolerances$optimality * max(1, abs(value)),
+                  r = if (is.null(floor)) 0 else max(found$r, 0)))
     }
     NULL
   }
@@ -329,8 +351,15 @@ separation_programs <- function(a, tolerances) {
   if (statistics$verdict != "none") {
     # The optimal face: the constraints of the first program with a sum of
     # s x'b of at least the optimum minus the separation tolerance. The
-    # smallest b_j maximises -b_j.
+    # smallest b_j maximises -b_j. The bounds of the two packages can differ
+    # by more than the bound tolerance, which makes the finding
+    # near_threshold, when the optimum or a bound is not certified, when a
+    # program of bounds has no verified solution, or when the floors of the
+    # two packages can move a bound that far (outcome.separation.yaml,
+    # optimality_tolerance).
+    near <- near || !first$certified
     floor <- statistics$optimum - tolerances$separation
+    scale <- max(1, abs(statistics$optimum))
     bounds <- numeric(0)
     for (j in seq_len(p)) {
       for (sign in c(-1, 1)) {
@@ -338,7 +367,11 @@ separation_programs <- function(a, tolerances) {
         unit[j] <- sign
         found <- solve(unit, floor = floor)
         if (is.null(found)) {
-          return(list(statistics = statistics, near_threshold = near))
+          return(list(statistics = statistics, near_threshold = TRUE))
+        }
+        shift <- 2 * tolerances$optimality * (1 + found$r * scale)
+        if (!found$certified || shift > tolerances$bound) {
+          near <- TRUE
         }
         bounds <- c(bounds, found$b[j])
       }
@@ -348,8 +381,25 @@ separation_programs <- function(a, tolerances) {
   list(statistics = statistics, near_threshold = near)
 }
 
+# The upper bound on the objective of the first program of
+# outcome.separation, or of a program of bounds with floor, that the
+# multipliers y, for the observations, and r, for the floor, give by weak
+# duality, in double arithmetic: with v = A'y, the sum of
+# |objective_j + v_j + r sums_j| minus floor r, with r = 0 for the first.
+# Multipliers below 0 count as 0 (outcome.separation.yaml,
+# optimality_tolerance).
+separation_upper_bound <- function(a, objective, sums, floor, y, r) {
+  v <- drop(crossprod(a, pmax(y, 0)))
+  if (is.null(floor)) {
+    return(sum(abs(objective + v)))
+  }
+  r <- max(r, 0)
+  sum(abs(objective + v + r * sums)) - r * floor
+}
+
 # One program of outcome.separation solved by lpSolve::lp() with scale = 0,
-# since the columns are already scaled: b for an optimum, NULL otherwise.
+# since the columns are already scaled: b and the multipliers y, of the
+# observations, and r, of the floor, for an optimum, NULL otherwise.
 # The program maximises objective'b, or t with margin TRUE, subject to
 # A b >= 0, or A b - t >= 0, sums'b >= floor when floor is given,
 # -1 <= b_j <= 1 and t <= 1, where A is a.
@@ -357,12 +407,14 @@ separation_programs <- function(a, tolerances) {
 #   y, r, w+, w-, z >= 0 subject to w+ - w- - A'y - sums r = objective and,
 #   with margin TRUE, 1'y + z = 1, with r only when floor is given and z only
 #   with margin TRUE. Its p equality constraints have the dual values b,
-#   which lp() returns with compute.sens = 1. The program has one constraint
-#   for each coefficient, so that its basis has p or p + 1 rows whatever the
-#   number of observations.
+#   which lp() returns with compute.sens = 1, and y and r are the values of
+#   those variables. The program has one constraint for each coefficient, so
+#   that its basis has p or p + 1 rows whatever the number of observations.
 # - 'primal': the program itself in b = b+ - b- with 0 <= b+_j, b-_j <= 1,
 #   the upper bounds written as constraints, so that every right-hand side
-#   other than the bounds and floor is 0.
+#   other than the bounds and floor is 0. y and r are minus the dual values
+#   of its constraints A b >= 0, or A b - t >= 0, and sums'b >= floor, which
+#   lp() returns with compute.sens = 1.
 separation_solver <- function(formulation, a, objective, margin, sums, floor) {
   n <- nrow(a)
   p <- ncol(a)
@@ -379,7 +431,11 @@ separation_solver <- function(formulation, a, objective, margin, sums, floor) {
     }
     found <- lpSolve::lp("min", cost, columns, rep("=", length(rhs)), rhs,
                          transpose.constraints = FALSE, scale = 0, compute.sens = 1)
-    return(if (found$status == 0L) found$duals[seq_len(p)] else NULL)
+    if (found$status != 0L) {
+      return(NULL)
+    }
+    return(list(b = found$duals[seq_len(p)], y = found$solution[seq_len(n)],
+                r = if (is.null(floor)) 0 else found$solution[[n + 1L]]))
   }
   rows <- rbind(cbind(a, -a), if (!is.null(floor)) c(sums, -sums),
                 cbind(ident, 0 * ident), cbind(0 * ident, ident))
@@ -392,9 +448,11 @@ separation_solver <- function(formulation, a, objective, margin, sums, floor) {
     rhs <- c(rhs, 1)
     gain <- c(gain, 1)
   }
-  found <- lpSolve::lp("max", gain, rows, directions, rhs, scale = 0)
+  found <- lpSolve::lp("max", gain, rows, directions, rhs, scale = 0, compute.sens = 1)
   if (found$status != 0L) {
     return(NULL)
   }
-  found$solution[seq_len(p)] - found$solution[p + seq_len(p)]
+  list(b = found$solution[seq_len(p)] - found$solution[p + seq_len(p)],
+       y = -found$duals[seq_len(n)],
+       r = if (is.null(floor)) 0 else -found$duals[[n + 1L]])
 }

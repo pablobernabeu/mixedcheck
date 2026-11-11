@@ -61,6 +61,12 @@ class MixedcheckWarning(UserWarning):
         return (type(self), (self.issues,))
 
 
+def internal_error(text: str) -> NoReturn:
+    """An internal error, which indicates a bug in the package: a RuntimeError
+    whose message starts with 'Internal error:'."""
+    raise RuntimeError("Internal error: " + text)
+
+
 def error_catalogue() -> dict[str, dict[str, Any]]:
     """Return the codes of the vendored spec/errors.json, by code."""
     global _catalogue
@@ -104,7 +110,7 @@ def new_issue(
     """
     entry = error_catalogue().get(code)
     if entry is None:
-        raise RuntimeError(f"Internal error: unknown error code '{code}'.")
+        internal_error(f"unknown error code '{code}'.")
     allowed = {
         "none": (),
         "offset": ("offset",),
@@ -115,7 +121,7 @@ def new_issue(
         name for name, value in (("offset", offset), ("pointer", pointer)) if value is not None
     ]
     if len(given) > 1 or not all(name in allowed for name in given) or (allowed and not given):
-        raise RuntimeError(f"Internal error: wrong location for {code}.")
+        internal_error(f"wrong location for {code}.")
     location: int | str | None = offset if offset is not None else pointer
     issue: Issue = {"code": code, "message": render_template(entry, args or {}, location)}
     if offset is not None:
@@ -135,7 +141,7 @@ def render_template(entry: Mapping[str, Any], args: Mapping[str, Any], location:
         if name == "location":
             return render_location(location)
         if name not in kinds or name not in args:
-            raise RuntimeError(f"Internal error: no argument '{name}' for {entry['code']}.")
+            internal_error(f"no argument '{name}' for {entry['code']}.")
         return render_argument(args[name], kinds[name])
 
     return _PLACEHOLDER.sub(replace, entry["template"])
@@ -168,7 +174,7 @@ def render_argument(value: Any, kind: str) -> str:
     if kind == "words":
         words = [value] if isinstance(value, str) else [str(item) for item in value]
         return join_alternatives(words)
-    raise RuntimeError(f"Internal error: unknown argument kind '{kind}'.")
+    internal_error(f"unknown argument kind '{kind}'.")
 
 
 def render_json_value(value: Any) -> str:

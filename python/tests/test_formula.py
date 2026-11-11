@@ -254,6 +254,11 @@ def test_categoricals_give_their_labels_whatever_the_order_of_their_categories()
     data["m"] = pd.Categorical([None] * 4, categories=["p"])
     data.attrs["types"] = {"m": "number"}
     assert issue_of(formula_ir, "y ~ m", data=data)["code"] == "E6056"
+    # So is a column of a string dtype whose values are all missing, as a
+    # character column of NA is in R.
+    for dtype in (pd.StringDtype(), pd.StringDtype("python", na_value=np.nan)):
+        data["m"] = pd.Series([None] * 4, dtype=dtype)
+        assert issue_of(formula_ir, "y ~ m", data=data)["code"] == "E6056"
     data["i"] = np.arange(4, dtype=np.int32)
     assert formula_ir("y ~ i", data=data)["predictors"]["i"]["kind"] == "numeric"
     data["b"] = [True, False, True, False]
@@ -546,3 +551,16 @@ def test_integral_numbers_count_as_integers_in_the_coding_argument():
         coding={"x": {"centring": "mean", "significant_digits": 2.5}},
     )
     assert issue["code"] == "E6063"
+
+
+def test_the_response_of_a_formula_comes_from_the_first_four_stages():
+    from mixedcheck._formula_ir import formula_response_key
+
+    assert formula_response_key("y ~ x + (1 | g)") == "y"
+    assert formula_response_key("log(`y z`) ~ x") == "y z"
+    assert formula_response_key("~ x") is None
+    # A name that no column holds is read without data.
+    assert formula_response_key("no_such_column ~ 1") == "no_such_column"
+    with pytest.raises(MixedcheckError) as caught:
+        formula_response_key("y ~ ")
+    assert caught.value.issues[0]["code"] == "E6010"

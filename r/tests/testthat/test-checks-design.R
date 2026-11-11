@@ -110,6 +110,18 @@ test_that("design.collinearity and design.scale_disparity hold at extreme magnit
   }
 })
 
+test_that("column_sd sums the squared differences exactly", {
+  # The squares 2^-64 of the last 2^16 values are each below half a unit of
+  # the last place of 2 in a long double, so that sum() loses them and gives
+  # 2, whereas their exact sum adds 2^-48 and moves the result by 6 units of
+  # the last place.
+  t <- 2^-32
+  x <- c(1, -1, rep(c(t, -t), 2^15))
+  n <- length(x)
+  expect_identical(column_sd(x), sqrt((2 + 2^-48) / (n - 1)))
+  expect_false(identical(column_sd(x), sqrt(2 / (n - 1))))
+})
+
 test_that("design.rank_deficiency counts empty cells of factors only", {
   data <- data.frame(
     y = 1:12,

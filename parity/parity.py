@@ -18,15 +18,18 @@ every run, 1 when a case does not, and 2 when the harness cannot run.
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import json
 import math
 import os
+import re
 import struct
 import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -102,6 +105,10 @@ def expected_parts(kind: str, case: dict[str, Any]) -> dict[str, dict[str, Any] 
         return expected_table(case)
     if kind == "formula":
         return expected_formula(case)
+    if kind == "audit":
+        return expected_audit(case)
+    if kind == "results":
+        return expected_results(case)
     raise HarnessError(f"Unknown kind of corpus '{kind}'.")
 
 
@@ -178,6 +185,54 @@ def expected_formula(case: dict[str, Any]) -> dict[str, dict[str, Any] | None]:
         "z_stored": len(rows) * widths,
     }
     parts["vectors"] = None
+    return parts
+
+
+def expected_audit(case: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The issue that refuses the run of a case, or the findings of the checks
+    of the case in internal mode and, for a case of privacy.json, in shareable
+    mode (fixtures/conformance/audits/README.md). The findings are held as JSON
+    text with the checks and the exact statistics of the case, so that
+    audit_differences() compares them with a document by the rules of that
+    README."""
+    expected = case["expected"]
+    if "issue" in expected:
+        return {"internal": {"issues": [expected["issue"]]}}
+
+    def findings(listed: list[dict[str, Any]]) -> dict[str, Any]:
+        value = {"findings": listed, "checks": case["checks"], "exact": case.get("exact", [])}
+        return {"findings": json.dumps(value, ensure_ascii=False)}
+
+    parts = {"internal": findings(expected["findings"])}
+    if "shareable" in expected:
+        parts["shareable"] = findings(expected["shareable"])
+    return parts
+
+
+def expected_results(case: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The outcome of validate_results() on the document alone and, for a case
+    with a sidecar, on the document with its sidecar, data and declaration
+    (fixtures/conformance/results/README.md): 'valid' when the call returns,
+    with W7090 as a warning, or the issues of its error. An error in the
+    document stops validation before the sidecar."""
+    expected = case["expected"]
+    issues = expected["issues"]
+    warned = len(issues) == 1 and issues[0]["code"] == "W7090"
+    document: dict[str, Any] = {"issues": issues}
+    if not issues or warned:
+        document = {"valid": True}
+        if warned:
+            document["warnings"] = issues
+    parts = {"document": document}
+    if "sidecar" in case:
+        if issues and not warned:
+            parts["sidecar"] = document
+        else:
+            sidecar_issues = expected["sidecar_issues"]
+            sidecar = {"issues": sidecar_issues} if sidecar_issues else {"valid": True}
+            if warned:
+                sidecar["warnings"] = issues
+            parts["sidecar"] = sidecar
     return parts
 
 
@@ -400,6 +455,356 @@ def agree(a: Any, b: Any, reals: bool = False) -> bool:
     return type(a) is type(b) and a == b
 
 
+def plain_differences(a: Any, b: Any) -> list[str]:
+    """No difference when two outcomes agree, and otherwise one that the
+    report does not describe further."""
+    return [] if agree(a, b) else [""]
+
+
+# Audit outcomes, compared by the rules of conventions.md (Comparison across
+# languages) and fixtures/conformance/audits/README.md (Comparison).
+
+SPECIAL_REALS = {"NaN": math.nan, "Infinity": math.inf, "-Infinity": -math.inf}
+# The statistics of a near_threshold finding that its solver, or its
+# comparisons with rank_tolerance, decide, which may then differ.
+SOLVED = {
+    "outcome.separation": ("verdict", "optimum", "margin", "bounds", "columns_involved"),
+    "identifiability.gram_rank": (
+        "rank",
+        "verdict",
+        "vanishing_parameters",
+        "confounded_parameters",
+        "smallest_eigenvalue",
+    ),
+}
+# The members of a results document that record what wrote it, which are not
+# compared, besides the package version in 'versions'.
+WRITER_MEMBERS = ("created", "software")
+# The most differences shown for one outcome.
+DIFFERENCES_SHOWN = 12
+PLACEHOLDER = re.compile(r"(\{[a-z][a-z0-9_]*\})")
+
+
+@functools.cache
+def registry_entries() -> dict[str, dict[str, Any]]:
+    """The entries of spec/compiled/registry.json by identifier."""
+    registry = json.loads((ROOT / "spec" / "compiled" / "registry.json").read_bytes())
+    return {entry["id"]: entry for entry in registry["entries"]}
+
+
+def json_text(value: str) -> Any:
+    """The value of JSON text that an outcome holds as hexadecimal digits."""
+    return json.loads(bytes.fromhex(value).decode("utf-8"))
+
+
+def brief(value: Any) -> str:
+    shown = json.dumps(value, ensure_ascii=True, sort_keys=True)
+    return shown if len(shown) <= SHOWN else shown[: SHOWN - 3] + "..."
+
+
+def same_scalar(a: Any, b: Any) -> bool:
+    """Whether two JSON scalars are equal: numbers by value, whether written as
+    integers or not, and every other value with its type."""
+    numbers = (int, float)
+    if isinstance(a, bool) or isinstance(b, bool):
+        return type(a) is type(b) and a == b
+    if isinstance(a, numbers) and isinstance(b, numbers):
+        return bool(a == b)
+    return type(a) is type(b) and a == b
+
+
+def json_differences(a: Any, b: Any, path: str) -> list[str]:
+    """Where two JSON values differ, as JSON Pointers with the two values."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        found = []
+        for key in sorted(set(a) | set(b)):
+            here = f"{path}/{key}"
+            if key not in a or key not in b:
+                found.append(f"{here} is present in only one of them")
+            else:
+                found += json_differences(a[key], b[key], here)
+        return found
+    if isinstance(a, list) and isinstance(b, list):
+        if len(a) != len(b):
+            return [f"{path} has {len(a)} and {len(b)} elements"]
+        return [
+            line
+            for i, (x, y) in enumerate(zip(a, b, strict=True))
+            for line in json_differences(x, y, f"{path}/{i}")
+        ]
+    if (isinstance(a, dict | list) or isinstance(b, dict | list)) or not same_scalar(a, b):
+        return [f"{path}: {brief(a)} and {brief(b)}"]
+    return []
+
+
+def reals_match(x: Any, y: Any, check: str, name: str) -> bool:
+    """Whether two values of a real statistic match within the tolerance of
+    conventions.md, with its exceptions for design.collinearity,
+    design.scale_disparity, identifiability.gram_rank and outcome.separation,
+    whose tolerance is the parameter bound_tolerance of its entry. 'NaN',
+    'Infinity' and '-Infinity' match only themselves."""
+    if isinstance(x, str) or isinstance(y, str):
+        return bool(x == y)
+    m = max(math.fabs(x), math.fabs(y))
+    if check == "design.collinearity" and name in ("gvif", "gvif_per_df"):
+        return math.fabs(x - y) <= ABSOLUTE + max(RELATIVE, 1e-13 * m) * m
+    if check == "design.scale_disparity" and name == "condition_number":
+        return math.fabs(x - y) <= ABSOLUTE + max(RELATIVE, 1e-14 * m) * m
+    if check == "identifiability.gram_rank" and name == "smallest_eigenvalue":
+        return math.fabs(x - y) <= ABSOLUTE + RELATIVE * max(1.0, m)
+    if check == "outcome.separation":
+        parameter = registry_entries()[check]["parameters"]["bound_tolerance"]
+        tolerance = float(parameter["value"])
+        return math.fabs(x - y) <= (tolerance if name == "bounds" else tolerance * max(1, m))
+    return math.fabs(x - y) <= ABSOLUTE + RELATIVE * m
+
+
+def point_digits(digits: str, places: int) -> str:
+    if places == 0:
+        return digits
+    digits = "0" * max(0, places + 1 - len(digits)) + digits
+    return digits[: len(digits) - places] + "." + digits[len(digits) - places :]
+
+
+def real_text(x: float, places: int) -> str:
+    """A real as a message renders it (registry.md, Messages): in scientific
+    notation from 1e15, otherwise with 'places' decimal places and no sign on
+    a rounded zero, as 'under' and the smallest positive value at that number
+    of places for a positive double that rounds to zero, and NaN and the
+    infinities by name."""
+    if math.isnan(x):
+        return "NaN"
+    if math.isinf(x):
+        return "Infinity" if x > 0 else "-Infinity"
+    if math.fabs(x) >= 1e15:
+        return format(x, f".{places}e")
+    shown = format(x, f"z.{places}f")
+    if x > 0 and not any("1" <= char <= "9" for char in shown):
+        return "under " + point_digits("1", places)
+    return shown
+
+
+def written_real(finding: dict[str, Any], name: str) -> float | None:
+    value = finding.get("statistics", {}).get(name, {}).get("value")
+    if value is None:
+        return None
+    return SPECIAL_REALS[value] if isinstance(value, str) else float(value)
+
+
+def message_form(finding: dict[str, Any]) -> tuple[str, list[str]] | None:
+    """The form of its message that the text of a finding renders, the
+    template or the fallback, with the renderings of its arguments other than
+    real statistics. A real statistic must render the value that the finding
+    writes. None when the text renders neither form."""
+    entry = registry_entries().get(finding["check"])
+    message = entry["messages"].get(finding["message"]["id"]) if entry else None
+    if entry is None or message is None:
+        return None
+    for form in ("template", "fallback"):
+        template = message.get(form)
+        if template is None:
+            continue
+        pattern = []
+        for i, piece in enumerate(PLACEHOLDER.split(template)):
+            if i % 2 == 0:
+                pattern.append(re.escape(piece))
+                continue
+            arg = message["args"][piece[1:-1]]
+            kind = None
+            if arg["source"] == "statistic":
+                kind = entry["statistics"][arg["name"]]["kind"]
+            if kind != "real":
+                pattern.append("(.*?)")
+                continue
+            value = written_real(finding, arg["name"])
+            if value is None:
+                break
+            pattern.append(re.escape(real_text(value, int(arg["digits"]))))
+        else:
+            found = re.fullmatch("".join(pattern), finding["message"]["text"], re.DOTALL)
+            if found is not None:
+                return form, list(found.groups())
+    return None
+
+
+def messages_match(actual: dict[str, Any], expected: dict[str, Any]) -> bool:
+    """Whether the messages of two findings match: the same identifier, both
+    texts rendering its template or both its fallback, every argument other
+    than a real statistic rendered identically, the two values of every real
+    statistic that the form renders matching within the tolerance, and each
+    text rendering the values of its own finding."""
+    if actual["message"]["id"] != expected["message"]["id"]:
+        return False
+    form = message_form(actual)
+    if form is None or form != message_form(expected):
+        return False
+    check = expected["check"]
+    entry = registry_entries()[check]
+    message = entry["messages"][expected["message"]["id"]]
+    for placeholder, arg in message["args"].items():
+        name = arg["name"]
+        if (
+            arg["source"] != "statistic"
+            or entry["statistics"][name]["kind"] != "real"
+            or "{" + placeholder + "}" not in message[form[0]]
+        ):
+            continue
+        x, y = written_real(actual, name), written_real(expected, name)
+        if x is None or y is None:
+            return False
+        if math.isfinite(x) and math.isfinite(y):
+            if not reals_match(x, y, check, name):
+                return False
+        elif not (x == y or (math.isnan(x) and math.isnan(y))):
+            return False
+    return True
+
+
+def near_threshold(finding: dict[str, Any]) -> bool:
+    proximity = finding.get("status", {}).get("threshold_proximity", {})
+    return bool(proximity.get("value") == "near_threshold")
+
+
+def finding_differences(
+    actual: dict[str, Any], expected: dict[str, Any], exact: list[str], label: str
+) -> list[str]:
+    """How a finding differs from another: exactly, apart from the values of
+    real statistics, which match within the tolerance or bit for bit for
+    those that 'exact' lists, and the message, which matches by its values.
+    A finding that is near_threshold in either may differ in its finding
+    status, its message and its threshold_proximity, and a finding of
+    outcome.separation or identifiability.gram_rank also in the statistics
+    that its solver or rank_tolerance decides."""
+    check = expected.get("check")
+    if actual.get("check") != check:
+        return [f"{label}: a finding of {actual.get('check')} and one of {check}"]
+    near = near_threshold(actual) or near_threshold(expected)
+    solved = SOLVED.get(check, ()) if near else ()
+    reals = [
+        name
+        for name, statistic in expected.get("statistics", {}).items()
+        if statistic.get("kind") in ("real", "reals") and name not in solved
+    ]
+
+    def strip(finding: dict[str, Any]) -> dict[str, Any]:
+        finding = json.loads(json.dumps(finding))
+        statistics = finding.get("statistics", {})
+        for name in reals:
+            if statistics.get(name, {}).get("value") is not None:
+                statistics[name]["value"] = "real"
+        if "message" in finding:
+            finding["message"]["text"] = "text"
+        if near:
+            for name in ("finding", "threshold_proximity"):
+                finding.get("status", {}).pop(name, None)
+            finding.pop("message", None)
+            for name in solved:
+                statistics.pop(name, None)
+        return finding
+
+    found = json_differences(strip(actual), strip(expected), label)
+    for name in reals:
+        x = actual.get("statistics", {}).get(name, {}).get("value")
+        y = expected["statistics"][name].get("value")
+        if x is None or y is None:
+            continue
+        xs = x if isinstance(x, list) else [x]
+        ys = y if isinstance(y, list) else [y]
+        if f"{check}:{name}" in exact:
+            same = [bits_of(v) for v in xs] == [bits_of(v) for v in ys]
+        else:
+            same = len(xs) == len(ys) and all(
+                reals_match(a, b, check, name) for a, b in zip(xs, ys, strict=True)
+            )
+        if not same:
+            found.append(f"{label}/statistics/{name}: {brief(x)} and {brief(y)}")
+    if not near and "message" in expected and "message" in actual:
+        if not messages_match(actual, expected):
+            found.append(
+                f"{label}/message: {brief(actual['message'])} and {brief(expected['message'])}"
+            )
+    return found
+
+
+def bits_of(value: Any) -> str:
+    return value if isinstance(value, str) else struct.pack(">d", float(value)).hex()
+
+
+def document_differences(a: dict[str, Any], b: dict[str, Any], exact: list[str]) -> list[str]:
+    """How two results documents differ: every member exactly apart from
+    created, software and the package version, which are not compared, and
+    the findings by finding_differences()."""
+
+    def compared(document: dict[str, Any]) -> dict[str, Any]:
+        document = {key: value for key, value in document.items() if key not in WRITER_MEMBERS}
+        if isinstance(document.get("versions"), dict):
+            document["versions"] = {
+                key: value for key, value in document["versions"].items() if key != "package"
+            }
+        document.pop("findings", None)
+        return document
+
+    found = json_differences(compared(a), compared(b), "")
+    x, y = a.get("findings", []), b.get("findings", [])
+    if len(x) != len(y):
+        return [*found, f"/findings has {len(x)} and {len(y)} elements"]
+    for i, (first, second) in enumerate(zip(x, y, strict=True)):
+        found += finding_differences(first, second, exact, f"/findings/{i}")
+    return found
+
+
+def audit_differences(a: Any, b: Any, exact: list[str]) -> list[str]:
+    """How the outcome a of an audit part differs from b, another run's
+    outcome or the expected one. The expected findings are compared with the
+    findings of the checks of the case in the run's document, and the runs'
+    documents and sidecars with each other. Issues, errors and warnings must
+    agree exactly."""
+    if a is None or b is None:
+        return [] if a is b else [""]
+    if "findings" in a and "findings" not in b:
+        a, b = b, a
+    if "findings" in b:
+        if set(a) != {"document", "sidecar"}:
+            return [""]
+        expected = json_text(b["findings"])
+        checks = set(expected["checks"])
+        document = json_text(a["document"])
+        findings = [f for f in document.get("findings", []) if f.get("check") in checks]
+        wanted = expected["findings"]
+        if len(findings) != len(wanted):
+            return [f"{len(findings)} findings of the checks of the case, {len(wanted)} expected"]
+        return [
+            line
+            for i, (actual, finding) in enumerate(zip(findings, wanted, strict=True))
+            for line in finding_differences(
+                actual, finding, expected["exact"], f"finding {i + 1} ({finding.get('check')})"
+            )
+        ]
+    if "document" in a and "document" in b:
+        found = []
+        if not agree(a.get("warnings"), b.get("warnings")):
+            found.append("the warnings differ")
+        if set(a) != set(b):
+            found.append("the members of the outcomes differ")
+        found += document_differences(json_text(a["document"]), json_text(b["document"]), exact)
+        found += json_differences(json_text(a["sidecar"]), json_text(b["sidecar"]), "sidecar")
+        return found
+    return plain_differences(a, b)
+
+
+def show_audit(outcome: dict[str, Any] | None) -> list[str]:
+    """Lines that describe an audit outcome."""
+    if outcome is not None and "findings" in outcome:
+        expected = json_text(outcome["findings"])
+        count = len(expected["findings"])
+        return [f"{count} findings of {', '.join(expected['checks'])}"]
+    if outcome is not None and "document" in outcome:
+        count = len(json_text(outcome["document"]).get("findings", []))
+        rest = {key: value for key, value in outcome.items() if key == "warnings"}
+        return [f"a document with {count} findings, and its sidecar", *show(rest)]
+    return show(outcome)
+
+
 class Report:
     def __init__(self, runs: list[tuple[dict[str, Any], dict[tuple[Any, Any, Any], Any]]]) -> None:
         self.runs = runs
@@ -431,20 +836,25 @@ class Report:
         title: str,
         expected: dict[str, Any] | None,
         outcomes: dict[str, dict[str, Any] | None],
+        differences: Callable[[Any, Any], list[str]] = plain_differences,
+        describe: Callable[[dict[str, Any] | None], list[str]] = show,
     ) -> bool:
         """Compare the outcomes of the runs with each other and with the
-        expected outcome, and report a mismatch. Returns whether they agree."""
+        expected outcome, and report a mismatch. 'differences' lists how one
+        outcome differs from another, or from the expected one, and nothing
+        when they agree, and 'describe' gives the lines that show an outcome.
+        Returns whether they agree."""
         groups: list[tuple[dict[str, Any] | None, list[str]]] = []
         for name, outcome in outcomes.items():
             for found, names in groups:
-                if agree(found, outcome):
+                if not differences(outcome, found):
                     names.append(name)
                     break
             else:
                 groups.append((outcome, [name]))
         problems = []
         if expected is not None:
-            wrong = [name for name, outcome in outcomes.items() if not agree(outcome, expected)]
+            wrong = [name for name, outcome in outcomes.items() if differences(outcome, expected)]
             if wrong:
                 verb = "differs" if len(wrong) == 1 else "differ"
                 problems.append(f"{words(wrong)} {verb} from the expected outcome")
@@ -457,15 +867,28 @@ class Report:
                 problems.append(f"{name} reports {code}, which only {only} can raise")
         if not problems:
             return True
+
+        def details(found: list[str], indent: str) -> list[str]:
+            found = [line for line in found if line]
+            shown = [f"{indent}{line}" for line in found[:DIFFERENCES_SHOWN]]
+            if len(found) > DIFFERENCES_SHOWN:
+                shown.append(f"{indent}and {len(found) - DIFFERENCES_SHOWN} more differences")
+            return shown
+
         lines = list(problems)
         if expected is not None:
-            lines += ["expected:"] + [f"  {line}" for line in show(expected)]
+            lines += ["expected:"] + [f"  {line}" for line in describe(expected)]
         reference = expected if expected is not None else groups[0][0]
-        for outcome, names in groups:
-            if expected is not None and agree(outcome, expected):
+        for i, (outcome, names) in enumerate(groups):
+            if expected is not None and not differences(outcome, expected):
                 lines.append(f"{words(names)}: as expected")
-                continue
-            lines += [f"{words(names)}:"] + [f"  {line}" for line in show(outcome)]
+            else:
+                lines += [f"{words(names)}:"] + [f"  {line}" for line in describe(outcome)]
+                lines += details(differences(outcome, reference), "  ")
+            if i > 0 and expected is not None:
+                found = details(differences(outcome, groups[0][0]), "    ")
+                if found:
+                    lines += [f"  against {words(groups[0][1])}:", *found]
             if (
                 outcome
                 and reference
@@ -509,6 +932,8 @@ def compare_runs(
         if "pending" in entry:
             row.pending = entry["pending"]
             continue
+        pending = entry.get("pending_parts", {})
+        row.pending_parts = sorted(set(pending.values()))
         for header, outcomes in indexed:
             failure = outcomes.get((name, None, None))
             if failure is not None:
@@ -523,6 +948,13 @@ def compare_runs(
                 part: encode(outcome)
                 for part, outcome in expected_parts(entry["kind"], case).items()
             }
+            rule: dict[str, Any] = {}
+            if entry["kind"] == "audit":
+                exact = case.get("exact", [])
+                rule = {
+                    "differences": lambda a, b, exact=exact: audit_differences(a, b, exact),
+                    "describe": show_audit,
+                }
             parts = set(expected)
             for header, outcomes in indexed:
                 if header["run"] in running:
@@ -537,6 +969,13 @@ def compare_runs(
                     if header["run"] in running
                 }
                 title = f"{name} {case['id']} [{part}]"
+                if part in pending:
+                    row.waiting += 1
+                    names = [run_name for run_name, outcome in found.items() if outcome is not None]
+                    if names:
+                        report.mismatch(title, [f"{words(names)}: an outcome for a pending part"])
+                        agreed = False
+                    continue
                 row.parts += 1
                 if part not in expected:
                     names = [run_name for run_name, outcome in found.items() if outcome is not None]
@@ -545,7 +984,7 @@ def compare_runs(
                     )
                     agreed = False
                     continue
-                agreed = report.compare(title, expected[part], found) and agreed
+                agreed = report.compare(title, expected[part], found, **rule) and agreed
             row.mismatched += not agreed
     expected_artefact = expected_artefacts(artefacts)
     row = Row(FILES, len(expected_artefact), report.names)
@@ -579,6 +1018,9 @@ class Row:
         self.parts = 0
         self.mismatched = 0
         self.pending: str | None = None
+        # The parts that wait for a milestone, and the milestones.
+        self.waiting = 0
+        self.pending_parts: list[str] = []
 
     def cells(self, runs: list[str]) -> list[str]:
         if self.pending:
@@ -590,6 +1032,8 @@ class Row:
                 f"pending {self.pending}",
             ]
         result = f"{self.mismatched} mismatched" if self.mismatched else "identical"
+        if self.waiting:
+            result += f", {self.waiting} parts pending {' and '.join(self.pending_parts)}"
         ran = [str(self.ran[name]) for name in runs]
         return [self.name, str(self.cases), *ran, str(self.shared), result]
 
@@ -605,6 +1049,8 @@ def print_summary(rows: list[Row], runs: list[str]) -> None:
         total.shared += row.shared
         total.parts += row.parts
         total.mismatched += row.mismatched
+        total.waiting += row.waiting
+        total.pending_parts = sorted(set(total.pending_parts) | set(row.pending_parts))
     table = [header] + [row.cells(runs) for row in rows] + [total.cells(runs)]
     widths = [max(len(line[i]) for line in table) for i in range(len(header))]
     print()
@@ -620,6 +1066,9 @@ def print_summary(rows: list[Row], runs: list[str]) -> None:
         if pending
         else ""
     )
+    parts = sum(row.waiting for row in corpora)
+    if parts:
+        waiting += f" {parts} parts of cases that ran wait for the milestone that implements them."
     print(
         f"\n{sum(row.cases for row in corpora)} cases were run, "
         f"{sum(row.shared for row in corpora)} of them in both languages, "

@@ -1285,6 +1285,92 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-outcome-041",
+      "description": "The columns x and x2 coincide to about 1e-10 after scaling, so that over the optimal face the smallest b of the intercept and the largest b of x2 change by about 3.6e5 for each unit of the floor f: with r near 3.6e5 and an optimum of 5.06, 2 times optimality_tolerance times (1 + r times the optimum) exceeds bound_tolerance, which makes the finding near_threshold whatever the precision of the solver, since optima that differ by 1e-12 move these bounds by 3.6e-7. In rational arithmetic on the scaled columns, the first program reaches 5.055321869019773, the second the margin 0.5000001241954461, and every kept column is involved. From a differential review of M2b-3, in which the duals of lpSolve gave bounds 1.6e-6 from the exact ones.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "y": [1, 0, 1, 1, 1],
+        "cond": ["lo", "hi", "lo", "lo", "lo"],
+        "grp": ["ctl", "trt", "trt", "trt", "trt"],
+        "x": [1000000.4954159142, 1000000.7907073069, 999998.8069716928, 1000000.718385498, 1000000.3630027653],
+        "z": [1.1869343867185078, -0.3503705437936126, -1.9883279286402349, 0.1613879293542133, -0.8714736062078614],
+        "x2": [1000000.4955102435, 1000000.7906631059, 999998.8069359513, 1000000.7182989309, 1000000.3630308936],
+        "dup": [2.3738687734370156, -0.7007410875872252, -3.9766558572804698, 0.3227758587084266, -1.7429472124157228]
+      },
+      "formula": "y ~ cond * grp + x2 + x:z + dup",
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "near_threshold"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "The fixed effects separate the events from the non-events completely, through '(Intercept)', 'cond[lo]', 'grp[trt]', 'x2' and 'dup', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 5, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 4, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 1, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "complete"},
+              "optimum": {"kind": "real", "value": 5.055321869019773},
+              "margin": {"kind": "real", "value": 0.5000001241954461},
+              "bounds": {"kind": "reals", "value": [0.640142041007987, 1, 0.9999997499999999, 1, -1, -0.9999989999972206, -0.1762146611131083, 0.18364429788168413, -1, -0.9999819239657262]},
+              "columns_involved": {"kind": "names", "value": ["(Intercept)", "cond[lo]", "grp[trt]", "x2", "dup"]}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "rows", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-outcome-042",
+      "description": "x0 lies near 1e9 and is dropped beside the intercept, and the columns of x0:f nearly equal the indicators of f after scaling. Only the cell f = b, h = v separates, with four events and no non-event: the first program reaches 4 at b = 1 for f[b]:h[v] and 0 for every other column, the margin is 0, and over the optimal face the b of f[b]:h[v] ranges from (4 - 1e-6)/4 to 1 and every other b is 0, as rational arithmetic on the scaled columns confirms, with a multiplier r of the floor of 1/4 or 0. From a differential review of M2b-3, in which lpSolve reported a numerical failure for the dual and the program itself of one program of bounds, which leaves bounds and columns_involved absent and the finding near_threshold.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "x0": [1000000000.0, 999999999.3, 1000000000.4, 1000000000.7, 999999999.3, 1000000001.2, 999999999.1, 1000000000.5, 999999998.8, 999999999.8, 1000000000.1, 1000000000.2, 999999999.3, 1000000000.4, 999999997.7, 1000000001.6, 1000000000.2, 1000000001.4, 999999998.4, 999999999.8, 1000000001.5, 1000000000.1, 1000000000.0, 999999999.7, 999999999.8, 1000000000.1, 999999999.6],
+        "x1": [1000212, 997989, 999397, 1000953, 1000089, 1002114, 999956, 1000381, 1000507, 998853, 999739, 1000542, 999713, 998672, 998259, 997819, 999553, 1001406, 1000041, 1001305, 999740, 1000058, 1000577, 1001001, 999369, 1001145, 1000418],
+        "x2": [-0.826, -1.613, -0.086, -0.553, 1.32, -0.776, 0.35, -0.172, -0.516, 0.091, -0.111, -1.093, 0.799, 1.38, -0.051, -0.757, 1.683, -0.223, -0.912, 0.796, 0.292, -1.349, -0.932, 2.322, 0.833, -0.004, -0.746],
+        "f": ["b", "c", "c", "c", "b", "b", "c", "a", "b", "a", "a", "a", "a", "c", "c", "c", "a", "a", "a", "b", "a", "b", "c", "c", "b", "a", "c"],
+        "h": ["u", "u", "u", "v", "v", "v", "u", "v", "v", "v", "v", "v", "u", "u", "v", "v", "u", "v", "v", "u", "v", "u", "u", "v", "v", "v", "v"],
+        "y": [1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0]
+      },
+      "formula": "y ~ x0 + x1 + x2 + f:x0 + f:h",
+      "declaration": {"vocabulary": "0.1.0", "variables": {"y": {"role": "outcome", "measurement": "binary"}}},
+      "family": "binomial",
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "quasi", "text": "The fixed effects separate the events from the non-events quasi-completely, through 'f[b]:h[v]', so the estimates of these coefficients diverge and their Wald statistics are unreliable."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 8, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 13, "count_class": "person"},
+              "non_events": {"kind": "count", "value": 14, "count_class": "person"},
+              "both_classes": {"kind": "boolean", "value": true},
+              "verdict": {"kind": "category", "value": "quasi"},
+              "optimum": {"kind": "real", "value": 4},
+              "margin": {"kind": "real", "value": 0},
+              "bounds": {"kind": "reals", "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.99999975, 1, 0, 0]},
+              "columns_involved": {"kind": "names", "value": ["f[b]:h[v]"]}
+            },
+            "support": {"rows": {"value": 27}, "contributors": {"basis": "rows", "distinct": {"value": 27}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

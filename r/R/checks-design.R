@@ -194,8 +194,9 @@ audit_check_design_scale_disparity <- function(run, entry, elements) {
 # The standard deviation of a column with denominator n - 1: 0 when its
 # values are all equal, and otherwise M times the square root of the sum of
 # the squared differences from the mean of the column divided by its largest
-# absolute value M, the mean summed exactly and divided once, over n - 1, so
-# that no square overflows or underflows.
+# absolute value M, over n - 1, so that no square overflows or underflows.
+# The mean and the sum of the squares are summed exactly and rounded once,
+# so that every operation is fixed.
 column_sd <- function(x) {
   if (all(x == x[1L])) {
     return(0)
@@ -203,5 +204,5 @@ column_sd <- function(x) {
   n <- length(x)
   largest <- max(abs(x))
   scaled <- x / largest
-  largest * sqrt(sum((scaled - exact_sum(scaled) / n)^2) / (n - 1))
+  largest * sqrt(exact_sum((scaled - exact_sum(scaled) / n)^2) / (n - 1))
 }

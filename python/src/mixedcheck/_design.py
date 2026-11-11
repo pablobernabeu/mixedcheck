@@ -33,6 +33,9 @@ if TYPE_CHECKING:
 
 _IR_VERSION = re.compile(r"0\.1\.(0|[1-9][0-9]*)")
 
+# The tolerance of the sequential rule (ir.md, Sequential rule).
+SEQUENTIAL_TOLERANCE = 1e-7
+
 
 def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, Any]:
     """Build the design matrices of an IR.
@@ -109,8 +112,10 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
             value that is not positive in an offset, in IR order, E6072 for a
             weight that is not positive, E6073 for NaN or an infinity in the
             response and then the trials column in a row of the analysis
-            sample and E6071 for a response written with log(). An IR that is
-            not valid gives the codes of the schema area.
+            sample, E6078 for events or trials of a response with a trials
+            column that are not integers with 0 <= events <= trials and E6071
+            for a response written with log(). An IR that is not valid gives
+            the codes of the schema area.
         TypeError: An argument of the wrong type.
         ValueError: Data that do not hold the columns or levels of the IR.
 
@@ -132,7 +137,6 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
         >>> matrices["z"].toarray()[1].tolist()
         [1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
     """
-    import numpy as np
     import pandas as pd
 
     if not isinstance(data, pd.DataFrame):
@@ -140,8 +144,50 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
     value = ir_input(ir)
     table = model_table(data, [])
     model = design_model(value, table)
+    built = design_build(value, model, table)
+    assert model.analysis is not None
+    response, trials = design_response(value, model, table, model.analysis)
+    return {
+        "design_sample": model.design,
+        "analysis_sample": model.analysis,
+        "x": built.x,
+        "x_columns": built.x_columns,
+        "x_dropped": [
+            name for name, keep in zip(built.x_columns, built.kept, strict=True) if not keep
+        ],
+        "z": built.z,
+        "z_columns": built.z_columns,
+        "response": response,
+        "trials": trials,
+        "offset": built.offset,
+        "weights": built.weights,
+    }
+
+
+@dataclass
+class DesignBuilt:
+    """X with its column names and the columns that the sequential rule keeps,
+    Z with the description of its columns, and the offset and weight vectors of
+    the design sample, or None."""
+
+    x: Array
+    x_columns: list[str]
+    kept: list[bool]
+    z: Any
+    z_columns: pandas.DataFrame
+    offset: Array | None
+    weights: Array | None
+
+
+def design_build(ir: dict[str, Any], model: DesignModel, table: ModelTable) -> DesignBuilt:
+    """X, Z, the offset and the weights of the design sample of a model, with
+    the columns that the sequential rule keeps, reporting E6073 for a column of
+    the design sample, E6077, E6071 for an offset and E6072 in the order of
+    ir.md (Errors). The response is not read, so that audit() can build them
+    at T0."""
+    import numpy as np
+
     design = model.design
-    analysis = model.analysis
     # E6073 in the design sample, by column in code-point order.
     checked = list(
         dict.fromkeys(
@@ -160,7 +206,7 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
         if not bool(np.isfinite(table.values[model.column(key)][design]).all()):
             raise_issue("E6073", {"column": key})
     values = design_variable_values(model, table, design)
-    columns = value["fixed"]["columns"]
+    columns = ir["fixed"]["columns"]
     # Column-major, as in R, so that each column is contiguous when it is
     # written and when the sequential rule reads it.
     x = np.empty((len(design), len(columns)), dtype=np.float64, order="F")
@@ -168,7 +214,7 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
     # E6077 for the first column of X, then of Z, with a value that is not
     # finite. Each column is checked before it is written into X.
     for k, column in enumerate(columns):
-        computed = design_column_values(value["fixed"]["terms"], column, values, len(design))
+        computed = design_column_values(ir["fixed"]["terms"], column, values, len(design))
         if not bool(np.isfinite(computed).all()):
             raise_issue("E6077", {"column": fixed_names[k]})
         x[:, k] = computed
@@ -187,20 +233,7 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
         weights = table.values[model.column(model.weights)][design].copy()
         if bool((weights <= 0).any()):
             raise_issue("E6072", {"column": model.weights})
-    response, trials = design_response(value, model, table, analysis)
-    return {
-        "design_sample": design,
-        "analysis_sample": analysis,
-        "x": x,
-        "x_columns": fixed_names,
-        "x_dropped": [name for name, keep in zip(fixed_names, kept, strict=True) if not keep],
-        "z": z,
-        "z_columns": z_columns,
-        "response": response,
-        "trials": trials,
-        "offset": offset,
-        "weights": weights,
-    }
+    return DesignBuilt(x, fixed_names, kept, z, z_columns, offset, weights)
 
 
 def design_samples(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, Any]:
@@ -279,7 +312,8 @@ def ir_input(ir: Any) -> dict[str, Any]:
 @dataclass
 class DesignModel:
     """What the matrices need from an IR and the data: the column of each key,
-    the predictors, the random terms, the offsets, the weights and the samples."""
+    the predictors, the random terms, the offsets, the weights and the samples,
+    the analysis sample being None when it was left out."""
 
     column: Callable[[str], int]
     predictors: dict[str, Any]
@@ -287,12 +321,13 @@ class DesignModel:
     offsets: list[dict[str, Any]]
     weights: str | None
     design: Array
-    analysis: Array
+    analysis: Array | None
 
 
-def design_model(ir: dict[str, Any], table: ModelTable) -> DesignModel:
-    """The columns, samples and parts of an IR for the data."""
-    import numpy as np
+def design_model(ir: dict[str, Any], table: ModelTable, analysis: bool = True) -> DesignModel:
+    """The columns, samples and parts of an IR for the data. The analysis
+    sample, which reads the response, is left out when analysis is False, as
+    audit() leaves it out at T0."""
 
     def column(key: str) -> int:
         j = table.index(key)
@@ -349,7 +384,27 @@ def design_model(ir: dict[str, Any], table: ModelTable) -> DesignModel:
         if table.types[column(key)] != "number":
             raise ValueError(f"The column '{display_text(key)}' of 'data' does not hold numbers.")
     design = design_rows(table, read)
+    return DesignModel(
+        column,
+        predictors,
+        random,
+        offsets,
+        weights,
+        design,
+        analysis_rows(ir, table, design, column) if analysis else None,
+    )
+
+
+def analysis_rows(
+    ir: dict[str, Any], table: ModelTable, design: Array, column: Callable[[str], int]
+) -> Array:
+    """The analysis sample (ir.md, Samples): the rows of the design sample whose
+    response, and trials column if any, are present, with trials above 0 or not
+    finite."""
+    import numpy as np
+
     analysis = design
+    response = ir.get("response")
     if response is not None:
         j = column(response["variable"])
         analysis = analysis[~table.missing[j][analysis]]
@@ -359,9 +414,7 @@ def design_model(ir: dict[str, Any], table: ModelTable) -> DesignModel:
             with np.errstate(invalid="ignore"):
                 kept = ~(np.isfinite(trials) & (trials <= 0))
             analysis = analysis[~table.missing[t][analysis] & kept]
-    return DesignModel(
-        column, predictors, random, offsets, weights, design, analysis.astype(np.int64)
-    )
+    return analysis.astype(np.int64)
 
 
 @dataclass
@@ -608,6 +661,17 @@ def design_response(
         trials = table.values[model.column(response["trials"])][analysis].copy()
         if not bool(np.isfinite(trials).all()):
             raise_issue("E6073", {"column": response["trials"]})
+        # E6078: the events and trials of every row must be integers with
+        # 0 <= events <= trials. Events that are not numbers fail in the
+        # first row.
+        counts = len(v) == 0 or (
+            kind == "number"
+            and bool(
+                ((v == np.floor(v)) & (trials == np.floor(trials)) & (v >= 0) & (v <= trials)).all()
+            )
+        )
+        if not counts:
+            raise_issue("E6078", {"column": response["variable"]})
     if "event_level" in response:
         event = response["event_level"]
         if isinstance(event, str):
@@ -646,7 +710,9 @@ def platform_log(values: Array) -> Array:
 # --- The sequential rule ----------------------------------------------------------
 
 
-def sequential_rule(x: Array, tolerance: float = 1e-7) -> list[bool]:
+def sequential_rule(
+    x: Array, tolerance: float = SEQUENTIAL_TOLERANCE, norms: Array | None = None
+) -> list[bool]:
     """The sequential rule for aliased columns (ir.md, Sequential rule).
 
     Each column in turn is dropped when its values are all 0. Otherwise it is
@@ -674,22 +740,39 @@ def sequential_rule(x: Array, tolerance: float = 1e-7) -> list[bool]:
 
     The two packages call the same LAPACK routine and BLAS operations on the
     same values, so that they differ only in the rounding of their BLAS and
-    LAPACK. Returns whether each column is kept.
+    LAPACK. With ``norms``, a column is kept when the norm of its residual, in
+    the units of x, exceeds ``tolerance`` times its element of ``norms``
+    instead of ``tolerance`` times the norm of the column, as the within-level
+    rank of assignment.design_df and identifiability.df_budget requires.
+    Returns whether each column is kept.
     """
+    return sequential_residuals(x, tolerance, norms)[0]
+
+
+def sequential_residuals(
+    x: Array, tolerance: float = SEQUENTIAL_TOLERANCE, norms: Array | None = None
+) -> tuple[list[bool], list[float]]:
+    """The sequential rule with the norms it computes: whether each column is
+    kept, and the norm of the residual of each scaled column after projection
+    onto the columns kept before it, 0 for a column whose values are all 0.
+    design.collinearity takes the residuals of its columns from here, so that
+    they are computed as the rule computes them. ``norms`` is that of
+    :func:`sequential_rule`."""
     import numpy as np
     from scipy import linalg
 
     n, p = x.shape
     kept = [False] * p
+    residual = [0.0] * p
     if n == 0 or p == 0:
-        return kept
+        return kept, residual
     # The largest of the largest value and the negated smallest value is the
     # largest absolute value, found without a copy of X.
     largest = np.maximum(x.max(axis=0), -x.min(axis=0))
     candidates = np.flatnonzero(largest > 0)
     m = len(candidates)
     if m == 0:
-        return kept
+        return kept, residual
     v = np.empty((n, m), dtype=np.float64, order="F")
     for k, j in enumerate(candidates.tolist()):
         np.divide(x[:, j], largest[j], out=v[:, k])
@@ -714,8 +797,12 @@ def sequential_rule(x: Array, tolerance: float = 1e-7) -> list[bool]:
             for _ in range(2):
                 r = r - q @ (q.T @ r)
         norm_r = math.sqrt(float(np.dot(r, r)))
+        column = int(candidates[j])
+        residual[column] = norm_r
+        if norms is not None:
+            norm_v = float(norms[column]) / float(largest[column])
         if norm_r > tolerance * norm_v:
-            kept[int(candidates[j])] = True
+            kept[column] = True
             basis[:, k] = r / norm_r
             k += 1
-    return kept
+    return kept, residual

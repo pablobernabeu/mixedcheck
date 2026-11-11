@@ -81,6 +81,11 @@ lpSolve. The access log of the results document records every access to
 the outcome with a keyed commitment to the column read.
 }
 \details{
+The check of tier T2, outcome.separation, solves two linear programs over
+every observation and, when it finds separation, two more for each kept
+fixed-effects column, so that a categorical predictor with many levels can
+make it take minutes.
+
 A run takes the steps of the execution plan in order and stops at the
 first that fails: the arguments, the declaration, the data, the columns
 that the declaration names, the IR, the columns that the outcome-blind

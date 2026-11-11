@@ -8,6 +8,7 @@ import copy
 import hashlib
 import os
 import re
+from collections.abc import Callable
 from importlib.resources import files
 from importlib.resources.abc import Traversable
 from typing import Any, cast
@@ -37,8 +38,9 @@ REGISTRY_SCOPE_PARTS: dict[str, tuple[str, ...]] = {
     "random_term": ("factor", "term"),
 }
 
-# The registry, read once per session.
+# The registry, read once per session, and its hash.
 _registry: list[dict[str, Any]] = []
+_registry_hash: list[str] = []
 
 
 def read_registry() -> dict[str, Any]:
@@ -73,9 +75,32 @@ def read_registry() -> dict[str, Any]:
         >>> [entry["id"] for entry in registry["entries"]][:2]
         ['assignment.constant_within_unit', 'assignment.design_df']
     """
+    return copy.deepcopy(registry_document())
+
+
+def registry_document() -> dict[str, Any]:
+    """The registry that the session read, without a copy, for the code of
+    the package, which never changes it."""
     if not _registry:
         _registry.append(load_registry(files("mixedcheck") / "_spec"))
-    return copy.deepcopy(_registry[0])
+    return _registry[0]
+
+
+def registry_hash() -> str:
+    """The registry hash of the vendored compiled registry: the SHA-256 of its
+    bytes, which every results document records (registry.md, The compiled
+    registry)."""
+    if not _registry_hash:
+        registry_document()
+        data = _read_entry_bytes(files("mixedcheck") / "_spec" / "compiled" / "registry.json")
+        _registry_hash.append("sha256:" + hashlib.sha256(data).hexdigest())
+    return _registry_hash[0]
+
+
+def registry_entries_by_id(registry: dict[str, Any] | None = None) -> dict[str, dict[str, Any]]:
+    """The entries of the registry, by identifier, in the order of the registry."""
+    document = registry if registry is not None else registry_document()
+    return {entry["id"]: entry for entry in document["entries"]}
 
 
 def _read_entry_bytes(entry: Traversable | str | os.PathLike[str]) -> bytes:
@@ -218,6 +243,41 @@ def registry_entry_issues(entry: dict[str, Any], prefix: str) -> list[dict[str, 
             for target in parts
         ):
             add("E4021", here)
+    parts_of_scope = REGISTRY_SCOPE_PARTS.get(entry["scope"], ())
+    for name, statistic in statistics.items():
+        here = child_pointer("/statistics", name)
+        for i, reference in enumerate(statistic.get("resolved_by", [])):
+            target = reference["name"]
+            at = f"{here}/resolved_by/{i}/name"
+            if reference["source"] == "scope":
+                if target not in parts_of_scope:
+                    add("E4004", at, {"kind": "scope element", "name": target})
+            elif target not in statistics:
+                add("E4004", at, {"kind": "statistic", "name": target})
+            elif statistics[target].get("kind") != "names":
+                add("E4024", at, {"name": target, "expected": "of kind names"})
+        if "quantile" in statistic:
+            target = statistic["quantile"]["n"]
+            if target not in statistics:
+                add("E4004", here + "/quantile/n", {"kind": "statistic", "name": target})
+            elif statistics[target].get("kind") != "count":
+                add("E4024", here + "/quantile/n", {"name": target, "expected": "a count"})
+        for i, target in enumerate(statistic.get("suppress_with", [])):
+            if target not in statistics:
+                add("E4004", f"{here}/suppress_with/{i}", {"kind": "statistic", "name": target})
+        if "part_of" in statistic:
+            target = statistic["part_of"]
+            total = statistics.get(target)
+            if total is None:
+                add("E4004", here + "/part_of", {"kind": "statistic", "name": target})
+            elif total.get("kind") != "count" or total.get("count_class") != statistic.get(
+                "count_class"
+            ):
+                add(
+                    "E4024",
+                    here + "/part_of",
+                    {"name": target, "expected": "a count of the same count class"},
+                )
     for i, condition in enumerate(entry["availability"]):
         parameter = condition.get("parameter")
         if parameter is not None and parameter not in parameters:
@@ -229,6 +289,9 @@ def registry_entry_issues(entry: dict[str, Any], prefix: str) -> list[dict[str, 
     decision = entry["decision"]
     for i, rule in enumerate(decision["rules"]):
         here = f"/decision/rules/{i}"
+        for j, read in enumerate(rule.get("statistics", [])):
+            if read not in statistics:
+                add("E4004", f"{here}/statistics/{j}", {"kind": "statistic", "name": read})
         named = rule["thresholds"]
         for j, threshold_name in enumerate(named):
             if threshold_name not in thresholds:
@@ -249,18 +312,10 @@ def registry_entry_issues(entry: dict[str, Any], prefix: str) -> list[dict[str, 
     otherwise = decision["otherwise"]["message"]
     if otherwise not in messages:
         add("E4004", "/decision/otherwise/message", {"kind": "message", "name": otherwise})
-    parts_of_scope = REGISTRY_SCOPE_PARTS.get(entry["scope"], ())
     for name, message in messages.items():
         here = child_pointer("/messages", name)
-        template = message["template"]
-        used = list(dict.fromkeys(_PLACEHOLDER.findall(template)))
-        stray = _PLACEHOLDER.sub("", template)
-        if "{" in stray or "}" in stray:
-            add("E4009", here + "/template")
         args = message["args"]
-        for placeholder in used:
-            if placeholder not in args:
-                add("E4007", here + "/template", {"name": placeholder})
+        used = registry_template_issues(message["template"], args, here + "/template", add)
         for arg_name, arg in args.items():
             arg_here = child_pointer(here + "/args", arg_name)
             if arg_name not in used:
@@ -282,6 +337,25 @@ def registry_entry_issues(entry: dict[str, Any], prefix: str) -> list[dict[str, 
                 add("E4015", arg_here + "/name", {"name": target})
             elif ("digits" in arg) != (statistic_kind in ("ratio", "real")):
                 add("E4014", arg_here)
+            if "noun" in arg and statistic_kind != "count":
+                add("E4024", arg_here + "/noun", {"name": target, "expected": "a count"})
+        # The arguments that render a statistic that can be left unwritten,
+        # which only the template may render, and only with a fallback (E4023).
+        unwritten = [
+            arg_name
+            for arg_name, arg in args.items()
+            if arg["source"] == "statistic"
+            and arg["name"] in statistics
+            and statistic_can_be_unwritten(statistics[arg["name"]])
+        ]
+        if "fallback" in message:
+            fallback_used = registry_template_issues(
+                message["fallback"], args, here + "/fallback", add
+            )
+            if any(arg_name in fallback_used for arg_name in unwritten):
+                add("E4023", here)
+        elif unwritten:
+            add("E4023", here)
     remedies = [remedy["id"] for remedy in entry["remedies"]]
     seen: set[str] = set()
     for i, remedy in enumerate(remedies):
@@ -291,8 +365,46 @@ def registry_entry_issues(entry: dict[str, Any], prefix: str) -> list[dict[str, 
     return issues
 
 
+def registry_template_issues(
+    template: str,
+    argument_names: Any,
+    pointer: str,
+    add: Callable[[str, str, dict[str, Any] | None], None],
+) -> list[str]:
+    """The placeholders of a template or fallback, each once, after reporting a
+    brace outside a placeholder (E4009) and a placeholder that no argument
+    defines (E4007) at the pointer given."""
+    used = list(dict.fromkeys(_PLACEHOLDER.findall(template)))
+    stray = _PLACEHOLDER.sub("", template)
+    if "{" in stray or "}" in stray:
+        add("E4009", pointer, None)
+    for name in used:
+        if name not in argument_names:
+            add("E4007", pointer, {"name": name})
+    return used
+
+
+def statistic_can_be_unwritten(statistic: dict[str, Any]) -> bool:
+    """Whether a message may find a statistic unwritten, because its definition
+    can leave it absent or the privacy filter can suppress it (registry.md,
+    Messages): ratios, reals and labels, person and by_unit counts, and every
+    statistic that is internal_only or suppressed with another."""
+    kind = statistic.get("kind")
+    return (
+        kind in ("ratio", "real", "labels")
+        or (kind == "count" and statistic.get("count_class") != "non_person")
+        or statistic.get("internal_only") is True
+        or "suppress_with" in statistic
+    )
+
+
+# Parameters whose value must be the same in every entry that has one (E4022).
+REGISTRY_SHARED_PARAMETERS = ("agreement",)
+
+
 def registry_graph_issues(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The rules across entries: unique identifiers (E4003), links that name an
+    """The rules across entries: unique identifiers (E4003), the same value of a
+    shared parameter in every entry that has it (E4022), links that name an
     entry (E4004) and no cycle of links (E4005). A link closes a cycle when the
     check it names reaches the linking entry through links, so every link on a
     cycle is reported."""
@@ -303,6 +415,17 @@ def registry_graph_issues(entries: list[dict[str, Any]]) -> list[dict[str, Any]]
         if identifier in seen:
             issues.append(raw_issue("E4003", f"/entries/{i}/id", {"id": identifier}))
         seen.add(identifier)
+    for name in REGISTRY_SHARED_PARAMETERS:
+        first = None
+        for i, entry in enumerate(entries):
+            value = entry.get("parameters", {}).get(name, {}).get("value")
+            if value is None:
+                continue
+            if first is None:
+                first = value
+            elif value != first:
+                pointer = child_pointer(f"/entries/{i}/parameters", name) + "/value"
+                issues.append(raw_issue("E4022", pointer, {"expected": first}))
     # The links of each entry, in pointer order, with their pointers.
     links: list[list[tuple[str, str]]] = []
     for entry in entries:

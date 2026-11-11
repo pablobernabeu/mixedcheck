@@ -19,7 +19,12 @@ from mixedcheck import (
     spec_versions,
 )
 from mixedcheck._errors import finish_issues
-from mixedcheck._registry import load_registry, registry_entry, registry_issues
+from mixedcheck._registry import (
+    load_registry,
+    registry_entry,
+    registry_issues,
+    statistic_can_be_unwritten,
+)
 from mixedcheck._schema import schema_issues
 
 
@@ -235,3 +240,131 @@ def test_the_rules_on_one_entry_find_each_kind_of_problem():
             f"E4011 {prefix}/thresholds/moderate",
         ],
     )
+
+
+def test_the_members_that_m2_added_name_what_exists_of_the_kind_required():
+    registry = read_registry()
+    i = entry_index(registry, "structure.id_scope_evidence")
+    prefix = f"/entries/{i}"
+    # The statistics that a rule reads, the resolution of by_unit counts,
+    # quantiles, suppression with other statistics and parts of a total
+    # (E4004 and E4024).
+    document = copy.deepcopy(registry)
+    entry = document["entries"][i]
+    statistics = entry["statistics"]
+    entry["decision"]["rules"][0]["statistics"] = ["attributes", "absent"]
+    statistics["shared_labels"]["resolved_by"] = [
+        {"name": "factor", "source": "scope"},
+        {"name": "changing_labels", "source": "statistic"},
+    ]
+    statistics["changing_labels"]["resolved_by"] = [{"name": "absent", "source": "statistic"}]
+    statistics["changing_labels"]["quantile"] = {"n": "changing_attribute", "p": "0.5"}
+    statistics["shared_labels"]["quantile"] = {"n": "absent", "p": "0.5"}
+    statistics["changing_share"]["suppress_with"] = ["absent"]
+    statistics["changing_labels"]["part_of"] = "absent"
+    statistics["shared_labels"]["part_of"] = "changing_attribute"
+    codes = ["4004", "4004", "4024", "4004", "4004", "4024", "4004", "4004", "4024"]
+    pointers = [
+        "/decision/rules/0/statistics/1",
+        "/statistics/changing_labels/part_of",
+        "/statistics/changing_labels/quantile/n",
+        "/statistics/changing_labels/resolved_by/0/name",
+        "/statistics/changing_share/suppress_with/0",
+        "/statistics/shared_labels/part_of",
+        "/statistics/shared_labels/quantile/n",
+        "/statistics/shared_labels/resolved_by/0/name",
+        "/statistics/shared_labels/resolved_by/1/name",
+    ]
+    assert codes_and_pointers(registry_issues(document)) == [
+        f"E{code} {prefix}{pointer}" for code, pointer in zip(codes, pointers, strict=True)
+    ]
+    # Parts and totals of another count class (E4024), beside the ratio of
+    # two counts of different classes (E4021), and a noun for an argument that
+    # does not show a count (E4024).
+    document = copy.deepcopy(registry)
+    entry = document["entries"][i]
+    entry["statistics"]["shared_labels"]["count_class"] = "person"
+    entry["messages"]["no_change"]["args"]["attributes"]["noun"] = ["attribute", "attributes"]
+    assert codes_and_pointers(registry_issues(document)) == [
+        f"E4024 {prefix}/messages/no_change/args/attributes/noun",
+        f"E4024 {prefix}/statistics/changing_labels/part_of",
+        f"E4021 {prefix}/statistics/changing_share",
+        f"E4024 {prefix}/statistics/shared_labels/part_of",
+    ]
+
+
+def test_a_message_that_renders_an_unwritten_statistic_has_a_fallback():
+    registry = read_registry()
+    i = entry_index(registry, "structure.id_scope_evidence")
+    prefix = f"/entries/{i}"
+    document = copy.deepcopy(registry)
+    messages = document["entries"][i]["messages"]
+    del messages["some_change"]["fallback"]
+    messages["no_change"]["fallback"] = "None of the {shared} labels changes. {nope} }"
+    messages["no_attribute"]["fallback"] = "No column of {labels_column} is constant."
+    assert codes_and_pointers(registry_issues(document)) == [
+        f"E4023 {prefix}/messages/no_change",
+        f"E4007 {prefix}/messages/no_change/fallback",
+        f"E4009 {prefix}/messages/no_change/fallback",
+        f"E4023 {prefix}/messages/some_change",
+    ]
+    # A count of class non_person can be rendered without a fallback, whereas
+    # one that is internal_only or suppressed with another cannot.
+    assert not statistic_can_be_unwritten({"kind": "count", "count_class": "non_person"})
+    assert statistic_can_be_unwritten({"kind": "count", "count_class": "by_unit"})
+    assert statistic_can_be_unwritten({"kind": "names", "internal_only": True})
+    assert statistic_can_be_unwritten({"kind": "names", "suppress_with": ["x"]})
+    assert not statistic_can_be_unwritten({"kind": "category", "values": ["a", "b"]})
+
+
+def test_the_parameter_agreement_has_one_value_in_every_entry_that_has_it():
+    registry = read_registry()
+    holders = [
+        i for i, entry in enumerate(registry["entries"]) if "agreement" in entry["parameters"]
+    ]
+    assert len(holders) > 1
+    document = copy.deepcopy(registry)
+    document["entries"][holders[1]]["parameters"]["agreement"]["value"] = "0.95"
+    first = registry["entries"][holders[0]]["parameters"]["agreement"]["value"]
+    pointer = f"/entries/{holders[1]}/parameters/agreement/value"
+    assert registry_issues(document) == [
+        {
+            "code": "E4022",
+            "message": f"The parameter at {pointer} must have the value '{first}' that other "
+            "entries give the parameter of the same name.",
+            "pointer": pointer,
+        }
+    ]
+
+
+def test_internal_only_and_suppress_with_make_a_statistic_unwritten():
+    registry = read_registry()
+    i = entry_index(registry, "outcome.separation")
+    prefix = f"/entries/{i}"
+    # A list of names can be rendered without a fallback unless it is
+    # internal_only or suppressed with another statistic (E4023).
+    document = copy.deepcopy(registry)
+    entry = document["entries"][i]
+    entry["messages"]["none"] = {
+        "args": {"columns": {"name": "columns_involved", "source": "statistic"}},
+        "template": "The fixed effects do not separate the events, through {columns}.",
+    }
+    assert codes_and_pointers(registry_issues(document)) == [f"E4023 {prefix}/messages/none"]
+    del entry["statistics"]["columns_involved"]["internal_only"]
+    assert registry_issues(document) == []
+    entry["statistics"]["columns_involved"]["suppress_with"] = ["events"]
+    assert codes_and_pointers(registry_issues(document)) == [f"E4023 {prefix}/messages/none"]
+
+
+def test_the_scope_grouping_factor_or_model_has_the_part_factor_and_no_other():
+    registry = read_registry()
+    j = entry_index(registry, "outcome.zero_shares")
+    document = copy.deepcopy(registry)
+    entry = document["entries"][j]
+    assert entry["scope"] == "grouping_factor_or_model"
+    entry["messages"]["zeros"]["args"]["factor"]["name"] = "term"
+    entry["statistics"]["levels"]["resolved_by"][0] = {"name": "unit", "source": "scope"}
+    assert codes_and_pointers(registry_issues(document)) == [
+        f"E4004 /entries/{j}/messages/zeros/args/factor/name",
+        f"E4004 /entries/{j}/statistics/levels/resolved_by/0/name",
+    ]

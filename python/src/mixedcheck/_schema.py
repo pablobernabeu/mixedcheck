@@ -14,7 +14,7 @@ from collections.abc import Callable, Iterator
 from importlib.resources import files
 from typing import Any, NamedTuple
 
-from mixedcheck._errors import raw_issue
+from mixedcheck._errors import internal_error, raw_issue
 from mixedcheck._json_write import canonical_bytes
 from mixedcheck._unicode import has_non_bmp
 
@@ -57,12 +57,12 @@ class Bundle:
         if cached is not None:
             return cached
         if document not in self.schemas:
-            raise RuntimeError(f"Internal error: unknown schema '{document}'.")
+            internal_error(f"unknown schema '{document}'.")
         schema = self.schemas[document]
         for token in fragment.lstrip("/").split("/") if fragment.lstrip("/") else []:
             token = token.replace("~1", "/").replace("~0", "~")
             if not isinstance(schema, dict) or token not in schema:
-                raise RuntimeError(f"Internal error: the reference '{ref}' resolves to nothing.")
+                internal_error(f"the reference '{ref}' resolves to nothing.")
             schema = schema[token]
         node = Node(schema, document, absolute)
         self.resolved[absolute] = node
@@ -166,12 +166,67 @@ def schema_issues(value: Any, schema: str | Node, bundle: Bundle | None = None) 
     return _Validator(bundle).validate(value, node, "")
 
 
+# The keywords of the schemas that simple_schema_valid() decides.
+SIMPLE_KEYWORDS = frozenset(
+    ("type", "enum", "const", "not", "required", "properties", "title", "description")
+)
+
+
+def simple_schema_valid(value: Any, schema: Any) -> bool | None:
+    """Whether a value is valid against a schema built only of the keywords
+    type, enum, const, not, required and properties, decided as the validator
+    decides it but without collecting issues, or None for a schema with other
+    keywords. The conditions of if in the results schema have this form, and
+    the validator evaluates many of them."""
+    if schema is True or schema is False:
+        return bool(schema)
+    if not isinstance(schema, dict) or not schema.keys() <= SIMPLE_KEYWORDS:
+        return None
+    if "type" in schema and not any(has_json_type(value, name) for name in _types(schema)):
+        return False
+    if "enum" in schema and not any(json_equal(value, item) for item in schema["enum"]):
+        return False
+    if "const" in schema and not json_equal(value, schema["const"]):
+        return False
+    known = True
+    if isinstance(value, dict):
+        if not all(key in value for key in schema.get("required", [])):
+            return False
+        properties = schema.get("properties", {})
+        for key, item in value.items():
+            if key in properties:
+                valid = simple_schema_valid(item, properties[key])
+                if valid is False:
+                    return False
+                known = known and valid is not None
+    if "not" in schema:
+        valid = simple_schema_valid(value, schema["not"])
+        if valid is True:
+            return False
+        known = known and valid is not None
+    return True if known else None
+
+
 class _Validator:
     def __init__(self, bundle: Bundle) -> None:
         self.bundle = bundle
+        # Whether a value meets a schema, by the identities of the value and
+        # the schema and the base of the schema, since the type keywords and
+        # the keywords of a schema evaluate the condition of each if again.
+        # The entry holds the value, so that its identity is not reused while
+        # the validator lives.
+        self.validity: dict[tuple[int, int, str], tuple[Any, bool]] = {}
 
     def valid(self, value: Any, node: Node) -> bool:
-        return not self.validate(value, node, "")
+        key = (id(value), id(node.schema), node.base)
+        found = self.validity.get(key)
+        if found is None:
+            simple = simple_schema_valid(value, node.schema)
+            if simple is None:
+                simple = not self.validate(value, node, "")
+            found = (value, simple)
+            self.validity[key] = found
+        return found[1]
 
     def unconditional_types(self, value: Any, node: Node) -> Iterator[list[str]]:
         """The type keywords that apply to a value unconditionally, in the
@@ -194,15 +249,22 @@ class _Validator:
             if branch in schema:
                 yield from self.unconditional_types(value, Node(schema[branch], node.base))
 
-    def validate(self, value: Any, node: Node, pointer: str) -> list[RawIssue]:
+    def validate(self, value: Any, node: Node, pointer: str, typed: bool = False) -> list[RawIssue]:
+        """The issues of a value against a schema. typed says that the value
+        has passed the unconditional types of a schema that leads to this one
+        through $ref, allOf or the branch of if, which include those of this
+        schema, so that they are not checked again."""
         schema = node.schema
         if schema is True:
             return []
         if schema is False:
             return [raw_issue("E1423", pointer)]
-        for types in self.unconditional_types(value, node):
-            if not any(has_json_type(value, name) for name in types):
-                return [raw_issue("E1401", pointer, {"expected": types, "found": json_kind(value)})]
+        if not typed:
+            for types in self.unconditional_types(value, node):
+                if not any(has_json_type(value, name) for name in types):
+                    return [
+                        raw_issue("E1401", pointer, {"expected": types, "found": json_kind(value)})
+                    ]
         return self.apply(value, node, pointer)
 
     def title(self, node: Node) -> str:
@@ -222,14 +284,14 @@ class _Validator:
         if "$ref" in schema:
             target = self.bundle.resolve(schema["$ref"], base)
             if target.ref not in PROFILE_DEFINITIONS:
-                issues += self.validate(value, target, pointer)
+                issues += self.validate(value, target, pointer, typed=True)
                 issues += self.definition_issues(value, target, pointer)
         for sub in schema.get("allOf", []):
-            issues += self.validate(value, Node(sub, base), pointer)
+            issues += self.validate(value, Node(sub, base), pointer, typed=True)
         if "if" in schema:
             branch = "then" if self.valid(value, Node(schema["if"], base)) else "else"
             if branch in schema:
-                issues += self.validate(value, Node(schema[branch], base), pointer)
+                issues += self.validate(value, Node(schema[branch], base), pointer, typed=True)
         if "enum" in schema and not any(json_equal(value, item) for item in schema["enum"]):
             issues.append(raw_issue("E1405", pointer, {"allowed": schema["enum"]}))
         if "const" in schema and not json_equal(value, schema["const"]):

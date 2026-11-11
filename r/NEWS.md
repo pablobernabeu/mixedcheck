@@ -196,3 +196,20 @@
   suppresses a count because it equals a suppressed one, as the
   [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
   states.
+
+* outcome.separation compares the objectives of the programs that give the
+  coefficient bounds with the upper bounds of their multipliers, checks that
+  every solution lies within the bounds of the coefficients and on the
+  optimal face, and makes the finding near_threshold when a bound may lie
+  further from the exact one than the parameter bound_tolerance allows,
+  including when lpSolve cannot solve a program of bounds, so that two clear
+  findings of the R and Python packages give the same bounds within it
+  ([registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
+  The documentation of `audit()` states that the check can take minutes on
+  a categorical predictor with many levels.
+
+* design.scale_disparity sums the squared differences of each column from
+  its mean exactly, so that sd_largest and sd_smallest no longer depend on
+  the precision of long double on the platform and are the doubles that the
+  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/design.scale_disparity.yaml)
+  defines.

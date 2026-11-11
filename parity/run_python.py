@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import platform
 import struct
 import sys
@@ -45,6 +46,7 @@ from mixedcheck import (
     read_table,
     spec_versions,
     validate_declaration,
+    validate_results,
 )
 from mixedcheck._hash import hmac_sha256, json_pointer_get
 from mixedcheck._numbers import decimal_string
@@ -478,6 +480,85 @@ def run_formula(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict
     return outcomes
 
 
+# Cases of audits/.
+
+# The commitment key 00 01 02 ... 1F of conventions.md (Keyed commitments,
+# Example), with which every case of the audit corpus runs.
+AUDIT_KEY = bytes(range(32)).hex()
+AUDIT_ARGUMENTS = (
+    "declaration",
+    "family",
+    "coding",
+    "weights",
+    "sample_columns",
+    "outcome_access",
+    "reason",
+    "exploratory",
+)
+
+
+def run_audit(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The run of a case in internal mode and, for a case that expects
+    shareable findings, in shareable mode, each with the commitment key
+    00 01 02 ... 1F and MIXEDCHECK_TIME set to 0: the canonical bytes in the
+    data profile of the document and of the sidecar, or the issues of the
+    error that refuses the run (fixtures/conformance/audits/README.md). A part
+    that corpora.json marks as pending is not run."""
+
+    def audit_in(privacy: str) -> Callable[[], dict[str, Any]]:
+        def run() -> dict[str, Any]:
+            arguments = {member: case[member] for member in AUDIT_ARGUMENTS if member in case}
+            data = formula_data_frame(case["data"])
+            previous = os.environ.get("MIXEDCHECK_TIME")
+            os.environ["MIXEDCHECK_TIME"] = "0"
+            try:
+                results = mixedcheck.audit(
+                    data, case["formula"], privacy=privacy, key=AUDIT_KEY, **arguments
+                )
+            finally:
+                if previous is None:
+                    del os.environ["MIXEDCHECK_TIME"]
+                else:
+                    os.environ["MIXEDCHECK_TIME"] = previous
+            return {
+                "document": canonical_bytes(results.document, "data"),
+                "sidecar": canonical_bytes(results.sidecar, "data"),
+            }
+
+        return run
+
+    expected = case["expected"]
+    outcomes = {"internal": outcome_of(audit_in("internal"))}
+    if "shareable" in expected and "shareable" not in context["pending_parts"]:
+        outcomes["shareable"] = outcome_of(audit_in("shareable"))
+    return outcomes
+
+
+# Cases of results/.
+
+
+def run_results(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The document alone and, for a case with a sidecar, the document with its
+    sidecar, data and declaration. A call that returns gives the outcome
+    'valid', with the warning W7090 if the document records another registry."""
+
+    def path(member: str) -> str | None:
+        return str(context["directory"] / case[member]) if member in case else None
+
+    def document() -> dict[str, Any]:
+        validate_results(path("document"))
+        return {"valid": True}
+
+    def sidecar() -> dict[str, Any]:
+        validate_results(path("document"), path("sidecar"), path("data"), path("declaration"))
+        return {"valid": True}
+
+    outcomes = {"document": outcome_of(document)}
+    if "sidecar" in case:
+        outcomes["sidecar"] = outcome_of(sidecar)
+    return outcomes
+
+
 RUNNERS: dict[str, Callable[[dict[str, Any], dict[str, Any]], dict[str, dict[str, Any]]]] = {
     "json": run_json,
     "decimal": run_decimal,
@@ -490,6 +571,8 @@ RUNNERS: dict[str, Callable[[dict[str, Any], dict[str, Any]], dict[str, dict[str
     "declaration": run_declaration,
     "table": run_table,
     "formula": run_formula,
+    "audit": run_audit,
+    "results": run_results,
 }
 
 
@@ -552,7 +635,11 @@ def main(argv: list[str]) -> int:
         for corpus_file in plan["corpora"]:
             name = corpus_file["file"]
             directory = corpus / name.split("/")[0]
-            context = {"scratch": Path(scratch), "directory": directory}
+            context = {
+                "scratch": Path(scratch),
+                "directory": directory,
+                "pending_parts": corpus_file.get("pending_parts", {}),
+            }
             try:
                 cases = read_json_strict(str(corpus / name), "data")["cases"]
             except Exception as err:

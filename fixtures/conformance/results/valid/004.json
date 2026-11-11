@@ -27,7 +27,7 @@
     "zeros_disclosive": true
   },
   "inputs": {
-    "registry_hash": "sha256:5eecde9a7b3d7602fc6a9b7fe18d15a6a4ceb5cea07e7ef9a10de79e6e90815b",
+    "registry_hash": "sha256:8a503e5ac19f40f702defa3574de8ec587d074c2fdf5d87f9ee33e47d39e3904",
     "model": {
       "formula": "y ~ x + (1 | subject)",
       "family_class": "gaussian",

@@ -487,6 +487,76 @@ run_formula <- function(case, context) {
   outcomes
 }
 
+# Cases of audits/ --------------------------------------------------------
+
+# The commitment key 00 01 02 ... 1F of conventions.md (Keyed commitments,
+# Example), with which every case of the audit corpus runs.
+audit_key <- paste(sprintf("%02x", 0:31), collapse = "")
+audit_arguments <- c("declaration", "family", "coding", "weights", "outcome_access", "reason",
+                     "exploratory")
+
+# The run of a case in internal mode and, for a case that expects shareable
+# findings, in shareable mode, each with the commitment key 00 01 02 ... 1F
+# and MIXEDCHECK_TIME set to 0: the canonical bytes in the data profile of
+# the document and of the sidecar, or the issues of the error that refuses
+# the run (fixtures/conformance/audits/README.md). A part that corpora.json
+# marks as pending is not run.
+run_audit <- function(case, context) {
+  audit_in <- function(privacy) {
+    function() {
+      args <- list(data = formula_data_frame(case[["data"]]), formula = case[["formula"]])
+      for (member in audit_arguments) {
+        if (!is.null(case[[member]])) {
+          args[[member]] <- case[[member]]
+        }
+      }
+      if (!is.null(case[["sample_columns"]])) {
+        args$sample_columns <- as.character(unlist(case[["sample_columns"]]))
+      }
+      args$privacy <- privacy
+      args$key <- audit_key
+      previous <- Sys.getenv("MIXEDCHECK_TIME", NA_character_)
+      Sys.setenv(MIXEDCHECK_TIME = "0")
+      on.exit(if (is.na(previous)) {
+        Sys.unsetenv("MIXEDCHECK_TIME")
+      } else {
+        Sys.setenv(MIXEDCHECK_TIME = previous)
+      })
+      results <- do.call(audit, args)
+      list(document = canonical_bytes(results$document, "data"),
+           sidecar = canonical_bytes(results$sidecar, "data"))
+    }
+  }
+  outcomes <- list(internal = outcome_of(audit_in("internal")))
+  if (!is.null(case[["expected"]][["shareable"]]) &&
+      is.null(context$pending_parts[["shareable"]])) {
+    outcomes$shareable <- outcome_of(audit_in("shareable"))
+  }
+  outcomes
+}
+
+# Cases of results/ -------------------------------------------------------
+
+# The document alone and, for a case with a sidecar, the document with its
+# sidecar, data and declaration. A call that returns gives the outcome
+# 'valid', with the warning W7090 if the document records another registry.
+run_results <- function(case, context) {
+  path <- function(member) {
+    if (!is.null(case[[member]])) file.path(context$directory, case[[member]])
+  }
+  outcomes <- list(document = outcome_of(function() {
+    validate_results(path("document"))
+    list(valid = TRUE)
+  }))
+  if (!is.null(case[["sidecar"]])) {
+    outcomes$sidecar <- outcome_of(function() {
+      validate_results(path("document"), path("sidecar"), path("data"), path("declaration"))
+      list(valid = TRUE)
+    })
+  }
+  outcomes
+}
+
 runners <- list(
   json = run_json,
   decimal = run_decimal,
@@ -498,7 +568,9 @@ runners <- list(
   commitment = run_commitment,
   declaration = run_declaration,
   table = run_table,
-  formula = run_formula
+  formula = run_formula,
+  audit = run_audit,
+  results = run_results
 )
 
 # Reads each vendored file of spec/ installed with the package in the data
@@ -543,7 +615,8 @@ main <- function(args) {
   lines <- to_json(header)
   for (corpus_file in plan$corpora) {
     name <- corpus_file$file
-    context <- list(scratch = scratch, directory = file.path(corpus, dirname(name)))
+    context <- list(scratch = scratch, directory = file.path(corpus, dirname(name)),
+                    pending_parts = corpus_file$pending_parts)
     cases <- tryCatch(read_json_strict(file.path(corpus, name), "data")[["cases"]],
                       error = function(e) e)
     if (inherits(cases, "error")) {

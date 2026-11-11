@@ -1,10 +1,11 @@
 # The outcome checks, in the parts that the audit corpus cannot reach: how
 # they read the outcome, counts of binomial outcomes over many levels,
 # decimal bounds, and the solver of outcome.separation: its failure, which
-# gives the message no_solution, the verification of its solutions, the
-# program solved itself when its dual fails, rounding residues, the 2,000
-# rows of the review of registry 0.1.0, tables of the benchmark that chose
-# the formulation and the solver's absence.
+# gives the message no_solution, the verification of its solutions against
+# the box, the floor and the upper bound of their multipliers, the program
+# solved itself when its dual fails, rounding residues, bounds whose face its
+# floor moves fast, the 2,000 rows of the review of registry 0.1.0, tables of
+# the benchmark that chose the formulation and the solver's absence.
 
 outcome_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -30,6 +31,12 @@ alternating <- function() {
 
 separated <- function() {
   data.frame(y = c(0, 0, 0, 1, 1, 1), x = c(-3, -2, -1, 1, 2, 3))
+}
+
+# A solution of the solver with another b and the same multipliers.
+with_b <- function(found, b) {
+  found$b <- b
+  found
 }
 
 test_that("a check reads the outcome only at a tier that its entry states and the run reached", {
@@ -117,7 +124,7 @@ test_that("outcome.separation verifies each solution in double arithmetic", {
   # A returned b that violates a constraint by more than
   # feasibility_tolerance is not verified, from the dual or the program.
   local_mocked_bindings(separation_solver = function(formulation, a, objective, ...) {
-    c(1e-6, numeric(length(objective) - 1L))
+    list(b = c(1e-6, numeric(length(objective) - 1L)), y = numeric(nrow(a)), r = 0)
   })
   expect_identical(separation_finding(alternating())$message$id, "no_solution")
 })
@@ -125,7 +132,7 @@ test_that("outcome.separation verifies each solution in double arithmetic", {
 test_that("a program whose dual has no verified solution is solved itself", {
   skip_if_not_installed("lpSolve")
   solver <- separation_solver
-  for (failure in list(NULL, c(1e-6, 0))) {
+  for (failure in list(NULL, list(b = c(1e-6, 0), y = numeric(6), r = 0))) {
     formulations <- character(0)
     local_mocked_bindings(separation_solver = function(formulation, ...) {
       formulations <<- c(formulations, formulation)
@@ -150,7 +157,7 @@ test_that("rounding residues leave a finding clear and larger violations make it
   # For the alternating data, b = (e, 0) gives u = -e for each non-event.
   with_offset <- function(e) {
     local_mocked_bindings(separation_solver = function(formulation, a, objective, ...) {
-      c(e, numeric(length(objective) - 1L))
+      list(b = c(e, numeric(length(objective) - 1L)), y = numeric(nrow(a)), r = 0)
     })
     separation_finding(alternating())
   }
@@ -184,15 +191,17 @@ test_that("a bound program without a verified solution leaves the bounds absent"
   expect_identical(found$message$text, paste(
     "The fixed effects separate the events from the non-events completely, so the estimates of",
     "some coefficients diverge and their Wald statistics are unreliable."))
+  # The solver of the other package can solve the program.
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
 })
 
 test_that("the bound programs stop at the first without a verified solution", {
   skip_if_not_installed("lpSolve")
   solver <- separation_solver
   # The bound programs of 'separated()' minimise and maximise b_1 and then
-  # b_2. The program numbered 'failing' has no solution, and b = (1e-9, 0),
-  # which leaves u = -1e-9 for each non-event, answers the last, so that
-  # the finding is near_threshold only if the last is solved.
+  # b_2. The program numbered 'failing' has no solution, and
+  # b = (1/3 + 1e-9, 1), which leaves u near -1e-9 for the non-event at
+  # x = -1, scaled to -1/3, and reaches the largest b_2, answers the last.
   with_failure <- function(failing) {
     programs <- 0L
     calls <- character(0)
@@ -205,8 +214,11 @@ test_that("the bound programs stop at the first without a verified solution", {
         programs <<- programs + 1L
       }
       calls <<- c(calls, paste(programs, formulation))
-      if (programs == failing) NULL else if (programs == 4L) c(1e-9, 0) else
-        solver(formulation, a, objective, margin, sums, floor)
+      if (programs == failing) {
+        return(NULL)
+      }
+      found <- solver(formulation, a, objective, margin, sums, floor)
+      if (programs == 4L) with_b(found, c(1 / 3 + 1e-9, 1)) else found
     })
     list(found = separation_finding(separated()), calls = calls)
   }
@@ -218,12 +230,136 @@ test_that("the bound programs stop at the first without a verified solution", {
     expect_identical(values$verdict, "complete")
     expect_null(values$bounds)
     expect_null(values$columns_involved)
-    expect_identical(run$found$status$threshold_proximity$value, "clear", label = failing)
+    expect_identical(run$found$status$threshold_proximity$value, "near_threshold",
+                     label = failing)
   }
-  # Solved, the last program makes the finding near_threshold.
+  # Solved, the last program makes the finding near_threshold through its
+  # residue, and every program is solved by its dual.
   run <- with_failure(5L)
+  expect_identical(run$calls, paste(1:4, "dual"))
   expect_identical(run$found$status$threshold_proximity$value, "near_threshold")
   expect_length(outcome_statistics(run$found)$bounds, 4L)
+})
+
+test_that("a solution outside the box or below the floor is not verified", {
+  skip_if_not_installed("lpSolve")
+  solver <- separation_solver
+  # Every |b_j| may exceed 1 by feasibility_tolerance, 1e-7, and no more.
+  outside <- function(excess) {
+    local_mocked_bindings(separation_solver = function(...) {
+      found <- solver(...)
+      with_b(found, found$b * (1 + excess))
+    })
+    separation_finding(separated())
+  }
+  expect_identical(outcome_statistics(outside(5e-8))$verdict, "complete")
+  expect_identical(outside(2e-7)$message$id, "no_solution")
+  # Half of the b of each program of bounds meets every other condition,
+  # with an upper bound that never rejects it, but leaves the sum of the u
+  # at 2, below the floor 4 - 1e-6.
+  local_mocked_bindings(
+    separation_solver = function(formulation, a, objective, margin, sums, floor) {
+      found <- solver(formulation, a, objective, margin, sums, floor)
+      if (is.null(floor)) found else with_b(found, found$b / 2)
+    },
+    separation_upper_bound = function(...) -Inf
+  )
+  found <- separation_finding(separated())
+  expect_null(outcome_statistics(found)$bounds)
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
+})
+
+test_that("a bound below the upper bound of its multipliers makes the finding near_threshold", {
+  skip_if_not_installed("lpSolve")
+  solver <- separation_solver
+  # The largest b_2 of 'separated()' is 1, which the multipliers of its
+  # solution certify. A b_2 that lies more than optimality_tolerance, 1e-9,
+  # below it meets every constraint but leaves the finding near_threshold.
+  short_of <- function(shortfall) {
+    programs <- 0L
+    local_mocked_bindings(
+      separation_solver = function(formulation, a, objective, margin, sums, floor) {
+        found <- solver(formulation, a, objective, margin, sums, floor)
+        if (!is.null(floor)) {
+          programs <<- programs + 1L
+          if (programs == 4L) {
+            return(with_b(found, c(0, 1 - shortfall)))
+          }
+        }
+        found
+      }
+    )
+    separation_finding(separated())
+  }
+  for (case in list(list(5e-10, "clear"), list(5e-9, "near_threshold"))) {
+    found <- short_of(case[[1L]])
+    expect_identical(found$status$threshold_proximity$value, case[[2L]],
+                     label = format(case[[1L]]))
+    expect_identical(outcome_statistics(found)$bounds[[4L]], 1 - case[[1L]])
+  }
+})
+
+# Five rows whose columns x and x2 coincide to about 1e-10 after scaling, from
+# a differential review of M2b-3. Over the optimal face, the smallest b_1 and
+# the largest b_4 change by about 3.6e5 for each unit of the floor, so that
+# optima 1e-12 apart move them by 3.6e-7, and the duals of lpSolve give
+# bounds 1.6e-6 from the exact ones, which lie 2e-6 below the upper bounds of
+# their multipliers.
+flat_face <- function() {
+  data.frame(
+    y = c(1, 0, 1, 1, 1),
+    cond = c("lo", "hi", "lo", "lo", "lo"),
+    grp = c("ctl", "trt", "trt", "trt", "trt"),
+    x = c(1000000.4954159142, 1000000.7907073069, 999998.8069716928, 1000000.718385498,
+          1000000.3630027653),
+    z = c(1.1869343867185078, -0.3503705437936126, -1.9883279286402349, 0.1613879293542133,
+          -0.8714736062078614),
+    x2 = c(1000000.4955102435, 1000000.7906631059, 999998.8069359513, 1000000.7182989309,
+           1000000.3630308936),
+    dup = c(2.3738687734370156, -0.7007410875872252, -3.9766558572804698, 0.3227758587084266,
+            -1.7429472124157228)
+  )
+}
+
+test_that("bounds whose face the floor moves fast make the finding near_threshold", {
+  skip_if_not_installed("lpSolve")
+  solver <- separation_solver
+  shortfalls <- numeric(0)
+  local_mocked_bindings(
+    separation_solver = function(formulation, a, objective, margin, sums, floor) {
+      found <- solver(formulation, a, objective, margin, sums, floor)
+      if (!is.null(floor) && !is.null(found)) {
+        upper <- separation_upper_bound(a, objective, sums, floor, found$y, found$r)
+        shortfalls <<- c(shortfalls, upper - sum(objective * found$b))
+      }
+      found
+    }
+  )
+  found <- separation_finding(flat_face(), "y ~ cond * grp + x2 + x:z + dup")
+  values <- outcome_statistics(found)
+  expect_identical(values$verdict, "complete")
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
+  # The bound programs of the smallest b_1 and the largest b_4 are those
+  # whose duals lie further than optimality_tolerance below their upper
+  # bounds.
+  expect_identical(which(shortfalls > 1e-9), c(1L, 8L))
+})
+
+test_that("a bound program that lpSolve cannot solve leaves the bounds absent", {
+  skip_if_not_installed("lpSolve")
+  # 27 rows from the differential review of M2b-3, the case
+  # audits-outcome-042. lpSolve reports a numerical failure for the dual and
+  # the program itself of the smallest b_8, so that bounds and
+  # columns_involved are absent and the finding is near_threshold, where
+  # HiGHS solves every program and gives a clear finding.
+  case <- Filter(function(case) case$id == "audits-outcome-042",
+                 corpus_cases("audits", "outcome.json"))[[1L]]
+  found <- separation_finding(as.data.frame(lapply(case$data, unlist)), case$formula)
+  values <- outcome_statistics(found)
+  expect_identical(values$verdict, "quasi")
+  expect_identical(values$optimum, 4)
+  expect_null(values$bounds)
+  expect_identical(found$status$threshold_proximity$value, "near_threshold")
 })
 
 test_that("outcome.separation names lpSolve whenever it is available, and is not available without it", {

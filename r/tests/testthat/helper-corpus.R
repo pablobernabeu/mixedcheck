@@ -243,3 +243,30 @@ corpus_data_frame <- function(data) {
   names(frame) <- names(data)
   frame
 }
+
+# Whether two real values match within the tolerance of conventions.md
+# (Comparison across languages), with its exceptions for design.collinearity,
+# design.scale_disparity, identifiability.gram_rank and outcome.separation,
+# whose tolerance is the parameter bound_tolerance of its entry. 'NaN',
+# 'Infinity' and '-Infinity' match only themselves.
+reals_match <- function(x, y, check, name) {
+  if (is.character(x) || is.character(y)) {
+    return(identical(x, y))
+  }
+  m <- max(abs(x), abs(y))
+  if (check == "design.collinearity" && name %in% c("gvif", "gvif_per_df")) {
+    return(abs(x - y) <= 1e-12 + max(1e-9, 1e-13 * m) * m)
+  }
+  if (check == "design.scale_disparity" && name == "condition_number") {
+    return(abs(x - y) <= 1e-12 + max(1e-9, 1e-14 * m) * m)
+  }
+  if (check == "identifiability.gram_rank" && name == "smallest_eigenvalue") {
+    return(abs(x - y) <= 1e-12 + 1e-9 * max(1, m))
+  }
+  if (check == "outcome.separation") {
+    tolerance <- json_number_values(
+      registry_entry(check)[["parameters"]][["bound_tolerance"]][["value"]])
+    return(abs(x - y) <= if (name == "bounds") tolerance else tolerance * max(1, m))
+  }
+  abs(x - y) <= 1e-12 + 1e-9 * m
+}

@@ -8,10 +8,10 @@ import hmac
 import os
 import re
 import secrets
-from datetime import UTC, datetime
 from typing import Any
 
 from mixedcheck._errors import raise_issue
+from mixedcheck._times import run_time, utc_timestamp
 
 COVERS = ("data_file", "analysis_table", "outcome_column")
 
@@ -105,25 +105,40 @@ def new_commitment_key() -> dict[str, str]:
 
     A commitment key is 32 bytes, written as 64 lower-case hexadecimal digits.
     This function creates one from the operating system's secure source of
-    random bytes, never from Python's or numpy's random number generators,
-    whose state it leaves unchanged. Keys belong in the internal sidecar of a
-    results document and never in a shareable file.
+    random bytes through ``secrets.token_bytes()``, never from Python's or
+    numpy's random number generators, whose state it leaves unchanged. Keys
+    belong in the internal sidecar of a results document and never in a
+    shareable file.
 
     Returns:
         A dict with the members ``created``, the UTC time of creation, ``key``
         and ``key_id``, the form in which the internal sidecar stores a key.
+        The time is that of the environment variable MIXEDCHECK_TIME when it
+        is set, as for :func:`audit`.
+
+    Raises:
+        MixedcheckError: The code E1312 when the operating system offers no
+            secure source of random bytes, so that a key must be supplied.
+        ValueError: A value of MIXEDCHECK_TIME other than a whole number of
+            seconds.
 
     Examples:
         >>> key = new_commitment_key()
         >>> len(key["key_id"])
         16
     """
-    key = secrets.token_bytes(32).hex()
-    return {
-        "created": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "key": key,
-        "key_id": commitment_key_id(key),
-    }
+    created = utc_timestamp(run_time())
+    key = random_key_bytes().hex()
+    return {"created": created, "key": key, "key_id": commitment_key_id(key)}
+
+
+def random_key_bytes() -> bytes:
+    """32 bytes from the operating system's secure source (conventions.md,
+    Keys), or E1312 when it offers none."""
+    try:
+        return secrets.token_bytes(32)
+    except (NotImplementedError, OSError):
+        raise_issue("E1312")
 
 
 def commitment_key_id(key: str) -> str:

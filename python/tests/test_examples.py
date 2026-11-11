@@ -8,6 +8,7 @@ import pytest
 
 import mixedcheck
 from mixedcheck import (
+    _audit,
     _declaration,
     _design,
     _formula_ir,
@@ -15,10 +16,24 @@ from mixedcheck import (
     _json_read,
     _json_write,
     _registry,
+    _results,
+    _results_validate,
     _table,
 )
 
-MODULES = [_declaration, _design, _formula_ir, _hash, _json_read, _json_write, _registry, _table]
+MODULES = [
+    _audit,
+    _declaration,
+    _design,
+    _formula_ir,
+    _hash,
+    _json_read,
+    _json_write,
+    _registry,
+    _results,
+    _results_validate,
+    _table,
+]
 
 
 @pytest.mark.parametrize("module", MODULES, ids=[module.__name__ for module in MODULES])

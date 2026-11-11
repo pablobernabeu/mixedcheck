@@ -95,8 +95,8 @@ statistics:
       scaled to C_kl = M_kl / sqrt(M_kk M_ll). Its eigenvalues and
       eigenvectors are computed in one call of LAPACK's solver for symmetric
       matrices, through eigen(symmetric = TRUE) in R and numpy.linalg.eigh in
-      Python, which differ only in rounding, and confounded_parameters takes
-      its eigenvectors from the same call.
+      Python, which differ in rounding, and confounded_parameters takes its
+      eigenvectors from the same call.
   verdict:
     kind: category
     values: [identified, necessary_condition_met, not_identified]
@@ -110,10 +110,13 @@ statistics:
     definition: >-
       The smallest eigenvalue of C, a scale-free index of how close the design
       comes to confounding parameters. It is a heuristic, absent when C is
-      empty, which the verdict does not read. It is computed from the level
-      sizes of the factors and the rows of the design sample, so that for a
-      random intercept beside a fixed part constant within its levels it
-      gives back the rows and the level sizes that the privacy filter
+      empty, which the verdict does not read. Its rounding error, from the
+      sums of W, grows with the rows of the design sample and is relative to
+      the norm of C, at least 1, rather than to the eigenvalue
+      (conventions.md, Comparison across languages). It is computed from the
+      level sizes of the factors and the rows of the design sample, so that
+      for a random intercept beside a fixed part constant within its levels
+      it gives back the rows and the level sizes that the privacy filter
       suppresses, and a shareable document never writes it.
   vanishing_parameters:
     kind: names

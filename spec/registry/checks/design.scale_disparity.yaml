@@ -39,7 +39,9 @@ statistics:
       column divided by its largest absolute value M, which keeps the squares
       from overflowing or underflowing, computed from its mean, summed exactly
       and divided once as ir.md (Centring) computes means, as the square root
-      of the sum of the squared differences from the mean, divided by n - 1.
+      of the sum of the squared differences from the mean, summed exactly and
+      rounded once in the same way, divided by n - 1. Every operation is then
+      fixed, so that the two packages give the same double.
   sd_smallest:
     kind: real
     definition: The smallest of those standard deviations.

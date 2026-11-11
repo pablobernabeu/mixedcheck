@@ -5,8 +5,9 @@
 # bounds on rounding errors that make a value near it, with fixed-effects
 # columns far from orthogonal and on confounded designs that stay clear, a
 # level of many rows beside a level of one row, the limits of max_z_columns
-# and max_parameters, the budget against the literal sequential rule and the
-# rank of each level.
+# and max_parameters, the budget against the literal sequential rule, the
+# rank of each level and the smallest eigenvalue of 1e5 rows against the
+# value of the Python package.
 
 identifiability_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -200,6 +201,31 @@ test_that("identifiability.gram_rank bounds the rounding error of every value it
     }
     expect_true(finding_near_threshold(entry, element$statistics, element), label = n)
   }
+})
+
+test_that("the smallest eigenvalue of 1e5 rows matches that of the Python package", {
+  skip_on_cran()
+  # x alternates near 1 and -1 and x2 = x + 2e-4 v, from a numerical review
+  # of M2b-3. The Gram matrix sums 1e5 rows, so that the smallest eigenvalue
+  # of C, about 4.13744e-5, carries a rounding error of about 6.2e-10 in
+  # both packages, against the value of its definition in 30-digit
+  # arithmetic, and the two values differed by 3.7e-12, beyond the general
+  # tolerance of conventions.md and within its tolerance for this statistic,
+  # relative to the norm of C. The finding is clear in both.
+  n <- 100000
+  i <- seq_len(n)
+  u <- (i * 7919) %% 10007 / 10007 - 0.5
+  v <- (i * 31337) %% 10009 / 10009 - 0.5
+  x <- ifelse(i %% 2 == 1, 1, -1) + 0.02 * u
+  data <- data.frame(y = numeric(n), x = x, x2 = x + 2e-4 * v,
+                     g = ifelse(i <= 5, paste0("g", i), "g0"))
+  found <- identifiability_finding(data, "y ~ x + (1 + x | g) + (0 + x2 | g)",
+                                   "identifiability.gram_rank")
+  value <- found$statistics$smallest_eigenvalue$value
+  expect_identical(found$status$threshold_proximity$value, "clear")
+  expect_lte(abs(value - 4.1374441250249373e-05), 1e-9)
+  python_value <- 4.1373826721658e-05
+  expect_true(reals_match(value, python_value, "identifiability.gram_rank", "smallest_eigenvalue"))
 })
 
 test_that("identifiability.gram_rank bounds the error of a basis of X that is far from orthogonal", {

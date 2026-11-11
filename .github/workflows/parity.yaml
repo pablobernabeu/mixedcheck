@@ -51,12 +51,13 @@ jobs:
         with:
           r-version: 'release'
           use-public-rspm: true
-      # The harness needs the package's Imports and the suggested package yaml,
-      # which reads the cases of fixtures/conformance/yaml/.
+      # The harness needs the package's Imports and the suggested packages
+      # yaml, which reads the cases of fixtures/conformance/yaml/, and lpSolve,
+      # without which outcome.separation is not available in the audit corpus.
       - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
         with:
           dependencies: '"hard"'
-          extra-packages: any::yaml
+          extra-packages: any::yaml, any::lpSolve
           working-directory: r
       - name: Install the R package
         run: |

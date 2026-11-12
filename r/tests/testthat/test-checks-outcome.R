@@ -346,20 +346,22 @@ test_that("bounds whose face the floor moves fast make the finding near_threshol
   expect_identical(which(shortfalls > 1e-9), c(1L, 8L))
 })
 
-test_that("a bound program that lpSolve cannot solve leaves the bounds absent", {
+test_that("a bound program that lpSolve may fail to solve leaves the finding near_threshold", {
   skip_if_not_installed("lpSolve")
   # 27 rows from the differential review of M2b-3, the case
-  # audits-outcome-042. lpSolve reports a numerical failure for the dual and
-  # the program itself of the smallest b_8, so that bounds and
-  # columns_involved are absent and the finding is near_threshold, where
-  # HiGHS solves every program and gives a clear finding.
+  # audits-outcome-042. On x86-64 Linux, lpSolve reports a numerical failure
+  # for the dual and the program itself of the smallest b_8, so that bounds
+  # and columns_involved are absent. On arm64 macOS it solves them. Either
+  # way the finding is near_threshold, which lets the comparison across
+  # languages accept a difference from HiGHS, which solves every program and
+  # gives a clear finding. The absent bounds are tested above with a solver
+  # that fails on every platform.
   case <- Filter(function(case) case$id == "audits-outcome-042",
                  corpus_cases("audits", "outcome.json"))[[1L]]
   found <- separation_finding(as.data.frame(lapply(case$data, unlist)), case$formula)
   values <- outcome_statistics(found)
   expect_identical(values$verdict, "quasi")
   expect_identical(values$optimum, 4)
-  expect_null(values$bounds)
   expect_identical(found$status$threshold_proximity$value, "near_threshold")
 })
 

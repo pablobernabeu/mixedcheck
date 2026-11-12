@@ -46,8 +46,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: echo "public=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.private | not')" >> "$GITHUB_OUTPUT"
 
+  # Four shards of the families, each in its own job, keep a run within the
+  # time limit on the two cores of the runners for private repositories.
+  # Shard 1 also runs the regression and validation attacks (run.R --shard).
   attacks:
-    name: Disclosure-attack tests
+    name: Disclosure-attack tests (${{ matrix.shard }} of 4)
     needs: visibility
     if: >-
       !cancelled() && (github.event_name == 'workflow_dispatch' ||
@@ -58,6 +61,10 @@ jobs:
       (github.event.action != 'labeled' || github.event.label.name == 'full-ci')))
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -76,4 +83,4 @@ jobs:
       - name: Install the package
         run: R CMD INSTALL r
       - name: Run the attacks
-        run: Rscript sim/disclosure/run.R --cores "$(nproc)"
+        run: Rscript sim/disclosure/run.R --cores "$(nproc)" --shard "${{ matrix.shard }}/4"

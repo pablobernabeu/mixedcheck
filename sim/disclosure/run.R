@@ -3,14 +3,19 @@
 # docs/spec/privacy.md undertakes to hide, or when the harness fails.
 #
 #   Rscript sim/disclosure/run.R [--lib DIR] [--cores N] [--widen N]
-#     [--attacks a,b,c,v] [--families NAME,...] [--out FILE] [--no-fail]
+#     [--attacks a,b,c,v] [--families NAME,...] [--shard I/N] [--out FILE]
+#     [--no-fail]
 #
 # --lib loads mixedcheck from a library other than the default ones, such as
 # a copy installed from an earlier commit. --attacks chooses among the
 # consistency search (a), the interval audit (b), the regression attacks (c)
 # and the validation attacks (v), all by default. --families restricts the
-# families of a and b. --out writes the results as an RDS file. --no-fail
-# exits with status 0 whatever the results, as the historical check does.
+# families of a and b. --shard I/N splits the families of a and b into N
+# shards by their position in dh_families(), position p falling in shard
+# ((p - 1) mod N) + 1, runs shard I and leaves the regression and validation
+# attacks to shard 1, so that N runs cover every family and attack once, as
+# the CI job does. --out writes the results as an RDS file. --no-fail exits
+# with status 0 whatever the results, as the historical check does.
 
 options(warn = 1)
 args <- commandArgs(trailingOnly = TRUE)
@@ -33,6 +38,20 @@ widen <- as.integer(option("widen", "1"))
 attacks <- strsplit(option("attacks", "a,b,c,v"), ",")[[1L]]
 only <- option("families")
 only <- if (is.null(only)) NULL else strsplit(only, ",")[[1L]]
+shard <- option("shard")
+if (!is.null(shard)) {
+  parts <- suppressWarnings(as.integer(strsplit(shard, "/", fixed = TRUE)[[1L]]))
+  if (length(parts) != 2L || anyNA(parts) || parts[2L] < 1L || parts[1L] < 1L ||
+      parts[1L] > parts[2L]) {
+    stop("--shard takes I/N with 1 <= I <= N, such as 2/4")
+  }
+  in_shard <- vapply(dh_families(), function(family) family$name, "")
+  in_shard <- in_shard[(seq_along(in_shard) - 1L) %% parts[2L] == parts[1L] - 1L]
+  only <- if (is.null(only)) in_shard else intersect(only, in_shard)
+  if (parts[1L] != 1L) {
+    attacks <- setdiff(attacks, c("c", "v"))
+  }
+}
 
 ns <- dh_load(lib)
 dh_capture_on(ns)

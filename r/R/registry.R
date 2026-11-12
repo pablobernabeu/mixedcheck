@@ -363,12 +363,14 @@ registry_template_issues <- function(template, argument_names, pointer, add) {
 
 # Whether a message may find a statistic unwritten, because its definition
 # can leave it absent or the privacy filter can suppress it (registry.md,
-# Messages): ratios, reals and labels, person and by_unit counts, and every
-# statistic that is internal_only or suppressed with another.
+# Messages): ratios, reals and labels, person and by_unit counts, counts that
+# measure a quantity, which the filter suppresses with it whatever their
+# class, and every statistic that is internal_only or suppressed with another.
 statistic_can_be_unwritten <- function(statistic) {
   kind <- statistic[["kind"]]
   kind %in% c("ratio", "real", "labels") ||
     (identical(kind, "count") && !identical(statistic[["count_class"]], "non_person")) ||
+    !is.null(statistic[["measures"]]) ||
     isTRUE(statistic[["internal_only"]]) || !is.null(statistic[["suppress_with"]])
 }
 

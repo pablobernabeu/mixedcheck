@@ -28,6 +28,7 @@ statistics:
   columns:
     kind: count
     count_class: non_person
+    measures: table_term_levels
     definition: The number of columns of the term.
   correlated:
     kind: boolean

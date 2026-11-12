@@ -23,6 +23,7 @@ statistics:
   df:
     kind: count
     count_class: non_person
+    measures: term_levels
     definition: >-
       The number of columns of this term that the sequential rule keeps when it
       is applied to a column of ones, whether or not the fixed part has an
@@ -51,10 +52,11 @@ statistics:
       languages).
   gvif_per_df:
     kind: real
+    suppress_with: [df]
     definition: >-
       gvif raised to the power 1/df, which equals the variance inflation factor
       for a term with one column. It is compared within the same tolerance as
-      gvif.
+      gvif. With gvif, it gives back df.
 thresholds:
   moderate:
     statistic: gvif_per_df

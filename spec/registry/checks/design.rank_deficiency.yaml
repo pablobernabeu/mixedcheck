@@ -20,10 +20,12 @@ statistics:
   columns:
     kind: count
     count_class: non_person
+    measures: table_term_levels
     definition: The number of fixed-effects columns of the IR, the intercept included.
   kept:
     kind: count
     count_class: non_person
+    measures: term_levels
     definition: The number of columns that the sequential rule keeps, the rank of the fixed-effects matrix.
   dropped_columns:
     kind: names
@@ -37,6 +39,7 @@ statistics:
   empty_cells:
     kind: count
     count_class: non_person
+    measures: term_levels
     definition: >-
       The number of combinations of levels that have no row in the design
       sample, summed over the interaction terms whose factors are all
@@ -71,6 +74,11 @@ messages:
       {terms}. The coefficients of the focal terms then refer to a subset that
       depends on the design. Combinations of factor levels without rows:
       {empty}.
+    fallback: >-
+      Fixed-effects columns that are 0 or depend on earlier columns and are
+      dropped: {dropped}. Terms they belong to, focal terms among them:
+      {terms}. The coefficients of the focal terms then refer to a subset that
+      depends on the design.
     args:
       dropped: {source: statistic, name: dropped_columns}
       terms: {source: statistic, name: dropped_terms}
@@ -80,12 +88,16 @@ messages:
       Fixed-effects columns that are 0 or depend on earlier columns and are
       dropped: {dropped}. Terms they belong to, none of them focal: {terms}.
       Combinations of factor levels without rows: {empty}.
+    fallback: >-
+      Fixed-effects columns that are 0 or depend on earlier columns and are
+      dropped: {dropped}. Terms they belong to, none of them focal: {terms}.
     args:
       dropped: {source: statistic, name: dropped_columns}
       terms: {source: statistic, name: dropped_terms}
       empty: {source: statistic, name: empty_cells}
   full_rank:
     template: The fixed-effects columns are linearly independent ({columns} in all).
+    fallback: The fixed-effects columns are linearly independent.
     args:
       columns: {source: statistic, name: columns}
 remedies:

@@ -132,11 +132,19 @@ def audit(
 
     Shareable mode, the default, passes the findings through the privacy
     filter of the `privacy specification
-    <https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md>`_,
-    which this release of the Python package does not have yet: a shareable
-    run stops with an internal error before it writes its document. Internal
-    mode writes every value, and its documents must stay on the analyst's
-    machine.
+    <https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md>`_.
+    It writes as null, with the reason privacy_suppressed and the rule that
+    applied, the values that could disclose a person's data: counts of
+    persons below the minimum count of the registry, values of findings with
+    too few contributors or dominated by their largest contributors, values
+    that would give back a suppressed one by a sum, difference or ratio,
+    minima and maxima, quantiles of too few values and any value from which a
+    reader could infer a suppressed value that depends on the outcome. A
+    finding of an outcome check whose decision rests on a suppressed count is
+    suppressed as a whole, messages are rendered from the written values and
+    labels are replaced by pseudonyms, which the sidecar maps back to them.
+    Internal mode writes every value, and its documents must stay on the
+    analyst's machine.
 
     Args:
         data: A pandas DataFrame, whose columns hold numbers, strings or
@@ -196,8 +204,6 @@ def audit(
             reason at T0 or an ``outcome_seen`` that differs from the
             declaration, data whose columns cannot be read, such as datetime
             columns, and an invalid MIXEDCHECK_TIME.
-        RuntimeError: An internal error, which a shareable run gives until
-            the privacy filter is ported.
 
     Examples:
         >>> import pandas as pd
@@ -216,14 +222,22 @@ def audit(
         ...     "observation": {"key": ["subject", "trial"]},
         ... }
         >>> key = bytes(range(32)).hex()
+        >>> results = audit(data, "y ~ x + (1 | subject)", declaration, key=key)
+        >>> results.document["privacy"]["mode"]
+        'shareable'
+        >>> keys = [f for f in results.document["findings"] if f["check"] == "keys.duplicates"]
+        >>> keys[0]["status"]["finding"]["value"]
+        'consequential'
+        >>> # The 4 subjects are fewer than the minimum count of 10.
+        >>> keys[0]["statistics"]["duplicated_keys"]["availability"]["detail"]
+        'min_count_rule'
+        >>> # Internal mode writes every value.
         >>> results = audit(
         ...     data, "y ~ x + (1 | subject)", declaration, privacy="internal", key=key
         ... )
-        >>> results.document["privacy"]["mode"]
-        'internal'
-        >>> [f["status"]["finding"]["value"] for f in results.document["findings"]
+        >>> [f["statistics"]["duplicated_keys"]["value"] for f in results.document["findings"]
         ...  if f["check"] == "keys.duplicates"]
-        ['consequential']
+        [1]
         >>> # A family that audit() does not accept.
         >>> try:
         ...     audit(data, "y ~ x", family="logit", privacy="internal")

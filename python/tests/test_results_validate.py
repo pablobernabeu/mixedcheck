@@ -126,6 +126,25 @@ def test_validate_results_reads_a_document_in_memory_and_a_results_object() -> N
     assert issue_codes(lambda: validate_results(value, odd)) == ["E1206 /keys/0/created"]
 
 
+def test_validate_results_accepts_a_suppressed_count_of_class_non_person() -> None:
+    # The privacy filter suppresses a count of class non_person with the
+    # detail 'secondary' when it measures a hidden quantity, as rule 6 of
+    # privacy.md (Across findings) does for the counts of columns, and the
+    # invariants of a shareable document never ask for such a count.
+    value = results_document("valid/001.json")
+    assert value["privacy"]["mode"] == "shareable"
+    finding = next(f for f in value["findings"] if f["check"] == "outcome.constant_clusters")
+    statistic = finding["statistics"]["multi_row_levels"]
+    assert statistic["count_class"] == "non_person"
+    statistic["value"] = None
+    statistic["availability"] = {
+        "value": "not_available",
+        "reason": "privacy_suppressed",
+        "detail": "secondary",
+    }
+    assert silent(lambda: validate_results(value)) is value
+
+
 def test_validate_results_warns_with_w7090_and_goes_on_to_the_sidecar() -> None:
     value = results_document("valid/001.json")
     value["inputs"]["registry_hash"] = "sha256:" + "0" * 64

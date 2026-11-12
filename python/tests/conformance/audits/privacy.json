@@ -870,7 +870,7 @@
             "tier": "T0",
             "scope": {"factor": "subject"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "budget", "text": "The privacy rules do not allow the levels of 'subject' and the degrees of freedom between them to be shown."},
+            "message": {"id": "budget", "text": "The privacy rules do not allow the degrees of freedom that 'subject' has between its levels after the fixed effects to be shown."},
             "statistics": {
               "budget": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
@@ -978,7 +978,7 @@
             "tier": "T0",
             "scope": {"factor": "pupil"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "budget", "text": "The privacy rules do not allow the levels of 'pupil' and the degrees of freedom between them to be shown."},
+            "message": {"id": "budget", "text": "The privacy rules do not allow the degrees of freedom that 'pupil' has between its levels after the fixed effects to be shown."},
             "statistics": {
               "budget": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}},
               "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
@@ -2114,7 +2114,7 @@
             "tier": "T0",
             "scope": {"factor": "g", "term": "1 | g"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "adequate", "text": "'1 | g' has 1 random effect for each level of 'g', and more levels than that vary in all its columns."},
+            "message": {"id": "adequate", "text": "'1 | g' has fewer random effects for each level of 'g' than the levels in which all its columns vary."},
             "statistics": {
               "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "counterparts": {"kind": "boolean", "value": true},
@@ -2163,7 +2163,7 @@
             "tier": "T0",
             "scope": {"factor": "g", "term": "1 + x | g"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "guaranteed", "text": "'1 + x | g' has 2 random effects for each level of 'g', more than its levels can support, so the fit will be singular. A fit reported as non-singular would suggest that the optimiser stopped early."},
+            "message": {"id": "guaranteed", "text": "'1 + x | g' has more random effects for each level of 'g' than its levels can support, so the fit will be singular. A fit reported as non-singular would suggest that the optimiser stopped early."},
             "statistics": {
               "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "counterparts": {"kind": "boolean", "value": true},
@@ -2212,7 +2212,7 @@
             "tier": "T0",
             "scope": {"factor": "g", "term": "1 + x | g"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "likely", "text": "In few levels of 'g' do all columns of '1 + x | g' vary, no more than its 2 random effects for each level, so a singular fit is likely."},
+            "message": {"id": "likely", "text": "In few levels of 'g' do all columns of '1 + x | g' vary, no more than its random effects for each level, so a singular fit is likely."},
             "statistics": {
               "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "counterparts": {"kind": "boolean", "value": true},
@@ -3515,7 +3515,7 @@
     },
     {
       "id": "audits-privacy-053",
-      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of four subjects is missing. The 4 subjects with one analysed row are fewer than min_count, so rule 2 suppresses the levels with two rows of the analysis sample, and with them outcome.constant_clusters, whose rules read them, as a whole. No other finding lies on the analysis sample, so the document does not show it and compares no sample with it (privacy.md, Across findings): the design sample writes its 40 rows, its 20 contributors, its 20 levels, cells and bound, and its reals within_share and icc, as a T0 document does. The levels with one row of the design sample are 0, below min_count, so rule 2 suppresses the levels with two rows, which multi_row_levels and replicated_cells count, and varying_levels and informative_levels of structure.within_between, parts of the levels with two rows, and informative_levels of identifiability.levels_vs_dimension, a part of the levels, equal their totals of 20, so part_of suppresses them. The messages fall back to their texts without these values, while the non-person dimension and the names stay.",
+      "description": "A T1 run with 20 subjects of two rows, without a disclosure unit, in which the second outcome of four subjects is missing. The 4 subjects with one analysed row are fewer than min_count, so rule 2 suppresses the levels with two rows of the analysis sample, and with them outcome.constant_clusters, whose rules read them, as a whole. No other finding lies on the analysis sample, so the document does not show it and compares no sample with it (privacy.md, Across findings): the design sample writes its 40 rows, its 20 contributors, its 20 levels, cells and bound, and its reals within_share and icc, as a T0 document does. The levels with one row of the design sample are 0, below min_count, so rule 2 suppresses the levels with two rows, which multi_row_levels and replicated_cells count, and varying_levels and informative_levels of structure.within_between, parts of the levels with two rows, and informative_levels of identifiability.levels_vs_dimension, a part of the levels, equal their totals of 20, so part_of suppresses them. The messages fall back to their texts without these values. The non-person dimension stays written, although the fallbacks of identifiability.levels_vs_dimension do not render it, since rule 6 of Across findings can suppress it, and so do the names.",
       "checks": ["identifiability.levels_vs_dimension", "identifiability.residual_confounding", "structure.within_between"],
       "data": {
         "y": [2.3, 3.1, 4.3, 5.1, 6.3, null, 8.3, 9.1, 10.3, 11.1, 12.3, 13.1, 14.3, 15.1, 16.3, null, 18.3, 19.1, 20.3, 21.1, 22.3, 23.1, 24.3, 25.1, 26.3, null, 28.3, 29.1, 30.3, 31.1, 32.3, 33.1, 34.3, 35.1, 36.3, null, 38.3, 39.1, 40.3, 41.1],
@@ -3586,7 +3586,7 @@
             "tier": "T0",
             "scope": {"factor": "subject", "term": "1 | subject"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "adequate", "text": "'1 | subject' has 1 random effect for each level of 'subject', and more levels than that vary in all its columns."},
+            "message": {"id": "adequate", "text": "'1 | subject' has fewer random effects for each level of 'subject' than the levels in which all its columns vary."},
             "statistics": {
               "bound": {"kind": "count", "value": 19, "count_class": "person"},
               "counterparts": {"kind": "boolean", "value": true},
@@ -3767,7 +3767,7 @@
             "tier": "T0",
             "scope": {"column": "arm", "unit": "pupil"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "design_df", "text": "The privacy rules do not allow the levels of 'pupil', the unit to which 'arm' was assigned at a level between units that is declared, and the degrees of freedom between them to be shown."},
+            "message": {"id": "design_df", "text": "'arm' was assigned to 'pupil' at a level between units that is declared, and the privacy rules do not allow the degrees of freedom between the levels of 'pupil' after the fixed effects to be shown."},
             "statistics": {
               "design_df": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
               "level_source": {"kind": "category", "value": "declared"},
@@ -4255,7 +4255,7 @@
             "tier": "T0",
             "scope": {"column": "arm", "unit": "subject"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "design_df", "text": "The privacy rules do not allow the levels of 'subject', the unit to which 'arm' was assigned at a level between units that is declared, and the degrees of freedom between them to be shown."},
+            "message": {"id": "design_df", "text": "'arm' was assigned to 'subject' at a level between units that is declared, and the privacy rules do not allow the degrees of freedom between the levels of 'subject' after the fixed effects to be shown."},
             "statistics": {
               "design_df": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "level_source": {"kind": "category", "value": "declared"},
@@ -4270,7 +4270,7 @@
             "tier": "T0",
             "scope": {"factor": "subject"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "budget", "text": "The privacy rules do not allow the levels of 'subject' and the degrees of freedom between them to be shown."},
+            "message": {"id": "budget", "text": "The privacy rules do not allow the degrees of freedom that 'subject' has between its levels after the fixed effects to be shown."},
             "statistics": {
               "budget": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "consuming_terms": {"kind": "names", "value": ["(Intercept)"]},
@@ -4284,7 +4284,7 @@
             "tier": "T0",
             "scope": {"factor": "subject", "term": "1 | subject"},
             "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
-            "message": {"id": "adequate", "text": "'1 | subject' has 1 random effect for each level of 'subject', and more levels than that vary in all its columns."},
+            "message": {"id": "adequate", "text": "'1 | subject' has fewer random effects for each level of 'subject' than the levels in which all its columns vary."},
             "statistics": {
               "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "counterparts": {"kind": "boolean", "value": true},
@@ -5204,6 +5204,330 @@
               "within_share": {"kind": "real", "value": 0.007462686567164179}
             },
             "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-073",
+      "description": "A fixed factor 'site' of 2 levels that the declaration names as a unit, in which the 20 subjects of two rows are nested, without a disclosure unit. levels_first of structure.label_incidence counts the 2 sites in the design sample as a person count below min_count, which step 3 suppresses, so rule 6 of Across findings suppresses with the detail 'secondary' every count of columns that would give them back: df of design.collinearity for 'site', 1, and gvif_per_df, which names it in suppress_with, kept, columns and empty_cells of design.rank_deficiency, 3, 3 and 0, and budget of identifiability.df_budget, 18, which beside the 20 written subjects gives back the 2 kept columns that are constant within the subjects. df of 'treatment', which reads no categorical variable, and the gvif of 'site' stay written, and the messages low, full_rank and budget fall back to their texts without the suppressed values.",
+      "checks": ["design.collinearity", "design.rank_deficiency", "identifiability.df_budget"],
+      "data": {
+        "y": [2.3, 3.5, 3.9, 5.1, 5.5, 6.7, 7.1, 8.3, 8.7, 9.9, 10.3, 11.5, 11.9, 13.1, 13.5, 14.7, 15.1, 16.3, 16.7, 17.9, 18.3, 19.5, 19.9, 21.1, 21.5, 22.7, 23.1, 24.3, 24.7, 25.9, 26.3, 27.5, 27.9, 29.1, 29.5, 30.7, 31.1, 32.3, 32.7, 33.9],
+        "treatment": [-0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5],
+        "site": ["S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "subject": ["s01", "s01", "s02", "s02", "s03", "s03", "s04", "s04", "s05", "s05", "s06", "s06", "s07", "s07", "s08", "s08", "s09", "s09", "s10", "s10", "s11", "s11", "s12", "s12", "s13", "s13", "s14", "s14", "s15", "s15", "s16", "s16", "s17", "s17", "s18", "s18", "s19", "s19", "s20", "s20"]
+      },
+      "formula": "y ~ treatment + site + (1 | subject)",
+      "declaration": {"vocabulary": "0.1.0", "units": [{"name": "site", "columns": ["site"], "role": "cluster"}, {"name": "subject", "columns": ["subject"], "role": "cluster", "nested_in": "site", "id_scope": "global"}]},
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "site"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'site' has a generalised variance inflation factor of 1.00, or 1.00 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1},
+              "gvif_per_df": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "treatment"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'treatment' has a generalised variance inflation factor of 1.00, or 1.00 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1},
+              "gvif_per_df": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "full_rank", "text": "The fixed-effects columns are linearly independent (3 in all)."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": []},
+              "dropped_terms": {"kind": "names", "value": []},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "'subject' has 20 levels and 18 degrees of freedom between levels after the fixed effects."},
+            "statistics": {
+              "budget": {"kind": "count", "value": 18, "count_class": "person"},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)", "site"]},
+              "levels": {"kind": "count", "value": 20, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "site"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'site' has a generalised variance inflation factor per degree of freedom below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "gvif": {"kind": "real", "value": 1},
+              "gvif_per_df": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "treatment"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'treatment' has a generalised variance inflation factor of 1.00, or 1.00 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1},
+              "gvif_per_df": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "full_rank", "text": "The fixed-effects columns are linearly independent."},
+            "statistics": {
+              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "dropped_columns": {"kind": "names", "value": []},
+              "dropped_terms": {"kind": "names", "value": []},
+              "empty_cells": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "focal_dropped": {"kind": "boolean", "value": false},
+              "kept": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.df_budget",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "budget", "text": "The privacy rules do not allow the degrees of freedom that 'subject' has between its levels after the fixed effects to be shown."},
+            "statistics": {
+              "budget": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "consuming_terms": {"kind": "names", "value": ["(Intercept)", "site"]},
+              "levels": {"kind": "count", "value": 20, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 20}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-074",
+      "description": "The column z, twice x, depends on the columns before it and is dropped, and every fixed term is focal, since the declaration names no estimand. The grouping factor 'g', also a fixed term, has 3 levels, a person count below min_count that the findings of the design sample, which fail the minimum-count rule, suppress, so rule 6 of Across findings suppresses columns, kept and empty_cells of design.rank_deficiency, 5, 4 and 0, which count the columns of 'g', with the detail 'secondary', although steps 2 and 3 leave non-person counts written. The message focal falls back to its text without empty_cells, and the names of the dropped column and its term stay.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [3.1, 2.4, 5, 4.2, 3.3, 2.8, 4.9, 5.5, 3.6, 2.2, 4.1, 3.9],
+        "x": [1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6],
+        "z": [2, 4, 6, 8, 4, 6, 8, 10, 6, 8, 10, 12],
+        "g": ["a", "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c"]
+      },
+      "formula": "y ~ x + z + g + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'z'. Terms they belong to, focal terms among them: 'z'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 5, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["z"]},
+              "dropped_terms": {"kind": "names", "value": ["z"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true},
+              "kept": {"kind": "count", "value": 4, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'z'. Terms they belong to, focal terms among them: 'z'. The coefficients of the focal terms then refer to a subset that depends on the design."},
+            "statistics": {
+              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "dropped_columns": {"kind": "names", "value": ["z"]},
+              "dropped_terms": {"kind": "names", "value": ["z"]},
+              "empty_cells": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "focal_dropped": {"kind": "boolean", "value": true},
+              "kept": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-075",
+      "description": "The inputs of audits-privacy-074 with an estimand that names 'x', so that the dropped column z belongs to a term that is not focal. Rule 6 of Across findings suppresses columns, kept and empty_cells of design.rank_deficiency as in audits-privacy-074, and the message nonfocal falls back to its text without empty_cells.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [3.1, 2.4, 5, 4.2, 3.3, 2.8, 4.9, 5.5, 3.6, 2.2, 4.1, 3.9],
+        "x": [1, 2, 3, 4, 2, 3, 4, 5, 3, 4, 5, 6],
+        "z": [2, 4, 6, 8, 4, 6, 8, 10, 6, 8, 10, 12],
+        "g": ["a", "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c"]
+      },
+      "formula": "y ~ x + z + g + (1 | g)",
+      "declaration": {"vocabulary": "0.1.0", "estimands": [{"id": "slope", "term": "x", "kind": "association"}]},
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nonfocal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'z'. Terms they belong to, none of them focal: 'z'. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 5, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["z"]},
+              "dropped_terms": {"kind": "names", "value": ["z"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false},
+              "kept": {"kind": "count", "value": 4, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nonfocal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'z'. Terms they belong to, none of them focal: 'z'."},
+            "statistics": {
+              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "dropped_columns": {"kind": "names", "value": ["z"]},
+              "dropped_terms": {"kind": "names", "value": ["z"]},
+              "empty_cells": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "focal_dropped": {"kind": "boolean", "value": false},
+              "kept": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-076",
+      "description": "Three schools crossed with four districts, two rows in each combination, with a random intercept for 'school' and the indicators of 'school' as a random term of 'district'. The 3 schools, which structure.cluster_sizes counts in the design sample, are a person count below min_count, and the findings fail the minimum-count rule, so levels, informative_levels and bound are suppressed with the detail 'min_count_rule'. The dimension 3 of '0 + school | district' counts the columns of the indicators of 'school' in the table and gives back its levels, so rule 6 of Across findings suppresses it with the detail 'secondary', whereas the dimension 1 of '1 | school', which reads no categorical variable, stays written. Both messages adequate fall back to their texts without these values.",
+      "checks": ["identifiability.levels_vs_dimension"],
+      "data": {
+        "y": [1.5, 3.0, 4.5, 2.1, 3.6, 5.1, 2.7, 4.2, 1.8, 3.3, 4.8, 2.4, 3.9, 1.5, 3.0, 4.5, 2.1, 3.6, 5.1, 2.7, 4.2, 1.8, 3.3, 4.8],
+        "x": [3.5, 1.5, 5.0, 3.0, 1.0, 4.5, 2.5, 0.5, 4.0, 2.0, 0.0, 3.5, 1.5, 5.0, 3.0, 1.0, 4.5, 2.5, 0.5, 4.0, 2.0, 0.0, 3.5, 1.5],
+        "school": ["s1", "s1", "s2", "s2", "s3", "s3", "s1", "s1", "s2", "s2", "s3", "s3", "s1", "s1", "s2", "s2", "s3", "s3", "s1", "s1", "s2", "s2", "s3", "s3"],
+        "district": ["d1", "d1", "d1", "d1", "d1", "d1", "d2", "d2", "d2", "d2", "d2", "d2", "d3", "d3", "d3", "d3", "d3", "d3", "d4", "d4", "d4", "d4", "d4", "d4"]
+      },
+      "formula": "y ~ x + (1 | school) + (0 + school | district)",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "district", "term": "0 + school | district"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 4 of the 4 levels of 'district', all columns of '0 + school | district' vary, and the term has 3 random effects for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 4, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": false},
+              "dimension": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 4, "count_class": "person"},
+              "levels": {"kind": "count", "value": 4, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 24}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school", "term": "1 | school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "In 3 of the 3 levels of 'school', all columns of '1 | school' vary, and the term has 1 random effect for each level."},
+            "statistics": {
+              "bound": {"kind": "count", "value": 2, "count_class": "person"},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels": {"kind": "count", "value": 3, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 24}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "district", "term": "0 + school | district"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "'0 + school | district' has fewer random effects for each level of 'district' than the levels in which all its columns vary."},
+            "statistics": {
+              "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "counterparts": {"kind": "boolean", "value": false},
+              "dimension": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "informative_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
+            },
+            "support": {"rows": {"value": 24}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+          },
+          {
+            "check": "identifiability.levels_vs_dimension",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"factor": "school", "term": "1 | school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "adequate", "text": "'1 | school' has fewer random effects for each level of 'school' than the levels in which all its columns vary."},
+            "statistics": {
+              "bound": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "counterparts": {"kind": "boolean", "value": true},
+              "dimension": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "informative_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}},
+              "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
+            },
+            "support": {"rows": {"value": 24}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
           }
         ]
       }

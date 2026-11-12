@@ -54,7 +54,7 @@
     {"file": "audits/keys.json", "kind": "audit"},
     {"file": "audits/labels.json", "kind": "audit"},
     {"file": "audits/outcome.json", "kind": "audit"},
-    {"file": "audits/privacy.json", "kind": "audit", "pending_parts": {"shareable": "M2b-3"}},
+    {"file": "audits/privacy.json", "kind": "audit"},
     {"file": "audits/sample.json", "kind": "audit"},
     {"file": "audits/structure.json", "kind": "audit"},
     {"file": "results/reading.json", "kind": "results"},

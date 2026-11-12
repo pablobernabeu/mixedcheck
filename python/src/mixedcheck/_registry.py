@@ -387,12 +387,15 @@ def registry_template_issues(
 def statistic_can_be_unwritten(statistic: dict[str, Any]) -> bool:
     """Whether a message may find a statistic unwritten, because its definition
     can leave it absent or the privacy filter can suppress it (registry.md,
-    Messages): ratios, reals and labels, person and by_unit counts, and every
-    statistic that is internal_only or suppressed with another."""
+    Messages): ratios, reals and labels, person and by_unit counts, counts
+    that measure a quantity, which the filter suppresses with it whatever their
+    class, and every statistic that is internal_only or suppressed with
+    another."""
     kind = statistic.get("kind")
     return (
         kind in ("ratio", "real", "labels")
         or (kind == "count" and statistic.get("count_class") != "non_person")
+        or "measures" in statistic
         or statistic.get("internal_only") is True
         or "suppress_with" in statistic
     )

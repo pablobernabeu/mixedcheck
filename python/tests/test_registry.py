@@ -309,8 +309,15 @@ def test_a_message_that_renders_an_unwritten_statistic_has_a_fallback():
         f"E4023 {prefix}/messages/some_change",
     ]
     # A count of class non_person can be rendered without a fallback, whereas
-    # one that is internal_only or suppressed with another cannot.
+    # one that measures a quantity, is internal_only or is suppressed with
+    # another cannot.
     assert not statistic_can_be_unwritten({"kind": "count", "count_class": "non_person"})
+    assert statistic_can_be_unwritten(
+        {"kind": "count", "count_class": "non_person", "measures": "term_levels"}
+    )
+    assert statistic_can_be_unwritten(
+        {"kind": "count", "count_class": "non_person", "measures": "table_term_levels"}
+    )
     assert statistic_can_be_unwritten({"kind": "count", "count_class": "by_unit"})
     assert statistic_can_be_unwritten({"kind": "names", "internal_only": True})
     assert statistic_can_be_unwritten({"kind": "names", "suppress_with": ["x"]})

@@ -1,6 +1,6 @@
 # mixedcheck
 
-A pair of packages, one for R and one for Python, for auditing designs before fitting mixed-effects models and for diagnosing and reporting fitted models. Both packages share one registry of checks and one results schema. The repository, created as lmecheck, holds the design, the specifications and the two packages, which so far read, write and hash the shared JSON documents, validate declarations, read data tables and build the canonical IR and design matrices of a model. Both also audit the design of a model and write and validate the results. The R package also writes shareable results through the privacy filter, which the Python package does not have yet, so that it audits in internal mode only. Neither package diagnoses fitted models yet. Nothing has been released.
+A pair of packages, one for R and one for Python, for auditing designs before fitting mixed-effects models and for diagnosing and reporting fitted models. Both packages share one registry of checks and one results schema. The repository, created as lmecheck, holds the design, the specifications and the two packages, which so far read, write and hash the shared JSON documents, validate declarations, read data tables and build the canonical IR and design matrices of a model. Both also audit the design of a model and write and validate the results, which in shareable mode, the default, pass through the privacy filter. Neither package diagnoses fitted models yet. Nothing has been released.
 
 ## Design
 

@@ -251,11 +251,16 @@ test_that("a message that renders an unwritten statistic has a fallback (E4023)"
   ))
 
   # A count of class non_person can be rendered without a fallback, whereas
-  # one that is internal_only or suppressed with another cannot.
+  # one that measures a quantity, is internal_only or is suppressed with
+  # another cannot.
   j <- entry_index(registry, "outcome.constant_clusters")
   document <- registry
   multi <- document$entries[[j]]$statistics$multi_row_levels
   expect_false(statistic_can_be_unwritten(list(kind = "count", count_class = "non_person")))
+  expect_true(statistic_can_be_unwritten(list(kind = "count", count_class = "non_person",
+                                              measures = "term_levels")))
+  expect_true(statistic_can_be_unwritten(list(kind = "count", count_class = "non_person",
+                                              measures = "table_term_levels")))
   expect_true(statistic_can_be_unwritten(list(kind = "count", count_class = "by_unit")))
   expect_true(statistic_can_be_unwritten(list(kind = "names", internal_only = TRUE)))
   expect_true(statistic_can_be_unwritten(list(kind = "names", suppress_with = list("x"))))

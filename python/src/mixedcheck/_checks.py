@@ -205,7 +205,8 @@ class Finding:
     decided it (None for 'otherwise') and the factors of its labels. The
     privacy filter marks suppressed values in ``suppressed`` and
     ``support_suppressed``, by name with the detail of the rule, and a finding
-    suppressed as a whole with ``whole``.
+    suppressed as a whole with ``whole``, and records in ``left_written`` the
+    statistics that its steps 1 to 5 left written.
     """
 
     check: str
@@ -227,6 +228,7 @@ class Finding:
     suppressed: dict[str, str] = field(default_factory=dict)
     whole: bool = False
     support_suppressed: dict[str, str] = field(default_factory=dict)
+    left_written: list[str] = field(default_factory=list)
 
 
 # --- The run ---------------------------------------------------------------------------

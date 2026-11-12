@@ -205,14 +205,12 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
 # design-structure values, that docs/spec/privacy.md (Guarantees) records as
 # not closed, each with the attack and the family, or for attack (c) the
 # regression attack, that find it, and a pattern of its targets. privacy.md
-# records one linear relation of design-structure values as open for a
-# decision of the maintainer: the columns of a categorical variable of a term
-# give back the levels of an item into which it divides the rows.
+# records none: the linear relation between the columns of a categorical
+# variable of a term and the levels of an item into which it divides the
+# rows, which it recorded as open, is closed by rule 6 of Across findings
+# since 12 November 2026, and R8-column-levels gates it.
 dh_known_channels <- function() {
-  list(
-    list(id = "column-levels", attack = "c", family = "R8-column-levels",
-         target = "^df of a fixed factor")
-  )
+  list()
 }
 
 # The identifier of the known channel of each leak, or NA.

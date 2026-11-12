@@ -125,13 +125,6 @@ def test_a_run_returns_a_results_object_with_every_member_of_the_document() -> N
     assert finish_issues(schema_issues(document, "urn:mixedcheck:schema:results")) == []
 
 
-def test_shareable_mode_waits_for_the_privacy_filter() -> None:
-    with pytest.raises(RuntimeError, match="Internal error: shareable mode arrives with"):
-        audit_at_zero(privacy="shareable")
-    with pytest.raises(RuntimeError, match="privacy filter"):
-        audit(audit_data(), "y ~ x + (1 | subject)", key=AUDIT_KEY)
-
-
 def test_the_arguments_are_checked_in_step_1_with_their_codes() -> None:
     issue = audit_issue(family="Gaussian")
     assert issue is not None

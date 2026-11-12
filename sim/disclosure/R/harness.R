@@ -306,7 +306,8 @@ dh_strict_finding <- function(finding, k) {
 # The quantity that each count of a document measures (registry.md,
 # Statistics and counts), as the key of its sample, measure and item, with
 # whether the document writes it. support.rows and support.distinct measure
-# the rows and the contributors of the sample that the entry names. Returns
+# the rows and the contributors of the sample that the entry names, and the
+# counts of columns, which measure levels with an offset, are left out. Returns
 # a data frame with one row for each count that measures a quantity.
 dh_measures <- function(document, entries = dh_capture$entries) {
   rows <- list()
@@ -326,7 +327,9 @@ dh_measures <- function(document, entries = dh_capture$entries) {
     }
     for (name in names(finding$statistics)) {
       measure <- entry[["statistics"]][[name]][["measures"]]
-      if (is.null(measure)) {
+      # A count of columns measures the levels of the items of its terms with
+      # an offset, so it writes no quantity that another count measures.
+      if (is.null(measure) || measure %in% c("term_levels", "table_term_levels")) {
         next
       }
       key <- switch(measure,

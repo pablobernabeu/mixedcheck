@@ -155,7 +155,12 @@ iv_model <- function(document, entries, details = TRUE, only = NULL) {
         next
       }
       measure <- defined[["measures"]]
-      if (!is.null(measure)) {
+      # The counts of columns give back the levels of the items of their
+      # terms with an offset that the coding and the other terms set
+      # (registry.md, Statistics and counts), which the audit does not
+      # model: the regression attack R8-column-levels gates rule 6, which
+      # suppresses them.
+      if (!is.null(measure) && !measure %in% c("term_levels", "table_term_levels")) {
         q <- switch(measure,
           table_rows = iv_q(m, "table", "rows"),
           design_rows = iv_q(m, "design", "rows"),

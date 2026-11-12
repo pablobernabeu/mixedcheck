@@ -579,6 +579,19 @@ class RulesTestCase(unittest.TestCase):
                 ("E4023", "/messages/some_change"),
             ],
         )
+        # A count of class non_person that measures a quantity, such as the
+        # levels of the items of its terms, can be suppressed too.
+        self.assertFalse(cr.can_be_unwritten({"kind": "count", "count_class": "non_person"}))
+        self.assertTrue(
+            cr.can_be_unwritten(
+                {"kind": "count", "count_class": "non_person", "measures": "term_levels"}
+            )
+        )
+        self.assertTrue(
+            cr.can_be_unwritten(
+                {"kind": "count", "count_class": "non_person", "measures": "table_term_levels"}
+            )
+        )
 
     def test_agreement_is_shared(self) -> None:
         first = copy.deepcopy(self.entry)

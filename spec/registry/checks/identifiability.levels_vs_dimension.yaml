@@ -20,6 +20,7 @@ statistics:
   dimension:
     kind: count
     count_class: non_person
+    measures: table_term_levels
     definition: The number of columns of the term, which is the number of random effects for each level.
   levels:
     kind: count
@@ -74,7 +75,7 @@ messages:
       fit will be singular. A fit reported as non-singular would suggest that
       the optimiser stopped early.
     fallback: >-
-      '{term}' has {dimension} for each level of '{factor}', more than its
+      '{term}' has more random effects for each level of '{factor}' than its
       levels can support, so the fit will be singular. A fit reported as
       non-singular would suggest that the optimiser stopped early.
     args:
@@ -89,7 +90,7 @@ messages:
       more than its {dimension} for each level, so a singular fit is likely.
     fallback: >-
       In few levels of '{factor}' do all columns of '{term}' vary, no more than
-      its {dimension} for each level, so a singular fit is likely.
+      its random effects for each level, so a singular fit is likely.
     args:
       informative: {source: statistic, name: informative_levels, noun: [level, levels]}
       factor: {source: scope, name: factor}
@@ -100,8 +101,8 @@ messages:
       In {informative} of the {levels} of '{factor}', all columns of '{term}'
       vary, and the term has {dimension} for each level.
     fallback: >-
-      '{term}' has {dimension} for each level of '{factor}', and more levels
-      than that vary in all its columns.
+      '{term}' has fewer random effects for each level of '{factor}' than the
+      levels in which all its columns vary.
     args:
       informative: {source: statistic, name: informative_levels}
       levels: {source: statistic, name: levels, noun: [level, levels]}

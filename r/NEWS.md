@@ -245,3 +245,24 @@
   detail 'secondary' where the analysed rows show that a member has one
   analysed row, unless each member has one row in the design sample. The
   documentation of `audit()` states what shareable mode hides.
+
+* The privacy filter of `audit()` suppresses, with the detail 'secondary',
+  the counts of columns that would give back the levels of an item that it
+  hides: df of design.collinearity with gvif_per_df, kept, columns and
+  empty_cells of design.rank_deficiency, dimension of
+  identifiability.levels_vs_dimension, columns of
+  identifiability.residual_confounding, budget of identifiability.df_budget
+  and design_df of assignment.design_df, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  (Across findings, rule 6) states. The messages that render them fall back
+  to texts without these values.
+
+* The privacy filter of `audit()` matches the variables of a term to the
+  items whose levels its counts of columns give back on the rows that those
+  counts read, so that a grouping column that lacks a label in one row no
+  longer lets the columns of a fixed term give back the levels that the
+  filter hides. It hides the counts of columns of the IR when the levels of
+  the table are hidden, and keeps those of a random term that '||' splits
+  from a frozen factor, which has one column. The fallbacks of the messages
+  budget of identifiability.df_budget and design_df of assignment.design_df
+  no longer say that the levels are hidden.

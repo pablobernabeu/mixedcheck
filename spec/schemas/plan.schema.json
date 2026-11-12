@@ -224,14 +224,26 @@
     },
     "count": {
       "title": "count",
-      "description": "A count in a plan: a non-negative integer, or {\"below\": k} when the privacy filter suppressed a person count below k (02-decisions.md, Q5), since the hashable profile has no null.",
-      "type": ["integer", "object"],
-      "minimum": 0,
-      "additionalProperties": false,
-      "required": ["below"],
-      "properties": {
-        "below": {"type": "integer", "minimum": 1, "maximum": 1000}
-      }
+      "description": "A count in a plan: a non-negative integer, {\"below\": k} when the privacy filter suppressed a person count below k with the detail 'min_count', or {\"suppressed\": detail} when it suppressed the count with another detail (privacy.md, Steps), since the hashable profile has no null.",
+      "oneOf": [
+        {"type": "integer", "minimum": 0},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["below"],
+          "properties": {
+            "below": {"type": "integer", "minimum": 1, "maximum": 1000}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["suppressed"],
+          "properties": {
+            "suppressed": {"enum": ["dominance", "min_count_rule", "secondary"]}
+          }
+        }
+      ]
     },
     "ceiling": {
       "title": "ceiling",
@@ -254,8 +266,7 @@
               "levels": {"$ref": "#/$defs/count"},
               "df_budget": {
                 "description": "The level-specific df budget of the grouping factor, the statistic budget of identifiability.df_budget.",
-                "type": "integer",
-                "minimum": 0
+                "$ref": "#/$defs/count"
               },
               "terms": {
                 "type": "array",

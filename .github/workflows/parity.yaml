@@ -1,8 +1,11 @@
 # Runs the parity harness (parity/README.md): both packages run every case of
 # the conformance corpora, and their outcomes are compared with each other and
-# with the expected outcomes. It runs on every push to main and every pull
-# request that touches either package, the shared artefacts or the harness,
-# and when started by hand.
+# with the expected outcomes. A second job runs its differential test, which
+# compares the two packages in both privacy modes on the tables of the
+# disclosure-attack tests, on generated designs and on edge cases. Both run on
+# every push to main and every pull request that touches either package, the
+# shared artefacts, the harness or the files of sim/disclosure/R/ from which
+# the differential test builds its inputs, and when started by hand.
 name: parity
 
 on:
@@ -14,6 +17,9 @@ on:
       - 'spec/**'
       - 'fixtures/**'
       - 'parity/**'
+      - 'sim/disclosure/R/families.R'
+      - 'sim/disclosure/R/harness.R'
+      - 'sim/disclosure/R/regressions.R'
       - '.github/workflows/parity.yaml'
   pull_request:
     paths:
@@ -22,6 +28,9 @@ on:
       - 'spec/**'
       - 'fixtures/**'
       - 'parity/**'
+      - 'sim/disclosure/R/families.R'
+      - 'sim/disclosure/R/harness.R'
+      - 'sim/disclosure/R/regressions.R'
       - '.github/workflows/parity.yaml'
   workflow_dispatch:
 
@@ -75,3 +84,38 @@ jobs:
       # R runs once in C.UTF-8 and once in the C locale.
       - name: Run the harness
         run: python3 parity/parity.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib"
+
+  differential:
+    name: Differential test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+      # lpSolve solves outcome.separation in R, which the inputs of the T2
+      # families and designs reach.
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          dependencies: '"hard"'
+          extra-packages: any::lpSolve
+          working-directory: r
+      - name: Install the R package
+        run: |
+          mkdir -p "$RUNNER_TEMP/rlib"
+          R CMD INSTALL --library="$RUNNER_TEMP/rlib" r
+      - name: Install uv
+        run: pipx install "uv==$UV_VERSION"
+      - name: Install the Python package
+        run: |
+          uv venv --python 3.11 "$RUNNER_TEMP/venv"
+          uv pip install --python "$RUNNER_TEMP/venv" ./python
+          uv pip list --python "$RUNNER_TEMP/venv"
+      # The default inputs, with R in C.UTF-8. The widened grids and the other
+      # locales and interpreters are run by hand (parity/README.md).
+      - name: Run the differential test
+        run: python3 parity/differential/differential.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib" --cores "$(nproc)"

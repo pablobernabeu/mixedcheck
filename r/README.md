@@ -48,8 +48,8 @@ hash, HMAC, declaration, YAML, table, formula, results and audit corpora,
 with the cases of the privacy filter in both modes. The
 [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
 of the repository checks that both packages agree on every case of the
-corpora, apart from the shareable runs of the audit corpus, which wait for
-the privacy filter of the Python package.
+corpora, and its differential test that they agree on the tables of the
+disclosure-attack harness and on generated designs in both modes.
 
 ``` r
 library(mixedcheck)

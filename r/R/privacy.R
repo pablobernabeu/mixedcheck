@@ -43,11 +43,16 @@ privacy_filter <- function(run, findings, key) {
   })
   pseudonyms <- privacy_pseudonyms(findings, key)
   findings <- lapply(findings, privacy_render, pseudonyms = pseudonyms)
-  list(findings = findings,
-       pseudonyms = lapply(seq_len(nrow(pseudonyms)), function(i) {
-         list(pseudonym = pseudonyms$pseudonym[i], factor = pseudonyms$factor[i],
-              label = pseudonyms$label[i])
-       }))
+  list(findings = findings, pseudonyms = privacy_sidecar_pseudonyms(pseudonyms))
+}
+
+# The pseudonyms of privacy_pseudonyms() in the form that the internal sidecar
+# records them, one record of the pseudonym, the factor and the label each.
+privacy_sidecar_pseudonyms <- function(pseudonyms) {
+  lapply(seq_len(nrow(pseudonyms)), function(i) {
+    list(pseudonym = pseudonyms$pseudonym[i], factor = pseudonyms$factor[i],
+         label = pseudonyms$label[i])
+  })
 }
 
 # --- Marks --------------------------------------------------------------------------
@@ -310,6 +315,10 @@ privacy_separation <- function(finding, run, k) {
   required <- run$results[["design.rank_deficiency"]]
   kept <- if (length(required)) required[[1L]]$values$kept else 0
   analysis <- match(run$analysis, run$design)
+  # The analysis sample keeps no column that the design sample drops, so
+  # the test of its kept columns implies that of the design sample whenever
+  # design.rank_deficiency yields a finding. Both are kept as privacy.md
+  # (Decisions) states them.
   if (kept <= 2 || sum(run$analysis_kept) <= 2 ||
       separation_one_variable(run, run$x_kept) ||
       separation_one_variable(run, run$analysis_kept) ||

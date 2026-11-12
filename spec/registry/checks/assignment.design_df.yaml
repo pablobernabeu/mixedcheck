@@ -38,6 +38,7 @@ statistics:
     count_class: by_unit
     resolved_by: [{source: scope, name: unit}]
     suppress_with: [units]
+    measures: term_levels
     definition: >-
       J + r - k, where J is units, k the number of fixed-effects columns,
       restricted to the rows of the assignment, that the sequential rule
@@ -65,7 +66,10 @@ statistics:
       divided by the column's relative residual in the sequential rule, at most
       about 1e-9 for a column that the rule keeps, below the tolerance, and are
       not counted, as the indicator columns would absorb them. It gives back
-      units, so it takes the count class of units.
+      units, so it takes the count class of units. Beside units, it gives back
+      k - r, to which a factor of a fixed term that is constant within the
+      levels adds its levels on these rows less 1, so it measures the levels
+      of the items of the fixed terms too.
   missing_blocks:
     kind: names
     definition: >-
@@ -152,9 +156,9 @@ messages:
       units that is {level}, has {units} and leaves {df} between them after
       the fixed effects.
     fallback: >-
-      The privacy rules do not allow the levels of '{unit}', the unit to which
-      '{column}' was assigned at a level between units that is {level}, and
-      the degrees of freedom between them to be shown.
+      '{column}' was assigned to '{unit}' at a level between units that is
+      {level}, and the privacy rules do not allow the degrees of freedom
+      between the levels of '{unit}' after the fixed effects to be shown.
     args:
       unit: {source: scope, name: unit}
       column: {source: scope, name: column}

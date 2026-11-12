@@ -150,12 +150,17 @@ dm_mutants <- function() {
       function(ns) list(privacy_rule_1 = dm_patch(ns, "privacy_rule_1",
         "!lost[[larger]]$items[[i]][[measure]] && !lost[[smaller]]$items[[i]][[measure]] && ",
         ""))),
+    m("across-1-chain-loop",
+      "Across findings: rule 1, a sample inside a losing sample compared with the analysis sample",
+      function(ns) list(privacy_lost = dm_patch(ns, "privacy_lost",
+        "if (holds_analysis(smaller)) {", "if (TRUE) {"))),
     m("across-1-crossed", "Across findings: rule 1, the combinations of crossed columns",
       function(ns) list(privacy_written_items = dm_patch(ns, "privacy_written_items",
         "if (finding$check != \"structure.label_incidence\" ||", "if (TRUE ||"))),
     m("across-1-variable", "Across findings: rule 1, a categorical variable that divides the rows as an item",
       function(ns) list(privacy_written_items = dm_patch(ns, "privacy_written_items",
-        "for (i in privacy_variable_items(run, items)) {", "for (i in integer(0)) {"))),
+        "for (i in privacy_variable_items(run, items, samples[[larger]])) {",
+        "for (i in integer(0)) {"))),
     m("across-1-variable-class",
       "Across findings: rule 1, a categorical variable that divides the rows as a non-person item",
       function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
@@ -166,13 +171,32 @@ dm_mutants <- function() {
       function(ns) list(privacy_variable_items = dm_patch(ns, "privacy_variable_items",
         "unlist(lapply(run$ir$random, function(random) random$terms), recursive = FALSE)",
         "list()"))),
+    # privacy_term_items() also gives rule 6 its items, so the mutant leaves
+    # out the combinations only where rule 1 reads them.
     m("across-1-variable-combination",
       "Across findings: rule 1, the combination of the categorical variables of a term",
-      function(ns) list(privacy_variable_items = dm_patch(ns, "privacy_variable_items",
-        "if (length(categorical) > 1L) {", "if (FALSE) {"))),
+      function(ns) {
+        without <- dm_patch(ns, "privacy_term_items", "if (length(categorical) > 1L) {",
+                            "if (FALSE) {")
+        variable_items <- get("privacy_variable_items", envir = ns)
+        environment(variable_items) <- list2env(list(privacy_term_items = without), parent = ns)
+        list(privacy_variable_items = variable_items)
+      }),
+    # The items of a term matched on the rows of the table, as before the
+    # review of the port, which a row that the rows of a count leave out
+    # sets apart: both rule 1 and rule 6 read them.
+    m("across-items-rows", "Across findings: the items of a term in the rows that its counts read",
+      function(ns) list(privacy_items_in = function(items, codes, rows) {
+        i <- get("privacy_item_index", envir = ns)(items, list(codes))
+        if (is.na(i)) integer(0) else i
+      })),
     m("across-1-propagate", "Across findings: rule 1, the quantities that the analysis sample loses",
       function(ns) list(privacy_lost = dm_patch(ns, "privacy_lost",
         "if (hidden$items[[i]][[measure]] && larger$items[[i]][[measure]] > 0) {", "if (FALSE) {"))),
+    m("across-1-propagate-rows",
+      "Across findings: rule 1, the rows and contributors that the analysis sample loses",
+      function(ns) list(privacy_lost = dm_patch(ns, "privacy_lost",
+        "lost[[loser]][[member]] <- lost[[loser]][[member]] || hidden[[member]]", "NULL"))),
     m("across-1-written-rows",
       "Across findings: rule 1, the rows that the written levels of an item bound",
       function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
@@ -215,6 +239,13 @@ dm_mutants <- function() {
     m("across-3-rows", "Across findings: rule 3, the analysed rows fewer than 2k",
       function(ns) list(privacy_rule_3 = dm_patch(ns, "privacy_rule_3",
         "if (quantity$rows < 2 * k && quantity$contributors >= k) {", "if (FALSE) {"))),
+    # The only quantiles of level sizes in registry 0.1.0 are those of
+    # structure.cluster_sizes, whose rows are the design sample, so no
+    # finding on the analysis sample writes one. The unit tests of both
+    # packages call the helpers of the clause directly.
+    m("across-3-quantiles", "Across findings: rule 3, the written quantiles of the level sizes",
+      function(ns) list(privacy_rule_3 = dm_patch(ns, "privacy_rule_3",
+        "written <- q$quantiles", "NULL")), reachable = FALSE),
     m("across-parts", "Across findings: the parts of a count that the rules hide in the analysis sample",
       function(ns) list(privacy_across_finding = dm_patch(ns, "privacy_across_finding",
         "if (sample == \"analysis\") {", "if (FALSE) {"))),
@@ -257,7 +288,7 @@ dm_mutants <- function() {
           "isTRUE(defined[[name]][[\"measures\"]] %in% privacy_measures) &&", "FALSE &&"))),
     m("across-5-parts", "Across findings: rule 5, the parts of a count of the levels of a lost item",
       function(ns) list(privacy_rule_5 = dm_patch(ns, "privacy_rule_5",
-        "if (!length(parts)) {", "if (TRUE) {"))),
+        "counted <- c(counted, privacy_parts(finding, counted, person = FALSE))", "NULL"))),
     m("across-5-combined", "Across findings: rule 5, the counts of an item that combines a lost item",
       function(ns) list(privacy_rule_5 = dm_patch(ns, "privacy_rule_5",
         "names <- c(counted, combined, if (reads_item) reals)",
@@ -266,11 +297,50 @@ dm_mutants <- function() {
       function(ns) list(privacy_lost = dm_patch(ns, "privacy_lost",
         "if ((identical(basis, \"grouping_factors\") && i %in% factor_items) || identical(i, unit_item)) {",
         "if (FALSE) {"))),
+    # Rule 6 suppresses the counts of columns that would give back the
+    # levels of an item that steps 2 and 3, or rule 1 between
+    # design-structure samples, hide, which are design-structure values, and,
+    # on the rows of an assignment that are the analysis sample, those that
+    # a rule of step 7 hides there, which are outcome-derived.
+    m("across-6", "Across findings: rule 6, the columns of a term beside the levels that the filter hides",
+      function(ns) list(privacy_rule_6 = function(run, finding, sample, samples, items, quantities,
+                                                  measured, marks, k) finding)),
+    m("across-6-analysis", "Across findings: rule 6 in the analysis sample, the levels that step 7 hides there",
+      function(ns) list(privacy_across = dm_patch(ns, "privacy_across",
+        "ruled$analysis <- marks$analysis", "NULL"))),
+    m("across-6-rule-1", "Across findings: rule 6, the levels that rule 1 hides between design-structure samples",
+      function(ns) list(privacy_across = dm_patch(ns, "privacy_across",
+        "ruled <- structural", "ruled <- privacy_blank_marks(quantities)")), tier = "B"),
+    m("across-6-fails", "Across findings: rule 6, the levels in findings that all fail the minimum-count or the dominance rule",
+      function(ns) list(privacy_rule_6 = dm_patch(ns, "privacy_rule_6",
+        "(item$levels < k || counted$fails)", "(item$levels < k)")), tier = "B"),
+    m("across-6-combination", "Across findings: rule 6, the combination of the categorical variables of a term",
+      function(ns) {
+        without <- dm_patch(ns, "privacy_term_items", "if (length(categorical) > 1L) {",
+                            "if (FALSE) {")
+        rule <- get("privacy_rule_6", envir = ns)
+        environment(rule) <- list2env(list(privacy_term_items = without), parent = ns)
+        list(privacy_rule_6 = rule)
+      }, tier = "B"),
+    m("across-6-detail", "Across findings: rule 6, 'secondary' in place of 'min_count'",
+      function(ns) list(privacy_rule_6 = dm_patch(ns, "privacy_rule_6",
+        "privacy_suppress(finding, suppressed, \"secondary\", replace = TRUE)",
+        "privacy_suppress(finding, suppressed, \"secondary\")")), tier = "B"),
+    m("across-6-table", "Across findings: rule 6, the columns of the IR beside the levels that rule 1 hides in the table",
+      function(ns) list(privacy_rule_6 = dm_patch(ns, "privacy_rule_6",
+        "return(s == \"table\" && ruled && counted_elsewhere(i))", "return(FALSE)")),
+      tier = "B"),
     m("step-8", "Steps 8: absent statistics", function(ns) list(
       privacy_absent = function(finding) finding)),
     m("step-8-internal-only", "Steps 8: absent internal_only statistics",
       function(ns) list(privacy_absent = dm_patch(ns, "privacy_absent",
         "if (isTRUE(statistic[[\"internal_only\"]])) {", "if (FALSE) {"))),
+    # No internal_only statistic of registry 0.1.0 is a by_unit count. The
+    # unit tests of both packages call privacy_absent() on an entry that
+    # has one.
+    m("step-8-internal-by-unit", "Steps 8: the class person of an absent by_unit internal_only count",
+      function(ns) list(privacy_absent = dm_patch(ns, "privacy_absent",
+        "written$count_class <- \"person\"", "NULL")), reachable = FALSE),
     m("decision", "Decisions: every rule", function(ns) list(
       privacy_decision = function(finding, run, k) finding)),
     m("decision-t1", "Decisions: a T1 or T2 finding that rests on a suppressed count",
@@ -281,6 +351,12 @@ dm_mutants <- function() {
     m("separation-kept", "Decisions: outcome.separation with at most two kept columns",
       function(ns) list(privacy_separation = dm_patch(ns, "privacy_separation",
         c("if (kept <= 2 || sum(run$analysis_kept) <= 2 ||"), c("if (FALSE ||")))),
+    # The analysis sample keeps no column that the design sample drops, so
+    # its test of at most two kept columns implies that of the design
+    # sample whenever design.rank_deficiency yields a finding.
+    m("separation-design-kept", "Decisions: outcome.separation with at most two kept columns in the design sample",
+      function(ns) list(privacy_separation = dm_patch(ns, "privacy_separation",
+        "if (kept <= 2 ||", "if (FALSE ||")), reachable = FALSE),
     m("separation-one-variable", "Decisions: outcome.separation on one variable",
       function(ns) list(separation_one_variable = function(run, kept) FALSE)),
     m("separation-shared-values", "Decisions: outcome.separation with rows of equal values",

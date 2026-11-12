@@ -319,8 +319,8 @@
           "type": "boolean"
         },
         "measures": {
-          "description": "For a count that measures a sample, what it counts: the rows of the table, of the design sample or of the analysis sample, or, in the check's own sample or the rows of an assignment, the levels of its item, those with at least two rows or those with one row. The item is that of resolved_by, or for a count without it, the grouping factor of the finding's scope. The privacy filter compares such counts across the findings of a document (docs/spec/privacy.md, Across findings).",
-          "enum": ["analysis_rows", "design_rows", "levels", "levels_with_one_row", "levels_with_two_rows", "table_rows"]
+          "description": "For a count that measures a sample, what it counts: the rows of the table, of the design sample or of the analysis sample, or, in the check's own sample or the rows of an assignment, the levels of its item, those with at least two rows or those with one row. The item is that of resolved_by, or for a count without it, the grouping factor of the finding's scope. term_levels and table_term_levels mark a count of columns, or of degrees of freedom that columns use, that gives back with an offset the levels of the items of its terms, the term of the scope element or every fixed term: in the rows that the check reads for the columns that the sequential rule keeps there, and in the table for the columns of the IR (docs/spec/registry.md, Statistics and counts). The privacy filter compares such counts across the findings of a document (docs/spec/privacy.md, Across findings).",
+          "enum": ["analysis_rows", "design_rows", "levels", "levels_with_one_row", "levels_with_two_rows", "table_rows", "table_term_levels", "term_levels"]
         }
       },
       "allOf": [

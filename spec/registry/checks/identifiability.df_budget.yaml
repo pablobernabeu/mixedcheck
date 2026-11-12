@@ -30,6 +30,7 @@ statistics:
     count_class: by_unit
     resolved_by: [{source: scope, name: factor}]
     suppress_with: [levels]
+    measures: term_levels
     definition: >-
       J - k + r, where J is levels, k the number of fixed-effects columns that
       the sequential rule keeps and r the within-level rank of those columns
@@ -40,7 +41,10 @@ statistics:
       It is a number of degrees of freedom, but it equals levels minus 1 when
       the intercept is the only fixed effect that is constant within levels,
       so it takes the count class of levels, so that it cannot give back a
-      suppressed count of levels (docs/spec/privacy.md).
+      suppressed count of levels (docs/spec/privacy.md). Beside levels, it
+      gives back k - r, to which a factor of a fixed term that is constant
+      within the levels adds its levels less 1, so it measures the levels of
+      the items of the fixed terms too.
   consuming_terms:
     kind: names
     definition: >-
@@ -84,8 +88,8 @@ messages:
       '{factor}' has {levels} and {budget} between levels after the fixed
       effects.
     fallback: >-
-      The privacy rules do not allow the levels of '{factor}' and the degrees
-      of freedom between them to be shown.
+      The privacy rules do not allow the degrees of freedom that '{factor}'
+      has between its levels after the fixed effects to be shown.
     args:
       factor: {source: scope, name: factor}
       levels: {source: statistic, name: levels, noun: [level, levels]}

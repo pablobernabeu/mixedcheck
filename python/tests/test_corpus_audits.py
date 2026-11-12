@@ -1,12 +1,11 @@
 """The audit corpus: every case runs through audit() in internal mode with the
 commitment key 00 01 02 ... 1F and MIXEDCHECK_TIME set to 0, and its findings,
 or the issue that refuses the run, are compared with the expected ones as
-fixtures/conformance/audits/README.md describes. Every document that audit()
-returns is validated with validate_results() and its commitments verified
-against the data and declaration of the case.
-
-The shareable findings of privacy.json wait for the privacy filter, so that
-their tests are skipped with a message naming it.
+fixtures/conformance/audits/README.md describes. A case that states shareable
+findings also runs in shareable mode, and its findings are compared with
+those. Every document that audit() returns is validated with
+validate_results() and its commitments verified against the data and
+declaration of the case.
 """
 
 from __future__ import annotations
@@ -58,12 +57,14 @@ def test_audit_corpus(case: dict[str, Any]) -> None:
 
 @pytest.mark.parametrize("case", SHAREABLE, ids=[case["id"] for case in SHAREABLE])
 def test_audit_corpus_shareable(case: dict[str, Any]) -> None:
-    pytest.skip("the shareable findings wait for the port of the privacy filter")
+    expect_audit_findings(
+        run_audit(case, "shareable"), case["expected"]["shareable"], case, f"{case['id']} shareable"
+    )
 
 
-def test_the_audit_corpus_holds_290_cases_in_nine_files() -> None:
-    assert len(CASES) == 290
-    assert len({case["id"] for case in CASES}) == 290
+def test_the_audit_corpus_holds_294_cases_in_nine_files() -> None:
+    assert len(CASES) == 294
+    assert len({case["id"] for case in CASES}) == 294
 
 
 def message_finding(

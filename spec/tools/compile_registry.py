@@ -82,12 +82,15 @@ SHARED_PARAMETERS = ("agreement",)
 def can_be_unwritten(statistic: dict) -> bool:
     """Whether the privacy filter can suppress a statistic, or its definition
     leave it absent in a way that a message must allow for (registry.md,
-    Messages): ratios, reals and labels, person and by_unit counts, and any
-    statistic that is internal_only or suppressed with another."""
+    Messages): ratios, reals and labels, person and by_unit counts, counts
+    that measure a quantity, which the filter suppresses with it whatever
+    their class, and any statistic that is internal_only or suppressed with
+    another."""
     kind = statistic["kind"]
     return (
         kind in ("ratio", "real", "labels")
         or (kind == "count" and statistic["count_class"] != "non_person")
+        or "measures" in statistic
         or bool(statistic.get("internal_only"))
         or "suppress_with" in statistic
     )

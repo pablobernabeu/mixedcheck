@@ -65,7 +65,6 @@ statistics:
       also a count of rows, and its class is person whatever the factor.
   effective_size:
     kind: real
-    internal_only: true
     definition: >-
       The effective level size n0 = (N - S/N)/(J - 1), where S is the sum of
       the squared level sizes, for which the expected between-level mean square
@@ -73,11 +72,10 @@ statistics:
       of the factor. S is summed in integer arithmetic, and S/N, the
       difference and the quotient are each computed in double arithmetic, so
       that it is 'NaN' when J is 1, the quotient being 0/0. With N and J, it
-      gives back S, the sum of the squared level sizes, which beside the
-      quartiles gives back the smallest or largest size of a factor whose
-      sizes differ little, as 39 levels of 10 rows and one of 9 show, and the
-      sizes of a factor with few levels, and with J it gives back N, so it is
-      internal_only (docs/spec/privacy.md).
+      gives back S, the sum of the squared level sizes, so a shareable
+      document writes it only where the privacy filter does not hide the rows
+      or levels of the design sample beside the analysis sample
+      (docs/spec/privacy.md, Across findings, rule 5).
   intercept:
     kind: boolean
     definition: Whether a random term of the factor has an intercept.

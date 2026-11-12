@@ -36,7 +36,6 @@ statistics:
     kind: count
     count_class: by_unit
     resolved_by: [{source: scope, name: first}, {source: scope, name: second}]
-    suppress_with: [levels_first, levels_second]
     measures: levels
     definition: >-
       The number of distinct pairs of a label of the first column and a label

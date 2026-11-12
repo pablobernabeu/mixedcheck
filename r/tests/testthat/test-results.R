@@ -45,8 +45,7 @@ test_that("printing shows the banner of the mode and one line for each finding",
     paste("outcome.constant_clusters (factor 'school'): consistent. The outcome varies within",
           "every level of 'school' that has two or more rows."),
     paste("structure.label_incidence (first 'class', second 'school'): consistent. In the design",
-          "sample, 'class' has 4 labels and 'school' has 6, which occur in 24 combinations.",
-          "Relation from the labels: crossed.")
+          "sample, the relation of 'class' and 'school' from the labels is: crossed.")
   ))
 
   internal <- example_results("valid/005.json")
@@ -80,15 +79,15 @@ test_that("write_results() writes the canonical bytes and the sidecar with the r
   bytes <- readBin(path, "raw", file.size(path))
   expect_identical(bytes, canonical_bytes(results$document, "data"))
   expect_identical(hash$value, hash_file(path))
-  # With the registry hash of documents.md, the example there has 5,715
+  # With the registry hash of documents.md, the example there has 6,335
   # canonical bytes and the results file hash that its sidecar records.
   example <- results$document
   example$inputs$registry_hash <-
     "sha256:872491a30d60d598962de6e7b834ab76b2aa65fbab102c6ebaaae6acdc238822"
   example_bytes <- canonical_bytes(example, "data")
-  expect_length(example_bytes, 5715L)
+  expect_length(example_bytes, 6335L)
   expect_identical(hash_bytes(example_bytes),
-                   "sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92")
+                   "sha256:2be42c9598e82bd70f5c3fecacbdc2123831131b674224c2c9e86388ed21af8b")
   written <- read_json_strict(sidecar, "data")
   expect_identical(written$results_hash, hash$value)
   expect_identical(written[names(results$sidecar)], results$sidecar)

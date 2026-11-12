@@ -1,13 +1,16 @@
 # The attacks together (sim/disclosure/README.md): the consistency search (a)
 # and the interval audit (b) on every family, the regression attacks (c) and
-# the validation attacks (v), with a report of the leaks, the
-# determinations that privacy.md accepts and the errors of the harness.
+# the validation attacks (v), with a report of the leaks, the candidates of
+# the families that do not gate the run, the determinations that privacy.md
+# accepts, those of design-structure values that it leaves as residual risk
+# and the errors of the harness.
 
 dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families = NULL,
                            cores = 1L, widen = 1L, log = FALSE) {
   say <- function(...) if (log) cat(sprintf(...), "\n", sep = "")
   leaks <- list()
   candidates <- list()
+  residual <- list()
   accepted <- list()
   errors <- character(0)
   timing <- list()
@@ -25,6 +28,7 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
       result <- dh_family_attacks(ns, family, attacks, cores, widen)
       leaks <- c(leaks, list(result$leaks))
       candidates <- c(candidates, list(result$candidates))
+      residual <- c(residual, list(result$residual))
       accepted <- c(accepted, list(result$accepted))
       errors <- c(errors, result$errors)
       timing[[family$name]] <- proc.time()[["elapsed"]] - started
@@ -34,7 +38,18 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
   if ("c" %in% attacks) {
     started <- proc.time()[["elapsed"]]
     regressions <- rg_run(ns, root)
+    tiers <- vapply(rg_attacks(), function(a) a$tier %||% "A", "")
+    names(tiers) <- vapply(rg_attacks(), function(a) a$id, "")
     for (j in which(regressions$leak)) {
+      if (identical(tiers[[regressions$attack[j]]], "B")) {
+        # A design-structure value that an inference other than a linear
+        # relation gives back is residual risk (privacy.md, Guarantees).
+        residual <- c(residual, list(data.frame(
+          attack = "c", where = regressions$attack[j], target = regressions$channel[j],
+          value = regressions$found[j], reproducer = "R/regressions.R", key = "",
+          stringsAsFactors = FALSE)))
+        next
+      }
       add_leak("c", regressions$attack[j], regressions$channel[j], regressions$found[j],
                "R/regressions.R")
     }
@@ -72,18 +87,27 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
     }
   }
   candidates <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, candidates)
+  residual <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, residual)
   accepted <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, accepted)
   list(leaks = leaks[is.na(known), , drop = FALSE],
        known = cbind(leaks[!is.na(known), , drop = FALSE], channel = known[!is.na(known)]),
        candidates = if (length(candidates)) do.call(rbind, candidates) else empty,
+       residual = if (length(residual)) do.call(rbind, residual) else empty,
        accepted = if (length(accepted)) do.call(rbind, accepted) else empty[, 1:3],
        errors = errors, timing = timing,
        regressions = if ("c" %in% attacks) regressions,
        validation = if ("v" %in% attacks) validation)
 }
 
-# Attacks (a) and (b) on one family: the leaks, the determinations that
-# privacy.md accepts and the errors of the harness, with the number of tables.
+# Attacks (a) and (b) on one family: the leaks, the candidates, the
+# determinations that privacy.md accepts, those that it leaves as residual
+# risk and the errors of the harness, with the number of tables. A
+# determination of an outcome-derived value is a leak of attack (a) in a
+# family that gates the run and a candidate in another, and a leak of attack
+# (b) when it is determined, or bound below k by the written values without
+# the bounds of details. A design-structure value is a leak of attack (b)
+# when the linear relations alone determine it, and residual risk when only
+# other inferences do.
 # Each leak has a key that identifies where it was found whatever the order
 # in which the workers ran: the table of the family for (a) and the reduced
 # document for (b), which the interval audit audits once.
@@ -109,6 +133,12 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
     errors <- c(errors, sprintf("%s, table %s: %s", family$name, dh_params(grid, i),
                                 if (is.list(runs[[i]])) runs[[i]]$error else runs[[i]]))
   }
+  # Every parameter has the tier that the definition gives it on the tables
+  # of the family (privacy.md, Tiers).
+  keys <- t(vapply(runs, function(r) {
+    if (is.list(r) && length(r$design) == 2L) r$design else c(design = NA_character_, table = NA)
+  }, c(design = "", table = "")))
+  errors <- c(errors, dh_parameter_tier_issues(family, grid, keys))
   issues <- unique(unlist(lapply(runs[!failed], function(r) r$issues)))
   for (issue in issues) {
     errors <- c(errors, sprintf("%s: a shareable document fails validation: %s",
@@ -117,7 +147,16 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
   found <- search$found
   accepted <- found[found$verdict == "accepted", , drop = FALSE]
   candidates <- list()
+  residual <- list()
+  add_residual <- function(attack, target, value, reproducer) {
+    residual[[length(residual) + 1L]] <<- data.frame(
+      attack = attack, where = family$name, target = target, value = value,
+      reproducer = reproducer, key = reproducer, stringsAsFactors = FALSE)
+  }
   if ("a" %in% attacks) {
+    for (j in which(found$verdict == "residual")) {
+      add_residual("a", found$target[j], found$value[j], dh_params(grid, found$table[j]))
+    }
     for (j in which(found$verdict == "leak")) {
       params <- dh_params(grid, found$table[j])
       if (isTRUE(family$gate)) {
@@ -135,9 +174,15 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
       if (is.null(lp) || !nrow(lp)) next
       for (j in seq_len(nrow(lp))) {
         interval <- sprintf("[%g, %g] (%s)", lp$lower[j], lp$upper[j], lp$detail[j])
-        if (lp$verdict[j] == "determined") {
+        if (lp$verdict[j] == "determined" || (lp$verdict[j] == "bound" && lp$tier[j] == "A")) {
           add_leak("b", paste(lp$target[j], lp$verdict[j]), interval, dh_params(grid, i),
                    runs[[i]]$full)
+        } else if (lp$verdict[j] == "residual") {
+          add_residual("b", paste(lp$target[j], "determined with inequalities"), interval,
+                       dh_params(grid, i))
+        } else if (lp$verdict[j] == "no tier") {
+          errors <- c(errors, sprintf("%s, table %s: the hidden value %s has no tier",
+                                      family$name, dh_params(grid, i), lp$target[j]))
         } else if (lp$verdict[j] == "model error") {
           errors <- c(errors, sprintf("%s, table %s: the interval audit excludes the value %g of %s",
                                       family$name, dh_params(grid, i), lp$truth[j], lp$target[j]))
@@ -150,19 +195,23 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
                       stringsAsFactors = FALSE)
   list(leaks = if (length(leaks)) do.call(rbind, leaks) else empty,
        candidates = if (length(candidates)) do.call(rbind, candidates) else empty,
+       residual = if (length(residual)) do.call(rbind, residual) else empty,
        accepted = data.frame(attack = rep("a", nrow(accepted)), where = rep(family$name, nrow(accepted)),
                              target = accepted$target, stringsAsFactors = FALSE),
        errors = errors, tables = nrow(grid))
 }
 
-# The channels that docs/spec/privacy.md (Guarantees) records as not closed,
-# each with the attack and family that find it and a pattern of its targets.
+# The channels of outcome-derived values, or linear relations of
+# design-structure values, that docs/spec/privacy.md (Guarantees) records as
+# not closed, each with the attack and the family, or for attack (c) the
+# regression attack, that find it, and a pattern of its targets. privacy.md
+# records one linear relation of design-structure values as open for a
+# decision of the maintainer: the columns of a categorical variable of a term
+# give back the levels of an item into which it divides the rows.
 dh_known_channels <- function() {
   list(
-    list(id = "quantile-pinned-by-rows", attack = "b", family = "four-sizes",
-         target = paste0("^structure\\.cluster_sizes .*\\| ",
-                         "(lower_quartile|median|upper_quartile) determined$"),
-         channel = "a quantile below k that the rows, the levels and the singletons pin")
+    list(id = "column-levels", attack = "c", family = "R8-column-levels",
+         target = "^df of a fixed factor")
   )
 }
 
@@ -183,10 +232,11 @@ dh_params <- function(grid, i) {
 
 dh_print_report <- function(report) {
   leaks <- report$leaks
-  cat(sprintf(paste("%d leaks, %d of known channels, %d candidates,",
-                    "%d accepted determinations, %d errors of the harness\n"),
-              nrow(leaks), nrow(report$known %||% leaks[0, ]), nrow(report$candidates),
-              nrow(report$accepted), length(report$errors)))
+  residual <- report$residual
+  cat(sprintf(paste("%d leaks, %d candidates, %d accepted determinations,",
+                    "%d determinations of residual risk, %d errors of the harness\n"),
+              nrow(leaks), nrow(report$candidates), nrow(report$accepted),
+              nrow(residual %||% leaks[0, ]), length(report$errors)))
   known <- report$known
   if (!is.null(known) && nrow(known)) {
     for (j in which(!duplicated(known$channel))) {
@@ -194,12 +244,6 @@ dh_print_report <- function(report) {
                   known$target[j], sum(known$channel == known$channel[j]), known$where[j],
                   known$reproducer[j]))
     }
-  }
-  candidates <- report$candidates
-  key <- paste(candidates$where, candidates$target)
-  for (j in which(!duplicated(key))) {
-    cat(sprintf("CANDIDATE (a) family %s: %s = %s, e.g. %s\n", candidates$where[j],
-                candidates$target[j], candidates$value[j], candidates$reproducer[j]))
   }
   if (nrow(leaks)) {
     # One line for each target and place, with the first reproducer.
@@ -219,5 +263,30 @@ dh_print_report <- function(report) {
   }
   for (error in utils::head(report$errors, 20L)) {
     cat("ERROR", error, "\n")
+  }
+  candidates <- report$candidates
+  key <- paste(candidates$where, candidates$target)
+  for (j in which(!duplicated(key))) {
+    cat(sprintf("CANDIDATE (a) family %s: %s = %s, e.g. %s\n", candidates$where[j],
+                candidates$target[j], candidates$value[j], candidates$reproducer[j]))
+  }
+  if (!is.null(residual) && nrow(residual)) {
+    # Determinations of design-structure values that the linear relations
+    # alone do not make, which privacy.md (Guarantees, Residual risk) leaves
+    # open: one line for each attack, place and target, with the number of
+    # tables and the first reproducer. They never fail the run.
+    cat("\nResidual risk (privacy.md, Guarantees, Residual risk): determinations of",
+        "design-structure values\n")
+    key <- paste(residual$attack, residual$where, residual$target)
+    for (j in which(!duplicated(key))) {
+      if (residual$attack[j] == "c") {
+        cat(sprintf("RESIDUAL (c) %s: %s: %s\n", residual$where[j], residual$target[j],
+                    residual$value[j]))
+      } else {
+        cat(sprintf("RESIDUAL (%s) family %s: %s = %s, in %d tables, e.g. %s\n",
+                    residual$attack[j], residual$where[j], residual$target[j], residual$value[j],
+                    sum(key == key[j]), residual$reproducer[j]))
+      }
+    }
   }
 }

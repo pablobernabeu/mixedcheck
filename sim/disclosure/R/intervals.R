@@ -23,6 +23,8 @@ iv_new <- function(k) {
   env$binary <- logical(0)
   env$constraints <- list()
   env$targets <- list()
+  env$qclass <- list()
+  env$written_q <- list()
   env
 }
 
@@ -46,12 +48,18 @@ iv_has <- function(m, name) !is.null(name) && name %in% m$vars
 
 # A constraint sum(coefs * vars) dir rhs. Variables that the model lacks make
 # the constraint unusable, and it is dropped.
-iv_add <- function(m, coefs, dir, rhs = 0, accepted = FALSE) {
+# structural TRUE marks an inequality or combinatorial relation of the
+# design structure, such as rows at least the levels plus the levels with two
+# or more rows or the bounds that the position of a quantile implies. Such
+# relations determine design-structure values only as residual risk
+# (privacy.md, Tiers), so the linear model leaves them out.
+iv_add <- function(m, coefs, dir, rhs = 0, accepted = FALSE, structural = FALSE) {
   if (!length(coefs) || !all(vapply(names(coefs), iv_has, NA, m = m))) {
     return(invisible(FALSE))
   }
   m$constraints[[length(m$constraints) + 1L]] <- list(coefs = coefs, dir = dir, rhs = rhs,
-                                                      accepted = accepted)
+                                                      accepted = accepted,
+                                                      structural = structural)
   invisible(TRUE)
 }
 
@@ -142,7 +150,7 @@ iv_model <- function(document, entries, details = TRUE, only = NULL) {
         m$targets[[v]] <- list(detail = detail, class = s$count_class %||% "",
                                quantile = !is.null(defined[["quantile"]]),
                                check = finding$check, member = name,
-                               finding = dh_finding_id(finding))
+                               finding = dh_finding_id(finding), tier = dh_tier(v))
       } else {
         next
       }
@@ -159,6 +167,10 @@ iv_model <- function(document, entries, details = TRUE, only = NULL) {
         )
         if (!is.null(q)) {
           iv_add(m, stats::setNames(c(1, -1), c(v, q)), "=")
+          m$qclass[[q]] <- c(m$qclass[[q]], s$count_class %||% "")
+          if (!is.null(s$value)) {
+            m$written_q[[q]] <- s$value
+          }
         }
       }
     }
@@ -178,7 +190,7 @@ iv_model <- function(document, entries, details = TRUE, only = NULL) {
                lower = if (at_least_k) k else 0)
         m$targets[[v]] <- list(detail = detail, class = "person", quantile = FALSE,
                                check = finding$check, member = paste0("support.", member),
-                               finding = dh_finding_id(finding))
+                               finding = dh_finding_id(finding), tier = dh_tier(v))
       }
     }
     # The support counts the sample that the entry names, also for a finding
@@ -186,6 +198,12 @@ iv_model <- function(document, entries, details = TRUE, only = NULL) {
     own <- entry[["sample"]]
     iv_add(m, stats::setNames(c(1, -1), c(iv_name(finding, "support.rows"), iv_q(m, own, "rows"))),
            "=")
+    for (member in c("rows", "distinct")) {
+      given <- if (member == "rows") finding$support$rows else finding$support$contributors$distinct
+      if (!is.null(given$value)) {
+        m$written_q[[iv_q(m, own, if (member == "rows") "rows" else "contributors")]] <- given$value
+      }
+    }
     basis <- finding$support$contributors$basis
     distinct <- iv_name(finding, "support.distinct")
     iv_add(m, stats::setNames(c(1, -1), c(distinct, iv_q(m, own, "contributors"))), "=")
@@ -196,11 +214,124 @@ iv_model <- function(document, entries, details = TRUE, only = NULL) {
              "=")
     }
     iv_check_relations(m, finding, entry, family_class, t0)
+    iv_part_bounds(m, finding, entry)
     iv_ratios(m, finding, entry)
     iv_status_relations(m, finding, entry, t0)
   }
   iv_sample_relations(m, samples)
+  iv_difference_targets(m)
+  iv_firing_bounds(m, document)
+  iv_quantity_targets(m, only)
   m
+}
+
+# The quantities by which the table and the design sample exceed the
+# analysis sample, which are outcome-derived (privacy.md, Tiers): the rows
+# and contributors without an outcome and, for each item, the levels and
+# the levels with two or more rows that lose every outcome, or all but one.
+# Each is a target of tier A that the audit reports when it has one value
+# below k.
+iv_difference_targets <- function(m) {
+  pattern <- "^Q analysis \\| (.*)$"
+  for (v in grep(pattern, m$vars, value = TRUE)) {
+    quantity <- sub(pattern, "\\1", v)
+    if (grepl("^levels_with_one_row", quantity)) next
+    for (s in c("table", "design")) {
+      other <- paste0("Q ", s, " | ", quantity)
+      if (!iv_has(m, other)) next
+      # The levels of an item whose counts resolve as non-person in the
+      # larger sample differ by levels that hold two members or more, which
+      # are not person counts: written beside each other they show their
+      # difference as other non-person counts do, and only a difference that
+      # the written values give although the larger sample's levels are
+      # hidden is a determination (privacy.md, Across findings, rule 1).
+      non_person <- grepl("^levels", quantity) && "non_person" %in% m$qclass[[other]]
+      d <- iv_var(m, paste0("D ", s, " minus analysis | ", quantity))
+      iv_add(m, stats::setNames(c(1, -1, 1), c(d, other, v)), "=")
+      m$targets[[d]] <- list(detail = "", class = if (non_person) "non_person" else "person",
+                             quantile = FALSE, check = "difference", member = quantity,
+                             finding = paste(s, "minus analysis"), tier = dh_tier(d),
+                             difference = TRUE, larger = other)
+    }
+  }
+}
+
+# The quantities of the analysis sample that no written count measures, its
+# rows, contributors and, for each item, its levels, its levels with two rows
+# or more and its levels with one row, as targets of tier A (privacy.md,
+# Tiers). A quantity that a written count measures is not hidden.
+iv_quantity_targets <- function(m, only = NULL) {
+  if (!is.null(only)) {
+    return()
+  }
+  for (v in grep("^Q analysis \\| ", m$vars, value = TRUE)) {
+    if (!is.null(m$written_q[[v]]) || !is.null(m$targets[[v]])) {
+      next
+    }
+    m$targets[[v]] <- list(detail = "", class = "person", quantile = FALSE, check = "quantity",
+                           member = sub("^Q analysis \\| ", "", v), finding = "analysis",
+                           tier = dh_tier(v), quantity = TRUE)
+  }
+}
+
+# The bounds that the part_of rule implies when it does not fire (privacy.md,
+# Within a finding): a written part of a person total that is hidden shows
+# that the total exceeds it, and the sum of the written parts, by k or more.
+iv_part_bounds <- function(m, finding, entry) {
+  defined <- entry[["statistics"]]
+  k <- m$k
+  for (total in unique(unlist(lapply(defined, function(s) s[["part_of"]])))) {
+    t <- finding$statistics[[total]]
+    if (is.null(t) || !is.null(t$value) || !identical(t$count_class, "person")) {
+      next
+    }
+    parts <- Filter(function(name) {
+      identical(defined[[name]][["part_of"]], total) && !is.null(finding$statistics[[name]]$value)
+    }, names(finding$statistics))
+    if (!length(parts)) {
+      next
+    }
+    tv <- iv_name(finding, total)
+    for (part in parts) {
+      iv_add(m, stats::setNames(c(1, -1), c(tv, iv_name(finding, part))), ">=", k,
+             structural = TRUE)
+    }
+    iv_add(m, stats::setNames(c(1, rep(-1, length(parts))),
+                              c(tv, vapply(parts, function(p) iv_name(finding, p), ""))), ">=", k,
+           structural = TRUE)
+  }
+}
+
+# The bounds that rule 1 implies when it does not fire beside the analysis
+# sample (privacy.md, Across findings): a quantity of the table or the design
+# sample that a written count measures was compared with the analysis
+# sample's, which it exceeds by k or more unless it is 0. The rows and
+# contributors are always compared, and the levels and the levels with two
+# rows of an item whose counts resolve as person counts in the larger sample.
+# The analysis sample is shown when a finding of a T1 or T2 check is
+# available.
+iv_firing_bounds <- function(m, document) {
+  shown <- any(vapply(document$findings, function(f) {
+    f$tier %in% c("T1", "T2") && identical(f$status$availability$value, "available")
+  }, NA))
+  if (!shown) {
+    return()
+  }
+  pattern <- "^Q (table|design) \\| (.*)$"
+  for (q in grep(pattern, names(m$written_q), value = TRUE)) {
+    value <- m$written_q[[q]]
+    quantity <- sub(pattern, "\\2", q)
+    if (value == 0 || grepl("^levels_with_one_row", quantity)) {
+      next
+    }
+    if (grepl("^levels", quantity) && !("person" %in% m$qclass[[q]])) {
+      next
+    }
+    analysed <- paste0("Q analysis | ", quantity)
+    if (iv_has(m, analysed)) {
+      iv_add(m, stats::setNames(1, analysed), "<=", value - m$k, structural = TRUE)
+    }
+  }
 }
 
 # With the basis grouping_factors, the contributors of a sample are the
@@ -262,17 +393,19 @@ iv_sample_relations <- function(m, samples) {
       # Every level that the smaller sample lacks holds rows of the larger.
       iv_add(m, stats::setNames(c(1, -1, -1, 1), c(iv_q(m, pair[1L], "rows"), iv_q(m, pair[2L], "rows"),
                                                   iv_q(m, pair[1L], "levels", item),
-                                                  iv_q(m, pair[2L], "levels", item))), ">=")
+                                                  iv_q(m, pair[2L], "levels", item))), ">=",
+             structural = TRUE)
     }
   }
   for (s in union(c("table", "design", "analysis"), samples)) {
-    iv_add(m, stats::setNames(c(1, -1), c(iv_q(m, s, "rows"), iv_q(m, s, "contributors"))), ">=")
+    iv_add(m, stats::setNames(c(1, -1), c(iv_q(m, s, "rows"), iv_q(m, s, "contributors"))), ">=",
+           structural = TRUE)
     # The levels of the combinations of two items are at least those of
     # each.
     for (item in items[grepl(":", items, fixed = TRUE)]) {
       for (part in intersect(strsplit(item, ":", fixed = TRUE)[[1L]], items)) {
         iv_add(m, stats::setNames(c(1, -1), c(iv_q(m, s, "levels", item), iv_q(m, s, "levels", part))),
-               ">=")
+               ">=", structural = TRUE)
       }
     }
     for (item in items) {
@@ -280,7 +413,8 @@ iv_sample_relations <- function(m, samples) {
       one <- iv_q(m, s, "levels_with_one_row", item)
       two <- iv_q(m, s, "levels_with_two_rows", item)
       iv_add(m, stats::setNames(c(1, -1, -1), c(levels, one, two)), "=")
-      iv_add(m, stats::setNames(c(1, -1, -2), c(iv_q(m, s, "rows"), one, two)), ">=")
+      iv_add(m, stats::setNames(c(1, -1, -2), c(iv_q(m, s, "rows"), one, two)), ">=",
+             structural = TRUE)
     }
   }
 }
@@ -289,8 +423,8 @@ iv_sample_relations <- function(m, samples) {
 # between the counts of one finding.
 iv_check_relations <- function(m, finding, entry, family_class, t0) {
   n <- function(name) iv_name(finding, name)
-  rel <- function(coefs, names, dir, rhs = 0, accepted = FALSE) {
-    iv_add(m, stats::setNames(coefs, vapply(names, n, "")), dir, rhs, accepted)
+  rel <- function(coefs, names, dir, rhs = 0, accepted = FALSE, structural = FALSE) {
+    iv_add(m, stats::setNames(coefs, vapply(names, n, "")), dir, rhs, accepted, structural)
   }
   value <- function(name) finding$statistics[[name]]$value
   switch(finding$check,
@@ -299,41 +433,41 @@ iv_check_relations <- function(m, finding, entry, family_class, t0) {
     },
     keys.duplicates = {
       rel(c(1, -1, -1), c("duplicated_keys", "identical_keys", "conflicting_keys"), "=")
-      rel(c(1, -2), c("duplicate_rows", "duplicated_keys"), ">=")
+      rel(c(1, -2), c("duplicate_rows", "duplicated_keys"), ">=", structural = TRUE)
       rel(c(1, -1, -1), c("rows", "duplicate_rows", "missing_key_rows"), ">=")
     },
     structure.cluster_sizes = {
-      rel(c(1, -1), c("rows", "levels"), ">=")
+      rel(c(1, -1), c("rows", "levels"), ">=", structural = TRUE)
       rel(c(1, -1), c("levels", "singletons"), ">=")
-      rel(c(1, -2, 1), c("rows", "levels", "singletons"), ">=")
+      rel(c(1, -2, 1), c("rows", "levels", "singletons"), ">=", structural = TRUE)
       order <- c("smallest", "lower_quartile", "median", "upper_quartile", "largest")
-      for (i in 1:4) rel(c(1, -1), order[i + 1:0], ">=")
+      for (i in 1:4) rel(c(1, -1), order[i + 1:0], ">=", structural = TRUE)
       iv_var(m, n("smallest"), lower = 1)
       # smallest is 1 exactly when some level has one row.
       if (iv_has(m, n("smallest")) && iv_has(m, n("singletons"))) {
         b <- iv_var(m, paste0("B ", n("smallest"), " is 1"), 0, 1, binary = TRUE)
-        iv_add(m, stats::setNames(c(1, -iv_big), c(n("singletons"), b)), "<=")
-        iv_add(m, stats::setNames(c(1, -1), c(n("singletons"), b)), ">=")
-        iv_add(m, stats::setNames(c(1, iv_big), c(n("smallest"), b)), "<=", 1 + iv_big)
-        iv_add(m, stats::setNames(c(1, 1), c(n("smallest"), b)), ">=", 2)
+        iv_add(m, stats::setNames(c(1, -iv_big), c(n("singletons"), b)), "<=", structural = TRUE)
+        iv_add(m, stats::setNames(c(1, -1), c(n("singletons"), b)), ">=", structural = TRUE)
+        iv_add(m, stats::setNames(c(1, iv_big), c(n("smallest"), b)), "<=", 1 + iv_big, structural = TRUE)
+        iv_add(m, stats::setNames(c(1, 1), c(n("smallest"), b)), ">=", 2, structural = TRUE)
       }
       j <- value("levels")
       if (!is.null(j)) {
         for (q in c("smallest", "largest")) {
           bound <- if (q == "smallest") "<=" else ">="
-          rel(c(1, -j), c("rows", q), if (q == "smallest") ">=" else "<=")
+          rel(c(1, -j), c("rows", q), if (q == "smallest") ">=" else "<=", structural = TRUE)
         }
         # The quantile at position p of J values: the J - pos + 1 values from
         # it are at least it, and it is 1 exactly when singletons reach pos.
         for (q in c("lower_quartile", "median", "upper_quartile")) {
           pos <- ceiling(c(lower_quartile = 0.25, median = 0.5, upper_quartile = 0.75)[[q]] * j)
-          rel(c(1, -(j - pos + 1)), c("rows", q), ">=", pos - 1)
+          rel(c(1, -(j - pos + 1)), c("rows", q), ">=", pos - 1, structural = TRUE)
           if (iv_has(m, n(q)) && iv_has(m, n("singletons"))) {
             b <- iv_var(m, paste0("B ", n(q), " is 1"), 0, 1, binary = TRUE)
-            iv_add(m, stats::setNames(c(1, -pos), c(n("singletons"), b)), ">=")
-            iv_add(m, stats::setNames(c(1, -iv_big), c(n("singletons"), b)), "<=", pos - 1)
-            iv_add(m, stats::setNames(c(1, iv_big), c(n(q), b)), "<=", 1 + iv_big)
-            iv_add(m, stats::setNames(c(1, 1), c(n(q), b)), ">=", 2)
+            iv_add(m, stats::setNames(c(1, -pos), c(n("singletons"), b)), ">=", structural = TRUE)
+            iv_add(m, stats::setNames(c(1, -iv_big), c(n("singletons"), b)), "<=", pos - 1, structural = TRUE)
+            iv_add(m, stats::setNames(c(1, iv_big), c(n(q), b)), "<=", 1 + iv_big, structural = TRUE)
+            iv_add(m, stats::setNames(c(1, 1), c(n(q), b)), ">=", 2, structural = TRUE)
           }
         }
       }
@@ -363,17 +497,17 @@ iv_check_relations <- function(m, finding, entry, family_class, t0) {
       rel(c(1, -1), c("cells", "replicated_cells"), ">=")
     },
     structure.label_incidence = {
-      rel(c(1, -1), c("combinations", "levels_first"), ">=")
-      rel(c(1, -1), c("combinations", "levels_second"), ">=")
+      rel(c(1, -1), c("combinations", "levels_first"), ">=", structural = TRUE)
+      rel(c(1, -1), c("combinations", "levels_second"), ">=", structural = TRUE)
       rel(c(1, -1), c("levels_first", "first_in_several"), ">=")
       rel(c(1, -1), c("levels_second", "second_in_several"), ">=")
       # A label in several combinations holds two of them or more. These
       # bound a part to 0 only when the relation, a category of a T0 check
       # that privacy.md accepts to show, says that its column is nested.
       rel(c(1, -1, -1), c("combinations", "levels_first", "first_in_several"), ">=",
-          accepted = t0)
+          accepted = t0, structural = TRUE)
       rel(c(1, -1, -1), c("combinations", "levels_second", "second_in_several"), ">=",
-          accepted = t0)
+          accepted = t0, structural = TRUE)
       relation <- value("relation")
       if (identical(relation, "crossed")) {
         for (side in c("levels_first", "levels_second")) {
@@ -395,7 +529,7 @@ iv_check_relations <- function(m, finding, entry, family_class, t0) {
     structure.aliased_factors = {
       rel(c(1, -1), c("coarser_levels", "informative_levels"), ">=")
       rel(c(1, -1), c("rows", "informative_rows"), ">=")
-      rel(c(1, -2), c("informative_rows", "informative_levels"), ">=")
+      rel(c(1, -2), c("informative_rows", "informative_levels"), ">=", structural = TRUE)
       # The finer factor has a level for each coarser level and a further one
       # for each coarser level that holds two or more.
       coarser <- unlist(value("coarser"))
@@ -403,11 +537,11 @@ iv_check_relations <- function(m, finding, entry, family_class, t0) {
       if (length(coarser) == 1L && length(finer) == 1L) {
         iv_add(m, stats::setNames(c(1, -1, -1), c(iv_q(m, "design", "levels", finer),
                                                  n("coarser_levels"), n("informative_levels"))),
-               ">=")
+               ">=", structural = TRUE)
       }
     },
     labels.unicode_forms = {
-      rel(c(1, -2), c("spellings", "labels"), ">=")
+      rel(c(1, -2), c("spellings", "labels"), ">=", structural = TRUE)
     },
     assignment.constant_within_unit = {
       rel(c(1, -1), c("units", "mixed_units"), ">=")
@@ -433,7 +567,7 @@ iv_check_relations <- function(m, finding, entry, family_class, t0) {
     outcome.zero_shares = {
       rel(c(1, -1), c("rows", "zeros"), ">=")
       rel(c(1, -1), c("levels", "all_zero_levels"), ">=")
-      rel(c(1, -1), c("zeros", "all_zero_levels"), ">=")
+      rel(c(1, -1), c("zeros", "all_zero_levels"), ">=", structural = TRUE)
     },
     outcome.separation = {
       if (family_class == "bernoulli") {
@@ -504,8 +638,9 @@ iv_status_relations <- function(m, finding, entry, t0) {
 # The program of a model, without the constraints marked accepted when
 # strict is TRUE, as the matrix, directions and right-hand sides of lp(),
 # with every variable bounded.
-iv_program <- function(m, strict) {
-  keep <- Filter(function(c) !(strict && c$accepted), m$constraints)
+iv_program <- function(m, strict, linear = FALSE) {
+  keep <- Filter(function(c) !(strict && c$accepted) && !(linear && isTRUE(c$structural)),
+                 m$constraints)
   nv <- length(m$vars)
   lower <- which(m$lower > 0)
   a <- matrix(0, length(keep) + length(lower) + nv, nv)
@@ -569,10 +704,47 @@ iv_audit <- function(document, entries, internal = NULL, shared = NULL) {
       truth <- NULL
     }
     verdict <- NULL
-    if (anyNA(full) || anyNA(strict)) {
+    if (is.na(t$tier)) {
+      verdict <- "no tier"
+    } else if (anyNA(full) || anyNA(strict)) {
       verdict <- "model error"
     } else if (!is.null(truth) && (truth < full[1L] - 1e-6 || truth > full[2L] + 1e-6)) {
       verdict <- "model error"
+    } else if (isTRUE(t$difference)) {
+      # A difference that one value below k gives is determined, and one of
+      # k or more is not hidden by any rule. A difference of 0 that the
+      # design structure forces, because the quantity of the larger sample is
+      # 0, takes that value whatever the outcome, and is accepted. A
+      # difference of the levels of a non-person item is written as the
+      # other non-person counts are when a written count measures the levels
+      # of the larger sample.
+      if (strict[1L] == strict[2L] && strict[1L] < k) {
+        larger <- t$larger
+        forced <- strict[1L] == 0 &&
+          iv_bounds(m, programs$strict, larger)[[2L]] == 0
+        shown <- identical(t$class, "non_person") && !is.null(m$written_q[[larger]])
+        verdict <- if (forced || shown) "accepted" else "determined"
+      }
+    } else if (isTRUE(t$quantity)) {
+      # A quantity of the analysis sample that no written count measures is
+      # determined when the strict program gives it one value, unless the
+      # design structure forces that value, as it forces 0 levels with two
+      # rows where the design sample has none, or the value is k or more and
+      # the written values alone give it, as they give the levels with one
+      # row of the levels and the levels with two rows when both are written.
+      if (strict[1L] == strict[2L]) {
+        same <- sub("^Q analysis ", "Q design ", target)
+        forced <- strict[1L] == 0 && iv_has(m, same) &&
+          iv_bounds(m, programs$strict, same)[[2L]] == 0
+        # The class non_person of the analysed levels of an item, which the
+        # document writes, shows that none has one row.
+        item <- sub("^Q analysis \\| levels_with_one_row \\| ", "", target)
+        classes <- unlist(m$qclass[paste0("Q analysis | ", c("levels", "levels_with_two_rows"),
+                                          " | ", item)])
+        forced <- forced || (strict[1L] == 0 && item != target && "non_person" %in% classes)
+        derived <- strict[1L] >= k && iv_written_point(document, entries, target)
+        verdict <- if (forced || derived) "accepted" else "determined"
+      }
     } else if (t$quantile && (iv_implied_quantile(document, t, strict) ||
                                 isTRUE(shared[[target]] >= k))) {
       verdict <- "accepted"
@@ -598,6 +770,14 @@ iv_audit <- function(document, entries, internal = NULL, shared = NULL) {
       # writes, such as rows_dropped as rows_raw minus the written rows of
       # the design sample (README, Threat model).
       verdict <- "accepted"
+    } else if (strict[1L] == strict[2L] && identical(t$tier, "B")) {
+      # A design-structure value is a leak only when the linear relations
+      # alone determine it, and residual risk otherwise (privacy.md, Tiers).
+      if (is.null(programs$linear)) {
+        programs$linear <- iv_program(m, TRUE, linear = TRUE)
+      }
+      linear <- iv_bounds(m, programs$linear, target)
+      verdict <- if (!anyNA(linear) && linear[1L] == linear[2L]) "determined" else "residual"
     } else if (strict[1L] == strict[2L]) {
       verdict <- "determined"
     } else if (full[1L] == full[2L]) {
@@ -607,20 +787,28 @@ iv_audit <- function(document, entries, internal = NULL, shared = NULL) {
       # the detail 'min_count' would, and the details of the minimum-count and
       # dominance rules show values below k themselves.
       verdict <- if (t$detail %in% c("min_count", "min_count_rule", "dominance")) NULL else "bound"
+      # A bound that only the bounds of details give shows no more than the
+      # report's '<' k of the counts that carry them (privacy.md,
+      # Guarantees): it is a leak when the written values without details
+      # still show the target below k.
+      if (identical(verdict, "bound") && identical(t$tier, "A") &&
+          !iv_bound_without_details(document, entries, target, k)) {
+        verdict <- "bound via details"
+      }
     }
     if (!is.null(verdict)) {
       out[[length(out) + 1L]] <- data.frame(
         target = target, detail = t$detail %||% "", class = t$class, lower = strict[1L],
         upper = strict[2L], full_lower = full[1L], full_upper = full[2L],
         truth = if (is.null(truth)) NA_real_ else truth, verdict = verdict,
-        stringsAsFactors = FALSE)
+        tier = t$tier %||% "B", stringsAsFactors = FALSE)
     }
   }
   if (!length(out)) {
     return(data.frame(target = character(0), detail = character(0), class = character(0),
                       lower = numeric(0), upper = numeric(0), full_lower = numeric(0),
                       full_upper = numeric(0), truth = numeric(0), verdict = character(0),
-                      stringsAsFactors = FALSE))
+                      tier = character(0), stringsAsFactors = FALSE))
   }
   do.call(rbind, out)
 }
@@ -693,4 +881,15 @@ iv_internal <- function(result) {
     values[[iv_name(f, "support.distinct")]] <- f$support$distinct
   }
   values
+}
+
+# Whether the written values without the bounds of details show a target
+# below k.
+iv_bound_without_details <- function(document, entries, target, k) {
+  m <- iv_model(document, entries, details = FALSE)
+  if (!target %in% m$vars) {
+    return(FALSE)
+  }
+  bounds <- iv_bounds(m, iv_program(m, TRUE), target)
+  !anyNA(bounds) && bounds[[2L]] < k
 }

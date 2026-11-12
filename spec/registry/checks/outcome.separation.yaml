@@ -27,6 +27,9 @@ availability:
     condition: In R, lpSolve is not installed. In Python, scipy provides the solver.
     packages:
       R: [lpSolve]
+  - reason: too_large
+    condition: The size of the programs exceeds max_size.
+    parameter: max_size
   - reason: declaration_missing
     condition: >-
       The family class is bernoulli, the outcome takes values other than 0 and
@@ -42,11 +45,7 @@ statistics:
       The number of fixed-effects columns of the analysis sample that the
       sequential rule keeps, the columns of the linear programs. Beside the
       kept columns of the design sample, it would show that the rows without
-      an outcome emptied a cell of the predictors. The check solves 2p + 2
-      programs when the verdict is quasi or complete, each over every
-      observation, so that its time grows with the number of observations
-      and faster than p, and a categorical predictor with many levels, each
-      of which adds a column, can make it take minutes.
+      an outcome emptied a cell of the predictors.
   events:
     kind: count
     count_class: person
@@ -92,17 +91,19 @@ statistics:
       lp() returns with compute.sens = 1. The dual has one constraint for
       each coefficient, and one more for the second program, whatever the
       number of observations. When lp() reports no optimum for the dual, or
-      its b is not verified, the program itself is solved, with b_j = b+_j -
-      b-_j and 0 <= b+_j, b-_j <= 1 as the solver's variables, the upper
-      bounds written as constraints. It has one constraint for each
-      observation, and its time grows about as the power 1.7 of their number.
+      its b is not verified, the program itself is solved, if the size
+      (max_size) is at most max_primal_size, with b_j = b+_j - b-_j and
+      0 <= b+_j, b-_j <= 1 as the solver's variables, the upper bounds
+      written as constraints.
       In Python, each program is solved through the same dual with
       scipy.optimize.linprog() with method 'highs-ds' and the options
       primal_feasibility_tolerance and dual_feasibility_tolerance set to
       1e-9, b being the first p elements of res.eqlin.marginals, and the
       program itself with the same options when the dual has no verified
-      solution. A solution is verified when the solver reports an optimum,
-      every |b_j| is at most 1 and every u = s x'b, computed from the
+      solution and the size is at most max_primal_size. A program whose
+      dual has no verified solution has none when the size exceeds
+      max_primal_size. A solution is verified when the solver reports an
+      optimum, every |b_j| is at most 1 and every u = s x'b, computed from the
       returned b in double arithmetic, at least 0, each within
       feasibility_tolerance, and, for a program of bounds, the sum of the u
       is at least f within it. A verified solution with some u
@@ -155,9 +156,12 @@ statistics:
       solution, so that the programs after it are not solved. Both packages
       compare these values within bound_tolerance, which the verification
       ensures when the finding is clear in both (optimality_tolerance). It is
-      absent otherwise, or when one of these programs has no verified
-      solution, which makes the finding near_threshold, since the solver of
-      the other package can solve that program.
+      absent otherwise, when the programs of bounds number more than
+      max_bound_programs or their number times the size exceeds
+      max_bound_size, in which case none of them is solved, or when one of
+      these programs has no verified solution, which makes the finding
+      near_threshold, since the solver of the other package can solve that
+      program.
   columns_involved:
     kind: names
     internal_only: true
@@ -301,6 +305,71 @@ parameters:
     sources:
       - kind: decision
         citation: 02-decisions.md, Q2
+  max_size:
+    value: 250000000
+    definition: >-
+      The largest size for which the check runs. The size is v (p + 10), for p
+      the number of columns of X that the sequential rule keeps in the design
+      sample and v the number of their values in its rows that are not 0,
+      counted twice for the family class binomial, whose rows can each give an
+      event and a non-event. It is computed on the design sample, so that
+      whether the check runs shows nothing about the outcome. Each pivot of
+      the simplex method passes over the values that are not 0, and the time
+      of each program grew about as the size on tables of continuous
+      predictors and of factors. A categorical predictor adds a kept column
+      for each level but only one value that is not 0 to a row, so that the
+      limit allows more rows for it than for continuous predictors with as
+      many columns: it is about the size of 200,000 rows of an intercept and
+      29 continuous predictors and of 120,000 rows of an intercept and a
+      balanced factor of 1,000 levels. The value keeps the two programs of
+      verdict at the limit to seconds rather than minutes with lpSolve in R.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0 from the times of both
+          solvers on tables of 100 to 100,000 rows, with 2 to 700 kept columns
+          of continuous predictors and of factors, separated and not.
+  max_bound_programs:
+    value: 100
+    definition: >-
+      The largest number of programs of bounds, two for each kept column of
+      the analysis sample (columns), for which bounds and columns_involved
+      are computed. From about 60 kept columns on, lpSolve took far longer
+      on some programs of bounds of continuous predictors with fewer than
+      about twice as many rows as columns than on others of the same size,
+      which the size does not anticipate.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0 from the same times as
+          max_size.
+  max_bound_size:
+    value: 500000000
+    definition: >-
+      The largest number of programs of bounds times the size (max_size) for
+      which bounds and columns_involved are computed. A program of bounds
+      takes about as long as a program of verdict of the same size, so that
+      the value, twice max_size, gives the programs of bounds at this limit
+      about the time of the two programs of verdict at max_size.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0 from the same times as
+          max_size.
+  max_primal_size:
+    value: 10000000
+    definition: >-
+      The largest size (max_size) for which a program whose dual has no
+      verified solution is solved itself. The program itself has a
+      constraint for each observation, and its time grew about as the power
+      1.7 of their number, so that it takes far longer than its dual on many
+      observations. At this limit, it takes at most about as long as a
+      program of verdict at max_size.
+    sources:
+      - kind: convention
+        citation: >-
+          Set by this project for registry 0.1.0 from the same times as
+          max_size.
 decision:
   rules:
     - finding: consistent

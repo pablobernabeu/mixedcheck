@@ -61,9 +61,9 @@ def test_audit_corpus_shareable(case: dict[str, Any]) -> None:
     pytest.skip("the shareable findings wait for the port of the privacy filter")
 
 
-def test_the_audit_corpus_holds_287_cases_in_nine_files() -> None:
-    assert len(CASES) == 287
-    assert len({case["id"] for case in CASES}) == 287
+def test_the_audit_corpus_holds_290_cases_in_nine_files() -> None:
+    assert len(CASES) == 290
+    assert len({case["id"] for case in CASES}) == 290
 
 
 def message_finding(

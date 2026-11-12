@@ -68,8 +68,7 @@ def test_printing_shows_the_banner_of_the_mode_and_one_line_for_each_finding() -
         "outcome.constant_clusters (factor 'school'): consistent. The outcome varies within "
         "every level of 'school' that has two or more rows.",
         "structure.label_incidence (first 'class', second 'school'): consistent. In the design "
-        "sample, 'class' has 4 labels and 'school' has 6, which occur in 24 combinations. "
-        "Relation from the labels: crossed.",
+        "sample, the relation of 'class' and 'school' from the labels is: crossed.",
     ]
     assert repr(shareable) == str(shareable)
     internal = example_results("valid/005.json")
@@ -107,16 +106,16 @@ def test_write_results_writes_the_canonical_bytes_and_the_sidecar_with_the_hash(
     digest = write_results(results, path, sidecar)
     assert path.read_bytes() == canonical_bytes(results.document, "data")
     assert digest == hash_file(path)
-    # With the registry hash of documents.md, the example there has 5,715
+    # With the registry hash of documents.md, the example there has 6,335
     # canonical bytes and the results file hash that its sidecar records.
     example = copy.deepcopy(results.document)
     example["inputs"]["registry_hash"] = (
         "sha256:872491a30d60d598962de6e7b834ab76b2aa65fbab102c6ebaaae6acdc238822"
     )
     example_bytes = canonical_bytes(example, "data")
-    assert len(example_bytes) == 5715
+    assert len(example_bytes) == 6335
     assert hash_bytes(example_bytes) == (
-        "sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92"
+        "sha256:2be42c9598e82bd70f5c3fecacbdc2123831131b674224c2c9e86388ed21af8b"
     )
     written = read_json_strict(sidecar, "data")
     assert written["results_hash"] == digest

@@ -25,8 +25,9 @@ classifiers = [
   "Programming Language :: Python :: 3.15",
   "Topic :: Scientific/Engineering :: Mathematics",
 ]
-# The SPEC 0 floors (02-decisions.md, Q10).
-dependencies = ["numpy>=2.3", "pandas>=2.3", "scipy>=1.15"]
+# The SPEC 0 floors (02-decisions.md, Q10), with scipy at 1.15.3, since
+# linprog() takes time quadratic in the variables of a program before it.
+dependencies = ["numpy>=2.3", "pandas>=2.3", "scipy>=1.15.3"]
 
 [project.optional-dependencies]
 # Reading declarations written in YAML (02-decisions.md, Q4 and Q6). 6.0.1 is
@@ -43,7 +44,7 @@ test = ["pytest>=8.0"]
 # mypy with the type hints that numpy ships and the stubs of pandas and scipy,
 # which ship none, so that the hints of the package are checked against those
 # of its dependencies. CI installs the lowest versions, the declared floors.
-typing = ["mypy>=2.4.1", "numpy>=2.3", "pandas-stubs>=2.3", "scipy-stubs>=1.15"]
+typing = ["mypy>=2.4.1", "numpy>=2.3", "pandas-stubs>=2.3", "scipy-stubs>=1.15.3"]
 
 [tool.hatch.version]
 path = "src/mixedcheck/_version.py"

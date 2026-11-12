@@ -304,7 +304,7 @@
           }
         },
         "suppress_with": {
-          "description": "The statistics of the entry whose suppression by the privacy filter suppresses this statistic too, so that a written value cannot give back a suppressed one through a sum, a difference or a product (E4004).",
+          "description": "The statistics of the entry whose suppression by the privacy filter suppresses this statistic too, so that a written value cannot give back a suppressed one through a sum, a difference or, for a real computed from counts, a quotient (E4004).",
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,

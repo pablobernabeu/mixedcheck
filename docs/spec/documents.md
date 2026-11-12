@@ -190,7 +190,7 @@ Each statistic is an object with the kind of its registry entry, its value and, 
 
 The assignment checks, structure.label_incidence and structure.id_scope_evidence compute their statistics over the rows of an assignment or of a pair of columns, and their `rows` and `contributors` count the design sample, which their entries name.
 
-`rows` and `distinct` are person counts, each written as an object with `value` and, when the value is not written, `availability`, as for statistics. The filter suppresses them with the detail 'min_count' when they are below min_count, and may suppress them with the detail 'secondary' so that the sizes of two samples cannot give back the rows or members that leave one of them, which for `rows` replaces 'min_count' ([privacy.md](privacy.md), Across findings).
+`rows` and `distinct` are person counts, each written as an object with `value` and, when the value is not written, `availability`, as for statistics. The filter suppresses them with the detail 'min_count' when they are below min_count, and may suppress them with the detail 'secondary' so that the sizes of two samples cannot give back the rows or members that leave one of them, which for `rows` replaces 'min_count' ([privacy.md](privacy.md), Across findings). The filter compares no sample with the analysis sample when the document does not show it, that is, when every finding on the analysis sample is not available or suppressed as a whole (privacy.md, Across findings).
 
 ### Shareable documents
 
@@ -472,7 +472,10 @@ This shareable document records a planned Stream B run on the cluster-randomised
         "rows": {"value": 950},
         "contributors": {
           "basis": "disclosure_unit",
-          "distinct": {"value": 476},
+          "distinct": {
+            "value": null,
+            "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}
+          },
           "dominated": false
         }
       }
@@ -491,21 +494,75 @@ This shareable document records a planned Stream B run on the cluster-randomised
       },
       "message": {
         "id": "relation",
-        "text": "In the design sample, 'class' has 4 labels and 'school' has 6, which occur in 24 combinations. Relation from the labels: crossed."
+        "text": "In the design sample, the relation of 'class' and 'school' from the labels is: crossed."
       },
       "statistics": {
-        "combinations": {"kind": "count", "value": 24, "count_class": "non_person"},
+        "combinations": {
+          "kind": "count",
+          "value": null,
+          "count_class": "non_person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        },
         "composite": {"kind": "boolean", "value": true},
         "declared": {"kind": "category", "value": "nested_within_parent"},
-        "first_in_several": {"kind": "count", "value": 4, "count_class": "non_person"},
+        "first_in_several": {
+          "kind": "count",
+          "value": null,
+          "count_class": "non_person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        },
         "inner": {"kind": "names", "value": ["class"]},
         "inner_alone": {"kind": "boolean", "value": false},
-        "inner_in_several": {"kind": "count", "value": 4, "count_class": "non_person"},
-        "levels_first": {"kind": "count", "value": 4, "count_class": "non_person"},
-        "levels_second": {"kind": "count", "value": 6, "count_class": "non_person"},
+        "inner_in_several": {
+          "kind": "count",
+          "value": null,
+          "count_class": "non_person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        },
+        "levels_first": {
+          "kind": "count",
+          "value": null,
+          "count_class": "non_person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        },
+        "levels_second": {
+          "kind": "count",
+          "value": null,
+          "count_class": "non_person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        },
         "outer": {"kind": "names", "value": ["school"]},
         "relation": {"kind": "category", "value": "crossed"},
-        "second_in_several": {"kind": "count", "value": 6, "count_class": "non_person"}
+        "second_in_several": {
+          "kind": "count",
+          "value": null,
+          "count_class": "non_person",
+          "availability": {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": "secondary"
+          }
+        }
       },
       "support": {
         "rows": {"value": 960},
@@ -523,12 +580,12 @@ This shareable document records a planned Stream B run on the cluster-randomised
 }
 ```
 
-The counts of levels of 'class' and 'school' are non-person counts, because both units are coarser than the disclosure unit 'pupil'. The duplicate counts of keys.duplicates are person counts of 0, below k = 10, so they are suppressed, those that are parts of a total with the detail 'secondary' (privacy.md, Within a finding), whereas the message that the decision chose quotes none of them. The table and the design sample have the same 960 rows and the same 480 pupils, so the size of the table and its contributors are suppressed wherever the document writes them, and 476 of the 480 pupils keep a row in the analysis sample, so the contributors of the design-sample finding are suppressed too, since the two counts would give back the 4 pupils whose outcome is missing in both rows (privacy.md, Across findings). The canonical bytes of the document are 5,715 bytes long, and its results file hash is `sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92`, which the sidecar records:
+The counts of levels of 'class' and 'school' are non-person counts, because both units are coarser than the disclosure unit 'pupil'. The duplicate counts of keys.duplicates are person counts of 0, below k = 10, so they are suppressed, those that are parts of a total with the detail 'secondary' (privacy.md, Within a finding), whereas the message that the decision chose quotes none of them. The table and the design sample have the same 960 rows and the same 480 pupils, so the size of the table and its contributors are suppressed wherever the document writes them, and 476 of the 480 pupils keep a row in the analysis sample, so the contributors of the design-sample finding are suppressed too, since the two counts would give back the 4 pupils whose outcome is missing in both rows (privacy.md, Across findings). outcome.constant_clusters shows the analysis sample, which holds the 6 schools, the 4 labels of 'class' and the 24 classes of the design sample, so the design sample loses its counts of their levels beside it, whatever their class, and the message of structure.label_incidence falls back to the relation. The 950 analysed rows are fewer than twice the 476 analysed pupils, so beside them the contributors of outcome.constant_clusters, the levels of the disclosure unit, would show that a pupil has one analysed row, and they are suppressed too (privacy.md, Across findings, rule 3). The canonical bytes of the document are 6,335 bytes long, and its results file hash is `sha256:2be42c9598e82bd70f5c3fecacbdc2123831131b674224c2c9e86388ed21af8b`, which the sidecar records:
 
 ```json
 {
   "sidecar_version": "0.1.0",
-  "results_hash": "sha256:18dbc4b03b51662e1d3111d53fc2b79b0ade3ab52820cd20bd4ae12b7e123d92",
+  "results_hash": "sha256:2be42c9598e82bd70f5c3fecacbdc2123831131b674224c2c9e86388ed21af8b",
   "keys": [
     {
       "created": "2026-11-08T09:05:30Z",

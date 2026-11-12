@@ -208,8 +208,17 @@ audit_check_outcome_zero_shares <- function(run, entry, elements) {
 # sample separate the events from the non-events, by the two linear programs
 # of the entry, solved by lpSolve and verified in double arithmetic, with the
 # range of each coefficient over the optimal face of the first, whose
-# objectives are compared with the upper bounds of their multipliers.
+# objectives are compared with the upper bounds of their multipliers. The
+# size of the programs, computed on the design sample, limits the check, the
+# programs of bounds and the programs solved themselves.
 audit_check_outcome_separation <- function(run, entry, elements) {
+  parameter <- function(name) json_number_values(entry[["parameters"]][[name]][["value"]])
+  limits <- list(size = separation_size(run), primal = parameter("max_primal_size"),
+                 bound_programs = parameter("max_bound_programs"),
+                 bound_size = parameter("max_bound_size"))
+  if (limits$size > parameter("max_size")) {
+    return(check_unavailable("too_large", "max_size"))
+  }
   outcome <- outcome_values(run, entry)
   if (event_level_missing(run, outcome)) {
     return(check_unavailable("declaration_missing"))
@@ -219,7 +228,6 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   # filter suppresses its finding, so that the list of packages shows nothing
   # about the outcome (documents.md, Results document).
   run$packages[["lpSolve"]] <- getNamespaceVersion("lpSolve")[[1L]]
-  parameter <- function(name) json_number_values(entry[["parameters"]][[name]][["value"]])
   tolerances <- list(separation = parameter("separation_tolerance"),
                      feasibility = parameter("feasibility_tolerance"),
                      residue = parameter("residue_tolerance"),
@@ -248,7 +256,7 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   near <- FALSE
   proximity <- list()
   if (statistics$both_classes) {
-    found <- separation_programs(a, tolerances)
+    found <- separation_programs(a, tolerances, limits)
     statistics <- c(statistics, found$statistics)
     near <- found$near_threshold
     if (!is.null(statistics$bounds)) {
@@ -272,14 +280,32 @@ audit_check_outcome_separation <- function(run, entry, elements) {
   proximity = proximity, near_threshold = near))
 }
 
+# The size of the programs of outcome.separation: the values other than 0 in
+# the columns of X that the sequential rule keeps in the design sample,
+# counted twice for the class binomial, times 10 more than the number of
+# those columns (outcome.separation.yaml, max_size). It reads no outcome.
+separation_size <- function(run) {
+  kept <- which(run$x_kept)
+  values <- 0
+  for (j in kept) {
+    values <- values + sum(run$x[, j] != 0)
+  }
+  if (run$family_class == "binomial") {
+    values <- 2 * values
+  }
+  values * (length(kept) + 10)
+}
+
 # The programs of outcome.separation on the rows a of s x' for every
 # observation: the first, which maximises the sum of s x'b subject to
 # s x'b >= 0, the second, which maximises t subject to s x'b >= t, both with
 # -1 <= b_j <= 1 and t <= 1, and, for a verdict of quasi or complete, the
-# smallest and largest b_j over the optimal face of the first. Returns the
+# smallest and largest b_j over the optimal face of the first, within the
+# limits on the programs of bounds. A program whose dual has no verified
+# solution is solved itself only within the limit on its size. Returns the
 # statistics optimum, margin, verdict and bounds, each when the definition
 # gives it, and whether the solutions make the finding near_threshold.
-separation_programs <- function(a, tolerances) {
+separation_programs <- function(a, tolerances, limits) {
   p <- ncol(a)
   sums <- colSums(a)
   near <- FALSE
@@ -300,6 +326,9 @@ separation_programs <- function(a, tolerances) {
       return(list(b = numeric(0), u = numeric(nrow(a)), certified = TRUE, r = 0))
     }
     for (formulation in c("dual", "primal")) {
+      if (formulation == "primal" && limits$size > limits$primal) {
+        break
+      }
       found <- separation_solver(formulation, a, objective, margin, sums, floor)
       if (is.null(found)) {
         next
@@ -358,6 +387,11 @@ separation_programs <- function(a, tolerances) {
     # two packages can move a bound that far (outcome.separation.yaml,
     # optimality_tolerance).
     near <- near || !first$certified
+    # Beyond these limits, bounds and columns_involved are absent and the
+    # programs of bounds are not solved.
+    if (2 * p > limits$bound_programs || 2 * p * limits$size > limits$bound_size) {
+      return(list(statistics = statistics, near_threshold = near))
+    }
     floor <- statistics$optimum - tolerances$separation
     scale <- max(1, abs(statistics$optimum))
     bounds <- numeric(0)

@@ -63,7 +63,7 @@ mixedcheck.write_results(results, path, sidecar)
 mixedcheck.validate_results(path, sidecar, data, declaration)
 ```
 
-It needs Python 3.11 or later, with numpy, pandas and scipy. The exploratory check outcome.separation solves its linear programs with `scipy.optimize.linprog()`, which before SciPy 1.15.3 takes time quadratic in the number of observations of a program, so that the check takes minutes from about 10,000 observations with SciPy 1.15.0 to 1.15.2. To install the package from a clone of the repository, with PyYAML for declarations written in YAML:
+It needs Python 3.11 or later, with numpy, pandas and scipy. To install the package from a clone of the repository, with PyYAML for declarations written in YAML:
 
 ```bash
 python -m pip install "./python[yaml]"

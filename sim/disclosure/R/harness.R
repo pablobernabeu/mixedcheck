@@ -127,7 +127,7 @@ dh_finding_id <- function(finding) {
 # for each: the finding, the member (a statistic, support.rows,
 # support.distinct or, for a finding suppressed as a whole, its status), its
 # kind and count class, the detail of its suppression, its internal value
-# as JSON and the tier and check of its finding.
+# as JSON, its tier (dh_tier()) and the check of its finding.
 dh_targets <- function(result) {
   internal <- result$findings
   shared <- result$document$findings
@@ -210,7 +210,9 @@ dh_targets <- function(result) {
                       tier = character(0), check = character(0), derived = logical(0),
                       stringsAsFactors = FALSE))
   }
-  do.call(rbind, lapply(rows, as.data.frame, stringsAsFactors = FALSE))
+  targets <- do.call(rbind, lapply(rows, as.data.frame, stringsAsFactors = FALSE))
+  targets$tier <- dh_tier(paste(targets$finding, "|", targets$member))
+  targets
 }
 
 # --- Reduction --------------------------------------------------------------------
@@ -359,6 +361,94 @@ dh_measures <- function(document, entries = dh_capture$entries) {
 }
 
 entries_sample <- function(check) dh_capture$entries[[check]][["sample"]]
+
+# --- Tiers -------------------------------------------------------------------------
+
+# The tier of each hidden value or parameter, by the definition of
+# docs/spec/privacy.md (Tiers): 'A' for an outcome-derived value, which would
+# change if only the outcome column or its trials column changed, their
+# values or which rows lack them, and 'B' for a design-structure value, or NA
+# for a target of no kind that the definition names, which the harness
+# reports as an error of its own. Each target is named as the attacks name
+# it:
+# - 'parameter NAME', a parameter of the family, whose tier the family states
+#   and dh_parameter_tier_issues() checks
+# - 'D SAMPLE minus analysis | QUANTITY', a quantity of the table or of the
+#   design sample minus that of the analysis sample, tier A
+# - 'Q SAMPLE | QUANTITY', a quantity of a sample, tier A in the analysis
+#   sample and B in the others
+# - 'CHECK SCOPE | MEMBER', a statistic, support count or status of a finding,
+#   tier A when the check reads the outcome (tier T1 or T2) and B when it does
+#   not (T0), also when the finding lies on rows that equal the analysis
+#   sample's
+dh_tier <- function(target, family = NULL, entries = dh_capture$entries) {
+  vapply(target, function(t) {
+    if (startsWith(t, "parameter ")) {
+      tier <- family$params[[sub("^parameter ", "", t)]]$tier
+      return(if (length(tier) == 1L && tier %in% c("A", "B")) tier else NA_character_)
+    }
+    if (grepl("^D (table|design) minus analysis \\| ", t)) {
+      return("A")
+    }
+    if (startsWith(t, "Q ")) {
+      return(if (startsWith(t, "Q analysis | ")) "A" else "B")
+    }
+    tier <- entries[[sub("[ |].*$", "", t)]][["tier"]]
+    if (identical(tier, "T0")) "B" else if (isTRUE(tier %in% c("T1", "T2"))) "A" else NA_character_
+  }, "", USE.NAMES = FALSE)
+}
+
+# Hashes of a case, of what it holds besides its outcome (the data without
+# the outcome column and its trials column, the formula and the arguments)
+# and of all of it. Two tables of a family with the same first hash differ
+# only in the outcome and its trials, and with the same second hash not at
+# all.
+dh_design_key <- function(case) {
+  whole <- case[c("data", "formula", "args")]
+  outcome <- all.vars(stats::as.formula(case$formula)[[2L]])
+  # The trials column of the outcome sets which rows the analysis sample
+  # holds, as the outcome does (privacy.md, Tiers).
+  for (variable in case$args$declaration$variables) {
+    if (identical(variable$role, "outcome") && is.character(variable$trials)) {
+      outcome <- c(outcome, variable$trials)
+    }
+  }
+  case$data <- case$data[setdiff(names(case$data), outcome)]
+  hash <- function(x) cli::hash_raw_sha256(serialize(x, NULL, version = 2))
+  c(design = hash(case[c("data", "formula", "args")]), table = hash(whole))
+}
+
+# The parameters of a family whose stated tier the definition contradicts on
+# its tables (privacy.md, Tiers). Among the tables with the same design
+# structure, a parameter whose values no single value fits, since every
+# table that holds the same data admits only its own values, changes with
+# the outcome column alone: one of tier B must never do so, and one of tier
+# A that takes two values must do so for some design structure. keys holds
+# the two hashes of dh_design_key() for each table of grid, as the columns
+# design and table, NA for a table that was not built.
+dh_parameter_tier_issues <- function(family, grid, keys) {
+  issues <- character(0)
+  built <- !is.na(keys[, "design"])
+  for (name in names(family$params)) {
+    values <- grid[[name]][built]
+    changes <- vapply(split(seq_along(values), keys[built, "design"]), function(rows) {
+      admitted <- split(values[rows], keys[built, "table"][rows])
+      length(Reduce(intersect, admitted)) == 0L
+    }, NA)
+    tier <- dh_tier(paste("parameter", name), family)
+    if (is.na(tier)) {
+      issues <- c(issues, sprintf("%s: the parameter %s has no tier", family$name, name))
+    } else if (tier == "B" && any(changes)) {
+      issues <- c(issues, sprintf(
+        "%s: the parameter %s of tier B changes with the outcome column alone", family$name, name))
+    } else if (tier == "A" && !any(changes) && length(unique(values)) > 1L) {
+      issues <- c(issues, sprintf(
+        "%s: the parameter %s of tier A never changes with the outcome column alone",
+        family$name, name))
+    }
+  }
+  issues
+}
 
 # Whether a hidden count of finding i measures a quantity that the document
 # writes in another count.

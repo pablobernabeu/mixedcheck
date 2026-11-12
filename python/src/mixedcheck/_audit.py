@@ -97,10 +97,11 @@ def audit(
 
     The check of tier T2, outcome.separation, solves two linear programs over
     every observation and, when it finds separation, two more for each kept
-    fixed-effects column, so that a categorical predictor with many levels can
-    make it take minutes. Before SciPy 1.15.3, ``scipy.optimize.linprog()``
-    takes time quadratic in the number of observations of these programs, and
-    the check takes minutes from about 10,000 observations.
+    fixed-effects column. Limits on the size of these programs, which grows
+    with the observations and the kept columns, bound its time: beyond the
+    parameter max_size of its registry entry, the check is not available,
+    and beyond max_bound_programs or max_bound_size, its finding leaves out
+    the bounds of the coefficients and the columns involved.
 
     A run takes the steps of the execution plan in order and stops at the
     first that fails: the arguments, the declaration, the data, the columns

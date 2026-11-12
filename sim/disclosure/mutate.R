@@ -5,13 +5,17 @@
 # without the mutant.
 #
 #   Rscript sim/disclosure/mutate.R [--lib DIR] [--cores N] [--mutants ID,...]
-#     [--families NAME,...] [--baseline FILE] [--out FILE]
+#     [--families NAME,...] [--baseline FILE] [--out FILE] [--first]
 #
 # The consistency search runs on each family without widening here. The
 # regression and validation attacks run for every mutant, and the families
 # run only until attack (a) or (b) detects it, or until validation refuses
 # a document of a family, so that the run records the attacks that detect
-# it first. Split a long run with --mutants.
+# it first. With --first, the families do not run for a mutant that the
+# regression or validation attacks detect. Split a long run with --mutants.
+# The run ends with the mutants of rules that protect outcome-derived values
+# (tier A in R/mutants.R) that no attack detects, leaving out those that
+# registry 0.1.0 cannot reach, and exits with status 1 when there is one.
 
 options(warn = 1)
 args <- commandArgs(trailingOnly = TRUE)
@@ -19,6 +23,7 @@ option <- function(name, default = NULL) {
   i <- match(paste0("--", name), args)
   if (is.na(i)) default else args[i + 1L]
 }
+first_only <- "--first" %in% args
 script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1L])
 here <- normalizePath(dirname(script))
 root <- normalizePath(file.path(here, "..", ".."))
@@ -99,7 +104,8 @@ for (mutant in mutants) {
     # The families run until an attack on them detects the mutant. A mutant
     # of the validator leaves every document as it was, so the families do
     # not run for it.
-    for (family in if (startsWith(mutant$id, "validator-")) list() else selected) {
+    skip <- startsWith(mutant$id, "validator-") || (first_only && any(detected))
+    for (family in if (skip) list() else selected) {
       found <- signatures(family_leaks(family))
       before <- detected
       for (attack in c("a", "b", "v")) {
@@ -111,7 +117,8 @@ for (mutant in mutants) {
   }, error = function(e) conditionMessage(e))
   restore()
   rows[[length(rows) + 1L]] <- data.frame(
-    mutant = mutant$id, rule = mutant$rule, a = detected[["a"]], b = detected[["b"]],
+    mutant = mutant$id, rule = mutant$rule, tier = mutant$tier, reachable = mutant$reachable,
+    a = detected[["a"]], b = detected[["b"]],
     c = detected[["c"]], v = detected[["v"]],
     note = if (nzchar(outcome)) paste("error:", outcome) else paste(first, collapse = "; "),
     stringsAsFactors = FALSE)
@@ -122,4 +129,14 @@ for (mutant in mutants) {
   if (!is.null(out)) {
     saveRDS(list(baseline = baseline, mutants = do.call(rbind, rows)), out)
   }
+}
+
+missed <- Filter(function(row) {
+  row$tier == "A" && row$reachable && !any(unlist(row[c("a", "b", "c", "v")]))
+}, rows)
+for (row in missed) {
+  cat(sprintf("NOT DETECTED %s: %s\n", row$mutant, row$rule))
+}
+if (length(missed)) {
+  quit(status = 1L)
 }

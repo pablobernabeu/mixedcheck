@@ -6,12 +6,12 @@ floor and the upper bound of their multipliers, the dual that solves every
 program of the audit corpus, the program solved itself when its dual fails,
 rounding residues, bounds whose face its floor moves fast, the 2,000 rows of
 the review of registry 0.1.0, the outlier that compresses a margin below the
-tolerances, its time on 20,000 observations and tables of the structures of
-the benchmark that chose the formulation."""
+tolerances, the limits on the size of the programs and on the programs of
+bounds, its time on 20,000 observations and tables of the structures of the
+benchmark that chose the formulation."""
 
 from __future__ import annotations
 
-import re
 import time
 from types import SimpleNamespace
 from typing import Any
@@ -24,7 +24,8 @@ from audit_helpers import AUDIT_KEY, run_audit
 from corpus_helpers import corpus_cases
 
 from mixedcheck import _checks_outcome, audit
-from mixedcheck._checks import outcome_reads_logged, outcome_values
+from mixedcheck._checks import outcome_reads_logged, outcome_values, parameter_value
+from mixedcheck._registry import registry_entry
 
 
 @pytest.fixture(autouse=True)
@@ -577,6 +578,129 @@ def test_marginals_far_below_their_upper_bound_make_the_finding_near_threshold()
     assert found["status"]["threshold_proximity"]["value"] == "near_threshold"
 
 
+def separation_parameter(name: str) -> float:
+    """A parameter of outcome.separation."""
+    return parameter_value(registry_entry("outcome.separation"), name)
+
+
+def replace_size(monkeypatch: pytest.MonkeyPatch, size: float) -> None:
+    """Replace the size of the programs of outcome.separation for the rest of
+    a test."""
+    monkeypatch.setattr(_checks_outcome, "separation_size", lambda run: size)
+
+
+def test_the_size_of_the_programs_counts_the_values_other_than_0_of_the_design_sample(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    size = _checks_outcome.separation_size
+    sizes: list[float] = []
+
+    def recorded(run: Any) -> float:
+        sizes.append(size(run))
+        return sizes[-1]
+
+    monkeypatch.setattr(_checks_outcome, "separation_size", recorded)
+    # The intercept and x, with two zeros, hold 7 + 5 values other than 0 in
+    # the 7 rows of the design sample, the last of which has no outcome, and
+    # the sequential rule drops w = 2x: (7 + 5) (2 + 10).
+    x = [-2.0, 0, 1, 0, 3, 4, 5]
+    y = pd.Series([0.0, 0, 1, 1, 0, 1, None], dtype=object)
+    data = pd.DataFrame({"y": y, "x": x, "n": 2.0, "w": [2 * v for v in x]})
+    separation_finding(data, "y ~ x + w")
+    # Each row counts twice for the class binomial.
+    benchmark_finding(data, "y ~ x + w", binomial=True)
+    assert sizes == [144, 288]
+
+
+def test_separation_is_not_available_beyond_max_size_and_then_names_no_solver(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    limit = separation_parameter("max_size")
+    replace_size(monkeypatch, limit)
+    found = separation_finding(separated())
+    assert found["statistics"]["verdict"]["value"] == "complete"
+    replace_size(monkeypatch, limit + 1)
+    results = outcome_results(separated(), "y ~ x", tier="T2", family="binomial")
+    found = next(f for f in results.document["findings"] if f["check"] == "outcome.separation")
+    assert found["status"]["availability"] == {
+        "value": "not_available",
+        "reason": "too_large",
+        "detail": "max_size",
+    }
+    assert "statistics" not in found
+    assert "packages" not in results.document["software"]
+
+
+def test_separation_leaves_the_bounds_absent_beyond_max_bound_size(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # The 2 kept columns of 'separated()' give 4 programs of bounds.
+    limit = separation_parameter("max_bound_size") / 4
+    replace_size(monkeypatch, limit)
+    assert len(outcome_statistics(separation_finding(separated()))["bounds"]) == 4
+    replace_size(monkeypatch, limit + 1)
+    found = separation_finding(separated())
+    values = outcome_statistics(found)
+    assert values["verdict"] == "complete"
+    assert values["optimum"] == pytest.approx(4, abs=1e-12)
+    assert "bounds" not in values
+    assert "columns_involved" not in values
+    assert found["message"]["text"] == (
+        "The fixed effects separate the events from the non-events completely, so the "
+        "estimates of some coefficients diverge and their Wald statistics are unreliable."
+    )
+    # The limit, unlike a program without a verified solution, leaves the
+    # finding clear, since both packages apply it alike.
+    assert found["status"]["threshold_proximity"]["value"] == "clear"
+
+
+def test_separation_solves_up_to_max_bound_programs_programs_of_bounds() -> None:
+    # A factor of 50 levels with an intercept keeps 50 columns, and one of 51
+    # levels 51, two rows in each level, an event and a non-event apart from
+    # the last level, which holds two events.
+    def quasi(levels: int) -> pd.DataFrame:
+        f = [f"l{level:02d}" for level in range(1, levels + 1) for _ in range(2)]
+        y = [0.0, 1.0] * levels
+        y[-2] = 1.0
+        return pd.DataFrame({"y": y, "f": f})
+
+    assert separation_parameter("max_bound_programs") == 100
+    values = outcome_statistics(separation_finding(quasi(50), "y ~ f"))
+    assert (values["columns"], values["verdict"]) == (50, "quasi")
+    assert len(values["bounds"]) == 100
+    assert values["columns_involved"] == ["f[l50]"]
+    found = separation_finding(quasi(51), "y ~ f")
+    values = outcome_statistics(found)
+    assert (values["columns"], values["verdict"]) == (51, "quasi")
+    assert "bounds" not in values
+    assert "columns_involved" not in values
+    assert found["status"]["threshold_proximity"]["value"] == "clear"
+
+
+def test_a_program_whose_dual_has_no_verified_solution_is_solved_itself_up_to_max_primal_size(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    solver = _checks_outcome.separation_solver
+    formulations: list[str] = []
+
+    def failing(formulation: str, *args: Any) -> Any:
+        formulations.append(formulation)
+        return None if formulation == "dual" else solver(formulation, *args)
+
+    replace_solver(monkeypatch, failing)
+    limit = separation_parameter("max_primal_size")
+    replace_size(monkeypatch, limit)
+    assert outcome_statistics(separation_finding(separated()))["verdict"] == "complete"
+    assert formulations == ["dual", "primal"] * 6
+    # Beyond the limit, neither program of the verdict has a verified solution.
+    formulations.clear()
+    replace_size(monkeypatch, limit + 1)
+    found = separation_finding(separated())
+    assert formulations == ["dual", "dual"]
+    assert found["message"]["id"] == "no_solution"
+    assert "verdict" not in outcome_statistics(found)
+
+
 def test_separation_names_scipy_whenever_it_runs_and_solves_nothing_without_kept_columns() -> None:
     packages = {"scipy": scipy.__version__}
     for y in ([0.0, 0, 0, 1, 1, 1], [0.0] * 6):
@@ -645,21 +769,11 @@ def test_separated_data_whose_margin_an_outlier_compresses_below_the_tolerances_
     assert found["status"]["threshold_proximity"]["value"] == "clear"
 
 
-def scipy_release() -> tuple[int, ...]:
-    """The numbers of the release of scipy, such as (1, 15, 3)."""
-    return tuple(int(part) for part in re.findall(r"\d+", scipy.__version__)[:3])
-
-
-@pytest.mark.skipif(
-    scipy_release() < (1, 15, 3),
-    reason="linprog() takes time quadratic in the variables before SciPy 1.15.3",
-)
 def test_separation_is_fast_on_20000_observations() -> None:
-    # Before SciPy 1.15.3, linprog() takes time quadratic in the number of
-    # variables of a program, which for the dual is the number of
-    # observations, so that each of the 12 programs of this table takes
-    # about two minutes, where SciPy 1.18 takes under a second for the whole
-    # audit.
+    # The floor of scipy is 1.15.3, since linprog() takes time quadratic in
+    # the number of variables of a program before it, which for the dual is
+    # the number of observations, so that each of the 12 programs of this
+    # table took about two minutes with SciPy 1.15.0.
     n = 20000
     rows = np.arange(n)
     x = np.sin(rows)

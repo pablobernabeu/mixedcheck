@@ -128,8 +128,7 @@
   quantile that the quantile rule suppresses, compares the levels that an
   assignment removes from a sample in which they are person counts, hides
   the rows without a key value when they would give back rows that a
-  predictor removes, never writes the smallest eigenvalue of
-  identifiability.gram_rank and suppresses outcome.separation for a fixed
+  predictor removes and suppresses outcome.separation for a fixed
   part that codes one variable, such as one factor, or whose values two rows
   share, in the design or the analysis sample, as the
   [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
@@ -191,10 +190,9 @@
 * The privacy filter of `audit()` gives the detail 'secondary', in place of
   'min_count', to every count below the minimum count that a rule after the
   minimum-count step suppresses, and to both parts of a total, hides the
-  levels of a factor whose rows are too few for levels without one row,
-  never writes effective_size of structure.cluster_sizes and no longer
-  suppresses a count because it equals a suppressed one, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  levels of a factor whose analysed rows are too few for levels without one
+  row and no longer suppresses a count because it equals a suppressed one, as
+  the [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
   states.
 
 * outcome.separation compares the objectives of the programs that give the
@@ -205,11 +203,45 @@
   including when lpSolve cannot solve a program of bounds, so that two clear
   findings of the R and Python packages give the same bounds within it
   ([registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
-  The documentation of `audit()` states that the check can take minutes on
-  a categorical predictor with many levels.
 
 * design.scale_disparity sums the squared differences of each column from
   its mean exactly, so that sd_largest and sd_smallest no longer depend on
   the precision of long double on the platform and are the doubles that the
   [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/design.scale_disparity.yaml)
   defines.
+
+* outcome.separation limits the size of its linear programs, the values
+  other than 0 in the kept columns of the design sample times 10 more than
+  their number, so that a categorical predictor with many levels no longer
+  makes it take minutes. Above the parameter max_size, the check is not
+  available with the reason too_large. Above max_bound_programs programs of
+  bounds, or when their number times the size exceeds max_bound_size, the
+  finding leaves out bounds and columns_involved and keeps its verdict, and
+  a program whose dual has no verified solution is solved itself only up to
+  the size max_primal_size
+  ([registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
+
+* The privacy filter of `audit()` protects two tiers of values, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  (Tiers) states. Shareable documents write effective_size of
+  structure.cluster_sizes, icc of structure.within_between and
+  smallest_eigenvalue of identifiability.gram_rank, and combinations of
+  structure.label_incidence beside suppressed levels of its columns, and a
+  T1 or T2 run that writes no value of the analysis sample, such as a
+  gaussian run whose outcome.constant_clusters is suppressed, writes every
+  value of the outcome-blind checks that the minimum-count, dominance,
+  threshold and quantile rules allow. Beside an analysis sample that the
+  document writes, they suppress more counts of the design sample, the rows
+  and contributors of the table, the levels of items that count non-persons
+  where the design sample loses its rows or members, the rows of a design
+  sample whose level sizes would show how many analysed rows its levels
+  lost, the rows and levels of the design sample whose analysed counterparts
+  are hidden, the levels of a factor, or of a combination of factors, that
+  is also a predictor, the parts of the analysis sample's hidden counts and
+  missing_key_rows, where these would give back the rows or levels without
+  an outcome. A missing_key_rows below the minimum count that the rule on
+  rows without a key value does not suppress keeps the detail 'min_count',
+  and with a disclosure unit, the contributors of an outcome check have the
+  detail 'secondary' where the analysed rows show that a member has one
+  analysed row, unless each member has one row in the design sample. The
+  documentation of `audit()` states what shareable mode hides.

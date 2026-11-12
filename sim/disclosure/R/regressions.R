@@ -1,10 +1,14 @@
 # Attack (c), regression attacks (sim/disclosure/README.md): one attack for
 # each value that a shareable document gave back in the four adversarial
-# reviews of M2b-2, although docs/spec/privacy.md undertook to hide it. Each
-# attack runs audit() on the reproducer of the review at the registry's k,
-# reads the shareable document as the adversary would and returns whether it
-# recovers the value, with what it found. The reproducers are those of
-# r/tests/testthat/test-privacy.R and fixtures/conformance/audits/privacy.json.
+# reviews of M2b-2 and in the reviews of the two tiers of the filter (rounds
+# 5 to 8), although docs/spec/privacy.md undertook to hide it. Each attack
+# runs audit() on the reproducer of the review at the registry's k, or at the
+# k that it sets, reads the shareable document as the adversary would and
+# returns whether it recovers the value, with what it found. An attack of tier B recovers a
+# design-structure value that privacy.md now leaves as residual risk, and
+# what it recovers is reported without failing the run. The reproducers are
+# those of r/tests/testthat/test-privacy.R and
+# fixtures/conformance/audits/privacy.json.
 
 # A case of the audit corpus by its identifier, as a case of the harness.
 rg_corpus_case <- function(root, id) {
@@ -89,7 +93,7 @@ rg_attacks <- function() {
     list(id = "R1-minimum-maximum", round = 1L,
          channel = "a minimum or a maximum of level sizes is written",
          attack = rg_minimum_maximum),
-    list(id = "R1-icc", round = 1L,
+    list(id = "R1-icc", tier = "B", round = 1L,
          channel = "the icc of structure.within_between, which with within_share gives back J",
          attack = rg_icc),
     list(id = "R1-labels-once", round = 1L,
@@ -104,7 +108,7 @@ rg_attacks <- function() {
     list(id = "R1-separation-columns", round = 1L,
          channel = "the kept columns of outcome.separation show that missing outcomes emptied a cell",
          attack = rg_separation_columns),
-    list(id = "R2-eigenvalue", round = 2L,
+    list(id = "R2-eigenvalue", tier = "B", round = 2L,
          channel = "the smallest eigenvalue of identifiability.gram_rank, a function of N and J",
          attack = rg_eigenvalue),
     list(id = "R2-quartile-detail", round = 2L,
@@ -137,7 +141,7 @@ rg_attacks <- function() {
     list(id = "R3-ir-hash", round = 3L,
          channel = "the IR hash confirms a searched centring constant",
          attack = rg_ir_hash),
-    list(id = "R4-rows-levels", round = 4L,
+    list(id = "R4-rows-levels", tier = "B", round = 4L,
          channel = "rows fewer than twice the levels show levels of one row",
          attack = rg_rows_levels),
     list(id = "R4-parts-details", round = 4L,
@@ -146,15 +150,135 @@ rg_attacks <- function() {
     list(id = "R4-secondary-detail", round = 4L,
          channel = "the detail secondary shows that a count is at least k",
          attack = rg_secondary_detail),
-    list(id = "R4-effective-size", round = 4L,
+    list(id = "R4-effective-size", tier = "B", round = 4L,
          channel = "effective_size gives back the sum of squared sizes and so an extreme size",
          attack = rg_effective_size),
     list(id = "R4-events-per-column", round = 4L,
          channel = "events_per_column times the kept columns gives back the minority events",
          attack = rg_events_per_column),
+    list(id = "R5-supports", round = 5L,
+         channel = "the design rows beside the support rows of a T1 finding give the rows without an outcome",
+         attack = rg_supports),
+    list(id = "R5-analysis-bounds", round = 5L,
+         channel = "the design rows beside events and non-events give the rows without an outcome",
+         attack = rg_analysis_bounds),
+    list(id = "R5-design-reals", round = 5L,
+         channel = "a standard deviation over the design sample gives its rows beside events and non-events",
+         attack = rg_design_reals_bernoulli),
+    list(id = "R5-closure", round = 5L,
+         channel = "rows and levels of the design sample bound its levels with two rows beside the analysis sample",
+         attack = rg_closure),
+    list(id = "R5-analysis-levels", round = 5L,
+         channel = "the levels and the levels with two rows of the analysis sample give its levels with one row",
+         attack = rg_analysis_levels),
+    list(id = "R6-table-chain", round = 6L,
+         channel = "the rows of the table, written only k or more above the design sample's, pin the rows without an outcome",
+         attack = rg_table_chain),
+    list(id = "R6-key-chain", round = 6L,
+         channel = "missing_key_rows, written only when rule 4 does not fire for the design sample, pins its rows",
+         attack = rg_key_chain),
+    list(id = "R6-contributors-bound", round = 6L,
+         channel = "written contributors, which no hidden level count equals, bound a factor's hidden levels from below",
+         attack = rg_contributors_bound),
+    list(id = "R6-parts-bound", round = 6L,
+         channel = "a written part of a hidden count of levels bounds it from below by the part plus k",
+         attack = rg_parts_bound),
+    list(id = "R6-analysis-rows-levels", round = 6L,
+         channel = "rows fewer than twice the levels of the analysis sample show a subject of one analysed row",
+         attack = rg_analysis_rows_levels),
+    list(id = "R6-non-person", round = 6L,
+         channel = "the written levels of a non-person item, two members each, bound the members and rows the design sample loses",
+         attack = rg_non_person),
+    list(id = "R6-crossed-analysis-levels", round = 6L,
+         channel = "the analysis sample's levels of two crossed columns bound their product, which rule 1 bounds from above",
+         attack = rg_crossed_analysis_levels),
+    list(id = "R6-components", round = 6L,
+         channel = "twice the crossed components bound a factor's hidden levels from below",
+         attack = rg_components),
+    list(id = "R6-internal-absent", round = 6L,
+         channel = "the absence of bounds of outcome.separation shows the kept columns of the analysis sample",
+         attack = rg_internal_absent),
+    list(id = "R6-fixed-factor", round = 6L,
+         channel = "df of a grouping factor that is also a fixed term counts its levels in the design sample",
+         attack = rg_fixed_factor),
+    list(id = "R6-rows-levels-lost", round = 6L,
+         channel = "rows lost equal to levels lost beside the design sample's singletons give the analysis sample's",
+         attack = rg_rows_levels_lost),
+    list(id = "R6-singletons-rows", round = 6L,
+         channel = "singletons and rows of the design sample bound its levels beside the analysis sample's",
+         attack = rg_singletons_rows),
+    list(id = "R7-unit-contributors", round = 7L,
+         channel = "the contributors of the basis disclosure_unit beside the rows show a member of one analysed row",
+         attack = rg_unit_contributors),
+    list(id = "R7-fixed-factor-non-person", round = 7L,
+         channel = "df of a non-person factor that is also a fixed term counts its levels in the design sample",
+         attack = rg_fixed_factor_non_person),
+    list(id = "R7-random-variable", round = 7L,
+         channel = "the dimension of a random term over a categorical variable counts its levels in the design sample",
+         attack = rg_random_variable),
+    list(id = "R7-dominance", round = 7L,
+         channel = "a finding that fails the dominance rule writes a person count or a real",
+         attack = rg_dominance),
+    list(id = "R7-separation-interaction", round = 7L,
+         channel = "the verdict of outcome.separation with one kept column of two variables names a cell",
+         attack = rg_separation_interaction),
+    list(id = "R7-separation-one-variable", round = 7L,
+         channel = "the verdict of outcome.separation with the columns of one factor shows the class of each level",
+         attack = rg_separation_one_variable),
+    list(id = "R7-part-detail", round = 7L,
+         channel = "the detail min_count of a part below k shows that part_of did not fire and bounds the part by the total minus k",
+         attack = rg_part_detail),
     list(id = "R4-equal-values", round = 4L,
          channel = "a count suppressed for an equal value shows the value of a suppressed quantity",
-         attack = rg_equal_values)
+         attack = rg_equal_values),
+    list(id = "R8-interaction", round = 8L,
+         channel = "df of two factors and empty_cells count the combinations of a fixed interaction that is also a grouping factor",
+         attack = rg_interaction),
+    list(id = "R8-sizes-two-rows", round = 8L,
+         channel = "rows, singletons and levels with two rows of the design sample show every level to hold at most two rows, which beside the analysed rows and levels gives the levels with one analysed row",
+         attack = rg_sizes_two_rows),
+    list(id = "R8-sizes-firing", round = 8L,
+         channel = "effective_size, rows and levels of the design sample give the level sizes, which beside the analysed rows and the firing of rule 1 give the hidden analysed levels",
+         attack = rg_sizes_firing),
+    list(id = "R8-sizes-one-row", round = 8L,
+         channel = "the sizes of the levels of the design sample beside the analysed rows and levels give the analysed levels with one row",
+         attack = rg_sizes_one_row),
+    list(id = "R8-hidden-levels", round = 8L,
+         channel = "the written levels of the design sample show that rule 1 did not fire against the analysed levels that rule 3 hides, which the minimum-count rule bounds from below",
+         attack = rg_hidden_levels),
+    list(id = "R8-non-person-whole", round = 8L,
+         channel = "the written levels of a non-person item that keeps two members in each analysed level bound the rows of the design sample that rule 1 hides, at k = 3",
+         attack = rg_non_person_whole),
+    list(id = "R8-non-person-members", round = 8L,
+         channel = "the written levels of a non-person item bound the members of the design sample that rule 1 hides as within k of the analysed ones",
+         attack = rg_non_person_members),
+    list(id = "R8-reals-items", round = 8L,
+         channel = "the reals that read a grouping factor give back its levels in the design sample, which rule 1 hides beside the analysed ones while the rows are written",
+         attack = rg_reals_items),
+    list(id = "R8-parts-variable", round = 8L,
+         channel = "a written part of the analysed levels that the columns of a factor hide bounds them from below",
+         attack = rg_parts_variable),
+    list(id = "R8-parts-rule3", round = 8L,
+         channel = "a written part of the analysed levels that rule 3 hides bounds them from below",
+         attack = rg_parts_rule3),
+    list(id = "R8-two-rows-variable", round = 8L,
+         channel = "the rows and the columns of a factor bound its levels with two rows in the design sample by the analysed ones",
+         attack = rg_two_rows_variable),
+    list(id = "R8-non-person-variable", round = 8L,
+         channel = "the columns of a non-person factor bound the hidden rows of the design sample by twice its levels",
+         attack = rg_non_person_variable),
+    list(id = "R8-rule3-rows", round = 8L,
+         channel = "analysed rows fewer than 2k beside k contributors or more show a level of one analysed row",
+         attack = rg_rule3_rows),
+    list(id = "R8-chain-items", round = 8L,
+         channel = "the contributors of the table, written or hidden beside the levels that the design sample loses, tell 0 levels without an outcome from 1",
+         attack = rg_chain_items),
+    list(id = "R8-contributors-levels", round = 8L,
+         channel = "the contributors of the basis grouping_factors, written beside the levels of a factor that the design sample loses, bound those levels from below by one more than their value",
+         attack = rg_contributors_levels),
+    list(id = "R8-column-levels", round = 8L,
+         channel = "df of a fixed factor that is also a declared unit gives back its levels below k",
+         attack = rg_column_levels)
   )
 }
 
@@ -721,4 +845,901 @@ rg_equal_values <- function(ns, root) {
     }
   }
   rg_result(length(found) > 0L, found)
+}
+
+# --- Round 5: the rules beside the analysis sample ---------------------------------------
+
+rg_rows_of <- function(document, check) rg_value(rg_finding(document, check), "support.rows")
+
+rg_supports <- function(ns, root) {
+  # 30 subjects of 12 rows, 12 with a constant outcome, and 10 subjects of
+  # one row, no missing outcome, so that outcome.constant_clusters is written.
+  y <- c(unlist(lapply(1:30, function(s) if (s <= 12) rep(s, 12) else (1:12) * s %% 17 + 0.5)), (1:10) / 3)
+  data <- data.frame(y = y, x = seq_along(y) %% 11 + 0.5,
+                     subject = c(rep(sprintf("s%02d", 1:30), each = 12), sprintf("t%02d", 1:10)))
+  document <- rg_document(ns, data, "y ~ x + (1 | subject)", outcome_access = "T1", reason = "Rows.")
+  k <- document$privacy$min_count
+  design <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"), "rows")
+  analysis <- rg_value(rg_finding(document, "outcome.constant_clusters", factor = "subject"), "support.rows")
+  leak <- !is.null(design) && !is.null(analysis) && design - analysis < k
+  rg_result(leak, if (leak) sprintf("%d rows without an outcome", design - analysis))
+}
+
+rg_bernoulli_pairs <- function(cond = FALSE) {
+  y <- rep(c(1, 0, 0, 1, 1, 0, 1, 0), 5)
+  data <- data.frame(y = y, x = (seq_along(y) * 7) %% 11 + 0.5,
+                     subject = rep(sprintf("s%02d", 1:20), each = 2))
+  if (cond) {
+    data$x <- rep(c(-0.5, 0.5), 20)
+    data$x[c(3, 8, 11)] <- -0.5
+  }
+  data
+}
+
+rg_analysis_bounds <- function(ns, root) {
+  document <- rg_document(ns, rg_bernoulli_pairs(), "y ~ x + (1 | subject)", family = "binomial",
+                          outcome_access = "T1", reason = "Events.")
+  k <- document$privacy$min_count
+  design <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"), "rows")
+  minority <- rg_finding(document, "outcome.minority_events", factor = "subject")
+  events <- rg_value(minority, "events")
+  non_events <- rg_value(minority, "non_events")
+  leak <- !is.null(design) && !is.null(events) && !is.null(non_events) &&
+    design - events - non_events < k
+  rg_result(leak, if (leak) sprintf("%d rows without an outcome", design - events - non_events))
+}
+
+rg_design_reals_bernoulli <- function(ns, root) {
+  document <- rg_document(ns, rg_bernoulli_pairs(TRUE), "y ~ x + (1 | subject)", family = "binomial",
+                          outcome_access = "T1", reason = "Events.")
+  k <- document$privacy$min_count
+  sd <- rg_value(rg_finding(document, "design.scale_disparity"), "sd_largest")
+  minority <- rg_finding(document, "outcome.minority_events", factor = "subject")
+  events <- rg_value(minority, "events")
+  non_events <- rg_value(minority, "non_events")
+  if (is.null(sd) || is.null(events) || is.null(non_events)) {
+    return(rg_result(FALSE))
+  }
+  # The rows of the design sample and at -0.5 that give the standard
+  # deviation, within k - 1 rows of the analysis sample.
+  rows <- events + non_events
+  found <- integer(0)
+  for (n in rows:(rows + k - 1)) {
+    for (low in 1:(n - 1)) {
+      if (isTRUE(all.equal(stats::sd(c(rep(-0.5, low), rep(0.5, n - low))), sd, tolerance = 1e-12))) {
+        found <- union(found, n)
+      }
+    }
+  }
+  leak <- length(found) == 1L
+  rg_result(leak, if (leak) sprintf("%d rows without an outcome", found - rows))
+}
+
+rg_closure <- function(ns, root) {
+  # 20 subjects of two rows, 10 with a constant outcome, 10 subjects of one
+  # row with an outcome and 10 of one row without one.
+  y <- c(rep(c(3, 3), 10), rep(c(1, 2), 10), (1:10) / 7, rep(NA, 10))
+  data <- data.frame(y = y, x = seq_along(y) %% 7 + 0.5,
+                     subject = c(rep(sprintf("s%02d", 1:20), each = 2), sprintf("t%02d", 1:20)))
+  document <- rg_document(ns, data, "y ~ x + (1 | subject)", outcome_access = "T1", reason = "Sizes.")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "subject")
+  rows <- rg_value(sizes, "rows")
+  levels <- rg_value(sizes, "levels")
+  two <- rg_value(rg_finding(document, "outcome.constant_clusters", factor = "subject"), "multi_row_levels")
+  leak <- !is.null(rows) && !is.null(levels) && !is.null(two) && rows - levels <= two
+  rg_result(leak, if (leak) "no subject lost its second outcome")
+}
+
+rg_analysis_levels <- function(ns, root) {
+  # 25 subjects of two rows, 12 with a constant outcome, and 3 of one row.
+  y <- c(rep(c(1, 1), 6), rep(c(0, 0), 6), rep(c(1, 0), 13), c(1, 0, 1))
+  data <- data.frame(y = y, x = seq_along(y) %% 5 + 0.5,
+                     subject = c(rep(sprintf("s%02d", 1:25), each = 2), sprintf("t%02d", 1:3)))
+  document <- rg_document(ns, data, "y ~ x + (1 | subject)", family = "binomial",
+                          outcome_access = "T1", reason = "Levels.")
+  k <- document$privacy$min_count
+  levels <- rg_value(rg_finding(document, "outcome.minority_events", factor = "subject"), "levels")
+  two <- rg_value(rg_finding(document, "outcome.constant_clusters", factor = "subject"), "multi_row_levels")
+  leak <- !is.null(levels) && !is.null(two) && levels - two < k
+  rg_result(leak, if (leak) sprintf("%d subjects with one analysed row", levels - two))
+}
+
+# --- Round 6: chains of comparisons and bounds on hidden quantities -----------------------
+
+# Two tables that differ only in a hidden outcome-derived difference: a leak
+# when their strict reductions differ, since the document then tells the two
+# values apart.
+rg_pair <- function(ns, cases, what) {
+  docs <- lapply(cases, function(case) {
+    do.call(rg_document, c(list(ns = ns, data = case$data, formula = case$formula), case$args))
+  })
+  differ <- dh_reduce(docs[[1L]], strict = TRUE) != dh_reduce(docs[[2L]], strict = TRUE)
+  rg_result(differ, if (differ) what)
+}
+
+rg_table_chain <- function(ns, root) {
+  # 50 subjects of four rows and 10 of one row: the 10 rows lack the
+  # covariate, or 9 lack it and 1 lacks the outcome.
+  make <- function(y_missing) {
+    count <- c(rep(c(0, 1, 2, 3), 50), rep(1, 10))
+    x <- c(seq_len(200) %% 7 + 0.5, rep(NA, 10))
+    if (y_missing) {
+      x[201] <- 0.5
+      count[201] <- NA
+    }
+    list(data = data.frame(count = count, x = x,
+                           g = c(rep(sprintf("g%02d", 1:50), each = 4), sprintf("h%02d", 1:10))),
+         formula = "count ~ x + (1 | g)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Zeros."))
+  }
+  rg_pair(ns, list(make(FALSE), make(TRUE)), "the table's rows tell 0 rows without an outcome from 1")
+}
+
+rg_key_chain <- function(ns, root) {
+  make <- function(y_missing) {
+    subject <- c(rep(sprintf("s%02d", 1:50), each = 4), rep(NA, 10), sprintf("u%02d", 1:10))
+    trial <- c(rep(1:4, 50), 1:10, rep(1, 10))
+    x <- c(seq_len(210) %% 7 + 0.5, rep(NA, 10))
+    count <- c(rep(c(0, 1, 2, 3), 50), rep(1, 20))
+    if (y_missing) {
+      x[211] <- 0.5
+      count[211] <- NA
+    }
+    list(data = data.frame(count = count, x = x, subject = subject, trial = trial),
+         formula = "count ~ x + (1 | subject)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Zeros.",
+                     declaration = list(vocabulary = "0.1.0",
+                                        observation = list(key = list("subject", "trial")))))
+  }
+  rg_pair(ns, list(make(FALSE), make(TRUE)),
+          "missing_key_rows tells 0 rows without an outcome from 1")
+}
+
+rg_contributors_bound <- function(ns, root) {
+  # 40 levels of f crossed with 42 of g over 168 rows with an outcome, and 20
+  # rows without one in 10 new levels of f of two rows each: in 9 new levels
+  # of g of two rows and 2 rows of existing levels, or in 8 new levels and 4
+  # rows of existing levels. The contributors, 50 levels of f, are written
+  # when g has 51 levels and equal the hidden levels of g when it has 50.
+  make <- function(new_g) {
+    r <- 1:168
+    f <- sprintf("F%02d", (r - 1) %% 40 + 1)
+    g <- sprintf("G%02d", (r - 1) %% 42 + 1)
+    extra <- c(rep(sprintf("G%02d", 42 + seq_len(new_g)), each = 2),
+               sprintf("G%02d", seq_len(20 - 2 * new_g)))
+    list(data = data.frame(count = c(r %% 4, rep(NA, 20)), x = c(r %% 7 + 0.5, (1:20) / 3),
+                           f = c(f, rep(sprintf("F%02d", 41:50), each = 2)), g = c(g, extra)),
+         formula = "count ~ x + (1 | f) + (1 | g)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Zeros."))
+  }
+  rg_pair(ns, list(make(9), make(8)),
+          "the contributors tell 9 levels of g without an outcome from 8")
+}
+
+rg_parts_bound <- function(ns, root) {
+  # 49 subjects of two rows in the design sample. 30 keep both rows, 15 of
+  # them with a constant count, 10 keep one row and 9 lose both. The
+  # covariate varies within 39 subjects, so that informative_levels, 39, a
+  # part of the levels, shows them to be at least 49 when written, and
+  # varying_levels, 39, shows that the subjects of two rows are at least 49,
+  # so that only the levels can have made the levels hidden beside the 40 of
+  # the analysis sample.
+  subject <- rep(sprintf("s%02d", 1:49), each = 2)
+  count <- c(rep(c(2, 2), 15), rep(c(1, 3), 15), rep(c(4, NA), 10), rep(NA, 18))
+  x <- rep(c(0.5, 1.5), 49)
+  x[subject %in% sprintf("s%02d", 40:49)] <- 0.5
+  data <- data.frame(count = count, x = x, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 + x | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  informative <- rg_value(rg_finding(document, "identifiability.levels_vs_dimension",
+                                     factor = "subject"), "informative_levels")
+  hidden <- is.null(rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"),
+                             "levels"))
+  levels <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "subject"), "levels")
+  leak <- !is.null(informative) && hidden && !is.null(levels) && informative + k >= levels + k - 1
+  rg_result(leak, if (leak) sprintf("%d subjects without an outcome", informative + k - levels))
+}
+
+rg_components <- function(ns, root) {
+  # 25 crossed components of two levels of f and two of g, and 9 levels of g
+  # without an outcome: twice the components, 50, bound the levels of g in
+  # the design sample from below, and rule 1 bounds them by 41 + 9 above.
+  rows <- expand.grid(rep = 1:2, b = 1:2, a = 1:2, c = 1:25)
+  data <- data.frame(f = sprintf("F%02d_%d", rows$c, rows$a), g = sprintf("G%02d_%d", rows$c, rows$b))
+  data$count <- seq_len(nrow(data)) %% 4
+  data$count[data$g %in% sprintf("G%02d_2", 1:9)] <- NA
+  data$x <- seq_len(nrow(data)) %% 7 + 0.5
+  document <- rg_document(ns, data, "count ~ x + (1 | f) + (1 | g)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  components <- rg_value(rg_finding(document, "structure.connectivity"), "components")
+  levels <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "g"), "levels")
+  hidden <- is.null(rg_value(rg_finding(document, "structure.cluster_sizes", factor = "g"), "levels"))
+  leak <- !is.null(components) && !is.null(levels) && hidden && 2 * components == levels + k - 1
+  rg_result(leak, if (leak) sprintf("%d levels of g without an outcome", k - 1))
+}
+
+rg_internal_absent <- function(ns, root) {
+  # 90 rows of 49 covariates and three indicators that are 1 in one row
+  # each: the analysis sample keeps 53 columns, more than max_bound_programs
+  # allows, so bounds is absent, and it would be present had the outcomes of
+  # the three rows been missing.
+  set.seed(7)
+  n <- 90
+  data <- as.data.frame(matrix(stats::rnorm(n * 49), n, 49))
+  names(data) <- sprintf("x%02d", 1:49)
+  data$y <- stats::rbinom(n, 1, 0.5)
+  for (j in 1:3) data[[sprintf("d%d", j)]] <- as.numeric(seq_len(n) == j)
+  formula <- paste("y ~", paste(c(names(data)[1:49], "d1", "d2", "d3"), collapse = " + "))
+  document <- rg_document(ns, data, formula, family = "binomial", outcome_access = "T2",
+                          reason = "Separation.", exploratory = TRUE)
+  separation <- rg_finding(document, "outcome.separation")
+  if (!rg_available(separation)) {
+    return(rg_result(FALSE))
+  }
+  missing <- setdiff(c("bounds", "columns_involved", "optimum", "margin", "columns"),
+                     names(separation$statistics))
+  rg_result(length(missing) > 0L, if (length(missing)) paste("absent:", paste(missing, collapse = ", ")))
+}
+
+rg_fixed_factor <- function(ns, root) {
+  school <- rep(sprintf("s%02d", 1:50), each = 4)
+  count <- seq_len(200) %% 5
+  count[school %in% sprintf("s%02d", 42:50)] <- NA
+  data <- data.frame(count = count, x = seq_len(200) %% 7 + 0.5, school = school)
+  document <- rg_document(ns, data, "count ~ x + school + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  df <- rg_value(rg_finding(document, "design.collinearity", term = "school"), "df")
+  levels <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "levels")
+  d <- if (!is.null(df) && !is.null(levels)) rg_small_difference(df + 1, levels, k)
+  rg_result(!is.null(d), if (!is.null(d)) sprintf("%d schools without an outcome", d))
+}
+
+rg_rows_levels_lost <- function(ns, root) {
+  # The contributors case of round 6 with 9 levels of g: the 10 rows
+  # without an outcome are the 10 levels of f with one row.
+  r <- 1:168
+  data <- data.frame(count = c(r %% 4, rep(NA, 10)), x = c(r %% 7 + 0.5, (1:10) / 3),
+                     f = c(sprintf("F%02d", (r - 1) %% 40 + 1), sprintf("F%02d", 41:50)),
+                     g = c(sprintf("G%02d", (r - 1) %% 42 + 1), sprintf("G%02d", 43:51), "G01"))
+  document <- rg_document(ns, data, "count ~ x + (1 | f) + (1 | g)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "f")
+  analysis <- rg_finding(document, "outcome.zero_shares", factor = "f")
+  vals <- list(nd = rg_value(sizes, "rows"), jd = rg_value(sizes, "levels"),
+               s = rg_value(sizes, "singletons"), na = rg_value(analysis, "rows"),
+               ja = rg_value(analysis, "levels"))
+  if (any(vapply(vals, is.null, NA)) || vals$nd - vals$na != vals$jd - vals$ja) {
+    return(rg_result(FALSE))
+  }
+  one <- vals$s - (vals$jd - vals$ja)
+  rg_result(one < k, sprintf("%d levels of f with one analysed row", one))
+}
+
+rg_singletons_rows <- function(ns, root) {
+  # 20 subjects of one row and 30 of two, the second outcome of 10 missing:
+  # rows 80 and singletons 20 bound the levels by 50, the levels of the
+  # analysis sample.
+  subject <- c(sprintf("o%02d", 1:20), rep(sprintf("s%02d", 1:30), each = 2))
+  count <- seq_along(subject) %% 4
+  count[21 + 2 * (0:9) + 1] <- NA
+  data <- data.frame(count = count, x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "subject")
+  rows <- rg_value(sizes, "rows")
+  singletons <- rg_value(sizes, "singletons")
+  levels <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "subject"), "levels")
+  leak <- !is.null(rows) && !is.null(singletons) && !is.null(levels) &&
+    (rows + singletons) / 2 <= levels
+  rg_result(leak, if (leak) "no subject lost every outcome")
+}
+
+rg_analysis_rows_levels <- function(ns, root) {
+  # 12 subjects in the analysis sample, 9 of two rows and 3 of one, and 10
+  # subjects of four rows without an outcome, so that the design sample
+  # exceeds it by k or more. The contributors of the basis grouping_factors
+  # are the levels of subject.
+  subject <- c(rep(sprintf("s%02d", 1:9), each = 2), sprintf("t%02d", 1:3),
+               rep(sprintf("u%02d", 1:10), each = 4))
+  count <- c(seq_len(21) %% 4, rep(NA, 40))
+  data <- data.frame(count = count, x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  rows <- rg_value(shares, "rows")
+  levels <- rg_value(shares, "levels") %||% rg_value(shares, "support.distinct")
+  leak <- !is.null(rows) && !is.null(levels) && rows < 2 * levels
+  rg_result(leak, if (leak) sprintf("at least %d subjects of one analysed row, the smallest size 1",
+                                    2 * levels - rows))
+}
+
+rg_non_person <- function(ns, root) {
+  # 50 schools of two pupils of one row each, 9 pupils without an outcome in
+  # 9 schools: the 50 schools, a non-person count, show 100 rows or more in
+  # the design sample, which rule 1 hides as within k of the 91 analysed.
+  school <- rep(sprintf("s%02d", 1:50), each = 2)
+  count <- seq_len(100) %% 4
+  count[seq(1, 17, 2)] <- NA
+  data <- data.frame(count = count, x = seq_len(100) %% 7 + 0.5, school = school,
+                     pupil = sprintf("p%03d", 1:100))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+         role = "participant")))
+  document <- rg_document(ns, data, "count ~ x + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "school")
+  levels <- rg_value(sizes, "levels")
+  rows <- rg_value(sizes, "rows")
+  analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "support.rows")
+  leak <- !is.null(levels) && is.null(rows) && !is.null(analysed) &&
+    identical(sizes$statistics$levels$count_class, "non_person") && 2 * levels >= analysed + k - 1
+  rg_result(leak, if (leak) sprintf("%d rows without an outcome", 2 * levels - analysed))
+}
+
+rg_crossed_analysis_levels <- function(ns, root) {
+  # The reproducer of R1-crossed-combinations, with the levels of g and h
+  # taken from outcome.zero_shares when the design sample hides them: each
+  # is at least the analysis sample's, and the combinations of the design
+  # sample, their product, exceed the analysis sample's by fewer than k. In
+  # the second table every combination holds two rows, so that the 278
+  # analysed rows are twice the 139 analysed combinations, rule 3 leaves
+  # them and the clause of rule 1 on crossed columns alone hides them.
+  cells <- expand.grid(g = sprintf("g%02d", 1:12), h = sprintf("h%02d", 1:12),
+                       stringsAsFactors = FALSE)
+  pairs <- rep(seq_len(nrow(cells)), each = 2)
+  found <- character(0)
+  for (rows in list(pairs[-1L], pairs)) {
+    data <- cells[rows, ]
+    data$pupil <- sprintf("p%03d", seq_len(nrow(data)))
+    data$count <- seq_len(nrow(data)) %% 4
+    data$x <- seq_len(nrow(data)) %% 7
+    lost <- paste(cells$g, cells$h)[c(10, 30, 50, 70, 90)]
+    data$count[paste(data$g, data$h) %in% lost] <- NA
+    declaration <- list(vocabulary = "0.1.0", units = list(
+      list(name = "pupil", columns = list("pupil"), role = "participant")))
+    document <- rg_document(ns, data, "count ~ x + (1 | g) + (1 | h) + (1 | g:h)",
+                            declaration = declaration, family = "poisson",
+                            outcome_access = "T1", reason = "Zeros.")
+    k <- document$privacy$min_count
+    incidence <- rg_finding(document, "structure.label_incidence", first = "g", second = "h")
+    if (!identical(rg_value(incidence, "relation"), "crossed")) {
+      next
+    }
+    level <- function(side, factor) {
+      written <- rg_value(incidence, side)
+      if (!is.null(written)) return(written)
+      a <- rg_value(rg_finding(document, "outcome.zero_shares", factor = factor), "levels")
+      if (is.null(a)) NULL else a + 0:(k - 1)
+    }
+    first <- level("levels_first", "g")
+    second <- level("levels_second", "h")
+    analysis <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "g:h"), "levels")
+    if (is.null(first) || is.null(second) || is.null(analysis)) {
+      next
+    }
+    products <- unique(as.vector(outer(first, second)))
+    products <- products[products >= analysis & products < analysis + k]
+    if (length(products) == 1L) {
+      found <- c(found, sprintf("%d combinations of %d rows lack an outcome", products - analysis,
+                                nrow(data)))
+    }
+  }
+  rg_result(length(found) > 0L, found)
+}
+
+# --- Round 7: the implementation of the two tiers ------------------------------------------
+
+rg_unit_contributors <- function(ns, root) {
+  # The table of R6-analysis-rows-levels with the subjects as the disclosure
+  # unit, so that the contributors of the T1 findings are the analysed
+  # subjects: 21 analysed rows beside 12 contributors show a subject of one
+  # analysed row.
+  subject <- c(rep(sprintf("s%02d", 1:9), each = 2), sprintf("t%02d", 1:3),
+               rep(sprintf("u%02d", 1:10), each = 4))
+  data <- data.frame(count = c(seq_len(21) %% 4, rep(NA, 40)),
+                     x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant")))
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", declaration = declaration,
+                          family = "poisson", outcome_access = "T1", reason = "Zeros.")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  rows <- rg_value(shares, "support.rows") %||% rg_value(shares, "rows")
+  members <- rg_value(shares, "support.distinct") %||% rg_value(shares, "levels")
+  leak <- !is.null(rows) && !is.null(members) && rows < 2 * members
+  rg_result(leak, if (leak) sprintf("at least %d subjects of one analysed row", 2 * members - rows))
+}
+
+# The schools of R6-fixed-factor, of four pupils each, so that their counts
+# resolve as non-person: df of design.collinearity, or dimension of
+# identifiability.levels_vs_dimension when the schools are a categorical
+# variable of a random term, gives the schools of the design sample, and
+# the levels of outcome.zero_shares, or the levels with two rows of
+# outcome.constant_clusters, which equal them for a non-person item, the
+# analysed schools.
+rg_school_variable <- function(ns, formula, columns) {
+  school <- rep(sprintf("s%02d", 1:50), each = 4)
+  count <- seq_len(200) %% 5
+  count[school %in% sprintf("s%02d", 42:50)] <- NA
+  data <- data.frame(count = count, x = seq_len(200) %% 7 + 0.5, school = school,
+                     district = sprintf("d%02d", rep(1:10, 20)), pupil = sprintf("p%03d", 1:200))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+         role = "participant")))
+  document <- rg_document(ns, data, formula, declaration = declaration, family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  design <- columns(document)
+  analysed <- c(
+    rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "levels"),
+    rg_value(rg_finding(document, "outcome.constant_clusters", factor = "school"),
+             "multi_row_levels"))
+  found <- unlist(lapply(analysed, function(a) rg_small_difference(design, a, k)))
+  rg_result(length(found) > 0L,
+            if (length(found)) sprintf("%d schools without an outcome", found[1L]))
+}
+
+rg_fixed_factor_non_person <- function(ns, root) {
+  rg_school_variable(ns, "count ~ x + school + (1 | school)", function(document) {
+    df <- rg_value(rg_finding(document, "design.collinearity", term = "school"), "df")
+    if (!is.null(df)) df + 1
+  })
+}
+
+rg_random_variable <- function(ns, root) {
+  rg_school_variable(ns, "count ~ x + (1 | school) + (0 + school | district)", function(document) {
+    rg_value(rg_finding(document, "identifiability.levels_vs_dimension", factor = "district"),
+             "dimension")
+  })
+}
+
+rg_dominance <- function(ns, root) {
+  # Two subjects of 50 rows and 10 of one row: the two largest hold 100 of
+  # the 110 rows, so every finding whose support counts the subjects fails
+  # the dominance rule and writes no real and no person count.
+  subject <- c(rep(c("s01", "s02"), each = 50), sprintf("t%02d", 1:10))
+  data <- data.frame(count = seq_along(subject) %% 4, x = seq_along(subject) %% 7 + 0.5,
+                     subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  found <- character(0)
+  for (finding in document$findings) {
+    if (!isTRUE(finding$support$contributors$dominated) || !rg_available(finding)) {
+      next
+    }
+    for (name in names(finding$statistics)) {
+      s <- finding$statistics[[name]]
+      if (!is.null(s$value) && (s$kind %in% c("real", "reals") ||
+                                  (s$kind %in% c("count", "ratio") &&
+                                     identical(s$count_class, "person")))) {
+        found <- c(found, paste(finding$check, name))
+      }
+    }
+  }
+  rg_result(length(found) > 0L, if (length(found)) paste("written:", paste(found, collapse = ", ")))
+}
+
+rg_separation_interaction <- function(ns, root) {
+  skip <- rg_needs_solver()
+  if (!is.null(skip)) {
+    return(skip)
+  }
+  # One kept column besides the intercept, which reads two variables: a
+  # verdict of quasi or complete names a cell of x:z.
+  x <- 1:40
+  z <- 100 + (1:40) %% 7
+  data <- data.frame(y = as.numeric(x * z > stats::median(x * z)), x = x, z = z)
+  document <- rg_document(ns, data, "y ~ x:z", family = "binomial", outcome_access = "T2",
+                          reason = "Separation.", exploratory = TRUE)
+  leak <- rg_separating_verdict(document)
+  rg_result(leak, if (leak) "complete on x:z: the events lie at one end of its values")
+}
+
+rg_separation_one_variable <- function(ns, root) {
+  skip <- rg_needs_solver()
+  if (!is.null(skip)) {
+    return(skip)
+  }
+  # A factor whose 24 levels hold one row each, so that no two rows share
+  # the values of the kept columns: the verdict shows that each level holds
+  # one class.
+  data <- data.frame(y = rep(c(1, 0), 12), g = sprintf("g%02d", 1:24))
+  document <- rg_document(ns, data, "y ~ g", family = "binomial", outcome_access = "T2",
+                          reason = "Separation.", exploratory = TRUE)
+  leak <- rg_separating_verdict(document)
+  rg_result(leak, if (leak) "complete with one factor of levels of one row")
+}
+
+rg_part_detail <- function(ns, root) {
+  # Ten counts, none of them 0, for the model as a whole: zeros, a part of
+  # the 10 written rows below k, keeps 'min_count' only if a part below k
+  # had no other detail, and 'min_count' then shows that part_of did not
+  # fire, so that the rows exceed the zeros by k or more and the zeros are
+  # at most rows - k, here 0.
+  data <- data.frame(count = c(1, 2, 3, 1, 2, 3, 1, 2, 3, 4), x = (1:10) / 3)
+  document <- rg_document(ns, data, "count ~ x", family = "poisson", outcome_access = "T1",
+                          reason = "Zeros.")
+  k <- document$privacy$min_count
+  shares <- rg_finding(document, "outcome.zero_shares")
+  rows <- rg_value(shares, "rows")
+  leak <- !is.null(rows) && identical(rg_detail(shares, "zeros"), "min_count") && rows - k < k - 1
+  rg_result(leak, if (leak) sprintf("zeros at most %d", rows - k))
+}
+
+# --- Round 8 ---------------------------------------------------------------------------
+
+rg_interaction <- function(ns, root) {
+  # 19 cells of A and B of three rows, the cell (a4, b5) empty, and one cell
+  # without an outcome: df 3 and 4 and empty_cells 1 give the 19 cells of
+  # the design sample.
+  cells <- expand.grid(A = paste0("a", 1:4), B = paste0("b", 1:5), stringsAsFactors = FALSE)
+  cells <- cells[!(cells$A == "a4" & cells$B == "b5"), ]
+  data <- cells[rep(seq_len(nrow(cells)), each = 3), ]
+  data$x <- seq_len(nrow(data)) %% 7 + 0.5
+  data$count <- seq_len(nrow(data)) %% 4
+  data$count[data$A == "a1" & data$B == "b1"] <- NA
+  document <- rg_document(ns, data, "count ~ x + A * B + (1 | A:B)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  df <- function(term) rg_value(rg_finding(document, "design.collinearity", term = term), "df")
+  empty <- rg_value(rg_finding(document, "design.rank_deficiency"), "empty_cells")
+  levels <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "A:B"), "levels")
+  design <- if (!is.null(df("A")) && !is.null(df("B")) && !is.null(empty)) {
+    (df("A") + 1) * (df("B") + 1) - empty
+  }
+  d <- rg_small_difference(design, levels, k)
+  rg_result(!is.null(d), if (!is.null(d)) sprintf("%d cells without an outcome", d))
+}
+
+rg_sizes_two_rows <- function(ns, root) {
+  # 20 subjects of one row and 40 of two, 10 of these without an outcome:
+  # the rows minus the singletons, twice the levels with two rows, show that
+  # no level holds three rows, so 50 analysed subjects of 80 rows hold 20 of
+  # one row, which leaves no subject of two rows with one analysed row.
+  subject <- c(sprintf("o%02d", 1:20), rep(sprintf("t%02d", 1:40), each = 2))
+  count <- seq_along(subject) %% 4
+  count[subject >= "t31"] <- NA
+  data <- data.frame(count = count, x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "subject")
+  within <- rg_finding(document, "structure.within_between", factor = "subject", term = "x")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  v <- list(n = rg_value(sizes, "rows"), s = rg_value(sizes, "singletons"),
+            two = rg_value(within, "multi_row_levels"), na = rg_value(shares, "rows"),
+            ja = rg_value(shares, "levels"))
+  if (any(vapply(v, is.null, NA)) || v$n - v$s != 2 * v$two) {
+    return(rg_result(FALSE))
+  }
+  lost <- 2 * v$ja - v$na - v$s
+  rg_result(lost >= 0 && lost < k,
+            sprintf("%d analysed subjects of two rows lost one outcome", lost))
+}
+
+rg_sizes_firing <- function(ns, root) {
+  # 40 subjects of two rows, 10 without an outcome and one without its
+  # second: effective_size 2 with 80 rows and 40 levels gives every size as
+  # 2, the 40 written levels leave at most 30 analysed subjects, and 59
+  # analysed rows need 30, one of them with one row.
+  subject <- rep(sprintf("s%02d", 1:40), each = 2)
+  count <- seq_along(subject) %% 4
+  count[subject >= "s31"] <- NA
+  count[2] <- NA
+  data <- data.frame(count = count, time = rep(0:1, 40), subject = subject)
+  document <- rg_document(ns, data, "count ~ time + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "subject")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  v <- list(n = rg_value(sizes, "rows"), j = rg_value(sizes, "levels"),
+            e = rg_value(sizes, "effective_size"), na = rg_value(shares, "rows"))
+  if (any(vapply(v, is.null, NA)) || !is.null(rg_value(shares, "levels")) ||
+      v$n %% v$j != 0 || abs(v$e - v$n / v$j) > 1e-9) {
+    return(rg_result(FALSE))
+  }
+  size <- v$n / v$j
+  fewest <- ceiling(v$na / size)
+  leak <- fewest == v$j - k
+  rg_result(leak, if (leak) sprintf("%d analysed subjects, %d of one row", fewest,
+                                    size * fewest - v$na))
+}
+
+rg_parts_variable <- function(ns, root) {
+  # 50 schools of four rows, 40 with zero counts, every outcome present:
+  # all_zero_levels 40 beside the hidden analysed levels shows 50 or more,
+  # which df 49 bounds from above.
+  school <- rep(sprintf("s%02d", 1:50), each = 4)
+  count <- ifelse(school <= "s40", 0, seq_along(school) %% 3 + 1)
+  data <- data.frame(count = count, x = seq_along(school) %% 7 + 0.5, school = school)
+  document <- rg_document(ns, data, "count ~ x + school + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  df <- rg_value(rg_finding(document, "design.collinearity", term = "school"), "df")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "school")
+  part <- rg_value(shares, "all_zero_levels")
+  leak <- !is.null(df) && !is.null(part) && is.null(rg_value(shares, "levels")) &&
+    part + k >= df + 1
+  rg_result(leak, if (leak) sprintf("%d analysed schools", df + 1))
+}
+
+rg_parts_rule3 <- function(ns, root) {
+  # 50 subjects of two rows, 30 with zero counts, 10 without an outcome and
+  # one without its second: rule 3 hides the 40 analysed subjects beside 79
+  # rows, which all_zero_levels 30 bounds from below by 40, and the 50
+  # written levels of the design sample from above by 40.
+  subject <- rep(sprintf("s%02d", 1:50), each = 2)
+  count <- ifelse(subject <= "s30", 0, seq_along(subject) %% 3 + 1)
+  count[subject >= "s41"] <- NA
+  count[80] <- NA
+  data <- data.frame(count = count, time = rep(0:1, 50), subject = subject)
+  document <- rg_document(ns, data, "count ~ time + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  design <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"), "levels")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  part <- rg_value(shares, "all_zero_levels")
+  rows <- rg_value(shares, "rows")
+  leak <- !is.null(part) && is.null(rg_value(shares, "levels")) && !is.null(rows) &&
+    (rows < 2 * (part + k) || (!is.null(design) && part + k >= design - k))
+  rg_result(leak, if (leak) sprintf("%d analysed subjects or more beside %d rows", part + k, rows))
+}
+
+rg_two_rows_variable <- function(ns, root) {
+  # 30 schools of two rows and 20 of one, the 10 schools of one row s41 to
+  # s50 without an outcome: 80 rows and df 49 bound the schools with two
+  # rows of the design sample by 30, which outcome.constant_clusters writes
+  # for the analysis sample.
+  school <- c(rep(sprintf("s%02d", 1:30), each = 2), sprintf("s%02d", 31:50))
+  y <- seq_along(school) / 7 + rep(c(0, 0.5), length.out = length(school))
+  y[school <= "s10"] <- rep(seq(1, 10), each = 2)
+  y[school >= "s41"] <- NA
+  data <- data.frame(y = y, x = seq_along(school) %% 5 + 0.5, school = school)
+  document <- rg_document(ns, data, "y ~ x + school + (1 | school)", outcome_access = "T1",
+                          reason = "Constant levels.")
+  df <- rg_value(rg_finding(document, "design.collinearity", term = "school"), "df")
+  rows <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "school"), "rows")
+  two <- rg_value(rg_finding(document, "outcome.constant_clusters", factor = "school"),
+                  "multi_row_levels")
+  leak <- !is.null(df) && !is.null(rows) && !is.null(two) && rows - (df + 1) == two
+  rg_result(leak, if (leak) "no school with two rows lost an outcome")
+}
+
+rg_non_person_variable <- function(ns, root) {
+  # 50 schools of two pupils, the disclosure unit, 9 pupils without an
+  # outcome in 9 schools, school also a fixed term: df 49 and the class
+  # non-person bound the hidden rows of the design sample by 100, which the
+  # firing of rule 1 bounds by the 91 analysed rows plus k - 1.
+  school <- rep(sprintf("s%02d", 1:50), each = 2)
+  count <- seq_len(100) %% 4
+  count[seq(1, 17, 2)] <- NA
+  data <- data.frame(count = count, x = seq_len(100) %% 7 + 0.5, school = school,
+                     pupil = sprintf("p%03d", 1:100))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+         role = "participant")))
+  document <- rg_document(ns, data, "count ~ x + school + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  k <- document$privacy$min_count
+  df <- rg_value(rg_finding(document, "design.collinearity", term = "school"), "df")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "school")
+  analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"),
+                       "support.rows")
+  leak <- !is.null(df) && !is.null(analysed) && is.null(rg_value(sizes, "rows")) &&
+    identical(sizes$statistics$levels$count_class, "non_person") &&
+    2 * (df + 1) >= analysed + k - 1
+  rg_result(leak, if (leak) sprintf("%d rows without an outcome", 2 * (df + 1) - analysed))
+}
+
+rg_rule3_rows <- function(ns, root) {
+  # 9 subjects of one row and one of two, every outcome present: a finding
+  # that passes the minimum-count rule shows 10 subjects or more, which
+  # beside 11 written rows hold 9 or more of one row.
+  data <- data.frame(count = c(0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 0), x = (1:11) / 3,
+                     subject = c(sprintf("s%02d", 1:9), "s10", "s10"))
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  rows <- rg_value(shares, "support.rows") %||% rg_value(shares, "rows")
+  distinct <- shares$support$contributors$distinct
+  passes <- isTRUE(distinct$value >= k) || identical(distinct$availability$detail, "secondary")
+  leak <- rg_available(shares) && !is.null(rows) && rows < 2 * k && passes
+  rg_result(leak, if (leak) sprintf("%d rows of %d subjects or more", rows, k))
+}
+
+rg_chain_items <- function(ns, root) {
+  # 20 subjects of one row and 30 of four rows: 10 of these lack the
+  # covariate, or 9 lack it and one lacks every outcome.
+  make <- function(y_missing) {
+    g <- c(sprintf("o%02d", 1:20), rep(sprintf("s%02d", 1:30), each = 4))
+    data <- data.frame(count = seq_along(g) %% 4, x = seq_along(g) %% 7 + 0.5, g = g)
+    data$x[g %in% sprintf("s%02d", if (y_missing) 21:29 else 21:30)] <- NA
+    if (y_missing) {
+      data$count[g == "s30"] <- NA
+    }
+    list(data = data, formula = "count ~ x + (1 | g)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Zeros."))
+  }
+  rg_pair(ns, list(make(FALSE), make(TRUE)),
+          "the table's contributors tell 0 levels without an outcome from 1")
+}
+
+rg_column_levels <- function(ns, root) {
+  # 40 subjects in 4 sites, site a fixed term and a declared cluster: step 3
+  # suppresses its 4 levels, a person count below k, which df 3 gives back.
+  subject <- sprintf("s%02d", rep(1:40, each = 5))
+  site <- sprintf("S%d", (match(subject, unique(subject)) - 1L) %/% 10L + 1L)
+  n <- length(subject)
+  data <- data.frame(y = (seq_len(n) * 5L) %% 13L + 0.25,
+                     treatment = ifelse(seq_len(n) %% 2 == 0, -0.5, 0.5), site = site,
+                     subject = subject)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "site", columns = list("site"), role = "cluster"),
+    list(name = "subject", columns = list("subject"), role = "cluster", nested_in = "site",
+         id_scope = "global")))
+  document <- rg_document(ns, data, "y ~ treatment + site + (1 | subject)",
+                          declaration = declaration)
+  k <- document$privacy$min_count
+  df <- rg_value(rg_finding(document, "design.collinearity", term = "site"), "df")
+  incidence <- rg_finding(document, "structure.label_incidence", first = "site", second = "subject")
+  leak <- !is.null(df) && df + 1 < k && is.null(rg_value(incidence, "levels_first"))
+  rg_result(leak, if (leak) sprintf("%d sites", df + 1))
+}
+
+rg_sizes_one_row <- function(ns, root) {
+  # 20 subjects of one row and 50 of two, 10 of these without an outcome and
+  # 10 without their second: no subject has three rows, as the rows minus the
+  # singletons, twice the levels with two rows, show, so 60 analysed
+  # subjects of 90 rows hold 30 of one row, a count that the document hides.
+  subject <- c(sprintf("o%02d", 1:20), rep(sprintf("t%02d", 1:50), each = 2))
+  count <- seq_along(subject) %% 4
+  count[subject >= "t41"] <- NA
+  count[subject %in% sprintf("t%02d", 31:40) & duplicated(subject)] <- NA
+  data <- data.frame(count = count, x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "subject")
+  within <- rg_finding(document, "structure.within_between", factor = "subject", term = "x")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  v <- list(n = rg_value(sizes, "rows"), s = rg_value(sizes, "singletons"),
+            two = rg_value(within, "multi_row_levels"), na = rg_value(shares, "rows"),
+            ja = rg_value(shares, "levels"))
+  if (any(vapply(v, is.null, NA)) || v$n - v$s != 2 * v$two) {
+    return(rg_result(FALSE))
+  }
+  rg_result(TRUE, sprintf("%d analysed subjects of one row", 2 * v$ja - v$na))
+}
+
+rg_hidden_levels <- function(ns, root) {
+  # 20 subjects of two rows, 10 without an outcome and one without its
+  # second: rule 3 hides the 10 analysed subjects beside 19 rows, and the
+  # minimum-count rule, which the finding passes, shows 10 or more, so the
+  # 20 written levels of the design sample, k or more above them, leave 10.
+  subject <- rep(sprintf("s%02d", 1:20), each = 2)
+  count <- seq_along(subject) %% 4
+  count[subject >= "s11"] <- NA
+  count[2] <- NA
+  data <- data.frame(count = count, x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  design <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"), "levels")
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "subject")
+  passes <- identical(shares$support$contributors$distinct$availability$detail, "secondary")
+  leak <- !is.null(design) && rg_available(shares) && is.null(rg_value(shares, "levels")) &&
+    passes && design - k <= k
+  rg_result(leak, if (leak) sprintf("%d analysed subjects", design - k))
+}
+
+rg_reals_items <- function(ns, root) {
+  # 20 subjects of four rows, 15 of which lose two outcomes each: the design
+  # sample keeps its 80 rows, 30 above the analysed, but loses its 20
+  # subjects beside the 20 analysed, and smallest_eigenvalue,
+  # effective_size or icc, which with the rows give the levels of a balanced
+  # design, would show that no subject lost every outcome. The attack tests
+  # that none of them is written.
+  subject <- rep(sprintf("s%02d", 1:20), each = 4)
+  count <- seq_along(subject) %% 4
+  count[subject <= "s15" & rep(1:4, 20) <= 2] <- NA
+  data <- data.frame(count = count, x = seq_along(subject) %% 7 + 0.5, subject = subject)
+  document <- rg_document(ns, data, "count ~ x + (1 | subject)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "subject")
+  within <- rg_finding(document, "structure.within_between", factor = "subject", term = "x")
+  written <- c(effective_size = !is.null(rg_value(sizes, "effective_size")),
+               icc = !is.null(rg_value(within, "icc")),
+               smallest_eigenvalue = !is.null(rg_value(rg_finding(document,
+                                                                  "identifiability.gram_rank"),
+                                                       "smallest_eigenvalue")))
+  leak <- !is.null(rg_value(sizes, "rows")) && is.null(rg_value(sizes, "levels")) && any(written)
+  rg_result(leak, if (leak) paste("written beside the hidden levels:",
+                                  paste(names(written)[written], collapse = ", ")))
+}
+
+rg_non_person_members <- function(ns, root) {
+  # 50 schools of two pupils of two rows each, 9 pupils without an outcome
+  # in 9 schools: 18 rows lack an outcome, k or more, but 9 pupils, so the
+  # design sample loses its pupils beside the 91 analysed, and 50 schools,
+  # a non-person count of two pupils or more each, would show 100 pupils.
+  school <- rep(sprintf("s%02d", 1:50), each = 4)
+  pupil <- rep(sprintf("p%03d", 1:100), each = 2)
+  count <- seq_len(200) %% 4
+  count[pupil %in% sprintf("p%03d", seq(1, 17, 2))] <- NA
+  data <- data.frame(count = count, x = seq_len(200) %% 7 + 0.5, school = school, pupil = pupil)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+         role = "participant")))
+  document <- rg_document(ns, data, "count ~ x + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "school")
+  levels <- rg_value(sizes, "levels")
+  analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"),
+                       "support.distinct")
+  leak <- !is.null(levels) && is.null(rg_value(sizes, "support.distinct")) && !is.null(analysed) &&
+    identical(sizes$statistics$levels$count_class, "non_person") && 2 * levels >= analysed + k - 1
+  rg_result(leak, if (leak) sprintf("%d pupils without an outcome", 2 * levels - analysed))
+}
+
+rg_non_person_whole <- function(ns, root) {
+  # At k = 3, 10 schools of two pupils of one row each, one school without an
+  # outcome: the design sample loses its 20 rows beside the 18 analysed, k - 1
+  # fewer, and every analysed school keeps two pupils, so that its schools
+  # count non-persons and rule 2 hides nothing. 10 written schools of two
+  # pupils or more would show 20 rows. With k = 10, k - 1 is odd and whole
+  # schools of two pupils cannot lose k - 1 rows, so the attack sets k.
+  old <- dh_set_k(ns, 3L)
+  on.exit(dh_set_k(ns, old), add = TRUE)
+  school <- rep(sprintf("s%02d", 1:10), each = 2)
+  count <- seq_len(20) %% 4
+  count[school == "s10"] <- NA
+  data <- data.frame(count = count, x = seq_len(20) %% 7 + 0.5, school = school,
+                     pupil = sprintf("p%02d", 1:20))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), nested_in = "school", id_scope = "global",
+         role = "participant")))
+  document <- rg_document(ns, data, "count ~ x + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "school")
+  levels <- rg_value(sizes, "levels")
+  analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "support.rows")
+  leak <- !is.null(levels) && is.null(rg_value(sizes, "rows")) && !is.null(analysed) &&
+    identical(sizes$statistics$levels$count_class, "non_person") && 2 * levels >= analysed + k - 1
+  rg_result(leak, if (leak) sprintf("%d rows without an outcome", 2 * levels - analysed))
+}
+
+rg_contributors_levels <- function(ns, root) {
+  # Crossed factors f and g: 40 analysed rows in 20 levels of f and 22 of g,
+  # each with k or more levels of one row and of two rows or more, and 20
+  # rows without an outcome in 10 more levels of f and 9 more of g. The
+  # design sample loses the levels of g, 31 beside 22 analysed, and keeps
+  # those of f, 30 beside 20. Written contributors of 30, the levels of f,
+  # would show that g has more than 30 levels, so 31, and that 9 lack an
+  # outcome.
+  f <- c(sprintf("f%02d", 1:10), rep(sprintf("f%02d", 11:20), each = 3),
+         rep(sprintf("f%02d", 21:30), each = 2))
+  g <- c(sprintf("g%02d", 1:12), rep(sprintf("g%02d", 13:20), each = 3),
+         rep(sprintf("g%02d", 21:22), each = 2), sprintf("g%02d", 23 + (0:19) %% 9))
+  data <- data.frame(count = c(seq_len(40) %% 4, rep(NA, 20)), x = seq_len(60) %% 7 + 0.5,
+                     f = f, g = g)
+  document <- rg_document(ns, data, "count ~ x + (1 | f) + (1 | g)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.")
+  k <- document$privacy$min_count
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "g")
+  contributors <- rg_value(sizes, "support.distinct")
+  analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "g"), "levels")
+  leak <- is.null(rg_value(sizes, "levels")) && !is.null(contributors) && !is.null(analysed) &&
+    contributors + 1 >= analysed + k - 1
+  rg_result(leak, if (leak) sprintf("%d levels of g without an outcome", contributors + 1 - analysed))
 }

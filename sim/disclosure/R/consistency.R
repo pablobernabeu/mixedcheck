@@ -76,12 +76,20 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
   one <- function(i) tryCatch(one_table(i), error = function(e) list(error = conditionMessage(e)))
   one_table <- function(i) {
     case <- family$build(as.list(grid[i, , drop = FALSE]))
+    design <- dh_design_key(case)
     result <- dh_run(ns, case)
     if (!is.null(result$error)) {
-      return(result[c("error", "empty")])
+      return(c(result[c("error", "empty")], list(design = design)))
     }
     document <- if (reals) result$document else dh_mask_reals(result$document)
     targets <- dh_targets(result)
+    # Every hidden value has a tier (privacy.md, Tiers), or the harness
+    # cannot gate it.
+    unclassified <- unique(paste(targets$finding, "|", targets$member)[is.na(targets$tier)])
+    if (length(unclassified)) {
+      return(list(error = paste("hidden values without a tier:",
+                                paste(unclassified, collapse = "; ")), design = design))
+    }
     targets$shared <- NA_real_
     quantiles <- which(targets$member %in% c("smallest", "lower_quartile", "median",
                                              "upper_quartile", "largest", "median_minority"))
@@ -101,7 +109,7 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
       lp <- iv_audit(result$document, dh_capture$entries, iv_internal(result), shared)
     }
     list(full = full, strict = dh_reduce(document, strict = TRUE),
-         targets = targets, issues = result$issues, lp = lp)
+         targets = targets, issues = result$issues, lp = lp, design = design)
   }
   runs <- if (cores > 1L) {
     parallel::mclapply(seq_len(nrow(grid)), one, mc.cores = cores, mc.preschedule = TRUE)
@@ -114,11 +122,12 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
 # The determinations of a run of a family. Returns a data frame with one row
 # for each hidden value or person-count parameter that a group of interior
 # tables determines, with the mode of the reduction, the target, its value,
-# the size of the group and the parameters of its first table, and the
-# verdict: 'leak' when the strict reduction determines it, 'accepted' when
-# only the full reduction does, or when the value is a quantile shared by k
-# or more values or a count derived through suppress_with from written
-# statistics.
+# the size of the group, its first table and its tier (dh_tier()), and the
+# verdict: 'leak' when the strict reduction determines an outcome-derived
+# value, 'residual' when it determines a design-structure value, 'accepted'
+# when only the full reduction determines it, or when the value is a
+# quantile shared by k or more values or a count derived through
+# suppress_with from written statistics.
 dh_determinations <- function(ran, k = ran$family$k) {
   family <- ran$family
   grid <- ran$grid
@@ -137,7 +146,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
     targets <- data.frame(table = integer(0), finding = character(0), member = character(0),
                           detail = character(0), value = character(0), kind = character(0),
                           class = character(0), shared = numeric(0), derived = logical(0),
-                          stringsAsFactors = FALSE)
+                          tier = character(0), stringsAsFactors = FALSE)
   }
   # Determinations of reals and names are left to the counts that they
   # derive from, which the families vary.
@@ -167,7 +176,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
           found[[length(found) + 1L]] <- data.frame(
             mode = mode, target = key, value = values, class = row$class,
             shared = row$shared, derived = any(mine$derived[mine$key == key]),
-            group = length(group), table = inside[1L], stringsAsFactors = FALSE)
+            group = length(group), table = inside[1L], tier = row$tier, stringsAsFactors = FALSE)
         }
       }
       for (p in persons) {
@@ -177,7 +186,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
           found[[length(found) + 1L]] <- data.frame(
             mode = mode, target = paste("parameter", p), value = as.character(values),
             class = "person", shared = NA_real_, derived = FALSE, group = length(group),
-            table = inside[1L],
+            table = inside[1L], tier = dh_tier(paste("parameter", p), family),
             stringsAsFactors = FALSE)
         }
       }
@@ -186,8 +195,8 @@ dh_determinations <- function(ran, k = ran$family$k) {
   if (!length(found)) {
     return(data.frame(mode = character(0), target = character(0), value = character(0),
                       class = character(0), shared = numeric(0), derived = logical(0),
-                      group = integer(0), table = integer(0), verdict = character(0),
-                      stringsAsFactors = FALSE))
+                      group = integer(0), table = integer(0), tier = character(0),
+                      verdict = character(0), stringsAsFactors = FALSE))
   }
   found <- do.call(rbind, found)
   strict <- paste(found$table, found$target)[found$mode == "strict"]
@@ -199,6 +208,12 @@ dh_determinations <- function(ran, k = ran$family$k) {
   # Guarantees).
   shared <- !is.na(found$shared) & found$shared >= k
   found$verdict[shared | found$derived] <- "accepted"
+  # A design-structure value is protected against the linear relations of
+  # the document alone, which attack (b) models. The search cannot tell a
+  # linear determination from another, so its determinations of
+  # design-structure values are residual risk (privacy.md, Guarantees,
+  # Residual risk), reported without failing the run.
+  found$verdict[found$verdict == "leak" & found$tier == "B"] <- "residual"
   found
 }
 

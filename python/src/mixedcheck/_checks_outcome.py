@@ -7,7 +7,9 @@ itself only when the dual has no verified solution. Each solution is verified
 in double arithmetic on the observations before the verdict is decided, and
 the objectives of the programs that give the bounds against the upper bounds
 that their multipliers give (outcome.separation.yaml, verdict and
-optimality_tolerance).
+optimality_tolerance). The size of the programs, computed on the design
+sample, limits the check, the programs of bounds and the programs solved
+themselves (outcome.separation.yaml, max_size).
 """
 
 from __future__ import annotations
@@ -279,16 +281,52 @@ class SeparationTolerances:
     bound: float
 
 
+@dataclass
+class SeparationLimits:
+    """The size of the programs of outcome.separation and the parameters that
+    limit the programs of bounds and the programs solved themselves."""
+
+    size: float
+    primal_size: float
+    bound_programs: float
+    bound_size: float
+
+
+def separation_size(run: Run) -> float:
+    """The size of the programs of outcome.separation: the values other than 0
+    in the columns of X that the sequential rule keeps in the design sample,
+    counted twice for the class binomial, times 10 more than the number of
+    those columns (outcome.separation.yaml, max_size). It reads no
+    outcome."""
+    import numpy as np
+
+    kept = np.flatnonzero(run.x_kept)
+    values = sum(int(np.count_nonzero(run.x[:, j])) for j in kept)
+    if run.family_class == "binomial":
+        values *= 2
+    return float(values * (len(kept) + 10))
+
+
 def check_outcome_separation(
     run: Run, entry: dict[str, Any], elements: list[dict[str, str]]
 ) -> list[CheckElement | None] | Unavailable:
     """outcome.separation: whether the kept fixed-effects columns of the
     analysis sample separate the events from the non-events, by the two linear
     programs of the entry, solved by HiGHS and verified in double arithmetic,
-    with the range of each coefficient over the optimal face of the first."""
+    with the range of each coefficient over the optimal face of the first. The
+    size of the programs, computed on the design sample, limits the check, the
+    programs of bounds and the programs solved themselves."""
     import numpy as np
     import scipy
 
+    limits = SeparationLimits(
+        size=separation_size(run),
+        primal_size=parameter_value(entry, "max_primal_size"),
+        bound_programs=parameter_value(entry, "max_bound_programs"),
+        bound_size=parameter_value(entry, "max_bound_size"),
+    )
+    if limits.size > parameter_value(entry, "max_size"):
+        return check_unavailable("too_large", "max_size")
     outcome = outcome_values(run, entry)
     if event_level_missing(run, outcome):
         return check_unavailable("declaration_missing")
@@ -332,7 +370,7 @@ def check_outcome_separation(
     near = False
     proximity: dict[str, Any] = {}
     if statistics["both_classes"]:
-        found, near = separation_programs(a, tolerances)
+        found, near = separation_programs(a, tolerances, limits)
         statistics.update(found)
         bounds = statistics.get("bounds")
         if bounds is not None:
@@ -386,12 +424,16 @@ class SolvedProgram:
     floor_multiplier: float
 
 
-def separation_programs(a: Array, tolerances: SeparationTolerances) -> tuple[dict[str, Any], bool]:
+def separation_programs(
+    a: Array, tolerances: SeparationTolerances, limits: SeparationLimits
+) -> tuple[dict[str, Any], bool]:
     """The programs of outcome.separation on the rows a of s x' for every
     observation: the first, which maximises the sum of s x'b subject to
     s x'b >= 0, the second, which maximises t subject to s x'b >= t, both with
     -1 <= b_j <= 1 and t <= 1, and, for a verdict of quasi or complete, the
-    smallest and largest b_j over the optimal face of the first. Returns the
+    smallest and largest b_j over the optimal face of the first, within the
+    limits on the programs of bounds. A program whose dual has no verified
+    solution is solved itself only within the limit on its size. Returns the
     statistics optimum, margin, verdict and bounds, each when the definition
     gives it, and whether the solutions make the finding near_threshold."""
     import numpy as np
@@ -416,6 +458,8 @@ def separation_programs(a: Array, tolerances: SeparationTolerances) -> tuple[dic
         if p == 0:
             return SeparationSolution(np.zeros(0), np.zeros(n), True, 0.0)
         for formulation in ("dual", "primal"):
+            if formulation == "primal" and limits.size > limits.primal_size:
+                break
             found = separation_solver(formulation, a, objective, margin, sums, floor)
             if found is None:
                 continue
@@ -465,6 +509,10 @@ def separation_programs(a: Array, tolerances: SeparationTolerances) -> tuple[dic
         # the two packages can move a bound that far (outcome.separation.yaml,
         # optimality_tolerance).
         near = near or not first.certified
+        # Beyond these limits, bounds and columns_involved are absent and the
+        # programs of bounds are not solved.
+        if 2 * p > limits.bound_programs or 2 * p * limits.size > limits.bound_size:
+            return statistics, near
         floor = statistics["optimum"] - tolerances.separation
         scale = max(1.0, abs(statistics["optimum"]))
         bounds: list[float] = []
@@ -546,10 +594,6 @@ def separation_solver(
     n, p = a.shape
     ident = np.eye(p)
     zeros = np.zeros((p, p))
-    options = {
-        "primal_feasibility_tolerance": SEPARATION_SOLVER_TOLERANCE,
-        "dual_feasibility_tolerance": SEPARATION_SOLVER_TOLERANCE,
-    }
     if formulation == "dual":
         # The constraints in rows and the variables y, r, w+, w- and z in
         # columns.
@@ -574,13 +618,18 @@ def separation_solver(
         equality: Any = sparse.hstack([sparse.csc_array(block) for block in blocks], format="csc")
         if margin:
             equality = sparse.vstack((equality, sparse.csc_array(total)), format="csc")
+        # The stubs of scipy type the options as a TypedDict, which a dict
+        # literal written in the call meets.
         found = linprog(
             np.concatenate(costs),
             A_eq=equality,
             b_eq=rhs,
             bounds=(0, None),
             method="highs-ds",
-            options=options,
+            options={
+                "primal_feasibility_tolerance": SEPARATION_SOLVER_TOLERANCE,
+                "dual_feasibility_tolerance": SEPARATION_SOLVER_TOLERANCE,
+            },
         )
         if found.status != 0:
             return None
@@ -617,7 +666,10 @@ def separation_solver(
         b_ub=np.concatenate(rhs_parts),
         bounds=(0, None),
         method="highs-ds",
-        options=options,
+        options={
+            "primal_feasibility_tolerance": SEPARATION_SOLVER_TOLERANCE,
+            "dual_feasibility_tolerance": SEPARATION_SOLVER_TOLERANCE,
+        },
     )
     if found.status != 0:
         return None

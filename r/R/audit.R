@@ -16,8 +16,11 @@
 #'
 #' The check of tier T2, outcome.separation, solves two linear programs over
 #' every observation and, when it finds separation, two more for each kept
-#' fixed-effects column, so that a categorical predictor with many levels can
-#' make it take minutes.
+#' fixed-effects column. Limits on the size of these programs, which grows
+#' with the observations and the kept columns, bound its time: beyond the
+#' parameter max_size of its registry entry, the check is not available,
+#' and beyond max_bound_programs or max_bound_size, its finding leaves out
+#' the bounds of the coefficients and the columns involved.
 #'
 #' A run takes the steps of the execution plan in order and stops at the
 #' first that fails: the arguments, the declaration, the data, the columns
@@ -53,12 +56,14 @@
 #' applied, the values that could disclose a person's data: counts of
 #' persons below the minimum count of the registry, values of findings with
 #' too few contributors or dominated by their largest contributors, values
-#' that would give back a suppressed one by a sum, difference, product or
-#' ratio, minima and maxima, and quantiles of too few values. A finding of
-#' an outcome check whose decision rests on a suppressed count is suppressed
-#' as a whole, messages are rendered from the written values and labels are
-#' replaced by pseudonyms, which the sidecar maps back to them. Internal mode
-#' writes every value, and its documents must stay on the analyst's machine.
+#' that would give back a suppressed one by a sum, difference or ratio,
+#' minima and maxima, quantiles of too few values and any value from which
+#' a reader could infer a suppressed value that depends on the outcome. A
+#' finding of an outcome check whose decision rests on a suppressed count is
+#' suppressed as a whole, messages are rendered from the written values and
+#' labels are replaced by pseudonyms, which the sidecar maps back to them.
+#' Internal mode writes every value, and its documents must stay on the
+#' analyst's machine.
 #'
 #' @param data A data frame, whose columns hold numbers (double or integer),
 #'   strings (character, or a factor, whose labels are used) or logical

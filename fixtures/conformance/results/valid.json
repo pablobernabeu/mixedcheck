@@ -67,7 +67,7 @@
     },
     {
       "id": "results-valid-009",
-      "description": "The same run in shareable mode: the optimum and margin, which are internal_only, and the counts below min_count are suppressed, and the median minority count, whose quantile rule holds for 20 values, is suppressed as a count below min_count.",
+      "description": "The same run in shareable mode: the optimum, the margin and the kept columns, which are internal_only, the bounds and the involved columns, which are internal_only and which the verdict none leaves absent (privacy.md, Steps, 8), and the counts below min_count are suppressed, and the median minority count, whose quantile rule holds for 20 values, is suppressed as a count below min_count.",
       "document": "valid/009.json",
       "expected": {
         "issues": []

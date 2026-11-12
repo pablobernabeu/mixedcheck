@@ -5,7 +5,8 @@
 # the box, the floor and the upper bound of their multipliers, the program
 # solved itself when its dual fails, rounding residues, bounds whose face its
 # floor moves fast, the 2,000 rows of the review of registry 0.1.0, tables of
-# the benchmark that chose the formulation and the solver's absence.
+# the benchmark that chose the formulation, the limits on the size of the
+# programs and on the programs of bounds, and the solver's absence.
 
 outcome_key <- paste(sprintf("%02x", 0:31), collapse = "")
 
@@ -360,6 +361,126 @@ test_that("a bound program that lpSolve cannot solve leaves the bounds absent", 
   expect_identical(values$optimum, 4)
   expect_null(values$bounds)
   expect_identical(found$status$threshold_proximity$value, "near_threshold")
+})
+
+# A parameter of outcome.separation.
+separation_parameter <- function(name) {
+  json_number_values(registry_entry("outcome.separation")$parameters[[name]]$value)
+}
+
+test_that("the size of the programs counts the values other than 0 of the design sample", {
+  skip_if_not_installed("lpSolve")
+  size <- separation_size
+  sizes <- numeric(0)
+  local_mocked_bindings(separation_size = function(run) {
+    sizes <<- c(sizes, size(run))
+    sizes[[length(sizes)]]
+  })
+  # The intercept and x, with two zeros, hold 7 + 5 values other than 0 in
+  # the 7 rows of the design sample, the last of which has no outcome, and
+  # the sequential rule drops w = 2x: (7 + 5) (2 + 10).
+  data <- data.frame(y = c(0, 0, 1, 1, 0, 1, NA), x = c(-2, 0, 1, 0, 3, 4, 5), n = 2)
+  data$w <- 2 * data$x
+  separation_finding(data, "y ~ x + w")
+  # Each row counts twice for the class binomial.
+  declaration <- list(vocabulary = "0.1.0", variables = list(
+    y = list(role = "outcome", measurement = "binomial", trials = "n")))
+  outcome_findings(data, "y ~ x + w", "outcome.separation", tier = "T2", family = "binomial",
+                   declaration = declaration)
+  expect_identical(sizes, c(144, 288))
+})
+
+test_that("outcome.separation is not available beyond max_size, and then names no solver", {
+  skip_if_not_installed("lpSolve")
+  limit <- separation_parameter("max_size")
+  with_size <- function(size) {
+    local_mocked_bindings(separation_size = function(run) size)
+    audit(separated(), "y ~ x", family = "binomial", outcome_access = "T2", reason = "Test.",
+          exploratory = TRUE, privacy = "internal", key = outcome_key)$document
+  }
+  document <- with_size(limit)
+  found <- Filter(function(finding) finding$check == "outcome.separation", document$findings)
+  expect_identical(found[[1L]]$statistics$verdict$value, "complete")
+  document <- with_size(limit + 1)
+  found <- Filter(function(finding) finding$check == "outcome.separation", document$findings)
+  expect_identical(found[[1L]]$status$availability[c("value", "reason", "detail")],
+                   list(value = "not_available", reason = "too_large", detail = "max_size"))
+  expect_null(found[[1L]]$statistics)
+  expect_null(document$software$packages$lpSolve)
+})
+
+test_that("outcome.separation leaves the bounds absent beyond max_bound_size", {
+  skip_if_not_installed("lpSolve")
+  # The 2 kept columns of 'separated()' give 4 programs of bounds.
+  with_size <- function(size) {
+    local_mocked_bindings(separation_size = function(run) size)
+    separation_finding(separated())
+  }
+  limit <- separation_parameter("max_bound_size") / 4
+  expect_length(outcome_statistics(with_size(limit))$bounds, 4L)
+  found <- with_size(limit + 1)
+  values <- outcome_statistics(found)
+  expect_identical(values$verdict, "complete")
+  expect_equal(values$optimum, 4, tolerance = 1e-12)
+  expect_null(values$bounds)
+  expect_null(values$columns_involved)
+  expect_identical(found$message$text, paste(
+    "The fixed effects separate the events from the non-events completely, so the estimates of",
+    "some coefficients diverge and their Wald statistics are unreliable."))
+  # The limit, unlike a program without a verified solution, leaves the
+  # finding clear, since both packages apply it alike.
+  expect_identical(found$status$threshold_proximity$value, "clear")
+})
+
+test_that("outcome.separation solves up to max_bound_programs programs of bounds", {
+  skip_if_not_installed("lpSolve")
+  # A factor of 50 levels with an intercept keeps 50 columns, and one of 51
+  # levels 51, two rows in each level, an event and a non-event apart from
+  # the last level, which holds two events.
+  quasi <- function(levels) {
+    f <- sprintf("l%02d", rep(seq_len(levels), each = 2L))
+    y <- rep(c(0, 1), levels)
+    y[f == f[length(f)]] <- 1
+    data.frame(y = y, f = f)
+  }
+  expect_identical(separation_parameter("max_bound_programs"), 100)
+  values <- outcome_statistics(separation_finding(quasi(50L), "y ~ f"))
+  expect_identical(values$columns, 50)
+  expect_identical(values$verdict, "quasi")
+  expect_length(values$bounds, 100L)
+  expect_identical(values$columns_involved, list("f[l50]"))
+  found <- separation_finding(quasi(51L), "y ~ f")
+  values <- outcome_statistics(found)
+  expect_identical(values$columns, 51)
+  expect_identical(values$verdict, "quasi")
+  expect_null(values$bounds)
+  expect_null(values$columns_involved)
+  expect_identical(found$status$threshold_proximity$value, "clear")
+})
+
+test_that("a program whose dual has no verified solution is solved itself up to max_primal_size", {
+  skip_if_not_installed("lpSolve")
+  solver <- separation_solver
+  with_size <- function(size) {
+    formulations <- character(0)
+    local_mocked_bindings(
+      separation_size = function(run) size,
+      separation_solver = function(formulation, ...) {
+        formulations <<- c(formulations, formulation)
+        if (formulation == "dual") NULL else solver(formulation, ...)
+      }
+    )
+    list(found = separation_finding(separated()), formulations = formulations)
+  }
+  limit <- separation_parameter("max_primal_size")
+  run <- with_size(limit)
+  expect_identical(run$formulations, rep(c("dual", "primal"), 6L))
+  expect_identical(outcome_statistics(run$found)$verdict, "complete")
+  # Beyond the limit, neither program of the verdict has a verified solution.
+  run <- with_size(limit + 1)
+  expect_identical(run$formulations, c("dual", "dual"))
+  expect_identical(run$found$message$id, "no_solution")
+  expect_null(outcome_statistics(run$found)$verdict)
 })
 
 test_that("outcome.separation names lpSolve whenever it is available, and is not available without it", {

@@ -6,8 +6,11 @@
 # The search runs every combination of values that valid() accepts, so the
 # families are small enough to be exhaustive.
 
-dh_param <- function(values, person = FALSE, natural = c(min(values) == 0, FALSE)) {
-  list(values = values, person = person, natural = natural)
+# tier is 'A' for a parameter that the outcome's values or missingness
+# define, such as outcomes missing or events, and 'B' for one that only the
+# design structure defines (privacy.md, Tiers).
+dh_param <- function(values, person = FALSE, natural = c(min(values) == 0, FALSE), tier = "B") {
+  list(values = values, person = person, natural = natural, tier = tier)
 }
 
 dh_family <- function(name, params, build, valid = function(p) TRUE, k = 3,
@@ -117,7 +120,216 @@ dh_families <- function() {
     dh_family_binomial(),
     dh_family_factor_separation(),
     dh_family_two_factor_separation(),
-    dh_family_separation_missing()
+    dh_family_separation_missing(),
+    dh_family_chain(),
+    dh_family_reals(),
+    dh_family_constant_written(),
+    dh_family_non_person(),
+    dh_family_cross_tier(),
+    dh_family_whole_lost(),
+    dh_family_fixed_factor(),
+    dh_family_interaction(),
+    dh_family_trials()
+  )
+}
+
+# The reals that the two tiers restore beside an analysis sample with no,
+# one and k - 1 rows without an outcome: subjects of one, two and three rows
+# in which a contrast of -0.5 and 0.5 alternates and second rows without an
+# outcome, in a T1 run of a gaussian model, which writes no value of the
+# analysis sample, a T1 run of a Poisson model, whose outcome.zero_shares
+# writes the analysis sample, and a T2 run of a bernoulli model. The counts
+# of each value of the contrast are parameters, so the reals stay unmasked:
+# effective_size, icc and smallest_eigenvalue, within_share and the standard
+# deviation, which give back the rows of the design sample whenever they are
+# written. The zeros and the events lie on the first rows of the first three
+# subjects and the rows without an outcome in the last subjects of two rows,
+# so that the T1 statistics do not follow the rows without an outcome.
+dh_family_reals <- function() {
+  dh_family(
+    name = "reals",
+    probe = "^(structure|identifiability|design|sample)\\.",
+    description = "contrast within subjects, no, one and k - 1 rows without an outcome, T1 and T2",
+    params = list(
+      run = dh_param(1:3, natural = c(TRUE, TRUE)),
+      single = dh_param(0:2, person = TRUE),
+      double = dh_param(6:8, person = TRUE),
+      triple = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:3, person = TRUE, tier = "A")
+    ),
+    build = function(p) {
+      sizes <- c(rep(2L, p$double), rep(3L, p$triple), rep(1L, p$single))
+      subject <- rep(dh_labels("s", length(sizes)), sizes)
+      position <- sequence(sizes)
+      n <- length(subject)
+      marked <- position == 1L & subject %in% dh_labels("s", 3L)
+      y <- switch(p$run, dh_outcome(n), ifelse(marked, 0, 1 + seq_len(n) %% 3L), as.numeric(marked))
+      lost <- dh_labels("s", p$double)[p$double - seq_len(p$y_missing) + 1L]
+      y[position == 2L & subject %in% lost] <- NA
+      data <- data.frame(y = y, x = ifelse(position == 2L, 0.5, -0.5), subject = subject,
+                         stringsAsFactors = FALSE)
+      args <- switch(p$run, dh_t1(), c(list(family = "poisson"), dh_t1()),
+                     c(list(family = "binomial"), dh_t2()))
+      list(data = data, formula = "y ~ x + (1 | subject)", args = args)
+    },
+    reals = TRUE
+  )
+}
+
+# Subjects of one and two rows, a constant outcome within k subjects of two
+# rows or more and second rows without an outcome in others, at k = 3, so
+# that outcome.constant_clusters writes the analysis sample's levels with two
+# rows beside the design sample's counts and reals, in a T1 run of a gaussian
+# model. A contrast of -0.5 and 0.5 alternates within subjects.
+dh_family_constant_written <- function() {
+  dh_family(
+    name = "constant-written",
+    probe = "^(structure|identifiability|design|outcome\\.constant_clusters)",
+    description = "outcome constant within k subjects or more, missing outcomes, gaussian, T1",
+    params = list(
+      single = dh_param(2:4, person = TRUE),
+      double = dh_param(7:9, person = TRUE),
+      constant = dh_param(3:5, person = TRUE, tier = "A"),
+      y_missing = dh_param(0:3, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$constant + p$y_missing <= p$double,
+    build = function(p) {
+      sizes <- c(rep(2L, p$double), rep(1L, p$single))
+      subjects <- dh_labels("s", length(sizes))
+      subject <- rep(subjects, sizes)
+      second <- sequence(sizes) == 2L
+      n <- length(subject)
+      y <- dh_outcome(n)
+      constant <- subjects[p$double - seq_len(p$constant) + 1L]
+      y[subject %in% constant & second] <- y[which(subject %in% constant & second) - 1L]
+      y[subject %in% subjects[seq_len(p$y_missing)] & second] <- NA
+      list(data = data.frame(y = y, x = ifelse(second, 0.5, -0.5), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)", args = dh_t1())
+    },
+    reals = TRUE
+  )
+}
+
+# Schools of two or three pupils, the disclosure unit, so that the schools
+# count non-persons, schools of one pupil, which make them count persons, and
+# pupils without an outcome, in a T1 run of a Poisson model: the written
+# levels of a non-person item bound the rows that the design sample loses
+# beside the analysis sample. The pupils without an outcome are the second
+# pupils of the schools of three pupils, then of the schools of two pupils
+# after the first three, whose first pupils hold the zeros, so that the T1
+# statistics do not follow them.
+dh_family_non_person <- function() {
+  dh_family(
+    name = "non-person",
+    probe = "^(structure|identifiability|sample)\\.",
+    description = "schools of pupils, the disclosure unit, missing outcomes, Poisson, T1",
+    params = list(
+      two = dh_param(4:6, person = TRUE),
+      three = dh_param(0:2, person = TRUE),
+      one = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:3, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$y_missing - min(p$y_missing, p$three) <= p$two - 3L,
+    build = function(p) {
+      pupils <- c(rep(2L, p$two), rep(3L, p$three), rep(1L, p$one))
+      schools <- dh_labels("S", length(pupils))
+      school <- rep(schools, pupils)
+      second <- sequence(pupils) == 2L
+      n <- length(school)
+      count <- 1 + seq_len(n) %% 3L
+      count[sequence(pupils) == 1L & school %in% schools[1:3]] <- 0
+      lost <- c(schools[p$two + seq_len(p$three)], schools[3L + seq_len(p$two - 3L)])
+      count[second & school %in% lost[seq_len(p$y_missing)]] <- NA
+      declaration <- dh_declaration(units = list(
+        dh_unit("school"), dh_unit("pupil", role = "participant", nested_in = "school")))
+      list(data = data.frame(count = count, x = dh_covariate(n), school = school,
+                             pupil = dh_labels("p", n), stringsAsFactors = FALSE),
+           formula = "count ~ x + (1 | school)",
+           args = c(list(declaration = declaration, family = "poisson"), dh_t1()))
+    }
+  )
+}
+
+# Subjects of one and two rows, subjects of one row without their outcome,
+# subjects of two rows without their second outcome and an outcome constant
+# within three subjects of two rows, in a T1 run of a Poisson model, so that
+# outcome.zero_shares writes the analysis sample's rows and levels and
+# outcome.constant_clusters its levels with two rows beside the design
+# sample's counts. The outcome values follow the rows, so the T1 statistics
+# that the template fixes make its determinations of attack (a) candidates.
+dh_family_cross_tier <- function() {
+  dh_family(
+    name = "cross-tier",
+    gate = FALSE,
+    probe = "^(structure|identifiability|sample)\\.",
+    description = "subjects of one and two rows losing outcomes, Poisson, T1",
+    params = list(
+      single = dh_param(3:6, person = TRUE),
+      double = dh_param(6:8, person = TRUE),
+      single_lost = dh_param(0:4, person = TRUE, tier = "A"),
+      double_reduced = dh_param(0:3, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$single_lost <= p$single && p$double_reduced <= p$double - 3L,
+    build = function(p) {
+      sizes <- c(rep(2L, p$double), rep(1L, p$single))
+      subjects <- dh_labels("s", length(sizes))
+      subject <- rep(subjects, sizes)
+      second <- sequence(sizes) == 2L
+      n <- length(subject)
+      count <- (seq_len(n) * 5L) %% 4L
+      constant <- subjects[seq_len(3L)]
+      count[subject %in% constant] <- 2
+      reduced <- subjects[3L + seq_len(p$double_reduced)]
+      count[subject %in% reduced & second] <- NA
+      count[subject %in% subjects[p$double + seq_len(p$single_lost)]] <- NA
+      list(data = data.frame(count = count, x = dh_covariate(n), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "count ~ x + (1 | subject)",
+           args = c(list(family = "poisson"), dh_t1()))
+    }
+  )
+}
+
+# Subjects of one, two and three rows, subjects of one row whose covariate is
+# missing, rows whose subject is missing under an observation key and second
+# rows without an outcome, in a T1 run of a Poisson model, so that the table,
+# the design sample and the analysis sample differ by counts on either side
+# of k and the rules that compare the design sample with the table and with
+# missing_key_rows fire or not beside a design sample that loses its rows to
+# the analysis sample, the chains of comparisons of rules 1 and 4 of Across
+# findings.
+dh_family_chain <- function() {
+  dh_family(
+    name = "chain",
+    probe = "^(keys\\.duplicates|sample\\.raw_vs_analysis|structure\\.cluster_sizes)",
+    description = "table, design sample and analysis sample nested, observation key, Poisson, T1",
+    params = list(
+      single = dh_param(0:2, person = TRUE),
+      double = dh_param(4:6, person = TRUE),
+      triple = dh_param(0:2, person = TRUE),
+      x_lost = dh_param(0:4, person = TRUE),
+      missing_key = dh_param(0:3, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$y_missing <= p$double,
+    build = function(p) {
+      subjects <- c(dh_labels("s", p$double), dh_labels("t", p$triple), dh_labels("o", p$single),
+                    dh_labels("u", p$x_lost), dh_labels("m", p$missing_key))
+      sizes <- c(rep(2L, p$double), rep(3L, p$triple), rep(1L, p$single + p$x_lost + p$missing_key))
+      subject <- rep(subjects, sizes)
+      trial <- sequence(sizes)
+      n <- length(subject)
+      x <- dh_covariate(n)
+      x[substr(subject, 1L, 1L) == "u"] <- NA
+      y <- (seq_len(n) * 5L) %% 4L
+      y[subject %in% dh_labels("s", p$double)[seq_len(p$y_missing)] & trial == 2L] <- NA
+      subject[substr(subject, 1L, 1L) == "m"] <- NA
+      declaration <- dh_declaration(observation = list(key = list("subject", "trial")))
+      list(data = data.frame(y = y, x = x, subject = subject, trial = trial, stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)",
+           args = c(list(declaration = declaration, family = "poisson"), dh_t1()))
+    }
   )
 }
 
@@ -141,8 +353,8 @@ dh_family_sizes <- function(unit, wide = FALSE) {
       double = dh_param(2:5, person = TRUE),
       triple = dh_param(0:2, person = TRUE),
       x_missing = dh_param(missing, person = TRUE),
-      y_missing = dh_param(missing, person = TRUE),
-      single_lost = dh_param(if (wide) 0:1 else 0L, person = TRUE, natural = c(TRUE, TRUE))
+      y_missing = dh_param(missing, person = TRUE, tier = "A"),
+      single_lost = dh_param(if (wide) 0:1 else 0L, person = TRUE, natural = c(TRUE, TRUE), tier = "A")
     ),
     valid = function(p) p$x_missing + p$y_missing <= p$double && p$single_lost <= p$single,
     build = function(p) {
@@ -204,10 +416,10 @@ dh_family_minority <- function() {
     probe = "^outcome\\.minority_events",
     description = "subjects of two rows with no, one or two events, missing outcomes, T1",
     params = list(
-      none = dh_param(0:3, person = TRUE),
-      one = dh_param(1:4, person = TRUE),
-      both = dh_param(0:3, person = TRUE),
-      y_missing = dh_param(0:2, person = TRUE)
+      none = dh_param(0:3, person = TRUE, tier = "A"),
+      one = dh_param(1:4, person = TRUE, tier = "A"),
+      both = dh_param(0:3, person = TRUE, tier = "A"),
+      y_missing = dh_param(0:2, person = TRUE, tier = "A")
     ),
     valid = function(p) p$y_missing <= p$one,
     build = function(p) {
@@ -233,9 +445,9 @@ dh_family_constant <- function() {
     description = "outcome constant within some subjects, missing outcomes, gaussian, T1",
     params = list(
       double = dh_param(3:6, person = TRUE),
-      constant = dh_param(0:3, person = TRUE),
-      y_missing = dh_param(0:2, person = TRUE),
-      constant_missing = dh_param(0:2, person = TRUE)
+      constant = dh_param(0:3, person = TRUE, tier = "A"),
+      y_missing = dh_param(0:2, person = TRUE, tier = "A"),
+      constant_missing = dh_param(0:2, person = TRUE, tier = "A")
     ),
     valid = function(p) {
       p$constant + p$y_missing <= p$double && p$constant_missing <= p$constant
@@ -268,9 +480,9 @@ dh_family_zeros <- function() {
       single = dh_param(0:2, person = TRUE),
       double = dh_param(3:6, person = TRUE),
       triple = dh_param(0:1, person = TRUE),
-      all_zero = dh_param(0:3, person = TRUE),
-      one_zero = dh_param(0:3, person = TRUE),
-      y_missing = dh_param(0:2, person = TRUE)
+      all_zero = dh_param(0:3, person = TRUE, tier = "A"),
+      one_zero = dh_param(0:3, person = TRUE, tier = "A"),
+      y_missing = dh_param(0:2, person = TRUE, tier = "A")
     ),
     valid = function(p) p$all_zero + p$one_zero + p$y_missing <= p$double,
     build = function(p) {
@@ -299,9 +511,9 @@ dh_family_bounds <- function() {
     probe = "^outcome\\.boundary_shares",
     description = "bounded score at its floor and ceiling, T1",
     params = list(
-      at_floor = dh_param(0:4, person = TRUE),
-      at_ceiling = dh_param(0:4, person = TRUE),
-      between = dh_param(1:5, person = TRUE)
+      at_floor = dh_param(0:4, person = TRUE, tier = "A"),
+      at_ceiling = dh_param(0:4, person = TRUE, tier = "A"),
+      between = dh_param(1:12, person = TRUE, tier = "A")
     ),
     build = function(p) {
       score <- c(rep(0, p$at_floor), rep(10, p$at_ceiling), 1 + seq_len(p$between) %% 8)
@@ -326,7 +538,7 @@ dh_family_assign <- function() {
       subjects = dh_param(4:7, person = TRUE),
       z1_missing = dh_param(0:3, person = TRUE),
       z2_extra = dh_param(0:2, person = TRUE),
-      y_missing = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE, tier = "A"),
       mixed = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
     ),
     valid = function(p) p$z1_missing + p$z2_extra + p$y_missing + p$mixed <= p$subjects,
@@ -410,7 +622,7 @@ dh_family_crossed <- function(unit) {
       h = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
       single = dh_param(0:2, person = TRUE),
       empty = dh_param(0:2, person = TRUE),
-      y_missing = dh_param(0:4, person = TRUE)
+      y_missing = dh_param(0:4, person = TRUE, tier = "A")
     ),
     build = function(p) {
       cells <- expand.grid(h = dh_labels("h", p$h), g = dh_labels("g", p$g),
@@ -484,7 +696,7 @@ dh_family_nested <- function() {
     params = list(
       schools = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
       single = dh_param(0:3, person = TRUE),
-      y_missing = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:2, person = TRUE, tier = "A"),
       school_missing = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
     ),
     build = function(p) {
@@ -612,8 +824,8 @@ dh_family_two_valued <- function() {
       low = dh_param(2:4, person = TRUE),
       high = dh_param(2:4, person = TRUE),
       varying = dh_param(0:2, person = TRUE),
-      low_missing = dh_param(0:2, person = TRUE),
-      high_missing = dh_param(0:2, person = TRUE)
+      low_missing = dh_param(0:2, person = TRUE, tier = "A"),
+      high_missing = dh_param(0:2, person = TRUE, tier = "A")
     ),
     valid = function(p) p$low_missing <= p$low && p$high_missing <= p$high,
     build = function(p) {
@@ -643,9 +855,9 @@ dh_family_eigen <- function() {
     params = list(
       two = dh_param(0:4, person = TRUE),
       four = dh_param(0:4, person = TRUE),
-      y_missing = dh_param(0:2, person = TRUE)
+      y_missing = dh_param(0:2, person = TRUE, tier = "A")
     ),
-    valid = function(p) p$two + p$four >= 3L && p$y_missing <= p$two,
+    valid = function(p) p$two + p$four >= 3L && p$y_missing <= p$two + p$four - 1L,
     build = function(p) {
       sizes <- c(rep(2L, p$two), rep(4L, p$four))
       subject <- rep(dh_labels("s", length(sizes)), sizes)
@@ -732,10 +944,10 @@ dh_family_binomial <- function() {
     probe = "^outcome\\.separation",
     description = "binomial rows with no, some and all events, missing outcomes, T2",
     params = list(
-      none = dh_param(0:4, person = TRUE),
-      all = dh_param(0:4, person = TRUE),
-      some = dh_param(2:5, person = TRUE),
-      y_missing = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE))
+      none = dh_param(0:4, person = TRUE, tier = "A"),
+      all = dh_param(0:4, person = TRUE, tier = "A"),
+      some = dh_param(2:5, person = TRUE, tier = "A"),
+      y_missing = dh_param(0:1, person = TRUE, natural = c(TRUE, TRUE), tier = "A")
     ),
     valid = function(p) p$none + p$all + p$some >= 3L,
     build = function(p) {
@@ -758,9 +970,9 @@ dh_family_factor_separation <- function() {
     probe = "^outcome\\.separation",
     description = "three arms of different sizes, events by arm, T2",
     params = list(
-      e1 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE)),
-      e2 = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE)),
-      e3 = dh_param(0:5, person = TRUE, natural = c(TRUE, TRUE))
+      e1 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
+      e2 = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
+      e3 = dh_param(0:5, person = TRUE, natural = c(TRUE, TRUE), tier = "A")
     ),
     build = function(p) {
       arm <- rep(c("a", "b", "c"), c(3L, 4L, 5L))
@@ -782,10 +994,10 @@ dh_family_two_factor_separation <- function() {
     probe = "^outcome\\.separation",
     description = "two factors of two levels, events by combination, T2",
     params = list(
-      e11 = dh_param(0:2, person = TRUE, natural = c(TRUE, TRUE)),
-      e12 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE)),
-      e21 = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE)),
-      e22 = dh_param(0:5, person = TRUE, natural = c(TRUE, TRUE))
+      e11 = dh_param(0:2, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
+      e12 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
+      e21 = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
+      e22 = dh_param(0:5, person = TRUE, natural = c(TRUE, TRUE), tier = "A")
     ),
     build = function(p) {
       sizes <- 2:5
@@ -810,8 +1022,8 @@ dh_family_separation_missing <- function() {
     description = "a rare level whose rows lose their outcome, T2",
     params = list(
       rare = dh_param(2:4, person = TRUE, natural = c(FALSE, FALSE)),
-      rare_missing = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE)),
-      events = dh_param(8:12, person = TRUE, natural = c(FALSE, FALSE))
+      rare_missing = dh_param(0:4, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
+      events = dh_param(8:12, person = TRUE, natural = c(FALSE, FALSE), tier = "A")
     ),
     valid = function(p) p$rare_missing <= p$rare,
     build = function(p) {
@@ -823,6 +1035,174 @@ dh_family_separation_missing <- function() {
       list(data = data.frame(y = y, x1 = dh_covariate(n), x2 = (seq_len(n) * 3L) %% 17L + 0.5,
                              smoker = level, stringsAsFactors = FALSE),
            formula = "y ~ x1 + x2 + smoker", args = c(list(family = "binomial"), dh_t2()))
+    }
+  )
+}
+
+# Subjects of one, two and three rows, subjects of two rows that lose every
+# outcome and others that lose their second, in a T1 run of a Poisson model,
+# so that the design sample keeps its levels beside the analysis sample when
+# k or more subjects lose every outcome, and the sizes of its levels, beside
+# the analysed rows, would give back the second rows that the analysed
+# subjects lost. Only subjects of two rows lose outcomes, so that the rows
+# without an outcome, which the document writes when they are k or more,
+# leave few ways to lose them, and its determinations of attack (a) rest on
+# the template and are candidates.
+dh_family_whole_lost <- function() {
+  dh_family(
+    name = "whole-lost",
+    gate = FALSE,
+    probe = "^(structure|identifiability|sample)\\.",
+    description = "subjects losing every outcome beside subjects losing one, Poisson, T1",
+    params = list(
+      single = dh_param(0:2, person = TRUE),
+      double = dh_param(6:8, person = TRUE),
+      triple = dh_param(0:2, person = TRUE),
+      whole = dh_param(0:4, person = TRUE, tier = "A"),
+      part = dh_param(0:2, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$whole + p$part <= p$double - 3L,
+    build = function(p) {
+      subjects <- c(dh_labels("s", p$double), dh_labels("t", p$triple), dh_labels("o", p$single))
+      sizes <- c(rep(2L, p$double), rep(3L, p$triple), rep(1L, p$single))
+      subject <- rep(subjects, sizes)
+      time <- sequence(sizes) - 1L
+      n <- length(subject)
+      # The zeros lie in the first rows of three subjects that keep every
+      # outcome, so that the written counts of zeros do not follow the
+      # parameters, and the subjects that lose outcomes are the last ones.
+      # The covariate does not follow the position of a row in its subject,
+      # whose values would show the largest size.
+      y <- 1 + time
+      doubles <- dh_labels("s", p$double)
+      y[subject %in% doubles[1:3] & time == 0L] <- 0
+      losing <- rev(doubles)
+      y[subject %in% losing[seq_len(p$whole)]] <- NA
+      y[subject %in% losing[p$whole + seq_len(p$part)] & time == 1L] <- NA
+      list(data = data.frame(y = y, x = dh_covariate(n), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "y ~ x + (1 | subject)",
+           args = c(list(family = "poisson"), dh_t1()))
+    }
+  )
+}
+
+# A grouping factor that is also a fixed term, with levels of two and three
+# rows, levels whose counts are all 0, levels that lose every outcome and
+# levels that lose one, in a T1 run of a Poisson model, so that the columns
+# of the term write the design sample's levels and outcome.zero_shares the
+# levels whose counts are all 0, a part of the analysed levels.
+dh_family_fixed_factor <- function() {
+  dh_family(
+    name = "fixed-factor",
+    probe = "^(structure|identifiability|sample|design)\\.",
+    description = "a grouping factor that is a fixed term, levels of zeros, Poisson, T1",
+    params = list(
+      double = dh_param(5:7, person = TRUE),
+      triple = dh_param(0:2, person = TRUE),
+      zero = dh_param(3:4, person = TRUE, tier = "A"),
+      whole = dh_param(0:2, person = TRUE, tier = "A"),
+      part = dh_param(0:1, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$zero + p$whole + p$part <= p$double,
+    build = function(p) {
+      levels <- c(dh_labels("g", p$double), dh_labels("h", p$triple))
+      sizes <- c(rep(2L, p$double), rep(3L, p$triple))
+      g <- rep(levels, sizes)
+      second <- sequence(sizes) == 2L
+      n <- length(g)
+      y <- 1 + (seq_len(n) * 5L) %% 3L
+      doubles <- dh_labels("g", p$double)
+      y[g %in% doubles[seq_len(p$zero)]] <- 0
+      y[g %in% doubles[p$zero + seq_len(p$whole)]] <- NA
+      y[g %in% doubles[p$zero + p$whole + seq_len(p$part)] & second] <- NA
+      list(data = data.frame(y = y, x = dh_covariate(n), g = g, stringsAsFactors = FALSE),
+           formula = "y ~ x + g + (1 | g)",
+           args = c(list(family = "poisson"), dh_t1()))
+    }
+  )
+}
+
+# A fixed interaction of two factors, A of three levels and B of two, whose
+# combinations are a grouping factor: cells of two and three rows, an empty
+# cell or none, cells that lose every outcome and cells that lose one, in a
+# T1 run of a Poisson model, so that df of the two factors and empty_cells
+# write the design sample's combinations. Its outcome values follow the
+# rows, so its determinations of attack (a) are candidates.
+dh_family_interaction <- function() {
+  dh_family(
+    name = "interaction",
+    gate = FALSE,
+    probe = "^(structure|identifiability|sample|design)\\.",
+    description = "a fixed interaction whose combinations are a grouping factor, Poisson, T1",
+    params = list(
+      triple = dh_param(0:2, person = TRUE),
+      empty = dh_param(0:1, person = TRUE),
+      whole = dh_param(0:2, person = TRUE, tier = "A"),
+      part = dh_param(0:1, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$whole + p$part + p$empty <= 6L - 3L,
+    build = function(p) {
+      cells <- expand.grid(A = dh_labels("a", 3L), B = dh_labels("b", 2L),
+                           stringsAsFactors = FALSE)
+      cells <- cells[seq_len(6L - p$empty), ]
+      sizes <- rep(2L, nrow(cells))
+      sizes[seq_len(p$triple)] <- 3L
+      data <- cells[rep(seq_len(nrow(cells)), sizes), ]
+      second <- sequence(sizes) == 2L
+      n <- nrow(data)
+      data$x <- dh_covariate(n)
+      data$y <- (seq_len(n) * 5L) %% 4L
+      cell <- rep(seq_len(nrow(cells)), sizes)
+      last <- nrow(cells) + 1L - seq_len(p$whole + p$part)
+      data$y[cell %in% last[seq_len(p$whole)]] <- NA
+      data$y[cell %in% last[p$whole + seq_len(p$part)] & second] <- NA
+      rownames(data) <- NULL
+      list(data = data, formula = "y ~ x + A * B + (1 | A:B)",
+           args = c(list(family = "poisson"), dh_t1()))
+    }
+  )
+}
+
+# A binomial outcome of two trials whose trials are 0 or missing in some
+# rows, which leave the analysis sample as rows without an outcome do,
+# subjects of one, two and three rows and rows without an outcome, in a T1
+# run. Its outcome values follow the rows, so its determinations of attack
+# (a) are candidates.
+dh_family_trials <- function() {
+  dh_family(
+    name = "trials",
+    gate = FALSE,
+    probe = "^(structure|identifiability|sample|outcome)\\.",
+    description = "binomial trials of 0 and missing trials, T1",
+    params = list(
+      double = dh_param(4:6, person = TRUE),
+      triple = dh_param(0:2, person = TRUE),
+      zero_trials = dh_param(0:2, person = TRUE, tier = "A"),
+      missing_trials = dh_param(0:2, person = TRUE, tier = "A"),
+      y_missing = dh_param(0:1, person = TRUE, tier = "A")
+    ),
+    valid = function(p) p$zero_trials + p$missing_trials + p$y_missing <= p$double,
+    build = function(p) {
+      subjects <- c(dh_labels("s", p$double), dh_labels("t", p$triple))
+      sizes <- c(rep(2L, p$double), rep(3L, p$triple))
+      subject <- rep(subjects, sizes)
+      second <- sequence(sizes) == 2L
+      n <- length(subject)
+      k <- (seq_len(n) * 5L) %% 3L
+      trials <- rep(2L, n)
+      doubles <- dh_labels("s", p$double)
+      lose <- function(from, count) doubles[from + seq_len(count)]
+      trials[subject %in% lose(0L, p$zero_trials) & second] <- 0L
+      k[subject %in% lose(0L, p$zero_trials) & second] <- 0L
+      trials[subject %in% lose(p$zero_trials, p$missing_trials) & second] <- NA
+      k[subject %in% lose(p$zero_trials + p$missing_trials, p$y_missing) & second] <- NA
+      declaration <- dh_declaration(variables = list(
+        k = list(role = "outcome", measurement = "binomial", trials = "n")))
+      list(data = data.frame(k = k, n = trials, x = dh_covariate(n), subject = subject,
+                             stringsAsFactors = FALSE),
+           formula = "k ~ x + (1 | subject)",
+           args = c(list(declaration = declaration), dh_t1()))
     }
   )
 }

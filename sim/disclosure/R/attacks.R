@@ -4,8 +4,9 @@
 # when instances is TRUE (R/zoo.R), the regression attacks (c) and the
 # validation attacks (v), with a report of the leaks, the candidates of the
 # families that do not gate the run, the determinations that privacy.md
-# accepts, those of design-structure values that it leaves as residual risk
-# and the errors of the harness.
+# accepts, those that an alternative of the family traces, those of
+# design-structure values that it leaves as residual risk and the errors of
+# the harness.
 
 dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families = NULL,
                            cores = 1L, widen = 1L, log = FALSE, instances = FALSE) {
@@ -14,6 +15,7 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
   candidates <- list()
   residual <- list()
   accepted <- list()
+  traced <- list()
   errors <- character(0)
   timing <- list()
   add_leak <- function(attack, where, target, value, reproducer) {
@@ -32,6 +34,7 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
       candidates <- c(candidates, list(result$candidates))
       residual <- c(residual, list(result$residual))
       accepted <- c(accepted, list(result$accepted))
+      traced <- c(traced, list(result$traced))
       errors <- c(errors, result$errors)
       timing[[family$name]] <- proc.time()[["elapsed"]] - started
       say("%-24s %5d tables %4.0f s", family$name, result$tables, timing[[family$name]])
@@ -93,28 +96,41 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
     vapply(Filter(function(f) is.null(families) || f$name %in% families, dh_families()),
            function(f) f$name, "")
   }))
+  candidates <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, candidates)
+  candidates <- if (length(candidates)) do.call(rbind, candidates) else empty
+  # The candidates of a family of gate FALSE that a known channel explains
+  # are reported with its leaks.
+  known_candidates <- dh_known_match(candidates)
   for (channel in dh_known_channels()) {
-    if (channel$family %in% ran && channel$attack %in% attacks && !any(known == channel$id)) {
+    if (any(channel$family %in% ran) && channel$attack %in% attacks &&
+        !any(c(known, known_candidates) == channel$id, na.rm = TRUE)) {
       errors <- c(errors, sprintf(
         "the known channel %s is not found: remove it from dh_known_channels()", channel$id))
     }
   }
-  candidates <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, candidates)
   residual <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, residual)
   accepted <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, accepted)
+  traced <- Filter(function(x) is.data.frame(x) && nrow(x) > 0L, traced)
   list(leaks = leaks[is.na(known), , drop = FALSE],
-       known = cbind(leaks[!is.na(known), , drop = FALSE], channel = known[!is.na(known)]),
-       candidates = if (length(candidates)) do.call(rbind, candidates) else empty,
+       known = rbind(
+         cbind(leaks[!is.na(known), , drop = FALSE], channel = known[!is.na(known)]),
+         cbind(candidates[!is.na(known_candidates), , drop = FALSE],
+               channel = known_candidates[!is.na(known_candidates)])),
+       candidates = candidates[is.na(known_candidates), , drop = FALSE],
        residual = if (length(residual)) do.call(rbind, residual) else empty,
        accepted = if (length(accepted)) do.call(rbind, accepted) else empty[, 1:3],
+       traced = if (length(traced)) do.call(rbind, traced) else
+         data.frame(where = character(0), target = character(0), alternative = character(0),
+                    stringsAsFactors = FALSE),
        errors = errors, timing = timing,
        regressions = if ("c" %in% attacks) regressions,
        validation = if ("v" %in% attacks) validation)
 }
 
 # Attacks (a) and (b) on one family: the leaks, the candidates, the
-# determinations that privacy.md accepts, those that it leaves as residual
-# risk and the errors of the harness, with the number of tables. A
+# determinations that privacy.md accepts, those that an alternative of the
+# family traces (dh_alternatives()), those that it leaves as residual risk
+# and the errors of the harness, with the number of tables. A
 # determination of an outcome-derived value is a leak of attack (a) in a
 # family that gates the run and a candidate in another, and a leak of attack
 # (b) when it is determined, or bound below k by the written values without
@@ -159,6 +175,7 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
   }
   found <- search$found
   accepted <- found[found$verdict == "accepted", , drop = FALSE]
+  traced <- found[found$verdict == "traced", , drop = FALSE]
   candidates <- list()
   residual <- list()
   add_residual <- function(attack, target, value, reproducer) {
@@ -211,26 +228,33 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
        residual = if (length(residual)) do.call(rbind, residual) else empty,
        accepted = data.frame(attack = rep("a", nrow(accepted)), where = rep(family$name, nrow(accepted)),
                              target = accepted$target, stringsAsFactors = FALSE),
+       traced = data.frame(where = rep(family$name, nrow(traced)), target = traced$target,
+                           alternative = traced$traced, stringsAsFactors = FALSE),
        errors = errors, tables = nrow(grid))
 }
 
 # The channels of outcome-derived values, or linear relations of
 # design-structure values, that docs/spec/privacy.md (Guarantees) records as
-# not closed, each with the attack and the family, or for attack (c) the
+# not closed, each with the attack and the families, or for attack (c) the
 # regression attack, that find it, and a pattern of its targets. privacy.md
-# records none: the linear relation between the columns of a categorical
-# variable of a term and the levels of an item into which it divides the
-# rows, which it recorded as open, is closed by rule 6 of Across findings
-# since 12 November 2026, and R8-column-levels gates it.
+# records one, which 03-execution-plan.md (M2, Open items) leaves to the
+# coordinator: beside the firing of rule 1 of Across findings, a level known
+# to hold k rows or more is shown not to have lost every outcome, as in
+# zoo-reuse and zoo-separation, whose determinations of it are candidates.
 dh_known_channels <- function() {
-  list()
+  list(
+    list(id = "kept-levels", attack = "a", family = c("zoo-reuse", "zoo-separation"),
+         target = paste0("^(D design minus analysis \\| levels(_with_two_rows)? (class|school|item)",
+                         "|outcome[.]constant_clusters factor=subject \\| multi_row_levels",
+                         "|outcome[.]minority_events factor=subject \\| (levels|support[.]distinct)) \\| [a-z_]+$"))
+  )
 }
 
 # The identifier of the known channel of each leak, or NA.
 dh_known_match <- function(leaks) {
   out <- rep(NA_character_, nrow(leaks))
   for (channel in dh_known_channels()) {
-    hit <- is.na(out) & leaks$attack == channel$attack & leaks$where == channel$family &
+    hit <- is.na(out) & leaks$attack == channel$attack & leaks$where %in% channel$family &
       grepl(channel$target, leaks$target)
     out[hit] <- channel$id
   }
@@ -244,10 +268,13 @@ dh_params <- function(grid, i) {
 dh_print_report <- function(report) {
   leaks <- report$leaks
   residual <- report$residual
+  traced <- report$traced
   cat(sprintf(paste("%d leaks, %d candidates, %d accepted determinations,",
-                    "%d determinations of residual risk, %d errors of the harness\n"),
+                    "%d traced determinations, %d determinations of residual risk,",
+                    "%d errors of the harness\n"),
               nrow(leaks), nrow(report$candidates), nrow(report$accepted),
-              nrow(residual %||% leaks[0, ]), length(report$errors)))
+              nrow(traced %||% data.frame()), nrow(residual %||% leaks[0, ]),
+              length(report$errors)))
   known <- report$known
   if (!is.null(known) && nrow(known)) {
     for (j in which(!duplicated(known$channel))) {
@@ -280,6 +307,16 @@ dh_print_report <- function(report) {
   for (j in which(!duplicated(key))) {
     cat(sprintf("CANDIDATE (a) family %s: %s = %s, e.g. %s\n", candidates$where[j],
                 candidates$target[j], candidates$value[j], candidates$reproducer[j]))
+  }
+  if (!is.null(traced) && nrow(traced)) {
+    # The determinations that an alternative of the family traces, by family
+    # and alternative, so that a reader sees which alternatives carry the
+    # gate of attack (a).
+    key <- paste(traced$where, traced$alternative)
+    for (j in which(!duplicated(key))) {
+      cat(sprintf("TRACED (a) family %s: %d determinations by the alternative %s\n",
+                  traced$where[j], sum(key == key[j]), traced$alternative[j]))
+    }
   }
   if (!is.null(residual) && nrow(residual)) {
     # Determinations of design-structure values that the linear relations

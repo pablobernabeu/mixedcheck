@@ -13,10 +13,17 @@ dh_param <- function(values, person = FALSE, natural = c(min(values) == 0, FALSE
   list(values = values, person = person, natural = natural, tier = tier)
 }
 
+# alternatives, when given, is a function of the parameters and the case of
+# a table that returns named cases outside the family, each with the
+# attribute params holding the values of the family's parameters of tier A
+# that describe it, which dh_alternatives() audits beside a table at which
+# attack (a) finds a determination.
 dh_family <- function(name, params, build, valid = function(p) TRUE, k = 3,
-                      description = "", reals = FALSE, probe = ".", gate = TRUE) {
+                      description = "", reals = FALSE, probe = ".", gate = TRUE,
+                      alternatives = NULL) {
   list(name = name, params = params, build = build, valid = valid, k = k,
-       description = description, reals = reals, probe = probe, gate = gate)
+       description = description, reals = reals, probe = probe, gate = gate,
+       alternatives = alternatives)
 }
 
 # The combinations of the parameters of a family that valid() accepts, as a
@@ -93,7 +100,10 @@ dh_outcome <- function(n) (seq_len(n) * 5L) %% 13L + 0.25
 
 # --- The families ---------------------------------------------------------------------
 
-# Every family of the search, in the order in which they run.
+# Every family of the search, in the order in which they run. run.R --shard
+# gives position p to shard ((p - 1) mod N) + 1, so the order also spreads
+# the run time of the families over the four shards of CI: crossed, eigen
+# and zoo-families stand where they balance them.
 dh_families <- function() {
   c(
     list(
@@ -105,9 +115,9 @@ dh_families <- function() {
       dh_family_constant(),
       dh_family_zeros(),
       dh_family_bounds(),
-      dh_family_assign(),
-      dh_family_blocks(),
       dh_family_crossed(unit = FALSE),
+      dh_family_blocks(),
+      dh_family_assign(),
       dh_family_crossed(unit = TRUE),
       dh_family_labels(),
       dh_family_nested(),
@@ -115,7 +125,7 @@ dh_families <- function() {
       dh_family_keys(),
       dh_family_unicode(),
       dh_family_two_valued(),
-      dh_family_eigen(),
+      dh_family_cross_tier(),
       dh_family_quartile(),
       dh_family_assign_school(),
       dh_family_binomial(),
@@ -126,14 +136,64 @@ dh_families <- function() {
       dh_family_reals(),
       dh_family_constant_written(),
       dh_family_non_person(),
-      dh_family_cross_tier(),
+      dh_family_eigen(),
       dh_family_whole_lost(),
       dh_family_fixed_factor(),
       dh_family_interaction(),
       dh_family_trials()
     ),
     # The families made from the generators of the pathology zoo (R/zoo.R).
-    dz_families()
+    dz_families(),
+    # After the zoo, so that no family before it changes shard.
+    list(dh_family_collinearity())
+  )
+}
+
+# Two binary factors a and b whose four combinations hold subjects of two
+# rows, n11 in a1:b1, off in each of a1:b2 and a2:b1 and n22 in a2:b2, with
+# triple subjects of three rows and single subjects of one row in a2:b2, so
+# that the rows of each combination, on which the GVIF of a and b depends,
+# are parameters and the reals stay unmasked. Second rows of the last
+# y_missing subjects of two rows in a2:b2 lack the outcome, in a Poisson T1
+# run whose outcome.zero_shares shows the analysis sample. The zeros lie on
+# the first rows of the first three subjects. The family probes the design
+# checks alone: its subjects hold at most three rows and none loses every
+# outcome, which fixes the analysed subjects of outcome.zero_shares.
+dh_family_collinearity <- function() {
+  dh_family(
+    name = "collinearity",
+    probe = "^design\\.(collinearity|rank_deficiency|scale_disparity)",
+    description = "two binary factors with varied combinations, GVIF, missing outcomes, Poisson T1",
+    params = list(
+      n11 = dh_param(2:4, person = TRUE),
+      off = dh_param(1:3, person = TRUE),
+      n22 = dh_param(2:4, person = TRUE),
+      single = dh_param(0:2, person = TRUE),
+      y_missing = dh_param(0:3, person = TRUE, tier = "A"),
+      triple = dh_param(0:1, person = TRUE)
+    ),
+    valid = function(p) p$y_missing <= p$n22,
+    build = function(p) {
+      cells <- c(rep(1L, p$n11), rep(2L, p$off), rep(3L, p$off), rep(4L, p$n22))
+      sizes <- c(rep(2L, length(cells)), rep(3L, p$triple), rep(1L, p$single))
+      cell <- c(cells, rep(4L, p$triple), rep(4L, p$single))
+      subjects <- dh_labels("s", length(sizes))
+      subject <- rep(subjects, sizes)
+      row_cell <- rep(cell, sizes)
+      position <- sequence(sizes)
+      n <- length(subject)
+      y <- 1 + seq_len(n) %% 3L
+      y[position == 1L & subject %in% subjects[1:3]] <- 0
+      doubles22 <- subjects[seq_along(cells)][cells == 4L]
+      lost <- rev(doubles22)[seq_len(p$y_missing)]
+      y[position == 2L & subject %in% lost] <- NA
+      data <- data.frame(y = y, a = c("a1", "a1", "a2", "a2")[row_cell],
+                         b = c("b1", "b2", "b1", "b2")[row_cell], subject = subject,
+                         stringsAsFactors = FALSE)
+      list(data = data, formula = "y ~ a + b + (1 | subject)",
+           args = c(list(family = "poisson"), dh_t1()))
+    },
+    reals = TRUE
   )
 }
 
@@ -228,6 +288,7 @@ dh_family_non_person <- function() {
     name = "non-person",
     probe = "^(structure|identifiability|sample)\\.",
     description = "schools of pupils, the disclosure unit, missing outcomes, Poisson, T1",
+    alternatives = dh_alternatives_non_person,
     params = list(
       two = dh_param(4:6, person = TRUE),
       three = dh_param(0:2, person = TRUE),
@@ -253,6 +314,31 @@ dh_family_non_person <- function() {
            args = c(list(declaration = declaration, family = "poisson"), dh_t1()))
     }
   )
+}
+
+# The alternatives of non-person (dh_alternatives()): those that the zoo
+# families share, a further school of one or two pupils without an outcome,
+# since no table of the family loses a whole school, and a school of two
+# pupils without an outcome in place of one row without one.
+dh_alternatives_non_person <- function(p, case) {
+  d <- case$data
+  m <- sum(is.na(d$count))
+  x <- dh_covariate(nrow(d) + 2L)[nrow(d) + 1:2]
+  school_two <- function(c1) {
+    dz_add_rows(c1, list(school = "S90", pupil = "p90", x = x[1L]),
+                list(school = "S90", pupil = "p91", x = x[2L]))
+  }
+  out <- dz_common_alternatives(case, "count", "school")
+  out$new_school <- dz_alt(dz_add_rows(case, list(school = "S90", pupil = "p90", x = x[1L])),
+                           m + 1L)
+  out$new_school_two <- dz_alt(school_two(case), m + 2L)
+  if (m == 1L) {
+    c1 <- case
+    c1$data <- d[!is.na(d$count), , drop = FALSE]
+    rownames(c1$data) <- NULL
+    out$missing_school_two <- dz_alt(school_two(c1), 2L)
+  }
+  out
 }
 
 # Subjects of one and two rows, subjects of one row without their outcome,
@@ -661,7 +747,7 @@ dh_family_labels <- function() {
     probe = "^structure\\.(id_scope_evidence|label_incidence)",
     description = "class labels recurring across schools, undeclared scope, T0",
     params = list(
-      schools = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      schools = dh_param(3:5, person = FALSE, natural = c(FALSE, FALSE)),
       shared = dh_param(0:3, person = TRUE),
       once = dh_param(2:4, person = TRUE),
       school_missing = dh_param(0:2, person = TRUE)
@@ -970,8 +1056,7 @@ dh_family_binomial <- function() {
 dh_family_factor_separation <- function() {
   dh_family(
     name = "factor-separation",
-    gate = FALSE,
-    probe = "^outcome\\.separation",
+    probe = "^outcome\\.(separation|minority_events)",
     description = "three arms of different sizes, events by arm, T2",
     params = list(
       e1 = dh_param(0:3, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
@@ -994,8 +1079,7 @@ dh_family_factor_separation <- function() {
 dh_family_two_factor_separation <- function() {
   dh_family(
     name = "two-factor-separation",
-    gate = FALSE,
-    probe = "^outcome\\.separation",
+    probe = "^outcome\\.(separation|minority_events)",
     description = "two factors of two levels, events by combination, T2",
     params = list(
       e11 = dh_param(0:2, person = TRUE, natural = c(TRUE, TRUE), tier = "A"),
@@ -1021,7 +1105,6 @@ dh_family_two_factor_separation <- function() {
 dh_family_separation_missing <- function() {
   dh_family(
     name = "separation-missing",
-    gate = FALSE,
     probe = "^outcome\\.separation",
     description = "a rare level whose rows lose their outcome, T2",
     params = list(

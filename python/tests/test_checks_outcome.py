@@ -792,10 +792,11 @@ def benchmark_table(
     seed: int, structure: str, kind: str, binomial: bool = False, n: int = 200
 ) -> pd.DataFrame:
     """A table of a structure of the benchmark that chose the formulation of
-    outcome.separation (03-execution-plan.md, M2, M2b-2), generated as there
-    with numpy's generator: x1 to x11 standard normal rounded to 6 decimals,
-    the factors f, with 3 levels for S7 and 4 otherwise, and h, with 5 levels,
-    a grouping column and, for the class binomial, trials from 1 to 6."""
+    outcome.separation (docs/provenance.md, 2026-11-09, the dual programs of
+    outcome.separation and its privacy rules in R), generated as follows with
+    numpy's generator: x1 to x11 standard normal rounded to 6 decimals, the
+    factors f, with 3 levels for S7 and 4 otherwise, and h, with 5 levels, a
+    grouping column and, for the class binomial, trials from 1 to 6."""
     rng = np.random.default_rng(seed)
     d: dict[str, Any] = {"row": np.arange(1, n + 1)}
     for j in range(1, 12):

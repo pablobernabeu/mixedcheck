@@ -205,8 +205,14 @@ class Finding:
     decided it (None for 'otherwise') and the factors of its labels. The
     privacy filter marks suppressed values in ``suppressed`` and
     ``support_suppressed``, by name with the detail of the rule, and a finding
-    suppressed as a whole with ``whole``, and records in ``left_written`` the
-    statistics that its steps 1 to 5 left written.
+    suppressed as a whole with ``whole``, marks with ``guarded`` a finding of
+    a T1 or T2 check on an item of crossed columns that step 9 suppresses as a
+    whole and with ``bounded`` one below the minimum count whose contributors
+    the findings on the analysis sample bound from below by k - 1, records in
+    ``with_rows`` events and non_events when step 7 suppresses them with the
+    rows of the analysis sample alone, which step 9 reads as written, and
+    records in ``left_written`` the statistics that its steps 1 to 5 left
+    written.
     """
 
     check: str
@@ -227,6 +233,9 @@ class Finding:
     label_factors: dict[str, str] = field(default_factory=dict)
     suppressed: dict[str, str] = field(default_factory=dict)
     whole: bool = False
+    guarded: bool = False
+    bounded: bool = False
+    with_rows: list[str] = field(default_factory=list)
     support_suppressed: dict[str, str] = field(default_factory=dict)
     left_written: list[str] = field(default_factory=list)
 

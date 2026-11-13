@@ -35,7 +35,8 @@
 #'   With an identifier, a named list with the elements `id`, `name`,
 #'   `title`, `role`, `matched` and `tier` as in the listing, `data`, the
 #'   data read by [read_table()] with the declaration, a data frame with the
-#'   attribute `types`, `declaration`, the declaration as
+#'   attribute `types`, `data_file`, the path of the installed data file that
+#'   `data` was read from, `declaration`, the declaration as
 #'   [validate_declaration()] returns it, `formula`, the formula as a
 #'   character string, `arguments`, the further arguments of [audit()] that
 #'   the run of the fixture sets, as a named list with `outcome_access` and,
@@ -146,6 +147,7 @@ zoo_read <- function(directory) {
   ))
   list(id = expected[["id"]], name = expected[["name"]], title = expected[["title"]],
        role = expected[["role"]], matched = expected[["matched"]],
-       tier = run[["outcome_access"]], data = data, declaration = declaration,
+       tier = run[["outcome_access"]], data = data,
+       data_file = file.path(directory, "data.csv"), declaration = declaration,
        formula = formula, arguments = arguments, expected = expected)
 }

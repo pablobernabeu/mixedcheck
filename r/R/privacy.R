@@ -13,6 +13,11 @@
 # - whole: TRUE for a finding that step 9 suppresses as a whole
 # - left_written: the statistics that steps 1 to 5 left written, which the
 #   rule part_of reads
+# - guarded and bounded: TRUE for a finding that step 9 suppresses as a
+#   whole on an item of crossed columns, or, below the minimum count, with
+#   contributors bounded from below by k - 1, as step 7 decides
+# - with_rows: events and non_events when step 7 suppresses them with the
+#   rows of the analysis sample alone, which step 9 reads as written
 
 # Step 12: the shareable findings of a run and the pseudonyms of their
 # labels, in the form that the internal sidecar records them. key is the
@@ -287,7 +292,10 @@ privacy_absent <- function(finding) {
 
 # Step 9: a finding of tier T1 or T2 is suppressed as a whole when a person
 # count or ratio that a rule of its decision reads, in the rule that held or
-# a rule before it, or in any rule when none held, is suppressed, and a
+# a rule before it, or in any rule when none held, is suppressed, when it
+# fails the minimum-count rule on fewer than k rows or with contributors
+# bounded from below by k - 1 (privacy_small_sample()), when it is scoped to
+# an item of two crossed columns that privacy_crossed_guarded() names, and a
 # finding of outcome.separation by the rules of privacy.md (Decisions).
 privacy_decision <- function(finding, run, k) {
   if (!finding$tier %in% c("T1", "T2")) {
@@ -296,13 +304,34 @@ privacy_decision <- function(finding, run, k) {
   rules <- finding$entry[["decision"]][["rules"]]
   read <- if (is.na(finding$rule)) rules else rules[seq_len(finding$rule)]
   names <- unique(unlist(lapply(read, function(rule) rule[["statistics"]])))
+  # events and non_events that Across findings suppresses only with the rows
+  # of the analysis sample are k or more, so they count as written here.
   hidden <- vapply(names, function(name) {
-    privacy_person(finding, name, ratio = TRUE) && name %in% names(finding$suppressed)
+    privacy_person(finding, name, ratio = TRUE) && name %in% names(finding$suppressed) &&
+      !name %in% finding$with_rows
   }, NA)
-  if (any(hidden) || (finding$check == "outcome.separation" && privacy_separation(finding, run, k))) {
+  if (any(hidden) || isTRUE(finding$guarded) || privacy_small_sample(finding, k) ||
+      (finding$check == "outcome.separation" && privacy_separation(finding, run, k))) {
     finding$whole <- TRUE
   }
   finding
+}
+
+# Whether a finding that fails the minimum-count rule has fewer than k rows,
+# or contributors that the findings on the analysis sample bound from below
+# by k - 1, as privacy_contributors_bound() computes it and step 7 records in
+# bounded (privacy.md, Decisions). Its rows would otherwise be shown below
+# k, where a written quantity of a larger sample, which shows that rule 1
+# did not fire, bounds them from above by that quantity less k: beside 11
+# written rows of the design sample, a finding whose rows the detail
+# 'min_count' shows below k has one analysed row, since a sample with an
+# available finding has a row. The detail 'min_count' shows its
+# contributors below k, so a bound of k - 1 would leave them one value.
+privacy_small_sample <- function(finding, k) {
+  if (finding$support$distinct >= k) {
+    return(FALSE)
+  }
+  finding$support$rows < k || isTRUE(finding$bounded)
 }
 
 # Whether the filter suppresses a finding of outcome.separation as a whole

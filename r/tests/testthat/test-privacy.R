@@ -1638,13 +1638,15 @@ test_that("a disclosure unit whose members each have one row keeps its counts", 
 })
 
 test_that("the analysis sample loses its rows with the levels of an item of one row a level", {
-  # 10 class labels reused in 10 schools, one pupil of one row in each
+  # 11 class labels reused in 11 schools, one pupil of one row in each
   # combination, the pupils the disclosure unit. The crossing of class and
-  # school writes the 100 combinations of the design sample, which are the
+  # school writes the 121 combinations of the design sample, which are the
   # pupils, so the end of rule 1 hides the analysed pupils, and with them
   # the analysed rows, which equal them whatever the outcome: written rows of
-  # 100 would show that no outcome is missing, as hidden rows show that one
-  # or more is.
+  # 121 would show that no outcome is missing, as hidden rows show that one
+  # or more is. With 11 pupils in each school and label, none can be left
+  # one pupil by losing fewer than k rows, so that Decisions leaves the
+  # findings of outcome.constant_clusters written.
   declaration <- list(vocabulary = "0.1.0", units = list(
     list(name = "school", columns = list("school"), role = "cluster"),
     list(name = "class", columns = list("class"), role = "cluster", nested_in = "school",
@@ -1652,11 +1654,11 @@ test_that("the analysis sample loses its rows with the levels of an item of one 
     list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "class",
          id_scope = "global")),
     observation = list(unit = "pupil", key = list("pupil")))
-  data <- expand.grid(class = sprintf("%02d", 1:10), school = sprintf("S%02d", 1:10),
+  data <- expand.grid(class = sprintf("%02d", 1:11), school = sprintf("S%02d", 1:11),
                       stringsAsFactors = FALSE)
-  data$pupil <- sprintf("P%03d", 1:100)
+  data$pupil <- sprintf("P%03d", 1:121)
   for (lacking in c(0L, 1L)) {
-    data$y <- round(sin(1:100) * 3, 2)
+    data$y <- round(sin(1:121) * 3, 2)
     data$y[seq_len(lacking)] <- NA
     found <- audit_both(data, "y ~ 1 + (1 | school) + (1 | class)", declaration = declaration,
                         outcome_access = "T1", reason = "Constant classes.")
@@ -2388,4 +2390,371 @@ test_that("the IR hash of a shareable document leaves out the constants of mean 
   after <- formula_ir("y ~ x", declaration, data, coding = coding)
   expect_identical(after$predictors$x$centring$constant$value, "3.75")
   expect_identical(found$internal$inputs$model$ir_hash, canonical_hash(after, "hashable"))
+})
+
+# Runs code with min_count set to k in the registry that the package has
+# read, as the disclosure-attack tests do, and restores it after.
+with_min_count <- function(k, code) {
+  registry <- read_registry()
+  old <- registry$privacy$min_count
+  registry$privacy$min_count <- k
+  assign("registry", registry, envir = mixedcheck_cache)
+  on.exit({
+    registry$privacy$min_count <- old
+    assign("registry", registry, envir = mixedcheck_cache)
+  }, add = TRUE)
+  force(code)
+}
+
+test_that("the findings on an item of crossed columns that can be left one member are suppressed", {
+  # Class labels 01 to 10 reused in 4 schools and declared within_parent, one
+  # pupil of one row in each combination. Each school holds every label, so
+  # that a school or a label left with one analysed pupil, which the class
+  # person of its counts in the analysis sample shows, lost all its other
+  # rows, as many as the levels of the other column less one, while rule 1
+  # shows the rows without an outcome below k. A label can be left one pupil
+  # by losing 3 rows and a school by losing 9, fewer than k, so the findings
+  # of outcome.constant_clusters for both are suppressed as a whole whatever
+  # the outcome, although they pass the minimum-count rule, and the documents
+  # with two, one and no pupils of school S01 without an outcome read alike:
+  # no finding then shows the analysis sample, and the design sample writes
+  # its levels, 4 schools.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), role = "cluster", nested_in = "school",
+         id_scope = "within_parent"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "class",
+         id_scope = "global")),
+    observation = list(unit = "pupil", key = list("pupil")))
+  data <- expand.grid(class = sprintf("%02d", 1:10), school = sprintf("S%02d", 1:4),
+                      stringsAsFactors = FALSE)
+  data$pupil <- sprintf("P%03d", 1:40)
+  documents <- list()
+  for (lacking in 0:2) {
+    data$y <- ((1:40 * 7) %% 13) / 4
+    data$y[seq_len(lacking)] <- NA
+    found <- audit_both(data, "y ~ 1 + (1 | school) + (1 | class)", declaration = declaration,
+                        outcome_access = "T1", reason = "Constant classes.")
+    for (factor in c("class", "school")) {
+      internal <- finding_of(found$internal, "outcome.constant_clusters", factor = factor)
+      expect_gte(internal$support$contributors$distinct$value, 10)
+      constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = factor)
+      expect_identical(constant$status$availability$detail, "decision")
+    }
+    sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "school")
+    expect_identical(written(sizes, "levels"), 4)
+    documents[[lacking + 1L]] <- found$shareable$findings
+  }
+  expect_identical(documents[[1L]], documents[[2L]])
+  expect_identical(documents[[1L]], documents[[3L]])
+})
+
+# Schools of two pupils with waves rows each, the outcome kept in the waves
+# observed of the schools analysed and, with constant TRUE, the same in every
+# row of school s01.
+small_sample <- function(schools, waves, analysed, observed = 1L, constant = FALSE) {
+  school <- rep(sprintf("s%02d", seq_len(schools)), each = 2L * waves)
+  wave <- rep(seq_len(waves), 2L * schools)
+  y <- (seq_along(school) * 5L) %% 13L + 0.25
+  if (constant) {
+    y[school == "s01"] <- 0.25
+  }
+  y[!(wave %in% observed & school %in% sprintf("s%02d", analysed))] <- NA
+  data <- data.frame(y = y, x = (seq_along(school) * 7L) %% 11L + 0.5, school = school,
+                     pupil = rep(sprintf("p%02d", seq_len(2L * schools)), each = waves),
+                     stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  audit_both(data, "y ~ x + (1 | school)", declaration = declaration, outcome_access = "T1",
+             reason = "Constant.")
+}
+
+test_that("a T1 finding below the minimum count with fewer than k rows is suppressed", {
+  # 6 schools of 2 pupils, one row each, and the outcome of school s01 alone.
+  # outcome.constant_clusters writes multi_row_levels 1 non_person, which
+  # shows two analysed pupils or more, and the 12 pupils of the design
+  # sample written beside it would show that rule 1 did not fire, so that
+  # the analysed pupils are at most 12 - 10 = 2, and 10 lack an outcome.
+  found <- small_sample(6L, 1L, 1L)
+  internal <- finding_of(found$internal, "outcome.constant_clusters", factor = "school")
+  expect_identical(internal$statistics$multi_row_levels$count_class, "non_person")
+  shared <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
+  expect_identical(shared$status$availability$detail, "decision")
+  # Schools of 2, 2, 2, 2, 2 and 1 pupils, one row each, and a Poisson
+  # outcome for the first pupil alone. The 11 written rows of the design
+  # sample would leave the analysed rows of outcome.zero_shares, shown below
+  # k, the single value 1.
+  school <- c(rep(sprintf("s%02d", 1:5), each = 2), "s06")
+  count <- c(1, rep(NA, 10))
+  data <- data.frame(count = count, x = (seq_along(school) * 7) %% 11 + 0.5, school = school,
+                     pupil = sprintf("p%02d", seq_along(school)))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  found <- audit_both(data, "count ~ x + (1 | school)", family = "poisson",
+                      declaration = declaration, outcome_access = "T1", reason = "Zeros.")
+  shared <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+  expect_identical(shared$status$availability$detail, "decision")
+  sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "school")
+  expect_identical(written(sizes, "rows"), 11)
+})
+
+test_that("at k = 3 such a finding is suppressed as a whole whatever its rows", {
+  # 6 schools of 2 pupils with 4 waves, the outcome of waves 1 to 3 of school
+  # s01: 6 analysed rows of 2 pupils. The class non_person of multi_row_levels
+  # shows two analysed pupils or more, which beside contributors below 3 are
+  # 2, so at k = 3 the finding is suppressed. At k = 4, the contributors can
+  # be 2 or 3, and the finding is written with its 6 rows.
+  shared <- with_min_count(3L, small_sample(6L, 4L, 1L, 1:3))$shareable
+  constant <- finding_of(shared, "outcome.constant_clusters", factor = "school")
+  expect_identical(constant$status$availability$detail, "decision")
+  shared <- with_min_count(4L, small_sample(6L, 4L, 1L, 1:3))$shareable
+  constant <- finding_of(shared, "outcome.constant_clusters", factor = "school")
+  expect_identical(constant$status$availability$value, "available")
+  expect_identical(constant$support$contributors$distinct$availability$detail, "min_count")
+  expect_identical(written(constant, "support_rows"), 6)
+})
+
+test_that("constant_share does not give back analysed rows below an odd k", {
+  # 8 schools of 2 pupils with 2 waves, wave 1 of schools s01 to s04
+  # analysed, so 8 analysed rows, and the outcome of s01 constant. Its
+  # constant_share of 1/4 would make multi_row_levels a multiple of 4 and the
+  # analysed rows at least 8, which beside rows below 9 would be 8. The rows
+  # are below k, so the finding is suppressed.
+  found <- with_min_count(9L, small_sample(8L, 2L, 1:4, constant = TRUE))
+  internal <- finding_of(found$internal, "outcome.constant_clusters", factor = "school")
+  expect_identical(written(internal, "constant_share"), 0.25)
+  constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
+  expect_identical(constant$status$availability$detail, "decision")
+})
+
+test_that("a written part of the analysed levels of a non-person item is suppressed beside the design sample's levels", {
+  # 10 subjects who each answer 5 of 10 items, item j alone in condition
+  # c_j, and an outcome constant within every item. The end of rule 1 hides
+  # the analysed items beside the 10 that kept gives, and constant_levels 10
+  # would show that none lacks every outcome. The second table answers
+  # items 1 to 9 with the same 50 analysed rows and adds item 10, which 5
+  # subjects answer without an outcome.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant"),
+    list(name = "item", columns = list("item"), role = "item")),
+    observation = list(key = list("subject", "item")))
+  make <- function(lost) {
+    pairs <- do.call(rbind, lapply(1:10, function(s) {
+      data.frame(s = s, j = ((s - 1L + 0:4) %% (if (lost) 9L else 10L)) + 1L)
+    }))
+    if (lost) {
+      pairs <- rbind(pairs, data.frame(s = 1:5, j = 10L))
+    }
+    data <- data.frame(subject = sprintf("s%02d", pairs$s), item = sprintf("i%02d", pairs$j),
+                       cond = sprintf("c%02d", pairs$j), y = pairs$j + 0.25,
+                       stringsAsFactors = FALSE)
+    data$y[pairs$j == 10L & lost] <- NA
+    audit_both(data, "y ~ cond + (1 | subject) + (1 | item)", outcome_access = "T1",
+               reason = "Constant items.", declaration = declaration)$shareable
+  }
+  pair <- lapply(c(FALSE, TRUE), make)
+  expect_same_reading(pair[[1L]], pair[[2L]])
+  constant <- finding_of(pair[[1L]], "outcome.constant_clusters", factor = "item")
+  expect_identical(detail(constant, "constant_levels"), "secondary")
+  expect_identical(detail(constant, "multi_row_levels"), "secondary")
+})
+
+test_that("events and non_events are suppressed with the analysed rows of a bernoulli outcome", {
+  # 10 subjects crossed with 10 items, one row in each combination. Rule 3
+  # hides the analysed rows, which the product of the analysed levels would
+  # give, and events plus non_events would give them back, so that 60 and 40
+  # would show that no outcome is missing. An item can be left one subject
+  # by losing 9 rows, so Decisions suppresses its findings as a whole.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant"),
+    list(name = "item", columns = list("item"), role = "item")),
+    crossings = list(list(units = list("subject", "item"))),
+    observation = list(key = list("subject", "item")),
+    variables = list(acc = list(role = "outcome", measurement = "binary")))
+  make <- function(lacking) {
+    data <- expand.grid(item = sprintf("i%02d", 1:10), subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item")]
+    data$cond <- ifelse(data$item <= "i05", "A", "B")
+    data$acc <- as.integer((seq_len(nrow(data)) * 7) %% 10 < 6)
+    data$acc[seq_len(lacking)] <- NA
+    audit_both(data, "acc ~ cond + (1 | subject) + (1 | item)", outcome_access = "T1",
+               reason = "Accuracy.", declaration = declaration)$shareable
+  }
+  pair <- lapply(0:1, make)
+  expect_same_reading(pair[[1L]], pair[[2L]])
+  minority <- finding_of(pair[[1L]], "outcome.minority_events", factor = "subject")
+  expect_identical(detail(minority, "events"), "secondary")
+  expect_identical(detail(minority, "non_events"), "secondary")
+  minority <- finding_of(pair[[1L]], "outcome.minority_events", factor = "item")
+  expect_identical(minority$status$availability$detail, "decision")
+})
+
+test_that("the verdict of outcome.separation stays written beside events hidden with the rows", {
+  skip_if_not_installed("lpSolve")
+  # 12 subjects crossed with 15 items, one row in each combination, a binary
+  # accuracy and two predictors whose values differ between every two rows,
+  # in a T2 run. Rule 3 hides the analysed rows, so events and non_events,
+  # which add up to them, are suppressed with the detail 'secondary'. Both
+  # are 10 or more, and the first rule of the decision shows only that each
+  # is at least 1, so the verdict is written, with no outcome missing or 5.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant"),
+    list(name = "item", columns = list("item"), role = "item")),
+    observation = list(key = list("subject", "item")),
+    variables = list(acc = list(role = "outcome", measurement = "binary")))
+  data <- expand.grid(item = sprintf("i%02d", 1:15), subject = sprintf("s%02d", 1:12),
+                      stringsAsFactors = FALSE)[, c("subject", "item")]
+  n <- nrow(data)
+  data$x1 <- ((seq_len(n) * 37) %% 101) / 10
+  data$x2 <- ((seq_len(n) * 53) %% 97) / 10
+  for (lacking in c(0L, 5L)) {
+    data$acc <- as.integer(((seq_len(n) * 7919) %% 13) < 7)
+    data$acc[seq_len(lacking)] <- NA
+    found <- audit_both(data, "acc ~ x1 + x2 + (1 | subject) + (1 | item)",
+                        outcome_access = "T2", exploratory = TRUE, reason = "Accuracy.",
+                        declaration = declaration)
+    internal <- finding_of(found$internal, "outcome.separation")
+    expect_gte(min(written(internal, "events"), written(internal, "non_events")), 10)
+    separation <- finding_of(found$shareable, "outcome.separation")
+    expect_identical(separation$status$availability$value, "available")
+    expect_identical(written(separation, "verdict"), written(internal, "verdict"))
+    expect_identical(detail(separation, "events"), "secondary")
+    expect_identical(detail(separation, "non_events"), "secondary")
+  }
+})
+
+# Schools of two pupils with two rows each, the outcome kept in the rows of
+# the first analysed pupils.
+small_pupils <- function(pupils, analysed, family = "gaussian", formula = NULL) {
+  pupil <- rep(sprintf("p%02d", seq_len(pupils)), each = 2L)
+  school <- rep(sprintf("s%02d", (seq_len(pupils) + 1L) %/% 2L), each = 2L)
+  y <- if (family == "poisson") rep(c(0, 1, 2, 3, 1, 4, 2), length.out = 2L * pupils) else
+    round(sin(seq_along(pupil)) * 3, 2) + 0.001
+  y[pupil > sprintf("p%02d", analysed)] <- NA
+  data <- data.frame(y = y, x = (seq_along(pupil) * 7) %% 11 + 0.5, school = school,
+                     pupil = pupil, stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  audit_both(data, formula %||% "y ~ x + (1 | school)",
+             family = if (family == "poisson") "poisson", declaration = declaration,
+             outcome_access = "T1", reason = "Small samples.")
+}
+
+test_that("findings below the minimum count are suppressed when written values bound their contributors by k - 1", {
+  # At k = 3, 2 analysed pupils of one school: the class non_person of the
+  # levels of outcome.zero_shares for school shows two analysed pupils or
+  # more, which beside contributors below 3 are 2. The findings on the
+  # analysis sample share its contributors, so outcome.zero_shares for
+  # pupil, whose counts are person counts, is suppressed too.
+  shared <- with_min_count(3L, small_pupils(7L, 2L, "poisson",
+                                            "y ~ x + (1 | school) + (1 | pupil)"))$shareable
+  for (factor in c("school", "pupil")) {
+    zeros <- finding_of(shared, "outcome.zero_shares", factor = factor)
+    expect_identical(zeros$status$availability$detail, "decision")
+  }
+  # At k = 4, 3 analysed pupils of two rows each: `dominated` false shows
+  # more than two contributors, which beside contributors below 4 are 3.
+  found <- with_min_count(4L, small_pupils(7L, 3L, "poisson"))
+  internal <- finding_of(found$internal, "outcome.zero_shares", factor = "school")
+  expect_false(internal$support$contributors$dominated)
+  zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+  expect_identical(zeros$status$availability$detail, "decision")
+  # At k = 5, 4 analysed pupils in 2 schools: multi_row_levels 2 non_person
+  # of outcome.constant_clusters, with each pupil in one school, shows 4
+  # analysed pupils or more, which beside contributors below 5 are 4. At
+  # k = 6, they can be 4 or 5, and the finding is written with its 8 rows.
+  found <- with_min_count(5L, small_pupils(10L, 4L))
+  internal <- finding_of(found$internal, "outcome.constant_clusters", factor = "school")
+  expect_identical(written(internal, "multi_row_levels"), 2)
+  constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
+  expect_identical(constant$status$availability$detail, "decision")
+  shared <- with_min_count(6L, small_pupils(10L, 4L))$shareable
+  constant <- finding_of(shared, "outcome.constant_clusters", factor = "school")
+  expect_identical(constant$status$availability$value, "available")
+  expect_identical(constant$support$contributors$distinct$availability$detail, "min_count")
+  expect_identical(written(constant, "support_rows"), 8)
+})
+
+test_that("a part of 0 of the hidden analysed levels of a non-person item stays written", {
+  # 10 subjects who each answer 4 of 5 items, item j alone in condition c_j,
+  # and an outcome that varies within every item. The end of rule 1 hides
+  # the analysed items beside the 5 that kept gives, and the message
+  # none_constant shows constant_levels to be 0, which bounds nothing.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant"),
+    list(name = "item", columns = list("item"), role = "item")),
+    observation = list(key = list("subject", "item")))
+  pairs <- do.call(rbind, lapply(1:10, function(s) data.frame(s = s, j = ((s - 1L + 0:3) %% 5L) + 1L)))
+  data <- data.frame(subject = sprintf("s%02d", pairs$s), item = sprintf("i%02d", pairs$j),
+                     cond = sprintf("c%02d", pairs$j), y = pairs$j + 0.25 + pairs$s * 0.01,
+                     stringsAsFactors = FALSE)
+  shared <- audit_both(data, "y ~ cond + (1 | subject) + (1 | item)", outcome_access = "T1",
+                       reason = "Constant items.", declaration = declaration)$shareable
+  constant <- finding_of(shared, "outcome.constant_clusters", factor = "item")
+  expect_identical(constant$message$id, "none_constant")
+  expect_identical(written(constant, "constant_levels"), 0)
+  expect_identical(detail(constant, "multi_row_levels"), "secondary")
+})
+
+test_that("a part of the hidden analysed levels is written when the design sample's levels exceed it by k", {
+  # 10 subjects who each answer 5 of 12 items, item j alone in condition c_j,
+  # and an outcome constant within the first 2 or 3 items. The end of rule 1
+  # hides the 12 analysed items beside the 12 that kept gives. constant_levels
+  # 3 lies k - 1 below them and is suppressed, and 2 lies k below and is
+  # written.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "subject", columns = list("subject"), role = "participant"),
+    list(name = "item", columns = list("item"), role = "item")),
+    observation = list(key = list("subject", "item")))
+  pairs <- do.call(rbind, lapply(1:10, function(s) data.frame(s = s, j = ((s - 1L + 0:4) %% 12L) + 1L)))
+  for (constant in 2:3) {
+    data <- data.frame(subject = sprintf("s%02d", pairs$s), item = sprintf("i%02d", pairs$j),
+                       cond = sprintf("c%02d", pairs$j),
+                       y = pairs$j + 0.25 + ifelse(pairs$j <= constant, 0, pairs$s * 0.01),
+                       stringsAsFactors = FALSE)
+    found <- audit_both(data, "y ~ cond + (1 | subject) + (1 | item)", outcome_access = "T1",
+                        reason = "Constant items.", declaration = declaration)
+    internal <- finding_of(found$internal, "outcome.constant_clusters", factor = "item")
+    expect_identical(written(internal, "constant_levels"), as.numeric(constant))
+    expect_identical(written(internal, "multi_row_levels"), 12)
+    shared <- finding_of(found$shareable, "outcome.constant_clusters", factor = "item")
+    expect_identical(detail(shared, "multi_row_levels"), "secondary")
+    if (constant == 3L) {
+      expect_identical(detail(shared, "constant_levels"), "secondary")
+    } else {
+      expect_identical(written(shared, "constant_levels"), 2)
+    }
+  }
+})
+
+test_that("the rows of a level without a member count towards its loss to one member", {
+  # 10 class labels reused in 10 schools, one pupil of one row in each
+  # combination, and in every school a further row of class 01 without a
+  # pupil. A school holds 11 rows, and losing those of 9 pupils, fewer than
+  # k, leaves it one pupil and the row without one, so the findings for
+  # school are suppressed as a whole.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), role = "cluster", nested_in = "school",
+         id_scope = "within_parent"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "class",
+         id_scope = "global")),
+    observation = list(unit = "pupil", key = list("pupil")))
+  data <- expand.grid(class = sprintf("%02d", 1:10), school = sprintf("S%02d", 1:10),
+                      stringsAsFactors = FALSE)
+  data$pupil <- sprintf("P%03d", 1:100)
+  data <- rbind(data, data.frame(class = "01", school = sprintf("S%02d", 1:10), pupil = NA))
+  data$y <- round(sin(seq_len(nrow(data))) * 3, 2)
+  found <- audit_both(data, "y ~ 1 + (1 | school) + (1 | class)", declaration = declaration,
+                      outcome_access = "T1", reason = "Constant classes.")
+  internal <- finding_of(found$internal, "outcome.constant_clusters", factor = "school")
+  expect_gte(internal$support$contributors$distinct$value, 10)
+  constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
+  expect_identical(constant$status$availability$detail, "decision")
 })

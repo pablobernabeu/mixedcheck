@@ -14,7 +14,9 @@ replaces the detail 'min_count' of a count below k.
 The rules run in this order. The clauses at the end of rule 1, under which the
 analysis sample loses a value, and rules 2 and 3 apply to the analysis sample
 first, and steps 6, 8 and 9 to the findings on it, which decides whether the
-analysis sample is shown. Rule 1 then compares the other samples with the
+analysis sample is shown. Before that, privacy_crossed_guarded() names the
+items of crossed columns whose findings of the T1 and T2 checks step 9
+suppresses as a whole. Rule 1 then compares the other samples with the
 analysis sample when it is shown, the sizes of the levels that keep an
 analysed row included, and they lose what the analysis sample loses. Rule 5
 extends what they lose there, the chain clause of rule 1 compares with the
@@ -60,6 +62,7 @@ from mixedcheck._privacy import (
     privacy_within,
     privacy_written,
 )
+from mixedcheck._registry import registry_document
 from mixedcheck._unicode import comparison_form
 
 if TYPE_CHECKING:
@@ -202,14 +205,36 @@ def privacy_across(run: Run, findings: list[Finding], k: int) -> list[Finding]:
             unit_item,
             k,
         )
-        for finding, s in zip(available, available_samples, strict=True):
-            if s != "analysis":
-                continue
+        guarded = privacy_crossed_guarded(
+            run, available, available_samples, items, samples, quantities, k
+        )
+        for finding in available:
+            finding.guarded = (
+                finding.tier in ("T1", "T2")
+                and "factor" in finding.scope
+                and privacy_item_index(items, privacy_scope_item(run, finding)) in guarded
+            )
+        on_analysis = [
+            finding
+            for finding, s in zip(available, available_samples, strict=True)
+            if s == "analysis"
+        ]
+        probes = []
+        for finding in on_analysis:
             probe = finding_copy(finding)
             privacy_across_finding(
-                run, probe, "analysis", items, factor_items, unit_item, quantities, marks
+                run, probe, "analysis", items, factor_items, unit_item, quantities, marks, k
             )
-            privacy_decision(privacy_absent(privacy_within(probe, k)), run, k)
+            probes.append(privacy_absent(privacy_within(probe, k)))
+        # The findings on the analysis sample share its rows and contributors,
+        # so the bound that their written values place on the contributors
+        # decides for all of them (privacy.md, Decisions).
+        bounded = privacy_contributors_bound(run, probes) >= k - 1
+        for finding in on_analysis:
+            finding.bounded = bounded
+        for probe in probes:
+            probe.bounded = bounded
+            privacy_decision(probe, run, k)
             shown = shown or not probe.whole
     beside = ["analysis" in (comparison.larger, comparison.smaller) for comparison in comparisons]
     others = [c for c, near in zip(comparisons, beside, strict=True) if not near]
@@ -256,7 +281,9 @@ def privacy_across(run: Run, findings: list[Finding], k: int) -> list[Finding]:
         if not finding.available:
             continue
         s = finding_samples[i]
-        privacy_across_finding(run, finding, s, items, factor_items, unit_item, quantities, marks)
+        privacy_across_finding(
+            run, finding, s, items, factor_items, unit_item, quantities, marks, k
+        )
         if finding.check == "keys.duplicates" and privacy_missing_key_close(run, keyed, k):
             privacy_suppress(finding, ["missing_key_rows"], "secondary", replace=True)
         if s != "analysis":
@@ -469,6 +496,137 @@ def privacy_analysis_marks(
     marks = privacy_single_row_items(design, marks, basis, unit_item)
     marks = privacy_rule_3(analysis, design, privacy_rule_2(analysis, marks, k), quartiles, k)
     return privacy_rule_2(analysis, privacy_single_row_items(design, marks, basis, unit_item), k)
+
+
+def privacy_crossed_guarded(
+    run: Run,
+    findings: list[Finding],
+    finding_samples: list[str],
+    items: list[Array],
+    samples: dict[str, Array],
+    quantities: dict[str, SampleQuantities],
+    k: int,
+) -> list[int]:
+    """The items of two crossed columns whose findings of the T1 and T2 checks
+    step 9 suppresses as a whole (privacy.md, Decisions). When
+    structure.label_incidence finds two columns crossed in the rows that it
+    reads, those of the design sample in which both columns are present, each
+    level of one column's item holds every level of the other's there. When
+    the item's counts resolve as non-person there and some level of it would
+    keep at most one member after losing fewer than k of its rows, the class
+    person of its counts in the analysis sample, which a finding suppressed as
+    a whole by Decisions shows, would bound from below the rows without an
+    outcome in that level, which rule 1 can show to be fewer than k. The
+    conditions read no outcome."""
+    guarded: list[int] = []
+    if "analysis" not in samples or run.disclosure is None:
+        return guarded
+    for finding, sample in zip(findings, finding_samples, strict=True):
+        if (
+            finding.check != "structure.label_incidence"
+            or finding.values.get("relation") != "crossed"
+        ):
+            continue
+        for codes in finding.items.get("combinations", []):
+            a = privacy_item_index(items, [codes])
+            if (
+                a is not None
+                and a not in guarded
+                and not quantities[sample].items[a].person
+                and privacy_reducible(items[a], run.disclosure.codes, samples[sample], k)
+            ):
+                guarded.append(a)
+    return guarded
+
+
+def privacy_reducible(codes: Array, members: Array, rows: Array, k: int) -> bool:
+    """Whether some level of an item, in the rows given, would hold at most one
+    member of the disclosure unit after losing fewer than k of its rows: its
+    rows less those of its member with the most rows there and less those
+    without a member number fewer than k. ``codes`` are the level codes of the
+    item and ``members`` the codes of the members, -1 for none, in every row
+    of the table."""
+    import numpy as np
+
+    level = codes[rows]
+    member = members[rows]
+    keep = level >= 0
+    level = level[keep]
+    member = member[keep]
+    if not len(level):
+        return False
+    bins = int(level.max()) + 1
+    sizes = np.bincount(level, minlength=bins)
+    labelled = member >= 0
+    most = np.zeros(bins, dtype=np.int64)
+    if labelled.any():
+        # The rows of each pair of a level and a member, and the largest of
+        # them in each level.
+        pairs, counts = np.unique(
+            np.stack([level[labelled], member[labelled]]), axis=1, return_counts=True
+        )
+        np.maximum.at(most, pairs[0], counts)
+    unlabelled = np.bincount(level[~labelled], minlength=bins)
+    removal = sizes - most - unlabelled
+    return bool(((sizes > 0) & (removal < k)).any())
+
+
+def privacy_contributors_bound(run: Run, findings: list[Finding]) -> int:
+    """The lower bound that the findings on the analysis sample place on its
+    contributors (privacy.md, Decisions): 2 when a by_unit count or ratio
+    resolves as non-person over rows that hold a level of its item, since each
+    level then holds two members or more, twice the largest written by_unit
+    count of class non_person whose item holds each member of the disclosure
+    unit in one level of the design sample, and dominance.contributors + 1
+    when ``dominated`` of a finding whose support counts the analysis sample
+    is false, 0 without any of these."""
+    bound = 0
+    dominance = int(registry_document()["privacy"]["dominance"]["contributors"])
+    for finding in findings:
+        assert finding.entry is not None and finding.support is not None
+        if finding.entry["sample"] == "analysis" and not finding.support.dominated:
+            bound = max(bound, dominance + 1)
+        defined = entry_statistics(finding)
+        for name in finding.values:
+            statistic = finding.statistics[name]
+            if (
+                defined[name].get("count_class") != "by_unit"
+                or statistic.get("count_class") != "non_person"
+            ):
+                continue
+            item = finding.items.get(name)
+            if item is None and "factor" in finding.scope:
+                item = privacy_scope_item(run, finding)
+            if item is None or any(codes is None for codes in item):
+                continue
+            assert finding.rows is not None
+            codes = privacy_item_codes(item)
+            if not (codes[finding.rows] >= 0).any():
+                continue
+            bound = max(bound, 2)
+            if (
+                statistic["kind"] == "count"
+                and privacy_written(finding, name)
+                and run.disclosure is not None
+                and privacy_members_nested(codes, run.disclosure.codes, run.design)
+            ):
+                bound = max(bound, 2 * int(finding.values[name]))
+    return bound
+
+
+def privacy_members_nested(codes: Array, members: Array, rows: Array) -> bool:
+    """Whether each member of the disclosure unit lies in one level of an item
+    in the rows given, among the rows that hold both. ``codes`` and
+    ``members`` are the codes of every row of the table, -1 for none."""
+    import numpy as np
+
+    level = codes[rows]
+    member = members[rows]
+    keep = (level >= 0) & (member >= 0)
+    if not keep.any():
+        return True
+    pairs = np.unique(np.stack([member[keep], level[keep]]), axis=1)
+    return bool(len(np.unique(pairs[0])) == pairs.shape[1])
 
 
 def privacy_single_row_items(
@@ -1256,6 +1414,7 @@ def privacy_across_finding(
     unit_item: int | None,
     quantities: dict[str, SampleQuantities],
     marks: dict[str, SampleMarks],
+    k: int,
 ) -> Finding:
     """One finding on a sample with the marks of the samples: its support and
     the counts that measure a hidden quantity, with the detail 'secondary' in
@@ -1266,7 +1425,12 @@ def privacy_across_finding(
     the analysis sample, the counts that name such a person count in part_of,
     directly or through another such count, are suppressed too, since a
     written part shows that the count exceeds it by k or more (Within a
-    finding, part_of)."""
+    finding, part_of). So are those other than 0 that name a non-person count
+    of levels that the sample loses when the design sample's levels of the
+    item exceed them by fewer than k, since they would bound the hidden levels
+    from below, which the design sample's bound from above. events and
+    non_events of a bernoulli outcome, which add up to the rows, are
+    suppressed when the analysis sample loses its rows."""
     assert finding.entry is not None and finding.support is not None
     own: str = finding.entry["sample"]
     support_members: tuple[tuple[str, Quantity], ...] = (
@@ -1298,11 +1462,14 @@ def privacy_across_finding(
             finding.support_suppressed["distinct"] = "secondary"
     defined = entry_statistics(finding)
     hidden: list[str] = []
+    # The hidden counts of levels, with their items.
+    levels: dict[str, int] = {}
     factor: list[Array | None] | None = None
     for name in finding.values:
         measure = defined[name].get("measures")
         if measure is None or measure in PRIVACY_TERM_MEASURES:
             continue
+        i: int | None = None
         if measure in ROWS_MEASURES:
             suppressed = marks[ROWS_MEASURES[measure]].rows
         else:
@@ -1313,10 +1480,33 @@ def privacy_across_finding(
         if suppressed:
             privacy_suppress(finding, [name], "secondary", replace=True)
             hidden.append(name)
+            if i is not None:
+                levels[name] = i
     if sample == "analysis":
-        privacy_suppress(
-            finding, privacy_parts(finding, hidden, person=True), "secondary", replace=True
-        )
+        person = privacy_parts(finding, hidden, person=True)
+        privacy_suppress(finding, person, "secondary", replace=True)
+        # constant_levels 10 beside the 10 levels of an item that the columns
+        # of a factor give the design sample would show that no level lacks
+        # every outcome, and none_constant shows constant_levels 0 anyway.
+        design = quantities["design"]
+        for total, i in levels.items():
+            parts = [p for p in privacy_parts(finding, [total], person=False) if p not in person]
+            close = [
+                p
+                for p in parts
+                if finding.values[p] > 0 and design.items[i].levels - finding.values[p] < k
+            ]
+            privacy_suppress(finding, close, "secondary", replace=True)
+        # Those that this rule alone suppresses are k or more, and step 9
+        # reads them as written.
+        pair = ["events", "non_events"]
+        if (
+            marks["analysis"].rows
+            and run.family_class == "bernoulli"
+            and all(name in finding.values for name in pair)
+        ):
+            finding.with_rows = [name for name in pair if privacy_written(finding, name)]
+            privacy_suppress(finding, pair, "secondary", replace=True)
     return finding
 
 

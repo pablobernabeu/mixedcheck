@@ -42,9 +42,19 @@ ordinary error.
 }
 
 \examples{
-data <- data.frame(y = c(1.5, NA, 3, 2.5), x = c(1, 2, NA, 4))
-ir <- formula_ir("y ~ x", data = data)
-design_samples(ir, data)
+# Fixture Z19N of the pathology zoo (pathology_zoo()), in which 7 of the 60
+# pupils have no baseline score.
+fixture <- pathology_zoo("Z19N")
+ir <- formula_ir(fixture$formula, fixture$declaration, fixture$data)
+samples <- design_samples(ir, fixture$data)
+lengths(samples)
+fixture$data$pupil[-samples$design_sample]
+
+# A pupil without an outcome stays in the design sample and leaves the
+# analysis sample.
+data <- fixture$data
+data$y[1] <- NA
+lengths(design_samples(ir, data))
 }
 \seealso{
 \code{\link[=design_matrices]{design_matrices()}}, which also builds the matrices.

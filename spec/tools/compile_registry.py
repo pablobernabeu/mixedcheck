@@ -45,6 +45,12 @@ except ImportError:  # pragma: no cover - reported as E3001 when a source is rea
 
 CHECKS_DIR = "spec/registry/checks"
 TOP_SOURCE = "spec/registry/registry.yaml"
+# The smallest min_count from which docs/spec/privacy.md (Parameters) claims
+# its guarantees: a finding that fails the minimum-count rule keeps the
+# detail 'min_count' on its contributors and has one or more, so that at
+# k = 2 that detail would leave them the single value 1, which only the
+# suppression of every such finding as a whole could prevent.
+SMALLEST_MIN_COUNT = 3
 OUTPUT = "spec/compiled/registry.json"
 SCHEMAS_DIR = "spec/schemas"
 ERRORS = "spec/errors.json"
@@ -1545,6 +1551,12 @@ class Compiler:
             REGISTRY_SCHEMA,
         )
         top, found = self.read_source(self.root / TOP_SOURCE, top_node)
+        if not found and top["privacy"]["min_count"] < SMALLEST_MIN_COUNT:
+            found = [
+                self.catalogue.issue(
+                    "schema_minimum", pointer="/privacy/min_count", limit=SMALLEST_MIN_COUNT
+                )
+            ]
         if found:
             problems[TOP_SOURCE] = found
         checks = self.root / CHECKS_DIR

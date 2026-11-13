@@ -280,10 +280,13 @@
 
 * `pathology_zoo()` lists the fixtures of the pathology zoo, small simulated
   data sets installed with the package, or returns one of them with its data,
-  declaration, formula, the arguments of `audit()` for its run and its
-  expected findings, after comparing each installed file with the
-  MANIFEST.json of the package. The examples of `audit()`, `write_results()`
-  and `validate_results()` audit fixtures of the zoo.
+  the path of its installed data file, declaration, formula, the arguments of
+  `audit()` for its run and its expected findings, after comparing each
+  installed file with the MANIFEST.json of the package. The examples of
+  `audit()`, `write_results()` and `validate_results()` audit fixtures of the
+  zoo, and those of `validate_declaration()`, `read_table()`, `formula_ir()`,
+  `design_samples()`, `design_matrices()` and `keyed_commitment()` read its
+  fixture Z19N in place of data of their own.
 
 * The privacy filter hides the analysed rows together with the analysed
   levels of an item none of whose levels holds two rows of the design
@@ -302,3 +305,18 @@
   states. crossed_split and movers_split no longer fire for a model such as
   `(1 | subject) + (1 | item) + (1 | subject:item)`, in which each column
   keeps a random effect of its own.
+
+* The privacy filter of `audit()` suppresses as a whole a finding of an
+  outcome check that fails the minimum-count rule when its rows are fewer
+  than min_count or when the written values of the findings on the same rows
+  would leave its contributors a single value, and a finding on a grouping
+  column whose labels are crossed with another column when one of its levels
+  could be left with a single member by losing fewer than min_count rows. In
+  the analysis sample, it suppresses a count other than 0 that is part of the
+  hidden analysed levels of an item, such as constant_levels,
+  levels_without_minority or all_zero_levels, when it would show that no
+  level lacks every outcome, and events and non_events of a binary outcome
+  beside hidden analysed rows, beside which the verdict of the separation
+  check stays written, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  (Decisions, Across findings) states.

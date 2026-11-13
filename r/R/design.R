@@ -78,16 +78,14 @@
 #' @seealso [formula_ir()], [design_samples()].
 #' @export
 #' @examples
-#' data <- data.frame(
-#'   y = c(1.5, 2.25, 3, 2.5, 4, 3.5),
-#'   cond = c("A", "B", "A", "B", "A", "B"),
-#'   subject = c("s1", "s1", "s2", "s2", "s3", "s3")
-#' )
-#' ir <- formula_ir("y ~ cond + (1 + cond | subject)", data = data)
-#' matrices <- design_matrices(ir, data)
-#' matrices$x
+#' # Fixture Z19N of the pathology zoo (pathology_zoo()), in which 7 of the 60
+#' # pupils have no baseline score and so lie outside the design sample.
+#' fixture <- pathology_zoo("Z19N")
+#' ir <- formula_ir(fixture$formula, fixture$declaration, fixture$data)
+#' matrices <- design_matrices(ir, fixture$data)
+#' head(matrices$x)
 #' matrices$z_columns
-#' as.matrix(matrices$z)
+#' dim(matrices$z)
 design_matrices <- function(ir, data) {
   if (!is.data.frame(data)) {
     stop("'data' must be a data frame.", call. = FALSE)
@@ -193,9 +191,19 @@ design_build <- function(ir, model, table) {
 #' @seealso [design_matrices()], which also builds the matrices.
 #' @export
 #' @examples
-#' data <- data.frame(y = c(1.5, NA, 3, 2.5), x = c(1, 2, NA, 4))
-#' ir <- formula_ir("y ~ x", data = data)
-#' design_samples(ir, data)
+#' # Fixture Z19N of the pathology zoo (pathology_zoo()), in which 7 of the 60
+#' # pupils have no baseline score.
+#' fixture <- pathology_zoo("Z19N")
+#' ir <- formula_ir(fixture$formula, fixture$declaration, fixture$data)
+#' samples <- design_samples(ir, fixture$data)
+#' lengths(samples)
+#' fixture$data$pupil[-samples$design_sample]
+#'
+#' # A pupil without an outcome stays in the design sample and leaves the
+#' # analysis sample.
+#' data <- fixture$data
+#' data$y[1] <- NA
+#' lengths(design_samples(ir, data))
 design_samples <- function(ir, data) {
   if (!is.data.frame(data)) {
     stop("'data' must be a data frame.", call. = FALSE)

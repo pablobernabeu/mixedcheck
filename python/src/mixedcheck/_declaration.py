@@ -65,25 +65,26 @@ def validate_declaration(declaration: Any, minimal: bool = False) -> Any:
             ``pointer``, sorted by pointer, code and message and capped at 100.
 
     Examples:
-        >>> declaration = {
-        ...     "vocabulary": "0.1.0",
-        ...     "units": [{"name": "subject", "columns": ["Subject"], "role": "participant"}],
-        ...     "variables": {
-        ...         "Reaction": {"role": "outcome", "measurement": "positive_duration"}
-        ...     },
-        ... }
-        >>> from mixedcheck import canonical_hash
+        >>> # The declaration of fixture Z19N of the pathology zoo: pupils in
+        >>> # schools, with a baseline score as a covariate.
+        >>> declaration = pathology_zoo("Z19N")["declaration"]
         >>> value = validate_declaration(declaration)
         >>> canonical_hash(value, "hashable")
-        'sha256:013f5b817b3d78213d44e77b3b1f3188fd5749347f8709c83d541d75bae2fe7f'
+        'sha256:3636a6607c536ec9935a580c1730601915e6c40ea7627b9ea11b67ae2e0f5ec2'
+        >>> # A minimal declaration also states the estimands and an assigned
+        >>> # variable.
+        >>> try:
+        ...     validate_declaration(declaration, minimal=True)
+        ... except MixedcheckError as err:
+        ...     print([issue["code"] for issue in err.issues])
+        ['E2028', 'E2030']
         >>> # A unit nested in a unit that is not declared.
-        >>> declaration["units"][0]["nested_in"] = "school"
-        >>> declaration["units"][0]["id_scope"] = "within_parent"
+        >>> declaration["units"][1]["nested_in"] = "class"
         >>> try:
         ...     validate_declaration(declaration)
         ... except MixedcheckError as err:
         ...     print(err.issues[0]["message"])
-        The unit 'school' at /units/0/nested_in is not declared in the units block.
+        The unit 'class' at /units/1/nested_in is not declared in the units block.
     """
     if not isinstance(minimal, bool):
         raise TypeError("'minimal' must be True or False.")

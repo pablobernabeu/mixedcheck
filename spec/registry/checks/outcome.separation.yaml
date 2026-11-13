@@ -93,8 +93,10 @@ statistics:
       number of observations. When lp() reports no optimum for the dual, or
       its b is not verified, the program itself is solved, if the size
       (max_size) is at most max_primal_size, with b_j = b+_j - b-_j and
-      0 <= b+_j, b-_j <= 1 as the solver's variables, the upper bounds
-      written as constraints.
+      0 <= b+_j, b-_j <= 1 as the solver's variables, and t >= 0 for the
+      second, the upper bounds written as constraints. The bound t >= 0
+      leaves the optimum unchanged, since b = 0 and t = 0 meet the
+      constraints.
       In Python, each program is solved through the same dual with
       scipy.optimize.linprog() with method 'highs-ds' and the options
       primal_feasibility_tolerance and dual_feasibility_tolerance set to

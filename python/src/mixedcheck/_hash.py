@@ -186,8 +186,16 @@ def keyed_commitment(message: bytes, key: str, covers: str = "data_file") -> dic
         MixedcheckError: A key of another form, with the code E1311.
 
     Examples:
-        >>> keyed_commitment(b"pupil,score\\n1,12\\n", "0f" * 32)["key_id"]
-        '9b68d49bb092f712'
+        >>> # The data file of fixture Z19N of the pathology zoo, as installed
+        >>> # with the package. With this key, audit() writes the same
+        >>> # commitment at /inputs/data/data_file when it reads the data from
+        >>> # the file.
+        >>> path = pathology_zoo("Z19N")["data_file"]
+        >>> with open(path, "rb") as handle:
+        ...     message = handle.read()
+        >>> commitment = keyed_commitment(message, bytes(range(32)).hex())
+        >>> commitment["key_id"], commitment["digest"]
+        ('630dcd2966c43366', 'ae9d656c2b36786a72285217d271e7003070ed624e10aa16161413a4e3873ed6')
     """
     if not isinstance(message, bytes | bytearray | memoryview):
         raise TypeError("'message' must be a bytes object.")

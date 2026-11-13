@@ -546,7 +546,8 @@ test_that("separated data whose margin an outlier compresses below the tolerance
 })
 
 # Tables of the benchmark that chose the formulation of outcome.separation
-# (03-execution-plan.md, M2, M2b-2), generated as there: x1 to x11 standard
+# (docs/provenance.md, 2026-11-09, the dual programs of outcome.separation
+# and its privacy rules in R), generated as follows: x1 to x11 standard
 # normal rounded to 6 decimals, the factors f, with 3 levels for S7 and 4
 # otherwise, and h, with 5 levels, a grouping column and, for the class
 # binomial, trials from 1 to 6. The formulation of the build of M2b-2

@@ -145,38 +145,37 @@ def formula_ir(
         ValueError: Data whose columns cannot be read.
 
     Examples:
-        >>> declaration = {
-        ...     "vocabulary": "0.1.0",
-        ...     "table": {
-        ...         "fields": [
-        ...             {"name": "rt", "type": "number"},
-        ...             {"name": "cond", "type": "string", "categories": ["A", "B"]},
-        ...             {"name": "subject", "type": "string"},
-        ...         ]
-        ...     },
-        ... }
+        >>> # Fixture Z19N of the pathology zoo: pupils in schools, with a
+        >>> # treatment group and a baseline score that 7 pupils lack.
+        >>> fixture = pathology_zoo("Z19N")
+        >>> fixture["formula"]
+        'y ~ group + pre + (1 | school)'
+        >>> # The IR before the data are seen, from the declaration alone.
         >>> ir = formula_ir(
-        ...     "rt ~ cond + (1 + cond | subject)",
-        ...     declaration,
-        ...     coding={"cond": {"contrast": "simple"}},
+        ...     fixture["formula"],
+        ...     fixture["declaration"],
+        ...     coding={"group": {"contrast": "simple"}},
         ... )
         >>> canonical_hash(ir, "hashable")
-        'sha256:ae50b9fcbcdb4f4e6f1757d4cf3954a56c0864e4483bbddca58ff966c1d0322c'
+        'sha256:b61c758f1d66d60bd0bbe361411cd6bad4ee4d2828dbbf99771ae179e684dc89'
         >>> [column["name"] for column in ir["fixed"]["columns"]]
-        ['(Intercept)', 'cond[B]']
-        >>> import pandas as pd
-        >>> data = pd.DataFrame(
-        ...     {"y": [1.5, 2.25, 3, 2.5], "x": [1, 2, 3, 4], "g": ["a", "a", "b", "b"]}
+        ['(Intercept)', 'group[2]', 'pre']
+        >>> # A mean centring takes its constant from the data.
+        >>> ir = formula_ir(
+        ...     fixture["formula"],
+        ...     fixture["declaration"],
+        ...     fixture["data"],
+        ...     coding={"pre": {"centring": "mean"}},
         ... )
-        >>> ir = formula_ir("y ~ x + (1 | g)", data=data, coding={"x": {"centring": "mean"}})
-        >>> ir["predictors"]["x"]["centring"]
-        {'rule': 'mean', 'sample': 'design', 'constant': {'significant_digits': 6, 'value': '2.5'}}
-        >>> # A function that the grammar does not support.
+        >>> centring = ir["predictors"]["pre"]["centring"]
+        >>> centring["rule"], centring["sample"], centring["constant"]
+        ('mean', 'design', {'significant_digits': 6, 'value': '49.9962'})
+        >>> # log() is allowed only around the response or the column of an offset.
         >>> try:
-        ...     formula_ir("y ~ log(x)", data=data)
+        ...     formula_ir("y ~ group + log(pre) + (1 | school)", fixture["declaration"])
         ... except MixedcheckError as err:
         ...     print(err.issues[0]["code"], err.issues[0]["offset"])
-        E6020 4
+        E6020 12
     """
     if not isinstance(formula, str):
         raise TypeError("'formula' must be a str.")

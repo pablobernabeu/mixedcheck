@@ -885,6 +885,23 @@ class CommandLineTestCase(unittest.TestCase):
         )
         self.assertFalse((self.root / cr.OUTPUT).exists())
 
+    def test_min_count_below_three_is_refused(self) -> None:
+        # privacy.md (Parameters) claims its guarantees from k = 3.
+        source = self.root / "spec" / "registry" / "registry.yaml"
+        text = source.read_text(encoding="utf-8")
+        self.assertIn("min_count: 10\n", text)
+        source.write_text(text.replace("min_count: 10\n", "min_count: 2\n"), encoding="utf-8")
+        result = self.run_script()
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(
+            "spec/registry/registry.yaml: E1409 The number at /privacy/min_count is less than 3.",
+            result.stderr,
+        )
+        self.assertFalse((self.root / cr.OUTPUT).exists())
+        source.write_text(text.replace("min_count: 10\n", "min_count: 3\n"), encoding="utf-8")
+        result = self.run_script()
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_file_name_must_match_identifier(self) -> None:
         checks = self.root / "spec" / "registry" / "checks"
         (checks / "outcome.zero_shares.yaml").rename(checks / "outcome.zeros.yaml")

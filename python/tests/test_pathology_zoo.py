@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 from zoo_helpers import zoo_run
 
-from mixedcheck import canonical_bytes, pathology_zoo, validate_declaration
+from mixedcheck import canonical_bytes, pathology_zoo, read_table, validate_declaration
 from mixedcheck._zoo import zoo_fixture
 
 INSTALLED = files("mixedcheck") / "_fixtures"
@@ -68,6 +68,7 @@ def test_a_fixture_has_its_elements_in_order_read_with_its_declaration() -> None
         "matched",
         "tier",
         "data",
+        "data_file",
         "declaration",
         "formula",
         "arguments",
@@ -86,6 +87,9 @@ def test_a_fixture_has_its_elements_in_order_read_with_its_declaration() -> None
     assert len(fixture["data"]) == 240
     with as_file(INSTALLED / "zoo" / "Z01-reused-class-labels" / "declaration.json") as path:
         assert fixture["declaration"] == validate_declaration(path)
+    with as_file(INSTALLED / "zoo" / "Z01-reused-class-labels" / "data.csv") as path:
+        assert Path(fixture["data_file"]).resolve() == Path(path).resolve()
+    assert read_table(fixture["data_file"], fixture["declaration"]).equals(fixture["data"])
 
 
 def test_the_data_of_every_fixture_have_the_types_of_its_declared_fields() -> None:

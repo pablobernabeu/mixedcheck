@@ -5585,6 +5585,417 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-privacy-078",
+      "description": "Class labels 01 to 10 reused in 4 schools and declared within_parent, one pupil of one row in each combination, the pupils the disclosure unit, and the outcome missing for the first pupil. Every school holds every label, so that a school or a label left with one analysed pupil, which the class person of its counts would show, lost all the rows of its other pupils, which beside the analysed levels of the other column and the firing of rule 1, which shows fewer than k rows without an outcome, could leave the rows without an outcome a single value. A label can be left one pupil by losing 3 rows and a school by losing 9, fewer than k, and the counts of both resolve as non-person counts in the design sample, so Decisions suppresses the findings of outcome.constant_clusters for both as a whole, although each passes the minimum-count rule with 39 analysed pupils and its counts resolve as non-person counts in the analysis sample too.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [null, 0.25, 2.0, 0.5, 2.25, 0.75, 2.5, 1.0, 2.75, 1.25, 3.0, 1.5, 0.0, 1.75, 0.25, 2.0, 0.5, 2.25, 0.75, 2.5, 1.0, 2.75, 1.25, 3.0, 1.5, 0.0, 1.75, 0.25, 2.0, 0.5, 2.25, 0.75, 2.5, 1.0, 2.75, 1.25, 3.0, 1.5, 0.0, 1.75],
+        "school": ["S01", "S01", "S01", "S01", "S01", "S01", "S01", "S01", "S01", "S01", "S02", "S02", "S02", "S02", "S02", "S02", "S02", "S02", "S02", "S02", "S03", "S03", "S03", "S03", "S03", "S03", "S03", "S03", "S03", "S03", "S04", "S04", "S04", "S04", "S04", "S04", "S04", "S04", "S04", "S04"],
+        "class": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"],
+        "pupil": ["P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P009", "P010", "P011", "P012", "P013", "P014", "P015", "P016", "P017", "P018", "P019", "P020", "P021", "P022", "P023", "P024", "P025", "P026", "P027", "P028", "P029", "P030", "P031", "P032", "P033", "P034", "P035", "P036", "P037", "P038", "P039", "P040"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "role": "cluster", "nested_in": "school", "id_scope": "within_parent"}, {"name": "pupil", "columns": ["pupil"], "role": "participant", "nested_in": "class", "id_scope": "global"}],
+        "observation": {"unit": "pupil", "key": ["pupil"]}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'class' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "non_person"},
+              "multi_row_levels": {"kind": "count", "value": 10, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 39}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 39}, "dominated": false}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'school' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "non_person"},
+              "multi_row_levels": {"kind": "count", "value": 4, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 39}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 39}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "class"},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "school"},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-079",
+      "description": "6 schools of 2 pupils, one row each, and the outcome of the two pupils of S1 alone. The finding of outcome.constant_clusters fails the minimum-count rule with 2 analysed rows. Written, it would show its rows below k beside the 12 pupils of the design sample that the findings of the T0 checks write, which shows that rule 1 did not fire, so that the analysed pupils would be at most 12 - 10 = 2, and its class non_person, which shows two analysed pupils or more, would leave them 2 and the pupils without an outcome 10. A finding of a T1 or T2 check that fails the minimum-count rule with fewer than k rows is suppressed as a whole with the detail 'decision'.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [4.5, 6, null, null, null, null, null, null, null, null, null, null],
+        "school": ["S1", "S1", "S2", "S2", "S3", "S3", "S4", "S4", "S5", "S5", "S6", "S6"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ 1 + (1 | school)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "role": "participant"}]
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'school' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "non_person"},
+              "multi_row_levels": {"kind": "count", "value": 1, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 2}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "school"},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-080",
+      "description": "10 subjects who each answer 2 of 10 items, each item the only one of its condition and the outcome constant within every item, in a T1 run. The columns of cond, kept 10 of design.rank_deficiency among them, give the 10 items of the design sample, so the end of rule 1 hides the analysed items, multi_row_levels for 'item', and constant_levels 10, a part of it that part_of writes exactly since its total is a non-person count, would show that no item lacks every outcome. It is suppressed with the detail 'secondary', since the design sample's items exceed it by fewer than k, and constant_share with the detail 'ratio'. The end of rule 1 compares the analysed subjects, the contributors, with twice the 10 written items, each of two subjects, which counts a subject once for each item it answers, and hides them. The finding for 'subject' rests on a person count that rule 2 hides and is suppressed as a whole.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [1.25, 2.25, 2.25, 3.25, 3.25, 4.25, 4.25, 5.25, 5.25, 6.25, 6.25, 7.25, 7.25, 8.25, 8.25, 9.25, 9.25, 10.25, 10.25, 1.25],
+        "subject": ["s01", "s01", "s02", "s02", "s03", "s03", "s04", "s04", "s05", "s05", "s06", "s06", "s07", "s07", "s08", "s08", "s09", "s09", "s10", "s10"],
+        "item": ["i01", "i02", "i02", "i03", "i03", "i04", "i04", "i05", "i05", "i06", "i06", "i07", "i07", "i08", "i08", "i09", "i09", "i10", "i10", "i01"],
+        "cond": ["c01", "c02", "c02", "c03", "c03", "c04", "c04", "c05", "c05", "c06", "c06", "c07", "c07", "c08", "c08", "c09", "c09", "c10", "c10", "c01"]
+      },
+      "formula": "y ~ cond + (1 | subject) + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "observation": {"key": ["subject", "item"]}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within 10 of the 10 levels of 'item' with two or more rows (100%). For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'item' slopes rest on the other levels."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 10, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": 1, "count_class": "non_person"},
+              "multi_row_levels": {"kind": "count", "value": 10, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'subject' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "many", "text": "The outcome is constant within at least a quarter of the levels of 'item' that have two or more rows. For a binary outcome, this can push the standard deviation of the random intercept towards very large values, and by-'item' slopes rest on the other levels."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "constant_share": {"kind": "ratio", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "ratio"}},
+              "multi_row_levels": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 20}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-081",
+      "description": "10 subjects crossed with 4 items, one row in each combination, and a binary outcome without a missing value, in a T1 run. The crossing writes the 40 combinations of the design sample, so the end of rule 1 hides the analysed combinations and rule 3 the analysed rows, which equal them. events and non_events add up to the analysed rows of a bernoulli outcome, so 24 and 16 would show the 40 rows that the 10 subjects and 4 items give, so that no outcome is missing. They are suppressed with the rows with the detail 'secondary', and events_per_column with them. An item can be left one subject by losing 9 rows, fewer than k, so Decisions suppresses the finding for 'item' as a whole.",
+      "checks": ["outcome.minority_events"],
+      "data": {
+        "acc": [0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1],
+        "subject": ["s01", "s01", "s01", "s01", "s02", "s02", "s02", "s02", "s03", "s03", "s03", "s03", "s04", "s04", "s04", "s04", "s05", "s05", "s05", "s05", "s06", "s06", "s06", "s06", "s07", "s07", "s07", "s07", "s08", "s08", "s08", "s08", "s09", "s09", "s09", "s09", "s10", "s10", "s10", "s10"],
+        "item": ["i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04"],
+        "cond": ["A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B", "A", "A", "B", "B"]
+      },
+      "formula": "acc ~ cond + (1 | subject) + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}],
+        "observation": {"key": ["subject", "item"]},
+        "variables": {"acc": {"role": "outcome", "measurement": "binary"}}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The outcome has 24 events and 16 non-events, or 8.0 minority events per fixed-effects column. One of the two classes is absent in 0 of the 4 levels of 'item', counting the levels with one row, and the median level has 4 minority events."},
+            "statistics": {
+              "events": {"kind": "count", "value": 24, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 8},
+              "levels": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "levels_without_minority": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "median_minority": {"kind": "count", "value": 4, "count_class": "person", "quantile": {"p": 0.5, "n": 4}},
+              "non_events": {"kind": "count", "value": 16, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The outcome has 24 events and 16 non-events, or 8.0 minority events per fixed-effects column. One of the two classes is absent in 0 of the 10 levels of 'subject', counting the levels with one row, and the median level has 2 minority events."},
+            "statistics": {
+              "events": {"kind": "count", "value": 24, "count_class": "person"},
+              "events_per_column": {"kind": "real", "value": 8},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "levels_without_minority": {"kind": "count", "value": 0, "count_class": "person"},
+              "median_minority": {"kind": "count", "value": 2, "count_class": "person", "quantile": {"p": 0.5, "n": 10}},
+              "non_events": {"kind": "count", "value": 16, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          },
+          {
+            "check": "outcome.minority_events",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "events", "text": "The statistics give the events and non-events of the outcome and the minority events in the levels of 'subject' as far as they can be shown."},
+            "statistics": {
+              "events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "events_per_column": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "levels_without_minority": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "median_minority": {"kind": "count", "value": null, "count_class": "person", "quantile": {"p": 0.5, "n": 10}, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "quantile"}},
+              "non_events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-082",
+      "description": "The table of audits-privacy-081 with two predictors whose values differ between every two rows, in a T2 run in exploratory mode. The crossing writes the 40 combinations of the design sample, so rule 3 hides the analysed rows, and events and non_events of outcome.separation, which add up to them, are suppressed with the detail 'secondary'. Both are 10 or more, and the first rule of the decision would show only that each is at least 1, so Decisions reads them as written and the verdict none is written, since the kept columns come from two variables whose values differ between every two rows.",
+      "checks": ["outcome.separation"],
+      "data": {
+        "acc": [0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1],
+        "subject": ["s01", "s01", "s01", "s01", "s02", "s02", "s02", "s02", "s03", "s03", "s03", "s03", "s04", "s04", "s04", "s04", "s05", "s05", "s05", "s05", "s06", "s06", "s06", "s06", "s07", "s07", "s07", "s07", "s08", "s08", "s08", "s08", "s09", "s09", "s09", "s09", "s10", "s10", "s10", "s10"],
+        "item": ["i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04", "i01", "i02", "i03", "i04"],
+        "x1": [3.7, 7.4, 1, 4.7, 8.4, 2, 5.7, 9.4, 3, 6.7, 0.3, 4, 7.7, 1.3, 5, 8.7, 2.3, 6, 9.7, 3.3, 7, 0.6, 4.3, 8, 1.6, 5.3, 9, 2.6, 6.3, 10, 3.6, 7.3, 0.9, 4.6, 8.3, 1.9, 5.6, 9.3, 2.9, 6.6],
+        "x2": [5.3, 0.9, 6.2, 1.8, 7.1, 2.7, 8, 3.6, 8.9, 4.5, 0.1, 5.4, 1, 6.3, 1.9, 7.2, 2.8, 8.1, 3.7, 9, 4.6, 0.2, 5.5, 1.1, 6.4, 2, 7.3, 2.9, 8.2, 3.8, 9.1, 4.7, 0.3, 5.6, 1.2, 6.5, 2.1, 7.4, 3, 8.3]
+      },
+      "formula": "acc ~ x1 + x2 + (1 | subject) + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}],
+        "observation": {"key": ["subject", "item"]},
+        "variables": {"acc": {"role": "outcome", "measurement": "binary"}}
+      },
+      "outcome_access": "T2",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "exploratory": true,
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none", "text": "The fixed effects do not separate the events from the non-events."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "events": {"kind": "count", "value": 24, "count_class": "person"},
+              "margin": {"kind": "real", "value": 0},
+              "non_events": {"kind": "count", "value": 16, "count_class": "person"},
+              "optimum": {"kind": "real", "value": 0},
+              "verdict": {"kind": "category", "value": "none"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.separation",
+            "check_version": 1,
+            "tier": "T2",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none", "text": "The fixed effects do not separate the events from the non-events."},
+            "statistics": {
+              "both_classes": {"kind": "boolean", "value": true},
+              "bounds": {"kind": "reals", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "columns": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "columns_involved": {"kind": "names", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "margin": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "non_events": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "optimum": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "internal_only"}},
+              "verdict": {"kind": "category", "value": "none"}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-083",
+      "description": "10 subjects who each answer 4 of 5 items, item j alone in condition c_j, and an outcome that varies within every item, in a T1 run. The columns of cond give the 5 items of the design sample, so the end of rule 1 hides the analysed items, multi_row_levels of outcome.constant_clusters for 'item'. Its part constant_levels is 0, which bounds the hidden count by nothing and which the message none_constant shows, so it stays written although the design sample's items exceed it by fewer than k. The finding for 'subject' rests on multi_row_levels, a person count of the analysed subjects with two rows, which rule 2 of Across findings hides beside their 0 subjects of one row, and is suppressed as a whole.",
+      "checks": ["outcome.constant_clusters"],
+      "data": {
+        "y": [1.26, 2.26, 3.26, 4.26, 2.27, 3.27, 4.27, 5.27, 3.28, 4.28, 5.28, 1.28, 4.29, 5.29, 1.29, 2.29, 5.3, 1.3, 2.3, 3.3, 1.31, 2.31, 3.31, 4.31, 2.32, 3.32, 4.32, 5.32, 3.33, 4.33, 5.33, 1.33, 4.34, 5.34, 1.34, 2.34, 5.35, 1.35, 2.35, 3.35],
+        "subject": ["s01", "s01", "s01", "s01", "s02", "s02", "s02", "s02", "s03", "s03", "s03", "s03", "s04", "s04", "s04", "s04", "s05", "s05", "s05", "s05", "s06", "s06", "s06", "s06", "s07", "s07", "s07", "s07", "s08", "s08", "s08", "s08", "s09", "s09", "s09", "s09", "s10", "s10", "s10", "s10"],
+        "item": ["i01", "i02", "i03", "i04", "i02", "i03", "i04", "i05", "i03", "i04", "i05", "i01", "i04", "i05", "i01", "i02", "i05", "i01", "i02", "i03", "i01", "i02", "i03", "i04", "i02", "i03", "i04", "i05", "i03", "i04", "i05", "i01", "i04", "i05", "i01", "i02", "i05", "i01", "i02", "i03"],
+        "cond": ["c01", "c02", "c03", "c04", "c02", "c03", "c04", "c05", "c03", "c04", "c05", "c01", "c04", "c05", "c01", "c02", "c05", "c01", "c02", "c03", "c01", "c02", "c03", "c04", "c02", "c03", "c04", "c05", "c03", "c04", "c05", "c01", "c04", "c05", "c01", "c02", "c05", "c01", "c02", "c03"]
+      },
+      "formula": "y ~ cond + (1 | subject) + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "observation": {"key": ["subject", "item"]}
+      },
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'item' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "non_person"},
+              "multi_row_levels": {"kind": "count", "value": 5, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'subject' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "constant_share": {"kind": "ratio", "value": 0, "count_class": "person"},
+              "multi_row_levels": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "none_constant", "text": "The outcome varies within every level of 'item' that has two or more rows."},
+            "statistics": {
+              "constant_levels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "constant_share": {"kind": "ratio", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "ratio"}},
+              "multi_row_levels": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "outcome.constant_clusters",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "subject"},
+            "status": {"availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "decision"}}
+          }
+        ]
+      }
     }
   ]
 }

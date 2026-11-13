@@ -593,7 +593,7 @@ def intraclass_correlation(x: Array, level: Array, count: int, sizes: Array) -> 
     statistic, so that the squares neither overflow nor underflow, and the
     overall and level means of the scaled column are summed exactly and
     divided once. SSB and SSW are summed exactly and rounded once, a precision
-    that the definition leaves open (03-execution-plan.md, M2b-2). Both
+    that the definition leaves open (03-execution-plan.md, M2). Both
     statistics are absent for a column that is constant, compared by value,
     and the share also when SSB + SSW is 0. The correlation is NaN when J is
     1, when N equals J or when its denominator is 0, so that its absence

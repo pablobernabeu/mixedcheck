@@ -153,6 +153,12 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
       value <- suppressWarnings(as.numeric(targets$value[j]))
       targets$shared[j] <- if (is.na(value)) NA_real_ else sum(values == value)
     }
+    targets$forced <- dh_forced_targets(ns, result, targets)
+    difference <- dh_difference_targets(ns, result)
+    if (!is.null(difference)) {
+      difference$shared <- NA_real_
+      targets <- rbind(targets, difference[names(targets)])
+    }
     full <- dh_reduce(document)
     lp <- NULL
     if (intervals && is.null(audited[[full]])) {
@@ -182,8 +188,11 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
 # verdict: 'leak' when the strict reduction determines an outcome-derived
 # value, 'residual' when it determines a design-structure value, 'accepted'
 # when only the full reduction determines it, or when the value is a
-# quantile shared by k or more values or a count derived through
-# suppress_with from written statistics.
+# quantile shared by k or more values, a count derived from written
+# statistics or a value that the design forces in every table of the group.
+# The differences from the analysis sample (dh_difference_targets()) are
+# kept whatever the probe of the family, since every family with a T1 or T2
+# run varies the rows without an outcome.
 dh_determinations <- function(ran, k = ran$family$k) {
   family <- ran$family
   grid <- ran$grid
@@ -202,15 +211,17 @@ dh_determinations <- function(ran, k = ran$family$k) {
     targets <- data.frame(table = integer(0), finding = character(0), member = character(0),
                           detail = character(0), value = character(0), kind = character(0),
                           class = character(0), shared = numeric(0), derived = logical(0),
-                          tier = character(0), stringsAsFactors = FALSE)
+                          forced = logical(0), tier = character(0), check = character(0),
+                          stringsAsFactors = FALSE)
   }
   # Determinations of reals and names are left to the counts that they
   # derive from, which the families vary.
   targets <- targets[!targets$kind %in% c("real", "reals", "names"), , drop = FALSE]
-  # A family probes the hidden values whose counts it varies independently.
-  targets <- targets[grepl(family$probe, paste(targets$finding, "|", targets$member)), ,
-                     drop = FALSE]
-  targets$key <- paste(targets$finding, targets$member, targets$detail, sep = " | ")
+  # A family probes the hidden values whose counts it varies independently,
+  # and every family the differences from the analysis sample.
+  targets <- targets[grepl(family$probe, paste(targets$finding, "|", targets$member)) |
+                       targets$check == "difference", , drop = FALSE]
+  targets$key <- dh_target_key(targets)
   variation <- tapply(targets$value, targets$key, function(v) length(unique(v)))
   persons <- names(family$params)[vapply(family$params, function(p) p$person, NA)]
   found <- list()
@@ -229,9 +240,12 @@ dh_determinations <- function(ran, k = ran$family$k) {
         values <- unique(mine$value[mine$key == key])
         if (length(values) == 1L && variation[[key]] > 1L) {
           row <- mine[mine$key == key, , drop = FALSE][1L, ]
+          # A value that the design forces in every table of the group is
+          # accepted as a derived one is (privacy.md, Guarantees).
           found[[length(found) + 1L]] <- data.frame(
             mode = mode, target = key, value = values, class = row$class,
-            shared = row$shared, derived = any(mine$derived[mine$key == key]),
+            shared = row$shared,
+            derived = any(mine$derived[mine$key == key]) || all(mine$forced[mine$key == key]),
             group = length(group), table = inside[1L], tier = row$tier, stringsAsFactors = FALSE)
         }
       }
@@ -282,7 +296,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
 dh_search <- function(ns, family, cores = 1L, widen = 1L, intervals = FALSE) {
   base <- dh_grid(family)
   ran <- dh_run_family(ns, family, base, cores = cores, intervals = intervals)
-  found <- dh_determinations(ran)
+  found <- dh_alternatives(ns, family, ran, dh_determinations(ran))
   if (!any(found$verdict == "leak") || widen < 1L) {
     return(list(ran = ran, found = found, widened = 0L))
   }
@@ -301,5 +315,73 @@ dh_search <- function(ns, family, cores = 1L, widen = 1L, intervals = FALSE) {
   extra <- extra[near, , drop = FALSE]
   more <- dh_run_family(ns, family, extra, cores = cores)
   ran <- list(family = family, grid = rbind(base, extra), runs = c(ran$runs, more$runs))
-  list(ran = ran, found = dh_determinations(ran), widened = nrow(extra))
+  list(ran = ran, found = dh_alternatives(ns, family, ran, dh_determinations(ran)),
+       widened = nrow(extra))
+}
+
+# The alternatives of a family (dh_family(alternatives =)): for each table at
+# which the strict reduction determines a value, the tables outside the
+# family that its alternatives() builds from the table's parameters and case
+# are audited, and those whose strict reduction equals the table's trace
+# every determination whose target takes another value in them, or, for a
+# parameter of the family, whose value the alternative's attribute params
+# gives otherwise. A traced determination has the verdict 'traced' and the
+# name of the alternative in the column traced, and never fails the run.
+# The alternatives themselves are never reported, as the widened tables are
+# not.
+dh_alternatives <- function(ns, family, ran, found) {
+  found$traced <- rep("", nrow(found))
+  if (is.null(family$alternatives) || !nrow(found)) {
+    return(found)
+  }
+  old <- dh_set_k(ns, family$k)
+  on.exit(dh_set_k(ns, old), add = TRUE)
+  reals <- isTRUE(family$reals)
+  open <- found$mode == "strict" & found$verdict %in% c("leak", "residual")
+  for (t in unique(found$table[open])) {
+    p <- as.list(ran$grid[t, , drop = FALSE])
+    base <- ran$runs[[t]]
+    # An alternative that cannot be built traces nothing, so that its
+    # determinations stay reported.
+    cases <- tryCatch(family$alternatives(p, family$build(p)), error = function(e) list())
+    for (name in names(cases)) {
+      rows <- which(found$table == t & open & found$traced == "")
+      if (!length(rows)) {
+        break
+      }
+      case <- cases[[name]]
+      result <- dh_run(ns, case)
+      if (!is.null(result$error)) {
+        next
+      }
+      document <- if (reals) result$document else dh_mask_reals(result$document)
+      if (!identical(dh_reduce(document, strict = TRUE), base$strict)) {
+        next
+      }
+      targets <- dh_targets(result)
+      targets <- rbind(cbind(targets, forced = rep(FALSE, nrow(targets))),
+                       dh_difference_targets(ns, result))
+      values <- stats::setNames(targets$value, dh_target_key(targets))
+      params <- attr(case, "params")
+      for (j in rows) {
+        other <- if (startsWith(found$target[j], "parameter ")) {
+          v <- params[[sub("^parameter ", "", found$target[j])]]
+          if (is.null(v)) NA_character_ else as.character(v)
+        } else {
+          unname(values[found$target[j]])
+        }
+        if (!is.na(other) && !identical(other, found$value[j])) {
+          found$traced[j] <- name
+        }
+      }
+    }
+  }
+  found$verdict[found$traced != ""] <- "traced"
+  found
+}
+
+# The key of each target, its finding, member and detail, by which the
+# determinations of a family and its alternatives are compared.
+dh_target_key <- function(targets) {
+  paste(targets$finding, targets$member, targets$detail, sep = " | ")
 }

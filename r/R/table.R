@@ -54,30 +54,22 @@
 #'   A `file` argument that is not one path gives an ordinary error.
 #' @export
 #' @examples
-#' path <- tempfile(fileext = ".csv")
-#' writeBin(charToRaw("id,cond,rt\n1,A,512.5\n2,B,\n3,A,NaN\n"), path)
+#' # The data file of fixture Z19N of the pathology zoo (pathology_zoo()), as
+#' # installed with the package, in which 7 pupils have no baseline score.
+#' fixture <- pathology_zoo("Z19N")
+#' path <- fixture$data_file
 #' table <- read_table(path)
-#' table
+#' head(table)
 #' attr(table, "types")
 #'
-#' declaration <- list(
-#'   vocabulary = "0.1.0",
-#'   table = list(
-#'     fields = list(
-#'       list(name = "id", type = "integer"),
-#'       list(name = "cond", type = "string", categories = list("A", "B")),
-#'       list(name = "rt", type = "number")
-#'     ),
-#'     primaryKey = list("id")
-#'   )
-#' )
+#' # The table block of the fixture's declaration types 'group' as an integer.
+#' declaration <- fixture$declaration
 #' attr(read_table(path, declaration), "types")
 #'
-#' # A value outside the categories.
-#' writeBin(charToRaw("id,cond,rt\n1,A,512.5\n2,C,498\n"), path)
+#' # A value that does not have the lexical form of its field's type.
+#' declaration$table$fields[[4]]$type <- "integer"
 #' problem <- tryCatch(read_table(path, declaration), mixedcheck_error = function(e) e)
 #' problem$issues[[1]]$message
-#' unlink(path)
 read_table <- function(file, declaration = NULL) {
   if (!is.character(file) || length(file) != 1L || is.na(file)) {
     stop("'file' must be a file path.", call. = FALSE)

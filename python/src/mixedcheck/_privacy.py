@@ -311,7 +311,10 @@ def privacy_decision(finding: Finding, run: Run, k: int) -> Finding:
     """Step 9: a finding of tier T1 or T2 is suppressed as a whole when a
     person count or ratio that a rule of its decision reads, in the rule that
     held or a rule before it, or in any rule when none held, is suppressed,
-    and a finding of outcome.separation by the rules of privacy.md
+    when it fails the minimum-count rule on fewer than k rows or with
+    contributors bounded from below by k - 1 (privacy_small_sample()), when it
+    is scoped to an item of two crossed columns that privacy_crossed_guarded()
+    names, and a finding of outcome.separation by the rules of privacy.md
     (Decisions)."""
     if finding.tier not in ("T1", "T2"):
         return finding
@@ -319,12 +322,40 @@ def privacy_decision(finding: Finding, run: Run, k: int) -> Finding:
     rules = finding.entry["decision"]["rules"]
     read = rules if finding.rule is None else rules[: finding.rule + 1]
     names = dict.fromkeys(name for rule in read for name in rule.get("statistics", []))
+    # events and non_events that Across findings suppresses only with the rows
+    # of the analysis sample are k or more, so they count as written here.
     hidden = any(
-        privacy_person(finding, name, ratio=True) and name in finding.suppressed for name in names
+        privacy_person(finding, name, ratio=True)
+        and name in finding.suppressed
+        and name not in finding.with_rows
+        for name in names
     )
-    if hidden or (finding.check == "outcome.separation" and privacy_separation(finding, run, k)):
+    if (
+        hidden
+        or finding.guarded
+        or privacy_small_sample(finding, k)
+        or (finding.check == "outcome.separation" and privacy_separation(finding, run, k))
+    ):
         finding.whole = True
     return finding
+
+
+def privacy_small_sample(finding: Finding, k: int) -> bool:
+    """Whether a finding that fails the minimum-count rule has fewer than k
+    rows, or contributors that the findings on the analysis sample bound from
+    below by k - 1, as privacy_contributors_bound() computes it and step 7
+    records in ``bounded`` (privacy.md, Decisions). Its rows would otherwise
+    be shown below k, where a written quantity of a larger sample, which shows
+    that rule 1 did not fire, bounds them from above by that quantity less k:
+    beside 11 written rows of the design sample, a finding whose rows the
+    detail 'min_count' shows below k has one analysed row, since a sample with
+    an available finding has a row. The detail 'min_count' shows its
+    contributors below k, so a bound of k - 1 would leave them one value."""
+    support = finding.support
+    assert support is not None
+    if support.distinct >= k:
+        return False
+    return support.rows < k or finding.bounded
 
 
 def privacy_separation(finding: Finding, run: Run, k: int) -> bool:

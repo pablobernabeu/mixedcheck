@@ -96,27 +96,24 @@ error.
 }
 
 \examples{
-declaration <- list(
-  vocabulary = "0.1.0",
-  table = list(fields = list(
-    list(name = "rt", type = "number"),
-    list(name = "cond", type = "string", categories = list("A", "B")),
-    list(name = "subject", type = "string")
-  ))
-)
-ir <- formula_ir("rt ~ cond + (1 + cond | subject)", declaration,
-                 coding = list(cond = list(contrast = "simple")))
+# Fixture Z19N of the pathology zoo (pathology_zoo()): pupils in schools,
+# with a treatment group and a baseline score that 7 pupils lack.
+fixture <- pathology_zoo("Z19N")
+fixture$formula
+
+# The IR before the data are seen, from the declaration alone.
+ir <- formula_ir(fixture$formula, fixture$declaration,
+                 coding = list(group = list(contrast = "simple")))
 canonical_hash(ir, "hashable")
 vapply(ir$fixed$columns, function(column) column$name, "")
 
-data <- data.frame(y = c(1.5, 2.25, 3, 2.5), x = c(1, 2, 3, 4),
-                   g = c("a", "a", "b", "b"))
-ir <- formula_ir("y ~ x + (1 | g)", data = data,
-                 coding = list(x = list(centring = "mean")))
-ir$predictors$x$centring
+# A mean centring takes its constant from the data.
+ir <- formula_ir(fixture$formula, fixture$declaration, fixture$data,
+                 coding = list(pre = list(centring = "mean")))
+ir$predictors$pre$centring
 
-# A function that the grammar does not support.
-problem <- tryCatch(formula_ir("y ~ log(x)", data = data),
+# log() is allowed only around the response or the column of an offset.
+problem <- tryCatch(formula_ir("y ~ group + log(pre) + (1 | school)", fixture$declaration),
                     mixedcheck_error = function(e) e)
 problem$issues[[1]]$message
 }

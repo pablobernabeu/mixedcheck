@@ -89,16 +89,14 @@ the levels of their predictor, give an ordinary error.
 }
 
 \examples{
-data <- data.frame(
-  y = c(1.5, 2.25, 3, 2.5, 4, 3.5),
-  cond = c("A", "B", "A", "B", "A", "B"),
-  subject = c("s1", "s1", "s2", "s2", "s3", "s3")
-)
-ir <- formula_ir("y ~ cond + (1 + cond | subject)", data = data)
-matrices <- design_matrices(ir, data)
-matrices$x
+# Fixture Z19N of the pathology zoo (pathology_zoo()), in which 7 of the 60
+# pupils have no baseline score and so lie outside the design sample.
+fixture <- pathology_zoo("Z19N")
+ir <- formula_ir(fixture$formula, fixture$declaration, fixture$data)
+matrices <- design_matrices(ir, fixture$data)
+head(matrices$x)
 matrices$z_columns
-as.matrix(matrices$z)
+dim(matrices$z)
 }
 \seealso{
 \code{\link[=formula_ir]{formula_ir()}}, \code{\link[=design_samples]{design_samples()}}.

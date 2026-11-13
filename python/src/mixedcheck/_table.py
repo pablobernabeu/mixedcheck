@@ -141,34 +141,26 @@ def read_table(file: str | os.PathLike[str], declaration: Any = None) -> pandas.
         TypeError: A ``file`` argument that is not a path.
 
     Examples:
-        >>> import os
-        >>> import shutil
-        >>> import tempfile
-        >>> directory = tempfile.mkdtemp()
-        >>> path = os.path.join(directory, "data.csv")
-        >>> with open(path, "wb") as handle:
-        ...     _ = handle.write(b"pupil,score,passed\\nP1,12.5,true\\nP2,,false\\n")
+        >>> # The data file of fixture Z19N of the pathology zoo, as installed
+        >>> # with the package, in which 7 pupils have no baseline score.
+        >>> fixture = pathology_zoo("Z19N")
+        >>> path = fixture["data_file"]
         >>> table = read_table(path)
         >>> table.attrs["types"]
-        {'pupil': 'string', 'score': 'number', 'passed': 'boolean'}
-        >>> table["score"].tolist()
-        [12.5, None]
-        >>> declaration = {
-        ...     "vocabulary": "0.1.0",
-        ...     "table": {
-        ...         "fields": [
-        ...             {"name": "pupil", "type": "string"},
-        ...             {"name": "score", "type": "integer"},
-        ...             {"name": "passed", "type": "boolean"},
-        ...         ]
-        ...     },
-        ... }
+        {'school': 'string', 'pupil': 'string', 'group': 'number', 'pre': 'number', 'y': 'number'}
+        >>> table["pre"].tolist()[:3]
+        [51.9, None, 48.6]
+        >>> # The table block of the fixture's declaration types 'group' as an integer.
+        >>> declaration = fixture["declaration"]
+        >>> read_table(path, declaration).attrs["types"]["group"]
+        'integer'
+        >>> # A value that does not have the lexical form of its field's type.
+        >>> declaration["table"]["fields"][3]["type"] = "integer"
         >>> try:
         ...     read_table(path, declaration)
         ... except MixedcheckError as err:
         ...     print(err.issues[0]["message"])
-        The value '12.5' of the column 'score' at byte 22 cannot be read as an integer.
-        >>> shutil.rmtree(directory)
+        The value '51.9' of the column 'pre' at byte 34 cannot be read as an integer.
     """
     if isinstance(file, os.PathLike):
         file = os.fspath(file)

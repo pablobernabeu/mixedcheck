@@ -16,8 +16,10 @@
 # The rules run in this order. The clauses at the end of rule 1, under which
 # the analysis sample loses a value, and rules 2 and 3 apply to the analysis
 # sample first, and steps 6, 8 and 9 to the findings on it, which decides
-# whether the analysis sample is shown. Rule 1 then compares the other
-# samples with the analysis sample when it is shown, the sizes of the levels
+# whether the analysis sample is shown. Before that, privacy_crossed_guarded()
+# names the items of crossed columns whose findings of the T1 and T2 checks
+# step 9 suppresses as a whole. Rule 1 then compares the other samples with
+# the analysis sample when it is shown, the sizes of the levels
 # that keep an analysed row included, and they lose what the analysis
 # sample loses. Rule 5 extends what they lose there, the chain clause of
 # rule 1 compares with the analysis sample the samples that a losing sample
@@ -80,10 +82,29 @@ privacy_across <- function(run, findings, k) {
     marks$analysis <- privacy_analysis_marks(findings[available], finding_samples[available], run,
                                              items, quantities, written, holders, basis,
                                              unit_item, k)
-    for (i in which(available & finding_samples == "analysis")) {
+    guarded <- privacy_crossed_guarded(run, findings[available], finding_samples[available],
+                                       items, samples, quantities, k)
+    for (i in which(available)) {
+      findings[[i]]$guarded <- findings[[i]]$tier %in% c("T1", "T2") &&
+        !is.null(findings[[i]]$scope$factor) &&
+        privacy_item_index(items, privacy_scope_item(run, findings[[i]])) %in% guarded
+    }
+    on_analysis <- which(available & finding_samples == "analysis")
+    probes <- lapply(on_analysis, function(i) {
       finding <- privacy_across_finding(run, findings[[i]], "analysis", items, factor_items,
-                                        unit_item, quantities, marks)
-      finding <- privacy_decision(privacy_absent(privacy_within(finding, k)), run, k)
+                                        unit_item, quantities, marks, k)
+      privacy_absent(privacy_within(finding, k))
+    })
+    # The findings on the analysis sample share its rows and contributors, so
+    # the bound that their written values place on the contributors decides
+    # for all of them (privacy.md, Decisions).
+    bounded <- privacy_contributors_bound(run, probes) >= k - 1L
+    for (i in on_analysis) {
+      findings[[i]]$bounded <- bounded
+    }
+    for (finding in probes) {
+      finding$bounded <- bounded
+      finding <- privacy_decision(finding, run, k)
       shown <- shown || !finding$whole
     }
   }
@@ -121,7 +142,7 @@ privacy_across <- function(run, findings, k) {
   for (i in which(available)) {
     s <- finding_samples[i]
     findings[[i]] <- privacy_across_finding(run, findings[[i]], s, items, factor_items, unit_item,
-                                            quantities, marks)
+                                            quantities, marks, k)
     if (findings[[i]]$check == "keys.duplicates" &&
         privacy_missing_key_close(run, samples[keyed], k)) {
       findings[[i]] <- privacy_suppress(findings[[i]], "missing_key_rows", "secondary",
@@ -264,6 +285,132 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
                           quartiles, k)
   privacy_rule_2(analysis, privacy_single_row_items(quantities$design, marks, basis, unit_item),
                  k)
+}
+
+# The items of two crossed columns whose findings of the T1 and T2 checks
+# step 9 suppresses as a whole (privacy.md, Decisions). When
+# structure.label_incidence finds two columns crossed in the rows that it
+# reads, those of the design sample in which both columns are present, each
+# level of one column's item holds every level of the other's there. When
+# the item's counts resolve as non-person there and some level of it would
+# keep at most one member after losing fewer than k of its rows, the class
+# person of its counts in the analysis sample, which a finding suppressed as
+# a whole by Decisions shows, would bound from below the rows without an
+# outcome in that level, which rule 1 can show to be fewer than k. The
+# conditions read no outcome.
+privacy_crossed_guarded <- function(run, findings, finding_samples, items, samples, quantities,
+                                    k) {
+  out <- integer(0)
+  if (is.null(samples$analysis) || is.null(run$disclosure)) {
+    return(out)
+  }
+  for (j in seq_along(findings)) {
+    finding <- findings[[j]]
+    s <- finding_samples[j]
+    if (finding$check != "structure.label_incidence" ||
+        !identical(finding$values[["relation"]], "crossed")) {
+      next
+    }
+    ends <- vapply(finding$items[["combinations"]], function(codes) {
+      privacy_item_index(items, list(codes))
+    }, 0L)
+    for (a in ends[!is.na(ends)]) {
+      if (!quantities[[s]]$items[[a]]$person &&
+          privacy_reducible(items[[a]], run$disclosure$codes, samples[[s]], k)) {
+        out <- c(out, a)
+      }
+    }
+  }
+  unique(out)
+}
+
+# Whether some level of an item, in the rows given, would hold at most one
+# member of the disclosure unit after losing fewer than k of its rows: its
+# rows less those of its member with the most rows there and less those
+# without a member number fewer than k. codes are the level codes of the
+# item and members the codes of the members, in every row of the table.
+privacy_reducible <- function(codes, members, rows, k) {
+  level <- codes[rows]
+  member <- members[rows]
+  keep <- !is.na(level)
+  level <- level[keep]
+  member <- member[keep]
+  if (!length(level)) {
+    return(FALSE)
+  }
+  sizes <- tabulate(level)
+  labelled <- !is.na(member)
+  most <- integer(length(sizes))
+  if (any(labelled)) {
+    # The rows of each pair of a level and a member, numbered in the order of
+    # first appearance, and the largest of them in each level.
+    key <- (level[labelled] - 1) * (max(member[labelled]) + 1) + member[labelled]
+    first <- !duplicated(key)
+    rows_of_pair <- tabulate(match(key, key[first]))
+    largest <- tapply(rows_of_pair, level[labelled][first], max)
+    most[as.integer(names(largest))] <- largest
+  }
+  removal <- sizes - most - tabulate(level[!labelled], nbins = length(sizes))
+  any(sizes > 0L & removal < k)
+}
+
+# The lower bound that the findings on the analysis sample place on its
+# contributors (privacy.md, Decisions): 2 when a by_unit count or ratio
+# resolves as non-person over rows that hold a level of its item, since each
+# level then holds two members or more, twice the largest written by_unit
+# count of class non_person whose item holds each member of the disclosure
+# unit in one level of the design sample, and dominance.contributors + 1
+# when `dominated` of a finding whose support counts the analysis sample is
+# false, 0 without any of these.
+privacy_contributors_bound <- function(run, findings) {
+  bound <- 0
+  dominance <- read_registry()[["privacy"]][["dominance"]][["contributors"]]
+  for (finding in findings) {
+    if (identical(finding$entry[["sample"]], "analysis") && isFALSE(finding$support$dominated)) {
+      bound <- max(bound, dominance + 1)
+    }
+    defined <- finding$entry[["statistics"]]
+    for (name in names(finding$values)) {
+      statistic <- finding$statistics[[name]]
+      if (!identical(defined[[name]][["count_class"]], "by_unit") ||
+          !identical(statistic$count_class, "non_person")) {
+        next
+      }
+      item <- finding$items[[name]]
+      if (is.null(item) && !is.null(finding$scope$factor)) {
+        item <- privacy_scope_item(run, finding)
+      }
+      if (is.null(item) || any(vapply(item, is.null, NA))) {
+        next
+      }
+      codes <- privacy_item_codes(item)
+      if (all(is.na(codes[finding$rows]))) {
+        next
+      }
+      bound <- max(bound, 2)
+      if (statistic$kind == "count" && privacy_written(finding, name) && !is.null(run$disclosure) &&
+          privacy_members_nested(codes, run$disclosure$codes, run$design)) {
+        bound <- max(bound, 2 * finding$values[[name]])
+      }
+    }
+  }
+  bound
+}
+
+# Whether each member of the disclosure unit lies in one level of an item in
+# the rows given, among the rows that hold both. codes and members are the
+# codes of every row of the table.
+privacy_members_nested <- function(codes, members, rows) {
+  level <- codes[rows]
+  member <- members[rows]
+  keep <- !is.na(level) & !is.na(member)
+  if (!any(keep)) {
+    return(TRUE)
+  }
+  level <- level[keep]
+  member <- member[keep]
+  first <- !duplicated(cbind(member, level))
+  !anyDuplicated(member[first])
 }
 
 # The levels of an item none of whose levels holds two rows of the design
@@ -987,9 +1134,14 @@ privacy_item_quantities <- function(run, codes, rows) {
 # analysis sample, the counts that name such a person count in part_of,
 # directly or through another such count, are suppressed too, since a
 # written part shows that the count exceeds it by k or more (Within a
-# finding, part_of).
+# finding, part_of). So are those other than 0 that name a non-person count
+# of levels that the sample loses when the design sample's levels of the item
+# exceed them by fewer than k, since they would bound the hidden levels from
+# below, which the design sample's bound from above. events and non_events of
+# a bernoulli outcome, which add up to the rows, are suppressed when the
+# analysis sample loses its rows.
 privacy_across_finding <- function(run, finding, sample, items, factor_items, unit_item,
-                                   quantities, marks) {
+                                   quantities, marks, k) {
   own <- finding$entry[["sample"]]
   for (member in c("rows", "distinct")) {
     quantity <- if (member == "rows") "rows" else "contributors"
@@ -1017,12 +1169,15 @@ privacy_across_finding <- function(run, finding, sample, items, factor_items, un
   }
   defined <- finding$entry[["statistics"]]
   hidden <- character(0)
+  # The hidden counts of levels, with their items.
+  levels <- list()
   for (name in names(finding$values)) {
     measure <- defined[[name]][["measures"]]
     if (is.null(measure) || measure %in% privacy_term_measures) {
       next
     }
     rows <- c(table_rows = "table", design_rows = "design", analysis_rows = "analysis")
+    i <- NA_integer_
     suppressed <- if (measure %in% names(rows)) {
       marks[[rows[[measure]]]]$rows
     } else {
@@ -1032,11 +1187,34 @@ privacy_across_finding <- function(run, finding, sample, items, factor_items, un
     if (suppressed) {
       finding <- privacy_suppress(finding, name, "secondary", replace = TRUE)
       hidden <- c(hidden, name)
+      if (!is.na(i)) {
+        levels[[name]] <- i
+      }
     }
   }
   if (sample == "analysis") {
-    finding <- privacy_suppress(finding, privacy_parts(finding, hidden, person = TRUE),
-                                "secondary", replace = TRUE)
+    person <- privacy_parts(finding, hidden, person = TRUE)
+    finding <- privacy_suppress(finding, person, "secondary", replace = TRUE)
+    # constant_levels 10 beside the 10 levels of an item that the columns of
+    # a factor give the design sample would show that no level lacks every
+    # outcome, and none_constant shows constant_levels 0 anyway.
+    for (total in names(levels)) {
+      i <- levels[[total]]
+      parts <- setdiff(privacy_parts(finding, total, person = FALSE), person)
+      close <- Filter(function(part) {
+        value <- finding$values[[part]]
+        value > 0 && quantities$design$items[[i]]$levels - value < k
+      }, parts)
+      finding <- privacy_suppress(finding, close, "secondary", replace = TRUE)
+    }
+    # Those that this rule alone suppresses are k or more, and step 9 reads
+    # them as written.
+    pair <- c("events", "non_events")
+    if (marks$analysis$rows && identical(run$family_class, "bernoulli") &&
+        all(pair %in% names(finding$values))) {
+      finding$with_rows <- pair[vapply(pair, privacy_written, NA, finding = finding)]
+      finding <- privacy_suppress(finding, pair, "secondary", replace = TRUE)
+    }
   }
   finding
 }

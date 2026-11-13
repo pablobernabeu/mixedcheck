@@ -35,6 +35,10 @@ as stored, which \code{readBin(path, "raw", file.size(path))} reads.
 }
 
 \examples{
-key <- paste(rep("0f", 32), collapse = "")
-keyed_commitment(charToRaw("pupil,score\n1,12\n"), key)
+# The data file of fixture Z19N of the pathology zoo (pathology_zoo()), as
+# installed with the package. With this key, audit() writes the same
+# commitment at /inputs/data/data_file when it reads the data from the file.
+path <- pathology_zoo("Z19N")$data_file
+key <- paste(sprintf("\%02x", 0:31), collapse = "")
+keyed_commitment(readBin(path, "raw", file.size(path)), key)
 }

@@ -2028,13 +2028,15 @@ def test_a_disclosure_unit_whose_members_each_have_one_row_keeps_its_counts() ->
 
 
 def test_the_analysis_sample_loses_its_rows_with_the_levels_of_an_item_of_one_row_a_level() -> None:
-    # 10 class labels reused in 10 schools, one pupil of one row in each
+    # 11 class labels reused in 11 schools, one pupil of one row in each
     # combination, the pupils the disclosure unit. The crossing of class and
-    # school writes the 100 combinations of the design sample, which are the
+    # school writes the 121 combinations of the design sample, which are the
     # pupils, so the end of rule 1 hides the analysed pupils, and with them
     # the analysed rows, which equal them whatever the outcome: written rows
-    # of 100 would show that no outcome is missing, as hidden rows show that
-    # one or more is.
+    # of 121 would show that no outcome is missing, as hidden rows show that
+    # one or more is. With 11 pupils in each school and label, none can be
+    # left one pupil by losing fewer than k rows, so that Decisions leaves
+    # the findings of outcome.constant_clusters written.
     declaration = units(
         unit("school", "cluster"),
         unit("class", "cluster", nested_in="school", id_scope="within_parent"),
@@ -2042,11 +2044,11 @@ def test_the_analysis_sample_loses_its_rows_with_the_levels_of_an_item_of_one_ro
         observation={"unit": "pupil", "key": ["pupil"]},
     )
     for lacking in (0, 1):
-        y = [round(math.sin(i) * 3, 2) for i in seq_len(100)]
+        y = [round(math.sin(i) * 3, 2) for i in seq_len(121)]
         data = frame(
-            **{"class": rep(labels("%02d", range(1, 11)), 10)},
-            school=labels("S%02d", rep(range(1, 11), each=10)),
-            pupil=labels("P%03d", seq_len(100)),
+            **{"class": rep(labels("%02d", range(1, 12)), 11)},
+            school=labels("S%02d", rep(range(1, 12), each=11)),
+            pupil=labels("P%03d", seq_len(121)),
             y=[None if i <= lacking else value for i, value in enumerate(y, start=1)],
         )
         found = audit_both(
@@ -2910,3 +2912,463 @@ def test_the_ir_hash_of_a_shareable_document_leaves_out_the_constants_of_mean_ce
     after = formula_ir("y ~ x", declaration, data, coding=coding)
     assert after["predictors"]["x"]["centring"]["constant"]["value"] == "3.75"
     assert found["internal"]["inputs"]["model"]["ir_hash"] == canonical_hash(after, "hashable")
+
+
+@pytest.fixture
+def min_count() -> Any:
+    """Sets min_count in the registry that the package has read, as the
+    disclosure-attack tests do, and restores it after the test."""
+    from mixedcheck._registry import registry_document
+
+    privacy = registry_document()["privacy"]
+    old = privacy["min_count"]
+
+    def set_k(k: int) -> None:
+        privacy["min_count"] = k
+
+    yield set_k
+    privacy["min_count"] = old
+
+
+def test_the_findings_on_an_item_of_crossed_columns_that_can_be_left_one_member() -> None:
+    # Class labels 01 to 10 reused in 4 schools and declared within_parent,
+    # one pupil of one row in each combination. Each school holds every label,
+    # so that a school or a label left with one analysed pupil, which the
+    # class person of its counts in the analysis sample shows, lost all its
+    # other rows, as many as the levels of the other column less one, while
+    # rule 1 shows the rows without an outcome below k. A label can be left
+    # one pupil by losing 3 rows and a school by losing 9, fewer than k, so
+    # the findings of outcome.constant_clusters for both are suppressed as a
+    # whole whatever the outcome, although they pass the minimum-count rule,
+    # and the documents with two, one and no pupils of school S01 without an
+    # outcome read alike: no finding then shows the analysis sample, and the
+    # design sample writes its levels, 4 schools.
+    declaration = units(
+        unit("school", "cluster"),
+        unit("class", "cluster", nested_in="school", id_scope="within_parent"),
+        unit("pupil", "participant", nested_in="class", id_scope="global"),
+        observation={"unit": "pupil", "key": ["pupil"]},
+    )
+    documents = []
+    for lacking in (0, 1, 2):
+        y: list[float | None] = [((i * 7) % 13) / 4 for i in seq_len(40)]
+        y[:lacking] = [None] * lacking
+        data = frame(
+            **{"class": rep(labels("%02d", seq_len(10)), 4)},
+            school=labels("S%02d", rep(seq_len(4), each=10)),
+            pupil=labels("P%03d", seq_len(40)),
+            y=y,
+        )
+        found = audit_both(
+            data,
+            "y ~ 1 + (1 | school) + (1 | class)",
+            declaration=declaration,
+            outcome_access="T1",
+            reason="Constant classes.",
+        )
+        for factor in ("class", "school"):
+            internal = finding_of(found["internal"], "outcome.constant_clusters", factor=factor)
+            assert written(internal, "contributors") >= 10
+            constant = finding_of(found["shareable"], "outcome.constant_clusters", factor=factor)
+            assert constant["status"]["availability"].get("detail") == "decision"
+        sizes = finding_of(found["shareable"], "structure.cluster_sizes", factor="school")
+        assert written(sizes, "levels") == 4
+        documents.append(found["shareable"]["findings"])
+    assert documents[0] == documents[1] == documents[2]
+
+
+def small_sample(
+    schools: int,
+    waves: int,
+    analysed: list[int],
+    observed: tuple[int, ...] = (1,),
+    constant: bool = False,
+) -> dict[str, Any]:
+    """Schools of two pupils with waves rows each, the outcome kept in the
+    waves observed of the schools analysed and, with constant True, the same
+    in every row of school s01."""
+    school = labels("s%02d", rep(seq_len(schools), each=2 * waves))
+    wave = rep(seq_len(waves), 2 * schools)
+    kept = labels("s%02d", analysed)
+    y: list[float | None] = [
+        (0.25 if constant and s == "s01" else (i * 5) % 13 + 0.25)
+        if w in observed and s in kept
+        else None
+        for i, (s, w) in enumerate(zip(school, wave, strict=True), start=1)
+    ]
+    data = frame(
+        y=y,
+        x=[(i * 7) % 11 + 0.5 for i in seq_len(len(school))],
+        school=school,
+        pupil=labels("p%02d", rep(seq_len(2 * schools), each=waves)),
+    )
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+    )
+    return audit_both(
+        data,
+        "y ~ x + (1 | school)",
+        declaration=declaration,
+        outcome_access="T1",
+        reason="Constant.",
+    )
+
+
+def test_a_t1_finding_below_the_minimum_count_with_fewer_than_k_rows_is_suppressed() -> None:
+    # 6 schools of 2 pupils, one row each, and the outcome of school s01
+    # alone. outcome.constant_clusters writes multi_row_levels 1 non_person,
+    # which shows two analysed pupils or more, and the 12 pupils of the design
+    # sample written beside it would show that rule 1 did not fire, so that
+    # the analysed pupils are at most 12 - 10 = 2, and 10 lack an outcome.
+    found = small_sample(6, 1, [1])
+    internal = finding_of(found["internal"], "outcome.constant_clusters", factor="school")
+    assert internal["statistics"]["multi_row_levels"]["count_class"] == "non_person"
+    shared = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
+    assert shared["status"]["availability"].get("detail") == "decision"
+    # Schools of 2, 2, 2, 2, 2 and 1 pupils, one row each, and a Poisson
+    # outcome for the first pupil alone. The 11 written rows of the design
+    # sample would leave the analysed rows of outcome.zero_shares, shown below
+    # k, the single value 1.
+    school = [*labels("s%02d", rep(seq_len(5), each=2)), "s06"]
+    data = frame(
+        count=[1, *([None] * 10)],
+        x=[(i * 7) % 11 + 0.5 for i in seq_len(11)],
+        school=school,
+        pupil=labels("p%02d", seq_len(11)),
+    )
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+    )
+    found = audit_both(
+        data,
+        "count ~ x + (1 | school)",
+        family="poisson",
+        declaration=declaration,
+        outcome_access="T1",
+        reason="Zeros.",
+    )
+    shared = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+    assert shared["status"]["availability"].get("detail") == "decision"
+    sizes = finding_of(found["shareable"], "structure.cluster_sizes", factor="school")
+    assert written(sizes, "rows") == 11
+
+
+def test_at_k_3_such_a_finding_is_suppressed_as_a_whole_whatever_its_rows(min_count: Any) -> None:
+    # 6 schools of 2 pupils with 4 waves, the outcome of waves 1 to 3 of
+    # school s01: 6 analysed rows of 2 pupils. The class non_person of
+    # multi_row_levels shows two analysed pupils or more, which beside
+    # contributors below 3 are 2, so at k = 3 the finding is suppressed. At
+    # k = 4, the contributors can be 2 or 3, and the finding is written with
+    # its 6 rows.
+    min_count(3)
+    shared = small_sample(6, 4, [1], (1, 2, 3))["shareable"]
+    constant = finding_of(shared, "outcome.constant_clusters", factor="school")
+    assert constant["status"]["availability"].get("detail") == "decision"
+    min_count(4)
+    shared = small_sample(6, 4, [1], (1, 2, 3))["shareable"]
+    constant = finding_of(shared, "outcome.constant_clusters", factor="school")
+    assert constant["status"]["availability"]["value"] == "available"
+    assert support_detail(constant, "distinct") == "min_count"
+    assert written(constant, "support_rows") == 6
+
+
+def test_constant_share_does_not_give_back_analysed_rows_below_an_odd_k(min_count: Any) -> None:
+    # 8 schools of 2 pupils with 2 waves, wave 1 of schools s01 to s04
+    # analysed, so 8 analysed rows, and the outcome of s01 constant. Its
+    # constant_share of 1/4 would make multi_row_levels a multiple of 4 and
+    # the analysed rows at least 8, which beside rows below 9 would be 8. The
+    # rows are below k, so the finding is suppressed.
+    min_count(9)
+    found = small_sample(8, 2, [1, 2, 3, 4], constant=True)
+    internal = finding_of(found["internal"], "outcome.constant_clusters", factor="school")
+    assert written(internal, "constant_share") == 0.25
+    constant = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
+    assert constant["status"]["availability"].get("detail") == "decision"
+
+
+def test_a_written_part_of_the_analysed_levels_of_a_non_person_item_is_suppressed() -> None:
+    # 10 subjects who each answer 5 of 10 items, item j alone in condition
+    # c_j, and an outcome constant within every item. The end of rule 1 hides
+    # the analysed items beside the 10 that kept gives, and constant_levels 10
+    # would show that none lacks every outcome. The second table answers
+    # items 1 to 9 with the same 50 analysed rows and adds item 10, which 5
+    # subjects answer without an outcome.
+    declaration = units(
+        unit("subject", "participant"),
+        unit("item", "item"),
+        observation={"key": ["subject", "item"]},
+    )
+
+    def make(lost: bool) -> dict[str, Any]:
+        modulus = 9 if lost else 10
+        pairs = [(s, (s - 1 + j) % modulus + 1) for s in range(1, 11) for j in range(5)]
+        if lost:
+            pairs += [(s, 10) for s in range(1, 6)]
+        data = frame(
+            subject=labels("s%02d", [s for s, _ in pairs]),
+            item=labels("i%02d", [j for _, j in pairs]),
+            cond=labels("c%02d", [j for _, j in pairs]),
+            y=[None if lost and j == 10 else j + 0.25 for _, j in pairs],
+        )
+        return audit_both(
+            data,
+            "y ~ cond + (1 | subject) + (1 | item)",
+            outcome_access="T1",
+            reason="Constant items.",
+            declaration=declaration,
+        )["shareable"]
+
+    first, second = make(False), make(True)
+    expect_same_reading(first, second)
+    constant = finding_of(first, "outcome.constant_clusters", factor="item")
+    assert detail(constant, "constant_levels") == "secondary"
+    assert detail(constant, "multi_row_levels") == "secondary"
+
+
+def test_events_and_non_events_are_suppressed_with_the_analysed_rows_of_a_bernoulli_outcome() -> (
+    None
+):
+    # 10 subjects crossed with 10 items, one row in each combination. Rule 3
+    # hides the analysed rows, which the product of the analysed levels would
+    # give, and events plus non_events would give them back, so that 60 and
+    # 40 would show that no outcome is missing. An item can be left one
+    # subject by losing 9 rows, so Decisions suppresses its findings as a
+    # whole.
+    declaration = units(
+        unit("subject", "participant"),
+        unit("item", "item"),
+        crossings=[{"units": ["subject", "item"]}],
+        observation={"key": ["subject", "item"]},
+        variables={"acc": {"role": "outcome", "measurement": "binary"}},
+    )
+
+    def make(lacking: int) -> dict[str, Any]:
+        item = rep(labels("i%02d", seq_len(10)), 10)
+        data = frame(
+            subject=labels("s%02d", rep(seq_len(10), each=10)),
+            item=item,
+            cond=["A" if value <= "i05" else "B" for value in item],
+            acc=[None if i <= lacking else int((i * 7) % 10 < 6) for i in seq_len(100)],
+        )
+        return audit_both(
+            data,
+            "acc ~ cond + (1 | subject) + (1 | item)",
+            outcome_access="T1",
+            reason="Accuracy.",
+            declaration=declaration,
+        )["shareable"]
+
+    first, second = make(0), make(1)
+    expect_same_reading(first, second)
+    minority = finding_of(first, "outcome.minority_events", factor="subject")
+    assert detail(minority, "events") == "secondary"
+    assert detail(minority, "non_events") == "secondary"
+    minority = finding_of(first, "outcome.minority_events", factor="item")
+    assert minority["status"]["availability"].get("detail") == "decision"
+
+
+def test_the_verdict_of_separation_stays_written_beside_events_hidden_with_the_rows() -> None:
+    # 12 subjects crossed with 15 items, one row in each combination, a binary
+    # accuracy and two predictors whose values differ between every two rows,
+    # in a T2 run. Rule 3 hides the analysed rows, so events and non_events,
+    # which add up to them, are suppressed with the detail 'secondary'. Both
+    # are 10 or more, and the first rule of the decision shows only that each
+    # is at least 1, so the verdict is written, with no outcome missing or 5.
+    declaration = units(
+        unit("subject", "participant"),
+        unit("item", "item"),
+        observation={"key": ["subject", "item"]},
+        variables={"acc": {"role": "outcome", "measurement": "binary"}},
+    )
+    n = 180
+    for lacking in (0, 5):
+        data = frame(
+            subject=labels("s%02d", rep(seq_len(12), each=15)),
+            item=rep(labels("i%02d", seq_len(15)), 12),
+            x1=[((i * 37) % 101) / 10 for i in seq_len(n)],
+            x2=[((i * 53) % 97) / 10 for i in seq_len(n)],
+            acc=[None if i <= lacking else int((i * 7919) % 13 < 7) for i in seq_len(n)],
+        )
+        found = audit_both(
+            data,
+            "acc ~ x1 + x2 + (1 | subject) + (1 | item)",
+            outcome_access="T2",
+            exploratory=True,
+            reason="Accuracy.",
+            declaration=declaration,
+        )
+        internal = finding_of(found["internal"], "outcome.separation")
+        assert min(written(internal, "events"), written(internal, "non_events")) >= 10
+        separation = finding_of(found["shareable"], "outcome.separation")
+        assert separation["status"]["availability"]["value"] == "available"
+        assert written(separation, "verdict") == written(internal, "verdict")
+        assert detail(separation, "events") == "secondary"
+        assert detail(separation, "non_events") == "secondary"
+
+
+def small_pupils(
+    pupils: int, analysed: int, family: str = "gaussian", formula: str = "y ~ x + (1 | school)"
+) -> dict[str, Any]:
+    """Schools of two pupils with two rows each, the outcome kept in the rows
+    of the first analysed pupils."""
+    number = rep(seq_len(pupils), each=2)
+    if family == "poisson":
+        values = rep_len([0.0, 1.0, 2.0, 3.0, 1.0, 4.0, 2.0], 2 * pupils)
+    else:
+        values = [round(math.sin(i) * 3, 2) + 0.001 for i in seq_len(2 * pupils)]
+    data = frame(
+        y=[value if p <= analysed else None for value, p in zip(values, number, strict=True)],
+        x=[(i * 7) % 11 + 0.5 for i in seq_len(2 * pupils)],
+        school=labels("s%02d", [(p + 1) // 2 for p in number]),
+        pupil=labels("p%02d", number),
+    )
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+    )
+    arguments: dict[str, Any] = {"family": "poisson"} if family == "poisson" else {}
+    return audit_both(
+        data,
+        formula,
+        declaration=declaration,
+        outcome_access="T1",
+        reason="Small samples.",
+        **arguments,
+    )
+
+
+def test_findings_below_the_minimum_count_with_contributors_bound_by_k_less_1_are_suppressed(
+    min_count: Any,
+) -> None:
+    # At k = 3, 2 analysed pupils of one school: the class non_person of the
+    # levels of outcome.zero_shares for school shows two analysed pupils or
+    # more, which beside contributors below 3 are 2. The findings on the
+    # analysis sample share its contributors, so outcome.zero_shares for
+    # pupil, whose counts are person counts, is suppressed too.
+    min_count(3)
+    shared = small_pupils(7, 2, "poisson", "y ~ x + (1 | school) + (1 | pupil)")["shareable"]
+    for factor in ("school", "pupil"):
+        zeros = finding_of(shared, "outcome.zero_shares", factor=factor)
+        assert zeros["status"]["availability"].get("detail") == "decision"
+    # At k = 4, 3 analysed pupils of two rows each: dominated false shows
+    # more than two contributors, which beside contributors below 4 are 3.
+    min_count(4)
+    found = small_pupils(7, 3, "poisson")
+    internal = finding_of(found["internal"], "outcome.zero_shares", factor="school")
+    assert internal["support"]["contributors"]["dominated"] is False
+    zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+    assert zeros["status"]["availability"].get("detail") == "decision"
+    # At k = 5, 4 analysed pupils in 2 schools: multi_row_levels 2 non_person
+    # of outcome.constant_clusters, with each pupil in one school, shows 4
+    # analysed pupils or more, which beside contributors below 5 are 4. At
+    # k = 6, they can be 4 or 5, and the finding is written with its 8 rows.
+    min_count(5)
+    found = small_pupils(10, 4)
+    internal = finding_of(found["internal"], "outcome.constant_clusters", factor="school")
+    assert written(internal, "multi_row_levels") == 2
+    constant = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
+    assert constant["status"]["availability"].get("detail") == "decision"
+    min_count(6)
+    shared = small_pupils(10, 4)["shareable"]
+    constant = finding_of(shared, "outcome.constant_clusters", factor="school")
+    assert constant["status"]["availability"]["value"] == "available"
+    assert support_detail(constant, "distinct") == "min_count"
+    assert written(constant, "support_rows") == 8
+
+
+def items_answered(answered: int, items: int, constant: int, varying: bool = True) -> pd.DataFrame:
+    """10 subjects who each answer a run of the items, item j alone in
+    condition c_j, and an outcome constant within the first items given."""
+    pairs = [(s, (s - 1 + j) % items + 1) for s in range(1, 11) for j in range(answered)]
+    return frame(
+        subject=labels("s%02d", [s for s, _ in pairs]),
+        item=labels("i%02d", [j for _, j in pairs]),
+        cond=labels("c%02d", [j for _, j in pairs]),
+        y=[j + 0.25 + (s * 0.01 if varying and j > constant else 0) for s, j in pairs],
+    )
+
+
+def test_a_part_of_0_of_the_hidden_analysed_levels_of_a_non_person_item_stays_written() -> None:
+    # 10 subjects who each answer 4 of 5 items, item j alone in condition c_j,
+    # and an outcome that varies within every item. The end of rule 1 hides
+    # the analysed items beside the 5 that kept gives, and the message
+    # none_constant shows constant_levels to be 0, which bounds nothing.
+    declaration = units(
+        unit("subject", "participant"),
+        unit("item", "item"),
+        observation={"key": ["subject", "item"]},
+    )
+    shared = audit_both(
+        items_answered(4, 5, 0),
+        "y ~ cond + (1 | subject) + (1 | item)",
+        outcome_access="T1",
+        reason="Constant items.",
+        declaration=declaration,
+    )["shareable"]
+    constant = finding_of(shared, "outcome.constant_clusters", factor="item")
+    assert constant["message"]["id"] == "none_constant"
+    assert written(constant, "constant_levels") == 0
+    assert detail(constant, "multi_row_levels") == "secondary"
+
+
+def test_a_part_of_the_hidden_analysed_levels_is_written_k_below_the_design_levels() -> None:
+    # 10 subjects who each answer 5 of 12 items, item j alone in condition
+    # c_j, and an outcome constant within the first 2 or 3 items. The end of
+    # rule 1 hides the 12 analysed items beside the 12 that kept gives.
+    # constant_levels 3 lies k - 1 below them and is suppressed, and 2 lies k
+    # below and is written.
+    declaration = units(
+        unit("subject", "participant"),
+        unit("item", "item"),
+        observation={"key": ["subject", "item"]},
+    )
+    for constant_items in (2, 3):
+        found = audit_both(
+            items_answered(5, 12, constant_items),
+            "y ~ cond + (1 | subject) + (1 | item)",
+            outcome_access="T1",
+            reason="Constant items.",
+            declaration=declaration,
+        )
+        internal = finding_of(found["internal"], "outcome.constant_clusters", factor="item")
+        assert written(internal, "constant_levels") == constant_items
+        assert written(internal, "multi_row_levels") == 12
+        shared = finding_of(found["shareable"], "outcome.constant_clusters", factor="item")
+        assert detail(shared, "multi_row_levels") == "secondary"
+        if constant_items == 3:
+            assert detail(shared, "constant_levels") == "secondary"
+        else:
+            assert written(shared, "constant_levels") == 2
+
+
+def test_the_rows_of_a_level_without_a_member_count_towards_its_loss_to_one_member() -> None:
+    # 10 class labels reused in 10 schools, one pupil of one row in each
+    # combination, and in every school a further row of class 01 without a
+    # pupil. A school holds 11 rows, and losing those of 9 pupils, fewer than
+    # k, leaves it one pupil and the row without one, so the findings for
+    # school are suppressed as a whole.
+    declaration = units(
+        unit("school", "cluster"),
+        unit("class", "cluster", nested_in="school", id_scope="within_parent"),
+        unit("pupil", "participant", nested_in="class", id_scope="global"),
+        observation={"unit": "pupil", "key": ["pupil"]},
+    )
+    data = frame(
+        **{"class": [*rep(labels("%02d", seq_len(10)), 10), *(["01"] * 10)]},
+        school=[*labels("S%02d", rep(seq_len(10), each=10)), *labels("S%02d", seq_len(10))],
+        pupil=[*labels("P%03d", seq_len(100)), *([None] * 10)],
+        y=[round(math.sin(i) * 3, 2) for i in seq_len(110)],
+    )
+    found = audit_both(
+        data,
+        "y ~ 1 + (1 | school) + (1 | class)",
+        declaration=declaration,
+        outcome_access="T1",
+        reason="Constant classes.",
+    )
+    internal = finding_of(found["internal"], "outcome.constant_clusters", factor="school")
+    assert written(internal, "contributors") >= 10
+    constant = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
+    assert constant["status"]["availability"].get("detail") == "decision"

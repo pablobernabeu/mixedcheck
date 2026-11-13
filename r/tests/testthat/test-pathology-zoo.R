@@ -26,7 +26,7 @@ test_that("the listing has the columns and types of every package", {
 
 test_that("a fixture has its elements in order, read with its declaration", {
   fixture <- pathology_zoo("Z01")
-  expect_named(fixture, c("id", "name", "title", "role", "matched", "tier", "data",
+  expect_named(fixture, c("id", "name", "title", "role", "matched", "tier", "data", "data_file",
                           "declaration", "formula", "arguments", "expected"))
   expect_identical(fixture[c("id", "name", "role", "matched", "tier")],
                    list(id = "Z01", name = "reused-class-labels", role = "fixture",
@@ -38,6 +38,8 @@ test_that("a fixture has its elements in order, read with its declaration", {
   directory <- system.file("fixtures", "zoo", "Z01-reused-class-labels", package = "mixedcheck")
   expect_identical(fixture$declaration,
                    validate_declaration(file.path(directory, "declaration.json")))
+  expect_identical(normalizePath(fixture$data_file), normalizePath(file.path(directory, "data.csv")))
+  expect_identical(read_table(fixture$data_file, fixture$declaration), fixture$data)
 })
 
 test_that("the data of every fixture have the types of its declared fields", {

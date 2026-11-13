@@ -24,7 +24,8 @@ integer, \code{deferred} logical and the others character.
 With an identifier, a named list with the elements \code{id}, \code{name},
 \code{title}, \code{role}, \code{matched} and \code{tier} as in the listing, \code{data}, the
 data read by \code{\link[=read_table]{read_table()}} with the declaration, a data frame with the
-attribute \code{types}, \code{declaration}, the declaration as
+attribute \code{types}, \code{data_file}, the path of the installed data file that
+\code{data} was read from, \code{declaration}, the declaration as
 \code{\link[=validate_declaration]{validate_declaration()}} returns it, \code{formula}, the formula as a
 character string, \code{arguments}, the further arguments of \code{\link[=audit]{audit()}} that
 the run of the fixture sets, as a named list with \code{outcome_access} and,

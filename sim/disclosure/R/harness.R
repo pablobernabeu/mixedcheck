@@ -170,9 +170,12 @@ dh_targets <- function(result) {
       derived <- if (whole) {
         # A count that a finding suppressed as a whole reads, such as the
         # events of outcome.separation, may be written by another finding
-        # on the same rows.
+        # on the same rows. The values are compared as JSON, since a
+        # written count is a double and an internal count can be an
+        # integer.
         any(vapply(shared[-i], function(other) {
-          identical(other$statistics[[name]]$value, f$values[[name]]) &&
+          !is.null(other$statistics[[name]]$value) &&
+            identical(dh_json(other$statistics[[name]]$value), dh_json(f$values[[name]])) &&
             identical(entries_sample(other$check), f$entry[["sample"]])
         }, NA))
       } else {
@@ -189,13 +192,24 @@ dh_targets <- function(result) {
           detail = detail, value = dh_json(f$values[[name]]), tier = f$tier, check = f$check,
           derived = derived)
     }
+    # both_classes of outcome.separation is whether events and non_events
+    # are both above 0 (its definition), so it is derived when both are.
+    if (whole && f$check == "outcome.separation") {
+      mine <- which(vapply(rows, function(r) identical(r$finding, id), NA))
+      member <- vapply(rows[mine], function(r) r$member, "")
+      given <- vapply(rows[mine], function(r) isTRUE(r$derived), NA)
+      if (all(c("events", "non_events") %in% member[given]) && "both_classes" %in% member) {
+        rows[[mine[member == "both_classes"]]]$derived <- TRUE
+      }
+    }
     for (member in c("rows", "distinct")) {
       given <- if (member == "rows") d$support$rows else d$support$contributors$distinct
       if (!whole && !is.null(given) && is.null(given$value)) {
         add(finding = id, member = paste0("support.", member), kind = "count", class = "person",
             detail = given$availability$detail,
             value = dh_json(f$support[[member]]), tier = f$tier, check = f$check,
-            derived = dh_written_elsewhere(measures, i, paste0("support.", member)))
+            derived = dh_written_elsewhere(measures, i, paste0("support.", member)) ||
+              (member == "rows" && dh_rows_from_events(result, f, f$support$rows)))
       }
     }
     if (whole) {
@@ -255,10 +269,11 @@ dh_neutralise <- function(x) {
 
 # A finding without the values that privacy.md (Decisions and Guarantees)
 # accepts to show: the statuses, messages, categories, booleans and names of
-# the T0 checks, whose message keeps only the numbers it renders, the
-# availability of a finding that is not available, the verdict of
-# outcome.separation and its suppression as a whole, the class of by_unit
-# counts and the boolean dominated.
+# the T0 checks and of outcome.separation, the availability of a finding
+# that is not available, the suppression as a whole of outcome.separation,
+# the class of by_unit counts and the boolean dominated. The message of
+# such a finding renders statistics that it writes beside it, and names,
+# whose digits it would otherwise add, so it is left out whole.
 dh_strict_finding <- function(finding, k) {
   base <- list(check = finding$check, scope = finding$scope, tier = finding$tier)
   availability <- finding$status$availability
@@ -295,9 +310,7 @@ dh_strict_finding <- function(finding, k) {
   support <- finding$support
   support$contributors$dominated <- NULL
   if (t0 || separation) {
-    numbers <- regmatches(finding$message$text,
-                          gregexpr("[0-9]+(\\.[0-9]+)?", finding$message$text))[[1L]]
-    return(c(base, list(message = sort(numbers), statistics = statistics, support = support)))
+    return(c(base, list(statistics = statistics, support = support)))
   }
   c(base, list(status = finding$status, message = finding$message, statistics = statistics,
                support = support))
@@ -458,4 +471,120 @@ dh_parameter_tier_issues <- function(family, grid, keys) {
 dh_written_elsewhere <- function(measures, i, member) {
   key <- measures$key[measures$finding == i & measures$member == member]
   length(key) == 1L && any(measures$written[measures$key == key])
+}
+
+# Whether the rows of the analysis sample, the support.rows of finding f,
+# equal events plus non_events that a finding of outcome.minority_events
+# writes on that sample for a bernoulli outcome, whose definitions add up to
+# the rows (registry, outcome.minority_events), as the interval audit reads
+# them (iv_written_point()). The difference from the design sample stays a
+# target of its own (dh_difference_targets()).
+dh_rows_from_events <- function(result, f, value) {
+  if (!identical(f$entry[["sample"]], "analysis") ||
+      !identical(result$run$family_class, "bernoulli")) {
+    return(FALSE)
+  }
+  any(vapply(result$document$findings, function(other) {
+    events <- other$statistics$events$value
+    non_events <- other$statistics$non_events$value
+    identical(other$check, "outcome.minority_events") && !is.null(events) &&
+      !is.null(non_events) && isTRUE(events + non_events == value)
+  }, NA))
+}
+
+# The differences between a quantity of the table or the design sample and
+# the same quantity of the analysis sample, which privacy.md (Tiers) makes
+# outcome-derived, as targets of tier A of attack (a): the rows, the
+# contributors and, for each grouping factor of the IR, the levels and the
+# levels with two rows or more. A difference is hidden unless the document
+# writes both quantities in counts that measure them (dh_measures()), and
+# the levels with two rows of an item whose counts resolve as non-person in
+# a sample are its levels there, so that a count of either measures both. A
+# design-structure count determined beside a written count of the analysis
+# sample determines the difference, which attack (a) would otherwise report
+# only as a design-structure value. A difference whose larger quantity is 0
+# is marked forced, since every table of the design gives it (privacy.md,
+# Guarantees).
+dh_difference_targets <- function(ns, result) {
+  run <- result$run
+  if (is.null(run$analysis)) {
+    return(NULL)
+  }
+  measures <- dh_measures(result$document)
+  written <- unique(measures$key[measures$written])
+  samples <- list(table = ns$sample_rows(run, "table"), design = run$design,
+                  analysis = run$analysis)
+  quantity <- function(rows) {
+    q <- list(rows = length(rows), contributors = ns$rows_support(run, rows)$distinct)
+    for (f in names(run$factors)) {
+      codes <- ns$value_codes(run, run$factors[[f]])
+      sizes <- tabulate(codes[rows])
+      person <- identical(ns$resolve_count_class(run, list(codes), rows), "person")
+      q[[paste("levels", f)]] <- list(value = sum(sizes > 0L), person = person)
+      q[[paste("levels_with_two_rows", f)]] <- list(value = sum(sizes >= 2L), person = person)
+    }
+    q
+  }
+  q <- lapply(samples, quantity)
+  # Without a disclosure unit and grouping factors the contributors have the
+  # basis rows and are the rows (documents.md, Support).
+  basis_rows <- is.null(run$disclosure) && !length(run$factors)
+  is_written <- function(s, name) {
+    if (paste(s, name) %in% written) {
+      return(TRUE)
+    }
+    if (basis_rows && name %in% c("rows", "contributors")) {
+      return(paste(s, setdiff(c("rows", "contributors"), name)) %in% written)
+    }
+    parts <- strsplit(name, " ", fixed = TRUE)[[1L]]
+    if (length(parts) == 2L && is.list(q[[s]][[name]]) && !q[[s]][[name]]$person) {
+      other <- if (parts[1L] == "levels") "levels_with_two_rows" else "levels"
+      return(paste(s, other, parts[2L]) %in% written)
+    }
+    FALSE
+  }
+  value <- function(x) if (is.list(x)) x$value else x
+  rows <- list()
+  # The table is the design sample when it holds the same rows, and one
+  # sample then gives back nothing that the other does not.
+  compared <- if (identical(samples$table, samples$design)) "design" else c("table", "design")
+  for (s in compared) {
+    for (name in names(q$analysis)) {
+      if (is_written(s, name) && is_written("analysis", name)) {
+        next
+      }
+      rows[[length(rows) + 1L]] <- data.frame(
+        finding = paste("D", s, "minus analysis"), member = name, kind = "count", class = "",
+        detail = "difference", value = dh_json(value(q[[s]][[name]]) - value(q$analysis[[name]])),
+        tier = "A", check = "difference", derived = FALSE,
+        forced = value(q[[s]][[name]]) == 0, stringsAsFactors = FALSE)
+    }
+  }
+  if (!length(rows)) NULL else do.call(rbind, rows)
+}
+
+# Whether each target of a table is a value that the design forces: the
+# statistics and status of a finding of outcome.constant_clusters whose
+# factor has no level of two rows in the design sample, which every outcome
+# column leaves at 0 and no_levels (privacy.md, Guarantees, the exception of
+# a value that every table of the design gives).
+dh_forced_targets <- function(ns, result, targets) {
+  run <- result$run
+  forced <- rep(FALSE, nrow(targets))
+  if (!nrow(targets) || is.null(run$analysis)) {
+    return(forced)
+  }
+  for (f in result$findings) {
+    if (!isTRUE(f$available) || f$check != "outcome.constant_clusters") {
+      next
+    }
+    codes <- ns$value_codes(run, ns$factor_keys(run, f$scope$factor))
+    if (any(tabulate(codes[run$design]) >= 2L)) {
+      next
+    }
+    forced <- forced | (targets$finding == dh_finding_id(f) &
+                          targets$member %in% c("multi_row_levels", "constant_levels",
+                                                "constant_share", "status"))
+  }
+  forced
 }

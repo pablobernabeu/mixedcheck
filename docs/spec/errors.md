@@ -206,7 +206,7 @@ The rules that defs.schema.json states in descriptions are checked with these co
 | E1406 | schema_pattern | a string does not have the required form |
 | E1407 | schema_too_short | a string is shorter than minLength |
 | E1408 | schema_too_long | a string is longer than maxLength |
-| E1409 | schema_minimum | a number is below minimum |
+| E1409 | schema_minimum | a number is below minimum, or min_count of spec/registry/registry.yaml is below 3 (registry.md, The compiler) |
 | E1410 | schema_maximum | a number is above maximum |
 | E1411 | schema_exclusive_minimum | a number is not above exclusiveMinimum |
 | E1412 | schema_exclusive_maximum | a number is not below exclusiveMaximum |

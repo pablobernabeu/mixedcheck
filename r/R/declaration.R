@@ -39,25 +39,21 @@
 #'   `pointer`, sorted by pointer, code and message and capped at 100.
 #' @export
 #' @examples
-#' declaration <- list(
-#'   vocabulary = "0.1.0",
-#'   units = list(list(name = "subject", columns = list("Subject"), role = "participant")),
-#'   variables = list(Reaction = list(role = "outcome", measurement = "positive_duration"))
-#' )
+#' # The declaration of fixture Z19N of the pathology zoo (pathology_zoo()):
+#' # pupils in schools, with a baseline score as a covariate.
+#' declaration <- pathology_zoo("Z19N")$declaration
 #' value <- validate_declaration(declaration)
 #' canonical_hash(value, "hashable")
 #'
+#' # A minimal declaration also states the estimands and an assigned variable.
+#' problem <- tryCatch(validate_declaration(declaration, minimal = TRUE),
+#'                     mixedcheck_error = function(e) e)
+#' vapply(problem$issues, function(issue) issue$code, "")
+#'
 #' # A unit nested in a unit that is not declared.
-#' declaration$units[[1]]$nested_in <- "school"
-#' declaration$units[[1]]$id_scope <- "within_parent"
+#' declaration$units[[2]]$nested_in <- "class"
 #' problem <- tryCatch(validate_declaration(declaration), mixedcheck_error = function(e) e)
 #' problem$issues[[1]]$message
-#'
-#' path <- tempfile(fileext = ".json")
-#' writeBin(charToRaw('{"vocabulary": "0.1.0", "goal": "confirmatory"}'), path)
-#' problem <- tryCatch(validate_declaration(path), mixedcheck_error = function(e) e)
-#' vapply(problem$issues, function(issue) issue$code, "")
-#' unlink(path)
 validate_declaration <- function(declaration, minimal = FALSE) {
   if (!is.logical(minimal) || length(minimal) != 1L || is.na(minimal)) {
     stop("'minimal' must be TRUE or FALSE.", call. = FALSE)

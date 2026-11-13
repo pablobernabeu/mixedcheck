@@ -120,22 +120,19 @@ def design_matrices(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, 
         ValueError: Data that do not hold the columns or levels of the IR.
 
     Examples:
-        >>> import pandas as pd
-        >>> data = pd.DataFrame(
-        ...     {
-        ...         "y": [1.5, 2.25, 3, 2.5, 4, 3.5],
-        ...         "cond": ["A", "B", "A", "B", "A", "B"],
-        ...         "subject": ["s1", "s1", "s2", "s2", "s3", "s3"],
-        ...     }
-        ... )
-        >>> ir = formula_ir("y ~ cond + (1 + cond | subject)", data=data)
-        >>> matrices = design_matrices(ir, data)
-        >>> matrices["x"].tolist()
-        [[1.0, 0.0], [1.0, 1.0], [1.0, 0.0], [1.0, 1.0], [1.0, 0.0], [1.0, 1.0]]
+        >>> # Fixture Z19N of the pathology zoo, in which 7 of the 60 pupils have
+        >>> # no baseline score and so lie outside the design sample.
+        >>> fixture = pathology_zoo("Z19N")
+        >>> ir = formula_ir(fixture["formula"], fixture["declaration"], fixture["data"])
+        >>> matrices = design_matrices(ir, fixture["data"])
+        >>> matrices["x_columns"], matrices["x"].shape
+        (['(Intercept)', 'group[2]', 'pre'], (53, 3))
+        >>> matrices["x"][:2].tolist()
+        [[1.0, 0.0, 51.9], [1.0, 0.0, 48.6]]
         >>> matrices["z_columns"]["level"].tolist()
-        ['s1', 's1', 's2', 's2', 's3', 's3']
-        >>> matrices["z"].toarray()[1].tolist()
-        [1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+        ['S1', 'S2', 'S3', 'S4', 'S5', 'S6']
+        >>> matrices["z"].shape
+        (53, 6)
     """
     import pandas as pd
 
@@ -271,12 +268,22 @@ def design_samples(ir: Mapping[str, Any], data: pandas.DataFrame) -> dict[str, A
         ValueError: Data that do not hold the columns or levels of the IR.
 
     Examples:
-        >>> import pandas as pd
-        >>> data = pd.DataFrame({"y": [1.5, None, 3, 2.5], "x": [1, 2, None, 4]}, dtype=object)
-        >>> ir = formula_ir("y ~ x", data=data)
+        >>> # Fixture Z19N of the pathology zoo, in which 7 of the 60 pupils have
+        >>> # no baseline score.
+        >>> fixture = pathology_zoo("Z19N")
+        >>> ir = formula_ir(fixture["formula"], fixture["declaration"], fixture["data"])
+        >>> samples = design_samples(ir, fixture["data"])
+        >>> len(samples["design_sample"]), len(samples["analysis_sample"])
+        (53, 53)
+        >>> fixture["data"]["pupil"].drop(samples["design_sample"]).tolist()
+        ['P02', 'P09', 'P13', 'P18', 'P24', 'P37', 'P46']
+        >>> # A pupil without an outcome stays in the design sample and leaves
+        >>> # the analysis sample.
+        >>> data = fixture["data"].copy()
+        >>> data.loc[0, "y"] = None
         >>> samples = design_samples(ir, data)
-        >>> samples["design_sample"].tolist(), samples["analysis_sample"].tolist()
-        ([0, 1, 3], [0, 3])
+        >>> len(samples["design_sample"]), len(samples["analysis_sample"])
+        (53, 52)
     """
     import pandas as pd
 

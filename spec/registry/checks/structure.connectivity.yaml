@@ -38,7 +38,8 @@ statistics:
       columns that the sequential rule keeps when it is applied to the
       fixed-effects columns, are constant within the crossed components with
       the parameter agreement, pooled over the components as registry.md
-      (Terms) pools over the levels of a grouping factor.
+      (Terms) pools over the levels of a grouping factor. A term none of
+      whose columns the sequential rule keeps is not listed.
   exact:
     kind: boolean
     definition: >-

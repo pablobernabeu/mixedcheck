@@ -68,7 +68,8 @@ def pathology_zoo(fixture: str | None = None) -> pandas.DataFrame | dict[str, An
         With an identifier, a dict with the keys ``id``, ``name``, ``title``,
         ``role``, ``matched`` and ``tier`` as in the listing, ``data``, the data
         read by :func:`read_table` with the declaration, a DataFrame of dtype
-        object, ``declaration``, the declaration as
+        object, ``data_file``, the path of the installed data file that
+        ``data`` was read from, as a str, ``declaration``, the declaration as
         :func:`validate_declaration` returns it, ``formula``, the formula as a
         str, ``arguments``, the further arguments of :func:`audit` that the
         run of the fixture sets, as a dict with ``outcome_access`` and, at the
@@ -205,6 +206,7 @@ def read_fixture(directory: Traversable | str | os.PathLike[str]) -> dict[str, A
         "matched": expected["matched"],
         "tier": run["outcome_access"],
         "data": data,
+        "data_file": str(directory / "data.csv"),
         "declaration": declaration,
         "formula": formula,
         "arguments": arguments,

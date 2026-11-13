@@ -140,6 +140,8 @@ class WrittenItem:
 def privacy_across(run: Run, findings: list[Finding], k: int) -> list[Finding]:
     """Step 7: the rules across findings, applied to the available findings of
     a run."""
+    import numpy as np
+
     if not any(finding.available for finding in findings):
         return findings
     samples: dict[str, Array] = {"table": sample_rows(run, "table"), "design": run.design}
@@ -183,8 +185,22 @@ def privacy_across(run: Run, findings: list[Finding], k: int) -> list[Finding]:
     marks = privacy_blank_marks(quantities)
     shown = False
     if "analysis" in samples:
+        holders = [
+            s
+            for s in samples
+            if s != "analysis" and bool(np.isin(samples["analysis"], samples[s]).all())
+        ]
         marks["analysis"] = privacy_analysis_marks(
-            available, available_samples, run, items, quantities, written, basis, k
+            available,
+            available_samples,
+            run,
+            items,
+            quantities,
+            written,
+            holders,
+            basis,
+            unit_item,
+            k,
         )
         for finding, s in zip(available, available_samples, strict=True):
             if s != "analysis":
@@ -369,7 +385,9 @@ def privacy_analysis_marks(
     items: list[Array],
     quantities: dict[str, SampleQuantities],
     written: list[WrittenItem],
+    holders: list[str],
     basis: str,
+    unit_item: int | None,
     k: int,
 ) -> SampleMarks:
     """The marks of the analysis sample: the clauses at the end of rule 1,
@@ -388,7 +406,21 @@ def privacy_analysis_marks(
     rows, or its contributors, when the other sample's exceed them by fewer
     than k and that bound exceeds them. The levels with two rows that the
     written levels and rows of the other sample bound from above are protected
-    by the sizes of the levels in privacy_lost()."""
+    by the sizes of the levels in privacy_lost(). With the basis
+    disclosure_unit, the contributors are the levels of the disclosure unit, at
+    ``unit_item``, which the analysis sample loses with them.
+
+    Each level of an item whose counts resolve as non-person in a sample holds
+    two members or more, so that the rows of the sample, and with the basis
+    disclosure_unit its contributors, are at least twice its levels, which the
+    analysed levels bound from below. ``holders`` names the samples that hold
+    the analysis sample's rows. Of their rows and contributors, those that
+    exceed the analysis sample's by k or more, which rule 1 does not hide
+    beside it, bound the levels that lose every outcome, and the analysis
+    sample loses its levels of such an item when the fewer of them exceeds
+    twice those levels by fewer than k, since they would then confine the
+    levels that lose every outcome to fewer than k / 2 values, a single one
+    when every level holds two members."""
     analysis = quantities["analysis"]
     marks = blank_sample_marks(analysis)
     for w in written:
@@ -412,6 +444,18 @@ def privacy_analysis_marks(
             and least > analysis.contributors
         ):
             marks.contributors = True
+    for s in holders:
+        other = quantities[s]
+        members = [other.rows] if other.rows - analysis.rows >= k else []
+        if basis == "disclosure_unit" and other.contributors - analysis.contributors >= k:
+            members.append(other.contributors)
+        if not members:
+            continue
+        for i, item in enumerate(other.items):
+            if not item.person and min(members) - 2 * analysis.items[i].levels < k:
+                marks.items[i]["levels"] = True
+    if marks.contributors and basis == "disclosure_unit" and unit_item is not None:
+        marks.items[unit_item]["levels"] = True
     quartiles: list[tuple[int | None, list[tuple[str, int]]]] = []
     for finding, sample in zip(findings, finding_samples, strict=True):
         if finding.check == "structure.cluster_sizes" and sample == "analysis":
@@ -421,9 +465,37 @@ def privacy_analysis_marks(
                     privacy_written_quantiles(finding),
                 )
             )
-    return privacy_rule_3(
-        analysis, quantities["design"], privacy_rule_2(analysis, marks, k), quartiles, k
-    )
+    design = quantities["design"]
+    marks = privacy_single_row_items(design, marks, basis, unit_item)
+    marks = privacy_rule_3(analysis, design, privacy_rule_2(analysis, marks, k), quartiles, k)
+    return privacy_rule_2(analysis, privacy_single_row_items(design, marks, basis, unit_item), k)
+
+
+def privacy_single_row_items(
+    design: SampleQuantities, marks: SampleMarks, basis: str, unit_item: int | None
+) -> SampleMarks:
+    """The levels of an item none of whose levels holds two rows of the design
+    sample are the analysis sample's rows whatever the outcome (rule 3 of
+    Across findings), and with the basis disclosure_unit, when the item is the
+    disclosure unit, its contributors too. So the analysis sample loses its
+    rows when it loses its levels of such an item, or the contributors that
+    count them, and it loses its levels of every such item, and the
+    contributors that count them, when it loses its rows."""
+    single = [
+        i
+        for i, item in enumerate(design.items)
+        if item.levels > 0 and item.levels_with_two_rows == 0
+    ]
+    if not single:
+        return marks
+    unit = basis == "disclosure_unit" and unit_item is not None and unit_item in single
+    if any(marks.items[i]["levels"] for i in single) or (unit and marks.contributors):
+        marks.rows = True
+    if marks.rows:
+        for i in single:
+            marks.items[i]["levels"] = True
+        marks.contributors = marks.contributors or unit
+    return marks
 
 
 def privacy_written_items(
@@ -445,17 +517,36 @@ def privacy_written_items(
     design.rank_deficiency and dimension of
     identifiability.levels_vs_dimension count, all of them non-person counts
     that no comparison with the analysis sample suppresses (rule 6 of Across
-    findings). When
-    structure.label_incidence finds two columns crossed in a sample, of which
-    one holds the analysis sample's rows, the levels of their combinations
-    there are the product of the levels of the two columns, which that sample
-    writes or the analysis sample's bound from below."""
+    findings). So does a fixed term on the rows of an assignment that hold the
+    analysis sample's rows or lie in them, whose columns design_df of
+    assignment.design_df counts there, and more generally a term of a count of
+    columns, marked term_levels, of a finding on a sample other than these
+    three. When structure.label_incidence finds two columns crossed in a
+    sample, of which one holds the analysis sample's rows, the levels of their
+    combinations there are the product of the levels of the two columns, which
+    that sample writes or the analysis sample's bound from below."""
     written: list[WrittenItem] = []
     if not any("analysis" in (c.larger, c.smaller) for c in comparisons):
         return written
+
+    def beside_analysis(sample: str) -> list[Comparison]:
+        """Every pair of compared samples of which one is the analysis sample
+        and the other the sample given."""
+        return [c for c in comparisons if {c.larger, c.smaller} == {sample, "analysis"}]
+
     for larger in ("design", "table"):
         for i in privacy_variable_items(run, items, samples[larger]):
             written.append(WrittenItem(i, larger, "analysis"))
+    for finding, sample in zip(findings, finding_samples, strict=True):
+        if sample in ("table", "design", "analysis"):
+            continue
+        defined = entry_statistics(finding)
+        if not any(defined[name].get("measures") == "term_levels" for name in finding.values):
+            continue
+        terms = privacy_finding_terms(run, finding)
+        for i in privacy_term_items(run, items, terms, samples[sample]):
+            for comparison in beside_analysis(sample):
+                written.append(WrittenItem(i, comparison.larger, comparison.smaller))
     for finding, sample in zip(findings, finding_samples, strict=True):
         if (
             finding.check != "structure.label_incidence"
@@ -466,9 +557,8 @@ def privacy_written_items(
         crossed = privacy_item_index(items, finding.items.get("combinations"))
         if crossed is None:
             continue
-        for comparison in comparisons:
-            if {comparison.larger, comparison.smaller} == {sample, "analysis"}:
-                written.append(WrittenItem(crossed, comparison.larger, comparison.smaller))
+        for comparison in beside_analysis(sample):
+            written.append(WrittenItem(crossed, comparison.larger, comparison.smaller))
     return written
 
 

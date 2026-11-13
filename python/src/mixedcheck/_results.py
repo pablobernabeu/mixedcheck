@@ -138,16 +138,13 @@ def write_results(
 
     Examples:
         >>> import os, tempfile
-        >>> import pandas as pd
-        >>> data = pd.DataFrame(
-        ...     {
-        ...         "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1],
-        ...         "x": [1, 2, 3, 4, 5, 6],
-        ...         "subject": ["s1", "s1", "s2", "s2", "s3", "s3"],
-        ...     }
-        ... )
+        >>> # Fixture Z01 of the pathology zoo in internal mode.
+        >>> fixture = pathology_zoo("Z01")
         >>> key = bytes(range(32)).hex()
-        >>> results = audit(data, "y ~ x + (1 | subject)", privacy="internal", key=key)
+        >>> results = audit(
+        ...     fixture["data"], fixture["formula"], fixture["declaration"], privacy="internal",
+        ...     key=key,
+        ... )
         >>> directory = tempfile.mkdtemp()
         >>> path = os.path.join(directory, "audit.internal.json")
         >>> sidecar = os.path.join(directory, "audit.sidecar.internal.json")

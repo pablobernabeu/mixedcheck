@@ -1,0 +1,76 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z10N Fully nested trial",
+  "table": {
+    "fields": [
+      {
+        "name": "participant",
+        "type": "string"
+      },
+      {
+        "name": "arm",
+        "type": "string",
+        "categories": [
+          "control",
+          "therapy"
+        ]
+      },
+      {
+        "name": "group",
+        "type": "string"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "group",
+      "columns": [
+        "group"
+      ],
+      "role": "cluster"
+    },
+    {
+      "name": "participant",
+      "columns": [
+        "participant"
+      ],
+      "nested_in": "group",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "participant",
+    "key": [
+      "participant"
+    ]
+  },
+  "assignment": [
+    {
+      "column": "arm",
+      "unit": "participant",
+      "randomised": true,
+      "level": "between_unit"
+    }
+  ],
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "arm": {
+      "role": "assigned"
+    }
+  },
+  "estimands": [
+    {
+      "id": "effect",
+      "term": "arm",
+      "kind": "total_effect"
+    }
+  ]
+}

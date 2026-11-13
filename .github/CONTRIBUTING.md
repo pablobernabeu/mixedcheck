@@ -16,7 +16,7 @@ repository with the design that governs them.
 | `spec/` | the shared specification and the vendoring script in `spec/tools/` |
 | `fixtures/` | the shared test fixtures |
 | `parity/` | the cross-language harness |
-| `sim/` | the disclosure-attack tests of the privacy filter and the validation studies to run on the HPC, never shipped |
+| `sim/` | the disclosure-attack tests of the privacy filter, the generators of the pathology zoo and the validation studies to run on the HPC, never shipped |
 | `paper/` | the JOSS paper |
 | `docs/` | the design documents in `docs/design/`, the specifications in `docs/spec/` and the provenance log |
 
@@ -87,8 +87,19 @@ _R_CHECK_CRAN_INCOMING_REMOTE_=false _R_CHECK_CRAN_INCOMING_SKIP_LARGE_VERSION_=
 
 The quick CI job sets the same two variables. They stop CRAN's incoming checks
 from reporting a new submission, the repository's URLs while it is private and
-the large component of the development version number. Without access to a time
-server, also set `_R_CHECK_SYSTEM_CLOCK_=false`.
+the large component of the development version number, and without them these
+checks report a NOTE. Without access to a time server, as in the cloud
+containers of the development sessions, also set `_R_CHECK_SYSTEM_CLOCK_=false`,
+or the check of future file timestamps reports a NOTE that it is unable to
+verify the current time. `_R_CHECK_CRAN_INCOMING_=false` in place of the two
+variables skips the incoming checks altogether, so that in such a container
+
+```bash
+_R_CHECK_CRAN_INCOMING_=false _R_CHECK_SYSTEM_CLOCK_=false \
+  R CMD check --as-cran --no-manual mixedcheck_*.tar.gz
+```
+
+gives Status: OK too.
 
 The Python package needs Python 3.11 or later. Install it with its test and
 typing groups, the second of which holds mypy and the stubs of pandas and scipy,
@@ -115,8 +126,8 @@ python3 -m unittest discover -s spec/tools -v
 ```
 
 The parity harness runs both packages over every case of the conformance
-corpora and reports every case in which they differ from each other or from
-the expected outcome. It needs the R package installed with yaml and the
+corpora and every directory of the pathology zoo and reports every case in
+which they differ from each other or from the expected outcome. It needs the R package installed with yaml and the
 Python package installed with its extra 'yaml', as
 [parity/README.md](../parity/README.md) describes:
 
@@ -131,6 +142,15 @@ hide. They need the R package installed with lpSolve, as
 
 ```bash
 Rscript sim/disclosure/run.R --cores 4
+```
+
+The stored instances of the pathology zoo in fixtures/zoo/ must be what their
+generators in sim/zoo/ write, as
+[sim/zoo/README.md](../sim/zoo/README.md) describes. The check needs base R
+only and changes nothing:
+
+```bash
+Rscript sim/zoo/regenerate.R --check
 ```
 
 Continuous integration runs these checks on every push to main and every pull

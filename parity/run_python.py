@@ -4,8 +4,9 @@ parity harness (parity/README.md).
 Usage: python run_python.py PLAN OUTPUT
 
 PLAN is the JSON file that parity.py writes, with the corpus directory, the
-corpus files to run with the kind of their cases and the vendored files of
-spec/ to read. OUTPUT receives one JSON object per line: first a header that
+corpus files to run with the kind of their cases, the identifiers of the
+directories of the pathology zoo and the vendored files of spec/ to read.
+OUTPUT receives one JSON object per line: first a header that
 describes the run, then one record for each case and part of a case, with the
 outcome that the package gave. Every string of an outcome is written as the
 lower-case hexadecimal digits of its UTF-8 bytes, so that run_r.R and this
@@ -534,6 +535,45 @@ def run_audit(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[s
     return outcomes
 
 
+# Directories of the pathology zoo.
+
+
+def run_zoo(fixture_id: str) -> dict[str, dict[str, Any]]:
+    """The run of a directory of the pathology zoo, read with pathology_zoo()
+    from the installed package, in internal and in shareable mode, each with
+    the commitment key 00 01 02 ... 1F and MIXEDCHECK_TIME set to 0: the
+    canonical bytes in the data profile of the document and of the sidecar,
+    or the issues of the error that refuses the run (fixtures/zoo/README.md)."""
+
+    def audit_in(privacy: str) -> Callable[[], dict[str, Any]]:
+        def run() -> dict[str, Any]:
+            fixture = mixedcheck.pathology_zoo(fixture_id)
+            previous = os.environ.get("MIXEDCHECK_TIME")
+            os.environ["MIXEDCHECK_TIME"] = "0"
+            try:
+                results = mixedcheck.audit(
+                    fixture["data"],
+                    fixture["formula"],
+                    fixture["declaration"],
+                    **fixture["arguments"],
+                    privacy=privacy,
+                    key=AUDIT_KEY,
+                )
+            finally:
+                if previous is None:
+                    del os.environ["MIXEDCHECK_TIME"]
+                else:
+                    os.environ["MIXEDCHECK_TIME"] = previous
+            return {
+                "document": canonical_bytes(results.document, "data"),
+                "sidecar": canonical_bytes(results.sidecar, "data"),
+            }
+
+        return run
+
+    return {privacy: outcome_of(audit_in(privacy)) for privacy in ("internal", "shareable")}
+
+
 # Cases of results/.
 
 
@@ -654,6 +694,9 @@ def main(argv: list[str]) -> int:
                     records.append(
                         {"file": name, "id": case["id"], "part": part, "outcome": outcome}
                     )
+        for fixture_id in plan.get("zoo", []):
+            for part, outcome in run_zoo(fixture_id).items():
+                records.append({"file": "zoo", "id": fixture_id, "part": part, "outcome": outcome})
         records.extend(run_artefacts(plan["artefacts"]))
     with open(argv[2], "w", encoding="ascii", newline="\n") as out:
         out.write(json.dumps(header, sort_keys=True) + "\n")

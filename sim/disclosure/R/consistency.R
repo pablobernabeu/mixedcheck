@@ -63,6 +63,59 @@ dh_quantile_shared <- function(ns, result, finding) {
   NA_integer_
 }
 
+# Whether no member of the disclosure unit lies in two levels of an item in
+# the table, as a function of the item's name in the interval audit, whose
+# parts joined by ':' are columns, declared units or the terms of a scope,
+# which are left out. Each level of an item whose counts resolve as
+# non-person then holds two contributors or more, which bounds the
+# contributors by twice the levels (iv_firing_bounds()). Members of crossed
+# subjects and items lie in several levels of the items, and the bound does
+# not hold.
+dh_members_within <- function(case, run) {
+  members <- run$disclosure$codes
+  if (is.null(members)) {
+    return(NULL)
+  }
+  units <- case$args$declaration$units
+  function(item) {
+    parts <- strsplit(item, ":", fixed = TRUE)[[1L]]
+    columns <- unlist(lapply(parts, function(part) {
+      if (part %in% names(case$data)) {
+        return(part)
+      }
+      unit <- Find(function(u) identical(u$name, part), units)
+      if (is.null(unit)) NULL else unlist(unit$columns)
+    }))
+    if (!length(columns) || !all(columns %in% names(case$data))) {
+      return(FALSE)
+    }
+    levels <- do.call(paste, c(lapply(case$data[unique(columns)], as.character), sep = "\r"))
+    keep <- !is.na(members)
+    all(tapply(levels[keep], members[keep], function(x) length(unique(x)) == 1L))
+  }
+}
+
+# The disclosure unit that the document names, as the interval audit models
+# it (iv_unit_relations()): the grouping factor whose columns are the
+# columns that the declaration gives the unit, or NULL, and whether the
+# observation key consists of those columns. NULL when the document names no
+# unit or the declaration does not declare it.
+dh_unit_shape <- function(case, document, shape) {
+  name <- document$privacy$disclosure_unit$name
+  declaration <- case$args$declaration
+  if (is.null(name) || is.null(declaration)) {
+    return(NULL)
+  }
+  unit <- Find(function(u) identical(u$name, name), declaration$units)
+  if (is.null(unit)) {
+    return(NULL)
+  }
+  columns <- unlist(unit$columns)
+  key <- unlist(declaration$observation$key)
+  list(factor = iv_shape_item(shape, columns),
+       key = length(key) > 0L && setequal(key, columns) && length(key) == length(columns))
+}
+
 # Audits every table of a family at the family's k and returns the grid
 # with, for each table, the two reductions of its document, its hidden
 # values and the issues of validation.
@@ -106,7 +159,10 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
       assign(full, TRUE, envir = audited)
       shared <- stats::setNames(as.list(targets$shared), paste0(targets$finding, " | ",
                                                                targets$member))
-      lp <- iv_audit(result$document, dh_capture$entries, iv_internal(result), shared)
+      shape <- iv_shape(result$run$ir)
+      shape$within <- dh_members_within(case, result$run)
+      shape$unit <- dh_unit_shape(case, result$document, shape)
+      lp <- iv_audit(result$document, dh_capture$entries, iv_internal(result), shared, shape)
     }
     list(full = full, strict = dh_reduce(document, strict = TRUE),
          targets = targets, issues = result$issues, lp = lp, design = design)

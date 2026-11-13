@@ -1,0 +1,69 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z26 Lagged outcome with person-mean centring and short series",
+  "features": [
+    "intensive_longitudinal"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "person",
+        "type": "string"
+      },
+      {
+        "name": "t",
+        "type": "integer"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      },
+      {
+        "name": "y_lag",
+        "type": "number"
+      },
+      {
+        "name": "y_lag_pc",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "person",
+      "columns": [
+        "person"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "person",
+      "t"
+    ],
+    "time": {
+      "column": "t",
+      "kind": "occasion",
+      "within": "person"
+    }
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "y_lag": {
+      "role": "outcome_derived",
+      "derived_from": [
+        "y"
+      ]
+    },
+    "y_lag_pc": {
+      "role": "outcome_derived",
+      "derived_from": [
+        "y_lag"
+      ]
+    }
+  }
+}

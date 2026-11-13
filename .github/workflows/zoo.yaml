@@ -1,0 +1,86 @@
+# Checks that every stored file of the pathology zoo (fixtures/zoo/) is what
+# its seeded generator in sim/zoo/ writes, byte for byte apart from the last
+# digits of the reals of expected.json, under LC_ALL=C.UTF-8 and under
+# LC_ALL=C (sim/zoo/README.md), with the matrix products of the BLAS and with
+# those of R itself, and that the script refuses an option it does not know.
+# It runs on every push to main and every pull request that touches the
+# generators, the stored files or this workflow, when started by hand and
+# nightly once the repository is public, so that a change of R's random
+# number generator or arithmetic shows.
+name: zoo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sim/zoo/**'
+      - 'fixtures/zoo/**'
+      - '.github/workflows/zoo.yaml'
+  pull_request:
+    paths:
+      - 'sim/zoo/**'
+      - 'fixtures/zoo/**'
+      - '.github/workflows/zoo.yaml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Scheduled runs are paid for while the repository is private. The payload
+  # of a scheduled event may lack the repository object, and this job then
+  # reads the visibility from the API, as in R-CMD-check.yaml.
+  visibility:
+    name: Repository visibility
+    if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      public: ${{ steps.read.outputs.public }}
+    steps:
+      - id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "public=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.private | not')" >> "$GITHUB_OUTPUT"
+
+  regeneration:
+    name: Regeneration check
+    needs: visibility
+    if: >-
+      !cancelled() && (github.event_name != 'schedule' ||
+      toJSON(github.event.repository.private) == 'false' ||
+      needs.visibility.outputs.public == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The generators use base R only, so no package is installed.
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: 'release'
+      - name: Check the stored files under LC_ALL=C.UTF-8
+        env:
+          LC_ALL: C.UTF-8
+        run: Rscript sim/zoo/regenerate.R --check
+      - name: Check the stored files under LC_ALL=C
+        env:
+          LC_ALL: C
+        run: Rscript sim/zoo/regenerate.R --check
+      - name: Check the stored files with R's own matrix products
+        run: |
+          echo 'options(matprod = "internal")' > "$RUNNER_TEMP/matprod.Rprofile"
+          R_PROFILE_USER="$RUNNER_TEMP/matprod.Rprofile" Rscript sim/zoo/regenerate.R --check
+      - name: Refuse an option that the script does not know
+        run: |
+          if Rscript sim/zoo/regenerate.R --chek; then
+            echo "regenerate.R accepted --chek"
+            exit 1
+          fi

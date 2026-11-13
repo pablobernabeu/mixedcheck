@@ -1,6 +1,8 @@
 # Checks that the shared artefacts vendored into both packages match their
 # sources byte for byte (02-decisions.md, Q7) and that the compiled registry
-# matches its YAML sources, and tests the scripts in spec/tools/.
+# matches its YAML sources, and tests the scripts in spec/tools/. Their test
+# of the pathology zoo also reads the unit tests of the checks in both
+# packages, which assert the findings that only unit tests reach.
 name: vendoring
 
 on:
@@ -19,6 +21,8 @@ on:
       - 'python/src/mixedcheck/_fixtures/**'
       - 'r/tests/conformance/**'
       - 'python/tests/conformance/**'
+      - 'r/tests/testthat/test-checks-*.R'
+      - 'python/tests/test_checks_*.py'
       - 'parity/corpora.json'
       - 'docs/design/evidence/decisions/E-verify/edgezoo/**'
       - '.github/workflows/vendoring.yaml'
@@ -36,6 +40,8 @@ on:
       - 'python/src/mixedcheck/_fixtures/**'
       - 'r/tests/conformance/**'
       - 'python/tests/conformance/**'
+      - 'r/tests/testthat/test-checks-*.R'
+      - 'python/tests/test_checks_*.py'
       - 'parity/corpora.json'
       - 'docs/design/evidence/decisions/E-verify/edgezoo/**'
       - '.github/workflows/vendoring.yaml'

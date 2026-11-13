@@ -38,6 +38,10 @@ matrices, run the audits and write and validate their results:
 - `validate_results()` validates a results document and verifies its internal
   sidecar against it, and `write_results()` writes a results document and its
   sidecar.
+- `pathology_zoo()` lists the fixtures of the pathology zoo, small simulated
+  data sets installed with the package, each of which plants one problem of
+  a study design, and returns one fixture with its data, declaration,
+  formula and the findings that `audit()` is expected to give.
 
 The functions that both packages provide have the same names and arguments.
 `design_matrices()` and `design_samples()` number rows, and
@@ -45,11 +49,13 @@ The functions that both packages provide have the same names and arguments.
 indices inside the IR count from 0 in both, and a missing value is `NA` in R
 and `None` in Python. The tests run every case of the JSON, number, Unicode,
 hash, HMAC, declaration, YAML, table, formula, results and audit corpora,
-with the cases of the privacy filter in both modes. The
+with the cases of the privacy filter in both modes, and audit every fixture
+of the pathology zoo in both modes. The
 [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
 of the repository checks that both packages agree on every case of the
-corpora, and its differential test that they agree on the tables of the
-disclosure-attack harness and on generated designs in both modes.
+corpora and the pathology zoo, and its differential test that they agree on
+the tables of the disclosure-attack harness, on generated designs and on the
+zoo in both modes.
 
 ``` r
 library(mixedcheck)
@@ -65,7 +71,9 @@ data <- read_table(path)
 ir <- formula_ir("rt ~ cond", data = data)
 canonical_hash(ir, "hashable")
 design_matrices(ir, data)$x
-audit(data, "rt ~ cond")
+pathology_zoo()
+fixture <- pathology_zoo("Z08")
+do.call(audit, c(list(fixture$data, fixture$formula, fixture$declaration), fixture$arguments))
 ```
 
 It needs R 4.2.0 or later. To install it from a clone of the repository:

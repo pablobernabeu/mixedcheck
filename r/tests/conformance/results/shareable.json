@@ -232,7 +232,7 @@
         "issues": [
           {
             "code": "E7024",
-            "message": "The ratio at /findings/0/statistics/floor_share/value must be suppressed in a shareable document, because a person count behind it is suppressed or below the minimum count.",
+            "message": "The ratio at /findings/0/statistics/floor_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
             "pointer": "/findings/0/statistics/floor_share/value"
           }
         ]
@@ -246,7 +246,7 @@
         "issues": [
           {
             "code": "E7024",
-            "message": "The ratio at /findings/0/statistics/zero_share/value must be suppressed in a shareable document, because a person count behind it is suppressed or below the minimum count.",
+            "message": "The ratio at /findings/0/statistics/zero_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
             "pointer": "/findings/0/statistics/zero_share/value"
           }
         ]
@@ -254,10 +254,16 @@
     },
     {
       "id": "results-shareable-013",
-      "description": "constant_share written while its denominator, a non-person count, is suppressed: E7024 concerns person counts only, so no issue.",
+      "description": "constant_share written while its denominator, a non-person count, is suppressed: E7024, since the ratio and its written numerator would give back the suppressed count whatever its class.",
       "document": "shareable/013.json",
       "expected": {
-        "issues": []
+        "issues": [
+          {
+            "code": "E7024",
+            "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
+            "pointer": "/findings/0/statistics/constant_share/value"
+          }
+        ]
       }
     },
     {
@@ -312,7 +318,7 @@
         "issues": [
           {
             "code": "E7024",
-            "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a person count behind it is suppressed or below the minimum count.",
+            "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
             "pointer": "/findings/0/statistics/constant_share/value"
           }
         ]

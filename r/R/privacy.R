@@ -151,8 +151,11 @@ privacy_quantile_hidden <- function(finding, name, k) {
   is.null(n) || !quantile_shown(n, quantile[["p"]], k)
 }
 
-# Step 5: a ratio whose numerator or denominator is a person count that is
-# suppressed or below k.
+# Step 5: a ratio whose numerator or denominator is suppressed, whatever its
+# class, or is a person count below k. A non-person count that a rule across
+# findings suppresses would otherwise follow from the ratio and the other
+# count, as multi_row_levels of outcome.constant_clusters follows from
+# constant_levels and constant_share.
 privacy_ratios <- function(finding, k) {
   defined <- finding$entry[["statistics"]]
   names <- Filter(function(name) {
@@ -162,8 +165,8 @@ privacy_ratios <- function(finding, k) {
     }
     parts <- c(statistic[["numerator"]], statistic[["denominator"]])
     any(vapply(parts, function(part) {
-      privacy_person(finding, part) &&
-        (part %in% names(finding$suppressed) || finding$values[[part]] < k)
+      part %in% names(finding$suppressed) ||
+        (privacy_person(finding, part) && finding$values[[part]] < k)
     }, NA))
   }, names(finding$values))
   privacy_suppress(finding, names, "ratio")

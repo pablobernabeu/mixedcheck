@@ -1,0 +1,80 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z19 Sentinel codes and labelled values",
+  "table": {
+    "fields": [
+      {
+        "name": "school",
+        "type": "string"
+      },
+      {
+        "name": "pupil",
+        "type": "string"
+      },
+      {
+        "name": "group",
+        "type": "integer",
+        "categories": [
+          {
+            "value": 1,
+            "label": "control"
+          },
+          {
+            "value": 2,
+            "label": "tutoring"
+          }
+        ]
+      },
+      {
+        "name": "pre",
+        "type": "number",
+        "missingValues": [
+          {
+            "value": ""
+          },
+          {
+            "value": "-99",
+            "label": "not tested"
+          }
+        ]
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "school",
+      "columns": [
+        "school"
+      ],
+      "role": "cluster"
+    },
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "nested_in": "school",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "pupil",
+    "key": [
+      "pupil"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "pre": {
+      "role": "baseline_covariate"
+    }
+  }
+}

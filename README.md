@@ -21,7 +21,7 @@ A pair of packages, one for R and one for Python, for auditing designs before fi
 | [spec/](spec/README.md) | the shared specification, with the script that vendors it into both packages |
 | [fixtures/](fixtures/README.md) | the shared test fixtures |
 | [parity/](parity/README.md) | the cross-language harness |
-| [sim/](sim/README.md) | the disclosure-attack tests of the privacy filter and the validation studies to run on the HPC |
+| [sim/](sim/README.md) | the disclosure-attack tests of the privacy filter, the generators of the pathology zoo and the validation studies to run on the HPC |
 | [paper/](paper/README.md) | the JOSS paper |
 | docs/ | the design documents in docs/design/, the specifications in docs/spec/ and the provenance log |
 

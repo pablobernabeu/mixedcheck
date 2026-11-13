@@ -1,0 +1,77 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z15 Reference level emptied by listwise deletion",
+  "table": {
+    "fields": [
+      {
+        "name": "clinic",
+        "type": "string"
+      },
+      {
+        "name": "patient",
+        "type": "string"
+      },
+      {
+        "name": "dose",
+        "type": "string",
+        "categories": [
+          "placebo",
+          "low",
+          "high"
+        ]
+      },
+      {
+        "name": "adherence",
+        "type": "number"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "clinic",
+      "columns": [
+        "clinic"
+      ],
+      "role": "site"
+    },
+    {
+      "name": "patient",
+      "columns": [
+        "patient"
+      ],
+      "nested_in": "clinic",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "patient",
+    "key": [
+      "patient"
+    ]
+  },
+  "assignment": [
+    {
+      "column": "dose",
+      "unit": "patient",
+      "randomised": true,
+      "level": "between_unit"
+    }
+  ],
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "dose": {
+      "role": "assigned"
+    },
+    "adherence": {
+      "role": "post_assignment_covariate"
+    }
+  }
+}

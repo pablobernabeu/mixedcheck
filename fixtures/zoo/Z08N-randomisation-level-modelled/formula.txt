@@ -1,0 +1,1 @@
+y ~ arm + school + (1 | class)

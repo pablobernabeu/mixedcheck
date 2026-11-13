@@ -4,8 +4,9 @@
 # Usage: Rscript run_r.R PLAN OUTPUT RUN
 #
 # PLAN is the JSON file that parity.py writes, with the corpus directory, the
-# corpus files to run with the kind of their cases and the vendored files of
-# spec/ to read. OUTPUT receives one JSON object per line: first a header that
+# corpus files to run with the kind of their cases, the identifiers of the
+# directories of the pathology zoo and the vendored files of spec/ to read.
+# OUTPUT receives one JSON object per line: first a header that
 # describes the run, named RUN, then one record for each case and part of a
 # case, with the outcome that the package gave. Every string of an outcome is
 # written as the lower-case hexadecimal digits of its bytes, so that
@@ -535,6 +536,35 @@ run_audit <- function(case, context) {
   outcomes
 }
 
+# Directories of the pathology zoo ----------------------------------------
+
+# The run of a directory of the pathology zoo, read with pathology_zoo() from
+# the installed package, in internal and in shareable mode, each with the
+# commitment key 00 01 02 ... 1F and MIXEDCHECK_TIME set to 0: the canonical
+# bytes in the data profile of the document and of the sidecar, or the issues
+# of the error that refuses the run (fixtures/zoo/README.md).
+run_zoo <- function(id) {
+  audit_in <- function(privacy) {
+    function() {
+      fixture <- pathology_zoo(id)
+      args <- c(list(fixture$data, fixture$formula, fixture$declaration), fixture$arguments,
+                list(privacy = privacy, key = audit_key))
+      previous <- Sys.getenv("MIXEDCHECK_TIME", NA_character_)
+      Sys.setenv(MIXEDCHECK_TIME = "0")
+      on.exit(if (is.na(previous)) {
+        Sys.unsetenv("MIXEDCHECK_TIME")
+      } else {
+        Sys.setenv(MIXEDCHECK_TIME = previous)
+      })
+      results <- do.call(audit, args)
+      list(document = canonical_bytes(results$document, "data"),
+           sidecar = canonical_bytes(results$sidecar, "data"))
+    }
+  }
+  list(internal = outcome_of(audit_in("internal")),
+       shareable = outcome_of(audit_in("shareable")))
+}
+
 # Cases of results/ -------------------------------------------------------
 
 # The document alone and, for a case with a sidecar, the document with its
@@ -635,6 +665,13 @@ main <- function(args) {
         lines <- c(lines, to_json(list(file = name, id = case[["id"]],
                                        part = part, outcome = outcomes[[part]])))
       }
+    }
+  }
+  for (id in unlist(plan$zoo)) {
+    outcomes <- run_zoo(id)
+    for (part in names(outcomes)) {
+      lines <- c(lines, to_json(list(file = "zoo", id = id, part = part,
+                                     outcome = outcomes[[part]])))
     }
   }
   for (record in run_artefacts(unlist(plan$artefacts))) {

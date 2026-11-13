@@ -2,7 +2,8 @@
 # Runs the attacks with the filter as it is, then with each mutant of
 # R/mutants.R in turn, and reports which attacks detect each mutant: an
 # attack detects a mutant when it reports a leak that it does not report
-# without the mutant.
+# without the mutant, and attack (b) also when a document breaks a relation
+# of its model that no document breaks without the mutant.
 #
 #   Rscript sim/disclosure/mutate.R [--lib DIR] [--cores N] [--mutants ID,...]
 #     [--families NAME,...] [--baseline FILE] [--out FILE] [--first]
@@ -54,17 +55,24 @@ if (!is.null(families)) {
 }
 # The leaks of attacks (a) and (b) on a family, with the documents of the
 # family that validation refuses as leaks of attack (v), since every
-# shareable document must meet the invariants of documents.md.
+# shareable document must meet the invariants of documents.md, and the
+# documents whose written values break a relation of the model of attack
+# (b) as leaks of (b): the bounds that a rule implies when it does not fire
+# hold of every document of the filter, so that a mutant that disables the
+# rule can make the model exclude a value of the document, which then hides
+# the leak that the mutant opens.
 family_leaks <- function(family) {
   result <- dh_family_attacks(ns, family, c("a", "b"), cores = cores, widen = 0L)
+  found <- function(attack, errors, target) {
+    data.frame(attack = rep(attack, length(errors)), where = rep(family$name, length(errors)),
+               target = target, value = rep("", length(errors)),
+               reproducer = rep("", length(errors)), key = rep("", length(errors)),
+               stringsAsFactors = FALSE)
+  }
   refused <- grep("fails validation", result$errors, value = TRUE)
-  rbind(result$leaks, data.frame(attack = rep("v", length(refused)),
-                                 where = rep(family$name, length(refused)),
-                                 target = sub(".*validation: ", "", refused),
-                                 value = rep("", length(refused)),
-                                 reproducer = rep("", length(refused)),
-                                 key = rep("", length(refused)),
-                                 stringsAsFactors = FALSE))
+  excluded <- grep("the interval audit excludes", result$errors, value = TRUE)
+  rbind(result$leaks, found("v", refused, sub(".*validation: ", "", refused)),
+        found("b", excluded, sub("^.*the interval audit excludes the value \\S+ of ", "", excluded)))
 }
 other_leaks <- function() {
   dh_run_attacks(ns, root, attacks = c("c", "v"))$leaks

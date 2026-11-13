@@ -1,0 +1,58 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z14 Rank-deficient fixed effects from an empty cell",
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "A",
+        "type": "string",
+        "categories": [
+          "a1",
+          "a2",
+          "a3"
+        ]
+      },
+      {
+        "name": "B",
+        "type": "string",
+        "categories": [
+          "b1",
+          "b2"
+        ]
+      },
+      {
+        "name": "trial",
+        "type": "integer"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "trial"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

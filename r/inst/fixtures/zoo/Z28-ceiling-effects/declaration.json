@@ -1,0 +1,56 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z28 Ceiling effects in child scores",
+  "features": [
+    "longitudinal"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "child",
+        "type": "string"
+      },
+      {
+        "name": "wave",
+        "type": "integer"
+      },
+      {
+        "name": "score",
+        "type": "integer"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "child",
+      "columns": [
+        "child"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "child",
+      "wave"
+    ],
+    "time": {
+      "column": "wave",
+      "kind": "occasion",
+      "within": "child"
+    }
+  },
+  "variables": {
+    "score": {
+      "role": "outcome",
+      "measurement": "bounded_score",
+      "bounds": [
+        0,
+        40
+      ]
+    },
+    "wave": {
+      "role": "time"
+    }
+  }
+}

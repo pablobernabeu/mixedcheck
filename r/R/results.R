@@ -101,19 +101,18 @@ print.mixedcheck_results <- function(x, ...) {
 #' @family results documents
 #' @export
 #' @examples
-#' data <- data.frame(
-#'   y = c(2.1, 3.4, 1.8, 2.9, 3.3, 4.1),
-#'   x = c(1, 2, 3, 4, 5, 6),
-#'   subject = c("s1", "s1", "s2", "s2", "s3", "s3")
-#' )
+#' # Fixture Z01 of the pathology zoo (pathology_zoo()) in internal mode.
+#' fixture <- pathology_zoo("Z01")
 #' key <- paste(sprintf("%02x", 0:31), collapse = "")
-#' results <- audit(data, "y ~ x + (1 | subject)", privacy = "internal", key = key)
+#' results <- audit(fixture$data, fixture$formula, fixture$declaration, privacy = "internal",
+#'                  key = key)
 #'
 #' # An internal document is written to a file whose name says so.
 #' path <- file.path(tempdir(), "audit.internal.json")
 #' sidecar <- file.path(tempdir(), "audit.sidecar.internal.json")
 #' write_results(results, path, sidecar)
-#' validate_results(path, sidecar, data = data)$privacy$mode
+#' validate_results(path, sidecar, data = fixture$data,
+#'                  declaration = fixture$declaration)$privacy$mode
 #'
 #' # An internal document cannot be written to a file named as shareable.
 #' problem <- tryCatch(write_results(results, file.path(tempdir(), "audit.json"), sidecar),

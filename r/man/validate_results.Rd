@@ -72,42 +72,31 @@ ordinary error.
 }
 
 \examples{
-# A shareable document of a run without findings.
-registry <- system.file("spec", "compiled", "registry.json", package = "mixedcheck")
-document <- list(
-  results_version = "0.1.0",
-  created = "2026-11-08T09:06:00Z",
-  stream = "B",
-  versions = c(list(package = "0.1.0"), spec_versions()),
-  software = list(language = "R", runtime = "4.3.3",
-                  unicode = list(library = "utf8", version = "1.2.4")),
-  privacy = list(mode = "shareable", min_count = 10,
-                 dominance = list(contributors = 2, share = "0.9"),
-                 rounding_base = 5, zeros_disclosive = TRUE),
-  inputs = list(registry_hash = hash_file(registry)),
-  access_log = list(entries = list(
-    list(tier = "T0", time = "2026-11-08T09:05:00Z", mode = "outcome_blind")
-  )),
-  findings = list()
-)
-value <- validate_results(document)
+# The shareable document of an audit of fixture Z01 of the pathology zoo
+# (pathology_zoo()), validated with its sidecar, data and declaration.
+fixture <- pathology_zoo("Z01")
+key <- paste(sprintf("\%02x", 0:31), collapse = "")
+results <- audit(fixture$data, fixture$formula, fixture$declaration, key = key)
+path <- file.path(tempdir(), "audit.json")
+sidecar <- file.path(tempdir(), "audit.sidecar.internal.json")
+write_results(results, path, sidecar)
+value <- validate_results(path, sidecar, data = fixture$data,
+                          declaration = fixture$declaration)
 value$privacy$mode
 
 # A document of another registry: its findings are not compared with
 # registry entries, and a warning says so.
+document <- read_json_strict(path, "data")
 other <- document
 other$inputs$registry_hash <- paste0("sha256:", strrep("0", 64))
 found <- tryCatch(validate_results(other), mixedcheck_warning = function(w) w)
 found$issues[[1]]$code
 
 # A finding of a check that the registry does not have.
-document$findings <- list(list(
-  check = "structure.no_such_check", check_version = 1, tier = "T0",
-  scope = setNames(list(), character(0)),
-  status = list(availability = list(value = "not_available", reason = "too_large"))
-))
+document$findings[[length(document$findings)]]$check <- "structure.no_such_check"
 problem <- tryCatch(validate_results(document), mixedcheck_error = function(e) e)
 problem$issues[[1]]$message
+unlink(c(path, sidecar))
 }
 \seealso{
 Other results documents: 

@@ -426,8 +426,9 @@ class AuditCorpusTestCase(unittest.TestCase):
                 defined = entry["statistics"][name]
                 for part in (defined["numerator"], defined["denominator"]):
                     other = statistics.get(part)
-                    if other is not None and other.get("count_class") == "person":
+                    if other is not None:
                         self.assertIsNotNone(other["value"], f"E7024 at {name}")
+                    if other is not None and other.get("count_class") == "person":
                         self.assertGreaterEqual(other["value"], k, f"E7024 at {name}")
 
     def test_checks_of_findings_work(self) -> None:

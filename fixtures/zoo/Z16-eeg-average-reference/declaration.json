@@ -1,0 +1,83 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z16 Average-referenced EEG with channel rows",
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "trial",
+        "type": "integer"
+      },
+      {
+        "name": "channel",
+        "type": "string"
+      },
+      {
+        "name": "cond",
+        "type": "string",
+        "categories": [
+          "standard",
+          "deviant"
+        ]
+      },
+      {
+        "name": "amp",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    },
+    {
+      "name": "trial",
+      "columns": [
+        "trial"
+      ],
+      "nested_in": "subject",
+      "id_scope": "within_parent",
+      "role": "trial"
+    },
+    {
+      "name": "channel",
+      "columns": [
+        "channel"
+      ],
+      "role": "channel"
+    }
+  ],
+  "crossings": [
+    {
+      "units": [
+        "subject",
+        "channel"
+      ]
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "trial",
+      "channel"
+    ],
+    "time": {
+      "column": "trial",
+      "kind": "trial_index",
+      "within": "subject"
+    }
+  },
+  "variables": {
+    "amp": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

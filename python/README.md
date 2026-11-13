@@ -13,8 +13,9 @@ The package is in development and has not been released. So far it provides `mix
 - `formula_ir()` parses an lme4-style formula and builds the canonical IR of the model, whose `canonical_hash()` is its IR hash, and `design_matrices()` builds its design and analysis samples, X, the sparse Z as a `scipy.sparse.csc_array` and the response, trials, offset and weight vectors. `design_samples()` returns the two samples alone.
 - `audit()` runs the checks of the registry on the design of a model in the 14 steps of the [execution plan](https://github.com/pablobernabeu/lmecheck/blob/main/docs/design/03-execution-plan.md) (M2) and returns a `Results` object, whose printed form shows the banner of its privacy mode and one line for each finding, with the results document and its internal sidecar. `write_results()` writes the document as its canonical bytes and the sidecar, which holds the commitment key, under file names that show which file may be shared. Shareable mode, the default, passes the findings through the [privacy filter](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md), which suppresses the values that could disclose a person's data and replaces labels by pseudonyms, which the sidecar maps back to them. Internal mode writes every value, so that its documents must stay on the analyst's machine.
 - `validate_results()` validates a results document, from a file, in memory or in a `Results` object, and verifies its internal sidecar against it and, given the data of the run, every commitment that it records.
+- `pathology_zoo()` lists the fixtures of the [pathology zoo](https://github.com/pablobernabeu/lmecheck/blob/main/fixtures/zoo/README.md), small simulated data sets installed with the package, each of which plants one problem of a study design, as a pandas DataFrame, and returns one fixture as a dict with its data, declaration, formula and the findings that `audit()` is expected to give.
 
-A problem is raised as `mixedcheck.MixedcheckError`, a subclass of ValueError, whose `issues` hold the codes of the shared error catalogue with their messages and locations. The functions have the same names and arguments as in the R package and give the same codes, bytes and hashes. `design_matrices()` and `design_samples()` number rows, and `design_matrices()` random terms, from 0 in Python and from 1 in R, whereas indices inside the IR count from 0 in both, and a missing value is None in Python and `NA` in R. The tests run every case of the JSON, number, Unicode, hash, HMAC, declaration, YAML, table and formula corpora, every case of the audit corpus, with the cases of the privacy filter in both modes, and every case of the results corpus. The [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity) of the repository checks that both packages agree on every case of the corpora, and its differential test that they agree on the tables of the disclosure-attack harness and on generated designs in both modes.
+A problem is raised as `mixedcheck.MixedcheckError`, a subclass of ValueError, whose `issues` hold the codes of the shared error catalogue with their messages and locations. The functions have the same names and arguments as in the R package and give the same codes, bytes and hashes. `design_matrices()` and `design_samples()` number rows, and `design_matrices()` random terms, from 0 in Python and from 1 in R, whereas indices inside the IR count from 0 in both, and a missing value is None in Python and `NA` in R. The tests run every case of the JSON, number, Unicode, hash, HMAC, declaration, YAML, table and formula corpora, every case of the audit corpus, with the cases of the privacy filter in both modes, every case of the results corpus and every fixture of the pathology zoo in both modes. The [parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity) of the repository checks that both packages agree on every case of the corpora and the pathology zoo, and its differential test that they agree on the tables of the disclosure-attack harness, on generated designs and on the zoo in both modes.
 
 ```python
 import tempfile
@@ -37,22 +38,14 @@ mixedcheck.canonical_hash(ir, "hashable")
 mixedcheck.design_matrices(ir, table)["x"]
 ```
 
-An audit in shareable mode, the default, whose privacy filter suppresses the values that could disclose a person's data, with a commitment key given so that the document can be repeated, and the same audit in internal mode, which writes every value:
+An audit of fixture Z08 of the pathology zoo, classes randomised within schools with a formula that leaves out the class, in shareable mode, the default, whose privacy filter suppresses the values that could disclose a person's data, with a commitment key given so that the document can be repeated, and the same audit in internal mode, which writes every value:
 
 ```python
-import pandas as pd
-
-data = pd.DataFrame(
-    {
-        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1],
-        "x": [1, 2, 3, 4, 5, 6],
-        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"],
-        "trial": [1, 2, 1, 2, 1, 2],
-    }
-)
-declaration = {"vocabulary": "0.1.0", "observation": {"key": ["subject", "trial"]}}
+mixedcheck.pathology_zoo()
+fixture = mixedcheck.pathology_zoo("Z08")
+data, formula, declaration = fixture["data"], fixture["formula"], fixture["declaration"]
 key = bytes(range(32)).hex()
-results = mixedcheck.audit(data, "y ~ x + (1 | subject)", declaration, key=key)
+results = mixedcheck.audit(data, formula, declaration, **fixture["arguments"], key=key)
 print(results)
 directory = Path(tempfile.mkdtemp())
 path = directory / "audit.shareable.json"
@@ -60,7 +53,9 @@ sidecar = directory / "audit.sidecar.internal.json"
 mixedcheck.write_results(results, path, sidecar)
 # The document and its sidecar are valid, and the commitments agree with the data.
 mixedcheck.validate_results(path, sidecar, data, declaration)
-internal = mixedcheck.audit(data, "y ~ x + (1 | subject)", declaration, privacy="internal", key=key)
+internal = mixedcheck.audit(
+    data, formula, declaration, **fixture["arguments"], privacy="internal", key=key
+)
 mixedcheck.write_results(
     internal, directory / "audit.internal.json", directory / "audit.internal.sidecar.internal.json"
 )

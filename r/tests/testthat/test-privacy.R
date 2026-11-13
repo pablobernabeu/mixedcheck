@@ -1489,6 +1489,124 @@ test_that("a count of levels lost beside the analysis sample is compared with no
   expect_identical(written(finding_of(pair[[1L]], "sample.raw_vs_analysis"), "contributors"), 50)
 })
 
+test_that("a ratio is suppressed with its numerator or denominator whatever their class", {
+  # 50 schools of 3 pupils with one row each, pupils the disclosure unit, so
+  # that the schools count as non-person, school a fixed term and a grouping
+  # factor, and the outcome constant within 12 schools and missing in 3. The
+  # end of rule 1 hides the 47 analysed schools beside the 50 that kept
+  # counts, and constant_levels 12 over constant_share would give them back.
+  school <- rep(sprintf("s%02d", 1:50), each = 3)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  for (lacking in c(0L, 3L)) {
+    y <- (seq_along(school) * 7) %% 11 + 0.5
+    y[school %in% sprintf("s%02d", 21:32)] <- 2.5
+    y[school %in% sprintf("s%02d", seq_len(lacking))] <- NA
+    data <- data.frame(y = y, x = seq_along(school) %% 5 + 0.25, school = school,
+                       pupil = sprintf("p%03d", seq_along(school)))
+    found <- audit_both(data, "y ~ x + school + (1 | school)", outcome_access = "T1",
+                        reason = "Constant.", declaration = declaration)
+    constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
+    expect_identical(constant$statistics$multi_row_levels$count_class, "non_person")
+    expect_identical(detail(constant, "multi_row_levels"), "secondary")
+    expect_identical(written(constant, "constant_levels"), 12)
+    expect_identical(detail(constant, "constant_share"), "ratio")
+  }
+  # 30 class labels in 3 schools, 12 of which recur in a second school, two
+  # pupils of one row in each combination, so that the classes count as
+  # non-person, and no outcome missing: rule 1 hides the classes of the
+  # design sample beside the analysed ones, rule 5 their shared and changing
+  # labels, and changing_share would give back one beside the other.
+  schools <- c("S1", "S2", "S3")
+  combos <- rbind(data.frame(class = sprintf("c%02d", 1:30), school = schools[(0:29) %% 3 + 1]),
+                  data.frame(class = sprintf("c%02d", 1:12), school = schools[(1:12) %% 3 + 1]))
+  combos$tx <- as.numeric(seq_len(nrow(combos)) %in% 31:34)
+  data <- combos[rep(seq_len(nrow(combos)), each = 2), ]
+  data$pupil <- sprintf("p%03d", seq_len(nrow(data)))
+  data$x <- seq_len(nrow(data)) %% 7 + 0.5
+  data$count <- seq_len(nrow(data)) %% 3
+  found <- audit_both(data, "count ~ x + tx + (1 | school) + (1 | class)", family = "poisson",
+                      outcome_access = "T1", reason = "Zeros.",
+                      declaration = list(vocabulary = "0.1.0", units = list(
+                        list(name = "pupil", columns = list("pupil"), role = "participant"))))
+  internal <- finding_of(found$internal, "structure.id_scope_evidence")
+  expect_identical(written(internal, "changing_labels"), 4)
+  expect_identical(written(internal, "shared_labels"), 12)
+  evidence <- finding_of(found$shareable, "structure.id_scope_evidence")
+  expect_identical(evidence$statistics$shared_labels$count_class, "non_person")
+  for (name in c("shared_labels", "changing_labels")) {
+    expect_identical(detail(evidence, name), "secondary")
+  }
+  expect_identical(detail(evidence, "changing_share"), "ratio")
+})
+
+test_that("the analysis sample loses the levels of the disclosure unit with its contributors", {
+  # 50 schools of 2 pupils with two rows each, pupils the disclosure unit and
+  # a grouping factor, school a fixed term. With 9 pupils without an
+  # outcome, the 50 schools of two pupils or more that the columns of school
+  # count bound the pupils of the design sample by 100, so that the analysis
+  # sample loses its 91 contributors, and with them its pupils, which the
+  # levels of outcome.zero_shares would give back. With 0 or 12, both stay.
+  pupil <- rep(sprintf("p%03d", 1:100), each = 2)
+  school <- sprintf("s%02d", (match(pupil, unique(pupil)) - 1L) %/% 2L + 1L)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  for (lacking in c(0L, 9L, 12L)) {
+    count <- seq_along(pupil) %% 4
+    count[pupil %in% sprintf("p%03d", seq(1, by = 2, length.out = lacking))] <- NA
+    data <- data.frame(count = count, x = seq_along(pupil) %% 7 + 0.5, school = school,
+                       pupil = pupil)
+    found <- audit_both(data, "count ~ x + school + (1 | pupil)", family = "poisson",
+                        outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+    zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "pupil")
+    if (lacking == 9L) {
+      expect_identical(zeros$support$contributors$distinct$availability$detail, "secondary")
+      expect_identical(detail(zeros, "levels"), "secondary")
+    } else {
+      expect_identical(written(zeros, "contributors"), 100 - lacking)
+      expect_identical(written(zeros, "levels"), 100 - lacking)
+    }
+  }
+})
+
+test_that("the analysis sample loses the levels of a non-person item that the members bound", {
+  # 30 schools of two pupils with one row each, pupils the disclosure unit,
+  # and the second pupil of 10 schools without an outcome: the 60 rows and
+  # pupils of the design sample, which rule 1 leaves written beside the 50
+  # analysed, hold at most 30 schools of two pupils or more, so that 30
+  # analysed schools would show that none lacks every outcome. With a third
+  # pupil in those 10 schools, the 70 pupils leave 35 possible schools, and
+  # the analysed schools stay written.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  for (third in c(0L, 10L)) {
+    pupils <- rep(2L, 30L)
+    pupils[seq_len(third)] <- 3L
+    school <- rep(sprintf("s%02d", 1:30), pupils)
+    count <- seq_along(school) %% 3
+    count[sequence(pupils) == rep(pupils, pupils) & school %in% sprintf("s%02d", 1:10)] <- NA
+    data <- data.frame(count = count, x = seq_along(school) %% 7 + 0.5, school = school,
+                       pupil = sprintf("p%02d", seq_along(school)))
+    found <- audit_both(data, "count ~ x + (1 | school)", family = "poisson",
+                        outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+    sizes <- finding_of(found$shareable, "structure.cluster_sizes", factor = "school")
+    expect_identical(sizes$statistics$levels$count_class, "non_person")
+    expect_identical(written(sizes, "contributors"), 60 + third)
+    zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+    if (third == 0L) {
+      expect_identical(detail(zeros, "levels"), "secondary")
+    } else {
+      expect_identical(written(zeros, "levels"), 30)
+    }
+  }
+})
+
 test_that("a disclosure unit whose members each have one row keeps its counts", {
   # 200 pupils of one row each in 20 schools, 30 of them without an
   # outcome: the analysed pupils are the analysed rows whatever the outcome,
@@ -1517,6 +1635,64 @@ test_that("a disclosure unit whose members each have one row keeps its counts", 
   expect_false(is.null(written(sizes, "effective_size")))
   within <- finding_of(found$shareable, "structure.within_between", factor = "school", term = "x")
   expect_false(is.null(written(within, "within_share")))
+})
+
+test_that("the analysis sample loses its rows with the levels of an item of one row a level", {
+  # 10 class labels reused in 10 schools, one pupil of one row in each
+  # combination, the pupils the disclosure unit. The crossing of class and
+  # school writes the 100 combinations of the design sample, which are the
+  # pupils, so the end of rule 1 hides the analysed pupils, and with them
+  # the analysed rows, which equal them whatever the outcome: written rows of
+  # 100 would show that no outcome is missing, as hidden rows show that one
+  # or more is.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), role = "cluster", nested_in = "school",
+         id_scope = "within_parent"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "class",
+         id_scope = "global")),
+    observation = list(unit = "pupil", key = list("pupil")))
+  data <- expand.grid(class = sprintf("%02d", 1:10), school = sprintf("S%02d", 1:10),
+                      stringsAsFactors = FALSE)
+  data$pupil <- sprintf("P%03d", 1:100)
+  for (lacking in c(0L, 1L)) {
+    data$y <- round(sin(1:100) * 3, 2)
+    data$y[seq_len(lacking)] <- NA
+    found <- audit_both(data, "y ~ 1 + (1 | school) + (1 | class)", declaration = declaration,
+                        outcome_access = "T1", reason = "Constant classes.")
+    constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
+    expect_identical(constant$support$rows$availability$detail, "secondary")
+    expect_identical(constant$support$contributors$distinct$availability$detail, "secondary")
+  }
+  # 67 schools, the first of two pupils and the others of one, one row for
+  # each pupil and 9 pupils without an outcome. The 67 schools that kept
+  # writes bound the rows of the design sample from below beside the 59
+  # analysed rows, so the end of rule 1 hides the analysed rows, and the
+  # analysed pupils, which equal them, are hidden with them. With 10
+  # without an outcome and a third pupil in the first school, both stay.
+  pupil_declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")),
+    observation = list(unit = "pupil", key = list("pupil")))
+  for (lacking in c(9L, 10L)) {
+    school <- sprintf("s%02d", c(rep(1L, lacking - 7L), 2:67))
+    count <- seq_along(school) %% 4
+    count[2L + seq_len(lacking)] <- NA
+    data <- data.frame(count = count, x = round(cos(seq_along(school)) * 3, 1), school = school,
+                       pupil = sprintf("p%02d", seq_along(school)))
+    found <- audit_both(data, "count ~ x + school + (1 | school)", family = "poisson",
+                        outcome_access = "T1", reason = "Zeros.",
+                        declaration = pupil_declaration)
+    zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+    if (lacking == 9L) {
+      expect_identical(zeros$support$rows$availability$detail, "secondary")
+      expect_identical(zeros$support$contributors$distinct$availability$detail, "secondary")
+    } else {
+      expect_identical(c(written(zeros, "support_rows"), written(zeros, "contributors")),
+                       c(59, 59))
+    }
+  }
 })
 
 test_that("outcome.separation with one kept column of two variables or one factor is suppressed", {
@@ -1840,6 +2016,45 @@ test_that("the columns of a term on the rows of an assignment are hidden with th
                           "units"), "secondary")
   expect_identical(written(finding_of(found$shareable, "structure.label_incidence",
                                       first = "site"), "levels_first"), 12)
+})
+
+test_that("the columns of a term on rows of an assignment beside the analysed rows hide the analysed levels", {
+  # 60 schools of 2 pupils of one row and 2 of two rows, school a fixed term
+  # and a grouping factor, and treat assigned to the pupils. Neither treat
+  # nor the outcome is present in schools 51 to 60. When the outcome is
+  # also missing in schools 1 to 9, the rows of the assignment hold the 50
+  # schools 1 to 50 and the analysis sample 41 of them, and when treat
+  # alone is missing there, the rows of the assignment hold 41 schools and
+  # the analysis sample 50. Rule 1 hides the schools of the rows of the
+  # assignment beside the analysed ones, and units less design_df would give
+  # them back, so that beside the analysed schools they would show the 9
+  # that lack an outcome, or treat. The end of rule 1 hides the analysed
+  # schools instead.
+  school <- rep(sprintf("s%02d", 1:60), each = 6)
+  pupil <- paste0(rep(sprintf("p%02d_", 1:60), each = 6), rep(c(1, 2, 3, 3, 4, 4), 60))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "cluster", nested_in = "school",
+         id_scope = "global")),
+    assignment = list(list(column = "treat", unit = "pupil", randomised = TRUE,
+                           level = "between_unit")))
+  for (missing in c("count", "treat")) {
+    data <- data.frame(count = seq_along(school) %% 4, school = school, pupil = pupil,
+                       treat = ifelse(match(pupil, unique(pupil)) %% 2 == 0, "a", "b"))
+    data[school %in% sprintf("s%02d", 51:60), c("count", "treat")] <- NA
+    data[[missing]][school %in% sprintf("s%02d", 1:9)] <- NA
+    found <- audit_both(data, "count ~ school + (1 | school)", family = "poisson",
+                        outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+    assignment <- finding_of(found$shareable, "assignment.design_df", column = "treat")
+    units <- if (missing == "count") 200 else 164
+    expect_identical(written(assignment, "units"), units)
+    expect_identical(written(assignment, "design_df"), units - if (missing == "count") 50 else 41)
+    expect_identical(written(finding_of(found$shareable, "design.rank_deficiency"), "kept"), 60)
+    zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+    expect_identical(written(finding_of(found$internal, "outcome.zero_shares", factor = "school"),
+                             "levels"), if (missing == "count") 41 else 50)
+    expect_identical(detail(zeros, "levels"), "secondary")
+  }
 })
 
 test_that("the columns of the combination of a term's factors are hidden with its levels", {

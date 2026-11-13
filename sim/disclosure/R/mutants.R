@@ -78,6 +78,9 @@ dm_mutants <- function() {
       privacy_quantiles = function(finding, k) finding)),
     m("step-5", "Steps 5: ratios", function(ns) list(
       privacy_ratios = function(finding, k) finding)),
+    m("step-5-class", "Steps 5: ratios of suppressed non-person counts", function(ns) list(
+      privacy_ratios = dm_patch(ns, "privacy_ratios", "part %in% names(finding$suppressed) || ",
+                                "privacy_person(finding, part) && part %in% names(finding$suppressed) || "))),
     m("within-suppress-with", "Within a finding: suppress_with", function(ns) list(
       privacy_within = dm_patch(ns, "privacy_within", "if (length(with)) {", "if (FALSE) {"))),
     m("within-suppress-with-detail", "Within a finding: 'secondary' in place of 'min_count'",
@@ -112,15 +115,17 @@ dm_mutants <- function() {
         "if (privacy_close(larger[[member]], smaller[[member]], k)) {",
         "if (member != \"rows\" && privacy_close(larger[[member]], smaller[[member]], k)) {"))),
     # The contributors are the rows, the levels of a grouping factor or the
-    # levels of the disclosure unit, which rule 1 compares beside the
-    # analysis sample in their own right, so that in registry 0.1.0 no
-    # document tells this comparison from those.
+    # levels of the disclosure unit. With the basis rows, the support writes
+    # the contributors as a count of their own, which only this comparison
+    # hides beside the analysis sample, so that under this mutant a document
+    # of the family binomial, which has no grouping factor, writes the
+    # contributors of the design sample, its rows, beside the rows that rule
+    # 1 hides, which breaks a bound of the model of attack (b).
     m("across-1-analysis-contributors",
       "Across findings: rule 1 on contributors beside the analysis sample",
       function(ns) list(privacy_lost = dm_patch(ns, "privacy_lost",
         "if (privacy_close(larger[[member]], smaller[[member]], k)) {",
-        "if (member != \"contributors\" && privacy_close(larger[[member]], smaller[[member]], k)) {")),
-      reachable = FALSE),
+        "if (member != \"contributors\" && privacy_close(larger[[member]], smaller[[member]], k)) {"))),
     m("across-1-analysis-levels", "Across findings: rule 1 on levels beside the analysis sample",
       function(ns) list(privacy_lost = dm_patch(ns, "privacy_lost",
         "if (privacy_close(larger$items[[i]][[measure]], smaller$items[[i]][[measure]], k)) {",
@@ -157,6 +162,10 @@ dm_mutants <- function() {
     m("across-1-crossed", "Across findings: rule 1, the combinations of crossed columns",
       function(ns) list(privacy_written_items = dm_patch(ns, "privacy_written_items",
         "if (finding$check != \"structure.label_incidence\" ||", "if (TRUE ||"))),
+    m("across-1-assignment-columns",
+      "Across findings: rule 1, the columns of a term on rows of an assignment beside the analysis sample",
+      function(ns) list(privacy_written_items = dm_patch(ns, "privacy_written_items",
+        "if (sample %in% c(\"table\", \"design\", \"analysis\")) {", "if (TRUE) {"))),
     m("across-1-variable", "Across findings: rule 1, a categorical variable that divides the rows as an item",
       function(ns) list(privacy_written_items = dm_patch(ns, "privacy_written_items",
         "for (i in privacy_variable_items(run, items, samples[[larger]])) {",
@@ -202,6 +211,15 @@ dm_mutants <- function() {
       function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
         "if (privacy_close(larger$rows, analysis$rows, k) && least > analysis$rows) {",
         "if (FALSE) {"))),
+    m("across-1-member-bound",
+      "Across findings: rule 1, the levels of a non-person item that the members of a sample bound",
+      function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
+        "if (!length(members)) {", "if (TRUE) {"))),
+    m("across-1-unit-levels",
+      "Across findings: rule 1, the levels of the disclosure unit with the contributors that the analysis sample loses",
+      function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
+        "if (marks$contributors && identical(basis, \"disclosure_unit\") && !is.na(unit_item)) {",
+        "if (FALSE) {"))),
     m("across-1-between", "Across findings: rule 1 between samples other than the analysis sample",
       function(ns) list(privacy_rule_1 = function(quantities, comparisons, lost, marks, k) marks),
       tier = "B"),
@@ -236,6 +254,11 @@ dm_mutants <- function() {
       reachable = FALSE),
     m("across-3", "Across findings: rule 3", function(ns) list(
       privacy_rule_3 = function(quantity, design, marks, quartiles, k) marks)),
+    m("across-3-single-row",
+      "Across findings: rule 3, the analysed rows with the levels of an item of one row a level",
+      function(ns) list(privacy_single_row_items = function(design, marks, basis, unit_item) {
+        marks
+      })),
     m("across-3-rows", "Across findings: rule 3, the analysed rows fewer than 2k",
       function(ns) list(privacy_rule_3 = dm_patch(ns, "privacy_rule_3",
         "if (quantity$rows < 2 * k && quantity$contributors >= k) {", "if (FALSE) {"))),

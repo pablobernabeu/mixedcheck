@@ -7,7 +7,9 @@ Usage, from the repository root:
     python3 spec/tools/vendor.py check
 
 spec/vendoring.json lists every artefact to vendor, as a path relative to the
-repository root under spec/ or fixtures/. `sync` copies each one byte for byte
+repository root under spec/ or fixtures/. An entry that ends in '/' names a
+directory under fixtures/, outside fixtures/conformance/, every file of which
+is vendored, such as fixtures/zoo/. `sync` copies each one byte for byte
 into the package directories that TARGETS names for the most specific source
 directory that holds it, and writes a MANIFEST.json of SHA-256 digests into
 each of them. `check` changes nothing and exits with status 1, naming each
@@ -129,8 +131,42 @@ def _case_problems(artefacts: list[str]) -> list[str]:
     return [f"{LIST}: {a!r} and {b!r} differ only in case" for a, b in sorted(clashes)]
 
 
+def _directory_problem(entry: str) -> str | None:
+    """A problem with an entry that names a directory, or None."""
+    name = entry[:-1]
+    path = PurePosixPath(name)
+    if not name or "\\" in entry or path.is_absolute() or str(path) != name:
+        return f"entry {entry!r} is not a normalised relative POSIX path"
+    if any(part in {".", ".."} for part in path.parts):
+        return f"entry {entry!r} contains '.' or '..'"
+    conformance = name == "fixtures/conformance" or name.startswith("fixtures/conformance/")
+    if not name.startswith("fixtures/") or conformance:
+        return f"entry {entry!r} is not a directory under fixtures/ outside fixtures/conformance/"
+    return None
+
+
+def expand_directory(root: Path, entry: str) -> tuple[list[str], str | None]:
+    """The files of a directory entry, in code-point order of their paths,
+    without the files that SKIP_FILES and SKIP_DIRS leave out, or a problem."""
+    directory = root / entry
+    if not directory.is_dir():
+        return [], f"entry {entry!r} names a directory that does not exist"
+    names = sorted(
+        path.relative_to(root).as_posix()
+        for path in directory.rglob("*")
+        if (path.is_file() or path.is_symlink())
+        and path.name not in SKIP_FILES
+        and not SKIP_DIRS.intersection(path.relative_to(directory).parts)
+    )
+    if not names:
+        return [], f"entry {entry!r} names a directory that holds no file"
+    return names, None
+
+
 def read_list(root: Path) -> tuple[list[str], list[str]]:
-    """Return the listed artefacts and the problems found in the list."""
+    """Return the listed artefacts and the problems found in the list. An
+    entry that names a directory is expanded into the files it holds, which
+    are then treated as listed ones."""
     try:
         text = (root / LIST).read_text(encoding="utf-8")
     except FileNotFoundError:
@@ -147,7 +183,27 @@ def read_list(root: Path) -> tuple[list[str], list[str]]:
         return [], [f"{LIST}: must be an object whose only key, 'artefacts', holds a list"]
     artefacts: list[str] = []
     problems: list[str] = []
+    seen: set[str] = set()
     for entry in data["artefacts"]:
+        if isinstance(entry, str) and entry.endswith("/"):
+            problem = _directory_problem(entry)
+            if problem is None and entry in seen:
+                problem = f"entry {entry!r} is listed twice"
+            files: list[str] = []
+            if problem is None:
+                files, problem = expand_directory(root, entry)
+            seen.add(entry)
+            if problem is not None:
+                problems.append(f"{LIST}: {problem}")
+            for name in files:
+                file_problem = _entry_problem(name)
+                if file_problem is None and name in artefacts:
+                    file_problem = f"entry {name!r} is listed twice"
+                if file_problem is None:
+                    artefacts.append(name)
+                else:
+                    problems.append(f"{LIST}: {file_problem} (through the entry {entry!r})")
+            continue
         problem = _entry_problem(entry)
         if problem is None and entry in artefacts:
             problem = f"entry {entry!r} is listed twice"

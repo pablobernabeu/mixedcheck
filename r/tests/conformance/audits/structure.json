@@ -2215,6 +2215,134 @@
       "expected": {
         "issue": {"code": "E7007", "message": "The design sample has no rows, so the audits cannot run."}
       }
+    },
+    {
+      "id": "audits-structure-056",
+      "description": "Subjects and items declared crossed, with a random intercept for subjects and one for their interaction: item appears in no grouping factor without subject, so composite is true and the model splits the items, crossed_split. id_scope_evidence yields no finding for a declared pair.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | subject:item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "crossed_split", "text": "The declaration states that 'item' and 'subject' are crossed, so that a label shared between levels of one denotes one unit, but the model combines the two columns into one grouping factor and splits such units."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": true},
+              "declared": {"kind": "category", "value": "crossed"},
+              "first_in_several": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-057",
+      "description": "Subjects and items declared crossed, with a random intercept for each and one for their interaction: each column keeps a grouping factor of its own, so composite is false, the interaction splits no unit and the message relation is consistent. id_scope_evidence yields no finding for a declared pair.",
+      "checks": ["structure.id_scope_evidence", "structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["s1", "s1", "s1", "s2", "s2", "s2"],
+        "item": ["i1", "i2", "i3", "i1", "i2", "i3"]
+      },
+      "formula": "y ~ 1 + (1 | subject) + (1 | item) + (1 | subject:item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}, {"name": "item", "columns": ["item"], "role": "item"}],
+        "crossings": [{"units": ["subject", "item"]}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "item", "second": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'item' has 3 labels and 'subject' has 2 labels, which occur in 6 combinations. Relation from the labels: crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 6, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "crossed"},
+              "first_in_several": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "inner": {"kind": "names", "value": []},
+              "inner_alone": {"kind": "boolean", "value": false},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": []},
+              "relation": {"kind": "category", "value": "crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-structure-058",
+      "description": "Pupils who may change school over time, with one mover, a random intercept for pupils and one for each school that a pupil attends: pupil keeps a grouping factor without school, so composite is false, each mover keeps one effect and the message relation is consistent. Without a disclosure unit, the contributors are the levels of the grouping factors, at least 3 in each, and neither factor is dominated.",
+      "checks": ["structure.label_incidence"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S1", "S1", "S1", "S2", "S2", "S2"],
+        "pupil": ["p1", "p1", "p2", "p2", "p3", "p3"],
+        "wave": [1, 2, 1, 2, 1, 2]
+      },
+      "formula": "y ~ 1 + (1 | pupil) + (1 | school:pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"]}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "membership": "may_change_over_time"}],
+        "observation": {"time": {"column": "wave", "kind": "occasion", "within": "pupil"}}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "structure.label_incidence",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"first": "pupil", "second": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "relation", "text": "In the design sample, 'pupil' has 3 labels and 'school' has 2 labels, which occur in 4 combinations. Relation from the labels: partially crossed."},
+            "statistics": {
+              "combinations": {"kind": "count", "value": 4, "count_class": "person"},
+              "composite": {"kind": "boolean", "value": false},
+              "declared": {"kind": "category", "value": "nested_mobile"},
+              "first_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "inner": {"kind": "names", "value": ["pupil"]},
+              "inner_alone": {"kind": "boolean", "value": true},
+              "inner_in_several": {"kind": "count", "value": 1, "count_class": "person"},
+              "levels_first": {"kind": "count", "value": 3, "count_class": "person"},
+              "levels_second": {"kind": "count", "value": 2, "count_class": "person"},
+              "outer": {"kind": "names", "value": ["school"]},
+              "relation": {"kind": "category", "value": "partially_crossed"},
+              "second_in_several": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

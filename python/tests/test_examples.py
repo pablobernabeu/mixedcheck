@@ -19,6 +19,7 @@ from mixedcheck import (
     _results,
     _results_validate,
     _table,
+    _zoo,
 )
 
 MODULES = [
@@ -33,6 +34,7 @@ MODULES = [
     _results,
     _results_validate,
     _table,
+    _zoo,
 ]
 
 

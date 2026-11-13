@@ -1,0 +1,21 @@
+{
+ "zoo": "0.1.0",
+ "id": "Z26",
+ "name": "lagged-outcome-short-series",
+ "title": "Lagged outcome with person-mean centring and short series",
+ "role": "fixture",
+ "matched": "Z26N",
+ "negative_of": [],
+ "domain": "ild",
+ "catalogue": ["L7-12"],
+ "planted": "The formula regresses the outcome on its own lag centred at the person mean over 10 occasions, a lag whose coefficient is biased in short series.",
+ "registry": "0.1.0",
+ "vocabulary": "0.1.0",
+ "generator": {"file":"sim/zoo/R/Z26.R","function":"zoo_Z26","seed":202611260,"rng":["Mersenne-Twister","Inversion","Rejection"],"parameters":{"persons":20,"occasions":10,"autoregression":"0.3","sd_person":"0.5","sd_residual":"1","digits":2}},
+ "run": {"outcome_access":"T2","reason":"Pathology zoo fixture Z26.","exploratory":true},
+ "rows": 200,
+ "issue": {"code":"E6069","message":"The column 'y_lag_pc' is an outcome, is derived from one or holds the trials of the response, so the outcome-blind checks cannot read it."},
+ "signal": [],
+ "planned": [{"check":"design.lagged_outcome","tier":"T2","catalogue":["L7-12"],"milestone":"after 1.0","needs":"The intensive-longitudinal block and Stream A.","description":"The bias of the coefficient of a lagged outcome, centred at the person mean, in series as short as those of the data."}],
+ "deferred": {"block":"intensive_longitudinal","reason":"Vocabulary 0.1 cannot state how a lag is built within persons, days and sessions, so the lag columns are declared outcome_derived, which Stream B refuses with E6069."}
+}

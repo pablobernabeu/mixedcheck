@@ -305,7 +305,31 @@ rg_attacks <- function() {
          attack = rg_chain_assignment),
     list(id = "R9-propagate-rows", round = 9L,
          channel = "the rows of the design sample, written beside analysed rows that rule 3 hides, tell whether rule 1 fired",
-         attack = rg_propagate_rows)
+         attack = rg_propagate_rows),
+    list(id = "R10-assignment-columns", round = 10L,
+         channel = "design_df on rows of an assignment that hold the analysed rows, or lie in them, gives back the levels of a fixed factor that rule 1 hides there beside the analysed ones",
+         attack = rg_assignment_columns),
+    list(id = "R10-ratio-levels", round = 10L,
+         channel = "constant_share beside constant_levels gives back the analysed schools of two pupils or more, a non-person count that the end of rule 1 hides",
+         attack = rg_ratio_levels),
+    list(id = "R10-unit-levels", round = 10L,
+         channel = "the levels of a disclosure unit that is a grouping factor give back the analysed contributors that the end of rule 1 hides beside the written schools",
+         attack = rg_unit_levels),
+    list(id = "R10-member-bound", round = 10L,
+         channel = "the written pupils of the design sample, at least twice its schools of two pupils or more, beside as many analysed schools show that none lacks every outcome",
+         attack = rg_member_bound),
+    list(id = "R11-crossed-rows", round = 11L,
+         channel = "the analysed rows, written beside the analysed pupils that the crossing of class and school hides when each combination holds one pupil of one row, tell 0 rows without an outcome from 1",
+         attack = rg_crossed_rows),
+    list(id = "R11-cell-rows", round = 11L,
+         channel = "the analysed rows, written beside the analysed cells of A:B that the columns of A * B hide when each cell holds one row, tell 0 rows without an outcome from 1",
+         attack = rg_cell_rows),
+    list(id = "R11-unit-rows", round = 11L,
+         channel = "the analysed pupils of one row each, written beside the analysed rows that the schools of kept hide, give back the rows and the firing the rows without an outcome",
+         attack = rg_unit_rows),
+    list(id = "R11-written-rows", round = 11L,
+         channel = "the analysed rows written beside schools of two pupils that kept writes, when each pupil lies in two schools, so that only the bound of the rows by the written levels hides them",
+         attack = rg_written_rows)
   )
 }
 
@@ -2099,4 +2123,245 @@ rg_propagate_rows <- function(ns, root) {
   }
   rg_pair(ns, list(make(1L), make(3L)),
           "the design sample's rows tell 13 analysed rows from 15")
+}
+
+# --- Round 10 --------------------------------------------------------------------------
+
+rg_assignment_columns <- function(ns, root) {
+  # 60 schools of 2 pupils of one row and 2 of two rows, school a fixed term
+  # and a grouping factor, treat assigned to the pupils and neither treat nor
+  # the outcome present in schools 51 to 60. With the outcome also missing
+  # in schools 1 to 9, the rows of the assignment hold 50 schools beside 41
+  # analysed ones, and with treat alone missing there, 41 beside 50. Rule 1
+  # hides the schools of the rows of the assignment beside the analysed
+  # ones, and units less design_df would give them back, which beside the
+  # analysed schools show the 9 that lack an outcome, or treat.
+  school <- rep(sprintf("s%02d", 1:60), each = 6)
+  pupil <- paste0(rep(sprintf("p%02d_", 1:60), each = 6), rep(c(1, 2, 3, 3, 4, 4), 60))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "cluster", nested_in = "school",
+         id_scope = "global")),
+    assignment = list(list(column = "treat", unit = "pupil", randomised = TRUE,
+                           level = "between_unit")))
+  found <- character(0)
+  for (missing in c("count", "treat")) {
+    data <- data.frame(count = seq_along(school) %% 4, school = school, pupil = pupil,
+                       treat = ifelse(match(pupil, unique(pupil)) %% 2 == 0, "a", "b"))
+    data[school %in% sprintf("s%02d", 51:60), c("count", "treat")] <- NA
+    data[[missing]][school %in% sprintf("s%02d", 1:9)] <- NA
+    document <- rg_document(ns, data, "count ~ school + (1 | school)", family = "poisson",
+                            outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+    k <- document$privacy$min_count
+    assignment <- rg_finding(document, "assignment.design_df", column = "treat")
+    units <- rg_value(assignment, "units")
+    df <- rg_value(assignment, "design_df")
+    analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "levels")
+    if (is.null(units) || is.null(df) || is.null(analysed)) {
+      next
+    }
+    d <- abs(units - df - analysed)
+    if (d < k) {
+      found <- c(found, sprintf("%d schools without %s", d,
+                                if (missing == "count") "an outcome" else "treat"))
+    }
+  }
+  rg_result(length(found) > 0L, found)
+}
+
+rg_ratio_levels <- function(ns, root) {
+  # 50 schools of 3 pupils with one row each, pupils the disclosure unit, so
+  # that the schools count as non-person, school a fixed term and a grouping
+  # factor, the outcome constant within 12 schools and missing in 3: kept
+  # less the intercept and x gives the 50 schools of the design sample, and
+  # constant_levels over constant_share the 47 analysed ones that the end of
+  # rule 1 hides.
+  school <- rep(sprintf("s%02d", 1:50), each = 3)
+  y <- (seq_along(school) * 7) %% 11 + 0.5
+  y[school %in% sprintf("s%02d", 21:32)] <- 2.5
+  y[school %in% sprintf("s%02d", 1:3)] <- NA
+  data <- data.frame(y = y, x = seq_along(school) %% 5 + 0.25, school = school,
+                     pupil = sprintf("p%03d", seq_along(school)))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  document <- rg_document(ns, data, "y ~ x + school + (1 | school)", outcome_access = "T1",
+                          reason = "Constant.", declaration = declaration)
+  k <- document$privacy$min_count
+  constant <- rg_finding(document, "outcome.constant_clusters", factor = "school")
+  levels <- rg_value(constant, "constant_levels")
+  share <- rg_value(constant, "constant_share")
+  kept <- rg_value(rg_finding(document, "design.rank_deficiency"), "kept")
+  d <- if (!is.null(levels) && !is.null(share) && share > 0 && !is.null(kept) &&
+           is.null(rg_value(constant, "multi_row_levels"))) {
+    rg_small_difference(kept - 1, round(levels / share), k)
+  }
+  rg_result(!is.null(d), if (!is.null(d)) sprintf("%d schools without an outcome", d))
+}
+
+rg_unit_levels <- function(ns, root) {
+  # 50 schools of 2 pupils with two rows each, pupils the disclosure unit and
+  # a grouping factor, school a fixed term, and 9 pupils without an outcome:
+  # the design sample loses its pupils beside the analysed ones, of which
+  # the 50 schools of two pupils or more that kept counts show at least 100,
+  # so that the 91 analysed pupils that outcome.zero_shares counts show the
+  # 9 without an outcome.
+  pupil <- rep(sprintf("p%03d", 1:100), each = 2)
+  school <- sprintf("s%02d", (match(pupil, unique(pupil)) - 1L) %/% 2L + 1L)
+  count <- seq_along(pupil) %% 4
+  count[pupil %in% sprintf("p%03d", seq(1, 17, 2))] <- NA
+  data <- data.frame(count = count, x = seq_along(pupil) %% 7 + 0.5, school = school,
+                     pupil = pupil)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  document <- rg_document(ns, data, "count ~ x + school + (1 | pupil)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  k <- document$privacy$min_count
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "pupil")
+  analysed <- rg_value(shares, "levels") %||% rg_value(shares, "support.distinct")
+  kept <- rg_value(rg_finding(document, "design.rank_deficiency"), "kept")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "pupil")
+  d <- if (!is.null(analysed) && !is.null(kept) && is.null(rg_value(sizes, "levels"))) {
+    rg_small_difference(2 * (kept - 1), analysed, k)
+  }
+  rg_result(!is.null(d), if (!is.null(d)) sprintf("%d pupils without an outcome", d))
+}
+
+rg_member_bound <- function(ns, root) {
+  # 30 schools of two pupils with one row each, pupils the disclosure unit,
+  # and the second pupil of 10 schools without an outcome: rule 1 hides the
+  # schools of the design sample beside the 30 analysed ones, and its 60
+  # written pupils, two or more in each school, allow 30 schools at most,
+  # so that the analysed schools show that none lacks every outcome.
+  school <- rep(sprintf("s%02d", 1:30), each = 2)
+  count <- seq_along(school) %% 3
+  count[seq(2, 20, by = 2)] <- NA
+  data <- data.frame(count = count, x = seq_along(school) %% 7 + 0.5, school = school,
+                     pupil = sprintf("p%02d", seq_along(school)))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  document <- rg_document(ns, data, "count ~ x + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "school")
+  pupils <- rg_value(sizes, "support.distinct") %||% rg_value(sizes, "support.rows")
+  analysed <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "levels")
+  leak <- is.null(rg_value(sizes, "levels")) && !is.null(pupils) && !is.null(analysed) &&
+    identical(sizes$statistics$levels$count_class, "non_person") && pupils %/% 2 == analysed
+  rg_result(leak, if (leak) sprintf("%d schools, none without an outcome", analysed))
+}
+
+# --- Round 11 --------------------------------------------------------------------------
+
+rg_crossed_rows <- function(ns, root) {
+  # 10 class labels reused in 10 schools, declared within_parent, one pupil
+  # of one row in each combination, and no outcome missing or one. The
+  # crossing of class and school writes the 100 combinations of the design
+  # sample, which are the pupils, so the end of rule 1 hides the analysed
+  # pupils, and the analysed rows, which equal them, must be hidden in both
+  # tables, or written rows of 100 tell the table without a missing outcome
+  # from the other.
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "class", columns = list("class"), role = "cluster", nested_in = "school",
+         id_scope = "within_parent"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "class",
+         id_scope = "global")),
+    observation = list(unit = "pupil", key = list("pupil")))
+  make <- function(lacking) {
+    data <- expand.grid(class = sprintf("%02d", 1:10), school = sprintf("S%02d", 1:10),
+                        stringsAsFactors = FALSE)
+    data$pupil <- sprintf("P%03d", 1:100)
+    data$y <- round(sin(1:100) * 3, 2)
+    data$y[seq_len(lacking)] <- NA
+    list(data = data, formula = "y ~ 1 + (1 | school) + (1 | class)",
+         args = list(outcome_access = "T1", reason = "Constant classes.",
+                     declaration = declaration))
+  }
+  rg_pair(ns, list(make(0L), make(1L)),
+          "the analysed rows tell 0 pupils without an outcome from 1")
+}
+
+rg_cell_rows <- function(ns, root) {
+  # 10 levels of A crossed with 10 of B, one row in each cell, cell labelling
+  # the combinations as the disclosure unit and a grouping factor. The df of
+  # A and B and empty_cells write the 100 cells of the design sample, so the
+  # end of rule 1 hides the analysed cells, and the analysed rows, which
+  # equal them, must be hidden whether or not an outcome is missing.
+  make <- function(lacking) {
+    data <- expand.grid(A = sprintf("a%02d", 1:10), B = sprintf("b%02d", 1:10),
+                        stringsAsFactors = FALSE)
+    data$cell <- paste0(data$A, "_", data$B)
+    data$x <- round(cos(1:100) * 3, 1)
+    data$count <- (1:100) %% 4
+    data$count[seq_len(lacking)] <- NA
+    list(data = data, formula = "count ~ x + A * B + (1 | cell)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Zeros.",
+                     declaration = list(vocabulary = "0.1.0", units = list(
+                       list(name = "cell", columns = list("cell"), role = "participant")),
+                       observation = list(unit = "cell", key = list("cell")))))
+  }
+  rg_pair(ns, list(make(0L), make(1L)), "the analysed rows tell 0 cells without an outcome from 1")
+}
+
+rg_unit_rows <- function(ns, root) {
+  # 67 schools, the first of two pupils and the others of one, one row for
+  # each pupil under the key pupil, and 9 pupils without an outcome. The 67
+  # schools that kept writes bound the rows of the design sample from below
+  # beside the 59 analysed rows, so the end of rule 1 hides those rows, and
+  # its firing shows that the design sample holds fewer than 69. The
+  # analysed pupils, written, would give back the analysed rows, so that the
+  # design sample, which holds 68 pupils or more, holds 68, and 9 of them
+  # lack an outcome.
+  school <- sprintf("s%02d", c(1L, 1:67))
+  count <- seq_along(school) %% 4
+  count[3:11] <- NA
+  data <- data.frame(count = count, x = round(cos(seq_along(school)) * 3, 1), school = school,
+                     pupil = sprintf("p%02d", seq_along(school)))
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")),
+    observation = list(unit = "pupil", key = list("pupil")))
+  document <- rg_document(ns, data, "count ~ x + school + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  shares <- rg_finding(document, "outcome.zero_shares", factor = "school")
+  pupils <- rg_value(shares, "support.distinct")
+  leak <- !is.null(shares) && is.null(rg_value(shares, "support.rows")) && !is.null(pupils)
+  rg_result(leak, if (leak) sprintf("%d pupils without an outcome", 68 - pupils))
+}
+
+rg_written_rows <- function(ns, root) {
+  # 50 schools of two pupils, each pupil in two schools with one row in
+  # each, so that the pupils have two rows and no item has one row a level,
+  # school a fixed term and 9 rows without an outcome. The 50 schools of two
+  # pupils or more that kept writes bound the rows of the design sample by
+  # 100, which rule 1 hides beside the 91 analysed rows, so that written
+  # analysed rows would show that 9 lack an outcome. Only the bound of the
+  # rows by the written levels, at the end of rule 1, hides them, since no
+  # item has one row a level and the contributors are the 50 pupils.
+  school <- sprintf("s%02d", rep(1:50, each = 2))
+  pupil <- sprintf("p%02d", c(rbind(1:50, c(2:50, 1))))
+  count <- seq_along(school) %% 4
+  count[seq(1, 17, by = 2)] <- NA
+  data <- data.frame(count = count, x = seq_along(school) %% 7 + 0.5, school = school,
+                     pupil = pupil)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant")))
+  document <- rg_document(ns, data, "count ~ x + school + (1 | school)", family = "poisson",
+                          outcome_access = "T1", reason = "Zeros.", declaration = declaration)
+  k <- document$privacy$min_count
+  rows <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "school"), "support.rows")
+  kept <- rg_value(rg_finding(document, "design.rank_deficiency"), "kept")
+  sizes <- rg_finding(document, "structure.cluster_sizes", factor = "school")
+  d <- if (!is.null(rows) && !is.null(kept) && is.null(rg_value(sizes, "rows")) &&
+           identical(sizes$statistics$levels$count_class, "non_person")) {
+    rg_small_difference(2 * (kept - 1), rows, k)
+  }
+  rg_result(!is.null(d), if (!is.null(d)) sprintf("%d rows without an outcome", d))
 }

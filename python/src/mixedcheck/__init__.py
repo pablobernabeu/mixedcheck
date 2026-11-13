@@ -24,6 +24,7 @@ from mixedcheck._results_validate import validate_results
 from mixedcheck._table import read_table
 from mixedcheck._vendored import spec_versions
 from mixedcheck._version import __version__
+from mixedcheck._zoo import pathology_zoo
 
 __all__ = [
     "MixedcheckError",
@@ -41,6 +42,7 @@ __all__ = [
     "hash_file",
     "keyed_commitment",
     "new_commitment_key",
+    "pathology_zoo",
     "read_json_strict",
     "read_registry",
     "read_table",

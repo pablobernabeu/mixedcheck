@@ -130,19 +130,26 @@ def test_validate_results_accepts_a_suppressed_count_of_class_non_person() -> No
     # The privacy filter suppresses a count of class non_person with the
     # detail 'secondary' when it measures a hidden quantity, as rule 6 of
     # privacy.md (Across findings) does for the counts of columns, and the
-    # invariants of a shareable document never ask for such a count.
+    # invariants of a shareable document never ask for such a count. They ask
+    # only that a ratio of which it is the numerator or the denominator is
+    # suppressed too (E7024).
     value = results_document("valid/001.json")
     assert value["privacy"]["mode"] == "shareable"
     finding = next(f for f in value["findings"] if f["check"] == "outcome.constant_clusters")
     statistic = finding["statistics"]["multi_row_levels"]
     assert statistic["count_class"] == "non_person"
-    statistic["value"] = None
-    statistic["availability"] = {
-        "value": "not_available",
-        "reason": "privacy_suppressed",
-        "detail": "secondary",
-    }
+    for name, detail in (("multi_row_levels", "secondary"), ("constant_share", "ratio")):
+        finding["statistics"][name]["value"] = None
+        finding["statistics"][name]["availability"] = {
+            "value": "not_available",
+            "reason": "privacy_suppressed",
+            "detail": detail,
+        }
     assert silent(lambda: validate_results(value)) is value
+    finding["statistics"]["constant_share"]["value"] = 0.5
+    del finding["statistics"]["constant_share"]["availability"]
+    at = "/findings/" + str(value["findings"].index(finding)) + "/statistics/constant_share/value"
+    assert issue_codes(lambda: validate_results(value)) == ["E7024 " + at]
 
 
 def test_validate_results_warns_with_w7090_and_goes_on_to_the_sidecar() -> None:

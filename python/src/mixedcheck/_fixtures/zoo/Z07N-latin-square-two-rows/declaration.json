@@ -1,0 +1,79 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z07N Latin square with two observations per cell",
+  "features": [
+    "crossed_experiment",
+    "counterbalanced"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "item",
+        "type": "string"
+      },
+      {
+        "name": "list",
+        "type": "string"
+      },
+      {
+        "name": "cond",
+        "type": "string",
+        "categories": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "name": "rep",
+        "type": "integer"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    },
+    {
+      "name": "item",
+      "columns": [
+        "item"
+      ],
+      "role": "item"
+    }
+  ],
+  "crossings": [
+    {
+      "units": [
+        "subject",
+        "item"
+      ],
+      "list": "list"
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "item",
+      "rep"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

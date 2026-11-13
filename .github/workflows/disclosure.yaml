@@ -1,8 +1,9 @@
 # Runs the disclosure-attack tests of the privacy filter (sim/disclosure/README.md)
 # on every pull request that touches the R package, which holds the filter,
 # the writer of findings and the validator, the shared specification, the
-# privacy cases of the audit corpus that the regression attacks read or the
-# tests, and with the full matrix of R-CMD-check.yaml: when started by hand,
+# privacy cases of the audit corpus that the regression attacks read, the
+# pathology zoo, whose stored instances and generators the tests read, or
+# the tests, and with the full matrix of R-CMD-check.yaml: when started by hand,
 # on the 'full-ci' label and nightly once the repository is public. The job
 # fails when an attack recovers a value that docs/spec/privacy.md undertakes
 # to hide.
@@ -16,7 +17,9 @@ on:
       - 'r/DESCRIPTION'
       - 'spec/**'
       - 'fixtures/conformance/audits/privacy.json'
+      - 'fixtures/zoo/**'
       - 'sim/disclosure/**'
+      - 'sim/zoo/**'
       - '.github/workflows/disclosure.yaml'
   workflow_dispatch:
   schedule:
@@ -48,7 +51,8 @@ jobs:
 
   # Four shards of the families, each in its own job, keep a run within the
   # time limit on the two cores of the runners for private repositories.
-  # Shard 1 also runs the regression and validation attacks (run.R --shard).
+  # Shard 1 also runs the stored instances of the zoo and the regression and
+  # validation attacks (run.R --shard).
   attacks:
     name: Disclosure-attack tests (${{ matrix.shard }} of 4)
     needs: visibility

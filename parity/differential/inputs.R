@@ -1,34 +1,39 @@
 # Writes the inputs of the differential test of the two packages
 # (parity/README.md, Differential test): every table of every family of the
-# disclosure-attack harness (sim/disclosure/R/families.R) at the family's k,
-# the realistic designs of designs.R at the registry's k, the edge cases of
-# edges.R, each at its own k, and the tables of the regression attacks of the
-# harness (sim/disclosure/R/regressions.R), at the k that each attack sets,
-# each with every argument that audit() receives.
+# disclosure-attack harness (sim/disclosure/R/families.R and the zoo families
+# of sim/disclosure/R/zoo.R) at the family's k, the realistic designs of
+# designs.R at the registry's k, the edge cases of edges.R, each at its own
+# k, the tables of the regression attacks of the harness
+# (sim/disclosure/R/regressions.R), at the k that each attack sets, each with
+# every argument that audit() receives, and every fixture and matched
+# negative of the pathology zoo at the registry's k and at k = 3.
 #
 #   Rscript parity/differential/inputs.R OUT [--seeds N] [--edge-seeds N]
 #     [--widen N] [--families NAME,...] [--designs NAME,...]
-#     [--edges NAME,...] [--regressions NAME,...] [--chunk N]
+#     [--edges NAME,...] [--regressions NAME,...] [--zoo ID,...] [--chunk N]
 #
 # OUT receives index.json, which lists the files of inputs and the tables
 # that their families cannot build, and the files. --seeds sets the number of
 # seeds of each design (3 by default), --edge-seeds that of each edge (25 by
 # default), --widen widens the grid of every family as the harness does (0 by
 # default), --families, --designs, --edges and --regressions, the
-# identifiers of attacks, restrict the sources, with 'none' for none, and
-# --chunk sets the most inputs in one file (40 by
-# default), which also holds at most 4000 rows past its first input. The
-# script needs a UTF-8 locale, in which the labels of the families are read,
-# and the installed mixedcheck, whose canonical writer writes the files.
+# identifiers of attacks, and --zoo, the identifiers of the pathology zoo,
+# restrict the sources, with 'none' for none, and --chunk sets the most
+# inputs in one file (40 by default), which also holds at most 4000 rows past
+# its first input. The script needs a UTF-8 locale, in which the labels of
+# the families are read, and the installed mixedcheck, whose canonical writer
+# writes the files and whose pathology_zoo() lists the zoo.
 #
 # Each file is a JSON object with the member 'inputs', a list of inputs, each
 # with these members:
 # - id: 'family/NAME/I', the table I of the family's grid in the order of
 #   dh_grid(), 'design/NAME/OUTCOME/TIER/missing-COUNT/seed-S',
-#   'edge/NAME/seed-S' or 'regression/ATTACK/I', the run I of the attack
+#   'edge/NAME/seed-S', 'regression/ATTACK/I', the run I of the attack, or
+#   'zoo/ID/kK', the fixture ID of the pathology zoo at k = K
 # - source: what rebuilds the input, the family with its parameters, the
 #   design with its outcome, tier, rows without an outcome and seed, the
-#   edge with its seed or the attack with the position of its run
+#   edge with its seed, the attack with the position of its run or the
+#   fixture with its rows
 # - k: the minimum count of the run
 # - formula and arguments: the formula and the other arguments of audit(),
 #   declaration, family, coding, weights, sample_columns, outcome_access,
@@ -37,6 +42,10 @@
 #   'integer', 'logical', 'string' or 'factor', its levels in order for a
 #   factor and its values, with null for NA and, in a double column, the
 #   strings 'NaN', 'Infinity', '-Infinity' and '-0' for the special values
+# An input of the zoo holds id, source, k and fixture, the identifier, in
+# place of formula, arguments and data: the runners read the fixture with
+# pathology_zoo() of the installed package, which gives its data, formula,
+# declaration and run.
 
 options(warn = 1)
 args <- commandArgs(trailingOnly = TRUE)
@@ -56,6 +65,7 @@ script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)
 here <- normalizePath(dirname(script))
 root <- normalizePath(file.path(here, "..", ".."))
 source(file.path(root, "sim", "disclosure", "R", "families.R"), encoding = "UTF-8")
+source(file.path(root, "sim", "disclosure", "R", "zoo.R"), encoding = "UTF-8")
 source(file.path(here, "designs.R"), encoding = "UTF-8")
 source(file.path(here, "edges.R"), encoding = "UTF-8")
 suppressPackageStartupMessages(library(mixedcheck))
@@ -72,6 +82,7 @@ only_families <- listed("families")
 only_designs <- listed("designs")
 only_edges <- listed("edges")
 only_regressions <- listed("regressions")
+only_zoo <- listed("zoo")
 
 # The arguments of audit() that an input may set, besides data, formula,
 # privacy and key, which the runners set.
@@ -320,6 +331,35 @@ regression_inputs <- function() {
   found
 }
 
+# --- The pathology zoo -------------------------------------------------------------
+
+# Two inputs for each fixture and matched negative of the installed zoo, at
+# the registry's k and at k = 3, which the runners build with pathology_zoo().
+zoo_inputs <- function() {
+  listing <- pathology_zoo()
+  unknown <- setdiff(only_zoo, c(listing$id, "none"))
+  if (length(unknown)) {
+    stop(sprintf("--zoo names no fixture of the pathology zoo: %s.",
+                 paste(unknown, collapse = ", ")), call. = FALSE)
+  }
+  inputs <- list()
+  for (i in seq_len(nrow(listing))) {
+    id <- listing$id[i]
+    if (!is.null(only_zoo) && !id %in% only_zoo) {
+      next
+    }
+    for (k in c(registry_k, 3L)) {
+      inputs[[length(inputs) + 1L]] <- list(
+        id = sprintf("zoo/%s/k%d", id, k),
+        source = list(kind = "zoo", fixture = id, rows = listing$rows[i]),
+        k = k,
+        fixture = id
+      )
+    }
+  }
+  inputs
+}
+
 # --- Writing the files -------------------------------------------------------------
 
 dir.create(out, recursive = TRUE, showWarnings = FALSE)
@@ -331,7 +371,9 @@ write_source <- function(kind, name, description, inputs) {
   dir.create(file.path(out, kind), showWarnings = FALSE)
   # A file holds at most chunk inputs and, past its first input, at most
   # 4000 rows, so that the files take similar times to run.
-  rows <- vapply(inputs, function(input) length(input$data[[1L]]$values), 0L)
+  rows <- vapply(inputs, function(input) {
+    if (is.null(input$fixture)) length(input$data[[1L]]$values) else as.integer(input$source$rows)
+  }, 0L)
   group <- integer(length(inputs))
   current <- 1L
   count <- 0L
@@ -383,6 +425,11 @@ if (!identical(only_regressions, "none")) {
   write_source("regressions", "attacks",
                "the tables of the regression attacks of the disclosure-attack harness",
                regression_inputs())
+}
+if (!identical(only_zoo, "none")) {
+  write_source("zoo", "fixtures",
+               "the fixtures and matched negatives of the pathology zoo at the registry's k and 3",
+               zoo_inputs())
 }
 total <- sum(vapply(chunks, function(chunk) chunk$inputs, 0L))
 index <- list(

@@ -124,37 +124,25 @@ def validate_results(
             sidecar is then verified as for any other document.
 
     Examples:
-        >>> # A shareable document of a run without findings.
-        >>> document = {
-        ...     "results_version": "0.1.0",
-        ...     "created": "2026-11-08T09:06:00Z",
-        ...     "stream": "B",
-        ...     "versions": {"package": "0.1.0", **spec_versions()},
-        ...     "software": {
-        ...         "language": "Python",
-        ...         "runtime": "3.13.0",
-        ...         "unicode": {"library": "unicodedata", "version": "15.1.0"},
-        ...     },
-        ...     "privacy": {
-        ...         "mode": "shareable",
-        ...         "min_count": 10,
-        ...         "dominance": {"contributors": 2, "share": "0.9"},
-        ...         "rounding_base": 5,
-        ...         "zeros_disclosive": True,
-        ...     },
-        ...     "inputs": {"registry_hash": canonical_hash(read_registry(), "hashable")},
-        ...     "access_log": {
-        ...         "entries": [
-        ...             {"tier": "T0", "time": "2026-11-08T09:05:00Z", "mode": "outcome_blind"}
-        ...         ]
-        ...     },
-        ...     "findings": [],
-        ... }
-        >>> validate_results(document)["privacy"]["mode"]
+        >>> # The shareable document of an audit of fixture Z01 of the
+        >>> # pathology zoo, validated with its sidecar, data and declaration.
+        >>> import os, tempfile
+        >>> fixture = pathology_zoo("Z01")
+        >>> key = bytes(range(32)).hex()
+        >>> results = audit(fixture["data"], fixture["formula"], fixture["declaration"], key=key)
+        >>> directory = tempfile.TemporaryDirectory()
+        >>> path = os.path.join(directory.name, "audit.json")
+        >>> sidecar = os.path.join(directory.name, "audit.sidecar.internal.json")
+        >>> _ = write_results(results, path, sidecar)
+        >>> value = validate_results(
+        ...     path, sidecar, data=fixture["data"], declaration=fixture["declaration"]
+        ... )
+        >>> value["privacy"]["mode"]
         'shareable'
         >>> # A document of another registry: its findings are not compared
         >>> # with registry entries, and a warning says so.
         >>> import warnings
+        >>> document = read_json_strict(path, "data")
         >>> other = {**document, "inputs": {"registry_hash": "sha256:" + "0" * 64}}
         >>> with warnings.catch_warnings(record=True) as caught:
         ...     warnings.simplefilter("always")
@@ -162,22 +150,13 @@ def validate_results(
         >>> caught[0].message.issues[0]["code"]
         'W7090'
         >>> # A finding of a check that the registry does not have.
-        >>> document["findings"] = [
-        ...     {
-        ...         "check": "structure.no_such_check",
-        ...         "check_version": 1,
-        ...         "tier": "T0",
-        ...         "scope": {},
-        ...         "status": {
-        ...             "availability": {"value": "not_available", "reason": "too_large"}
-        ...         },
-        ...     }
-        ... ]
+        >>> document["findings"][-1]["check"] = "structure.no_such_check"
         >>> try:
         ...     validate_results(document)
         ... except MixedcheckError as err:
-        ...     print(err.issues[0]["message"])
-        The check 'structure.no_such_check' at /findings/0/check is not in the registry.
+        ...     print(err.issues[0]["code"])
+        E7040
+        >>> directory.cleanup()
     """
     is_object = isinstance(document, Results)
     if not is_object and not _is_path(document) and not _is_container(document):
@@ -538,14 +517,17 @@ def ratio_hides_count(
     k: int | float,
 ) -> bool:
     """Whether the numerator or the denominator of a ratio, as the entry names
-    them, is a person count of the finding that is not written or is below k.
-    A part that the finding leaves out is a person count when the entry gives
-    it the class person, or the class by_unit and the ratio, whose class is
-    that of its parts, is written with the class person."""
+    them, is suppressed, whatever its class, or is a person count of the
+    finding that is not written or is below k. A part that the finding leaves
+    out is a person count when the entry gives it the class person, or the
+    class by_unit and the ratio, whose class is that of its parts, is written
+    with the class person."""
     for part in (defined.get("numerator"), defined.get("denominator")):
         if part is None:
             continue
         statistic = statistics.get(part)
+        if statistic is not None and statistic.get("value") is None:
+            return True
         if statistic is None:
             count_class = entry["statistics"].get(part, {}).get("count_class")
             person = count_class == "person" or (

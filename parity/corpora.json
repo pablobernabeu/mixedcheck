@@ -1,5 +1,5 @@
 {
-  "description": "The corpus files of fixtures/conformance/ that the parity harness runs, with the kind of their cases. A corpus with 'pending' names the milestone that implements what it tests, and the harness counts its cases without running them. 'pending_parts' maps a part of the cases of a corpus to the milestone that implements it, and the harness runs the other parts and counts that part without running it. parity.py stops when a corpus file is missing from this list.",
+  "description": "The corpus files of fixtures/conformance/ that the parity harness runs, with the kind of their cases, and the index of the pathology zoo, whose directories it runs with the kind 'zoo'. A corpus with 'pending' names the milestone that implements what it tests, and the harness counts its cases without running them. 'pending_parts' maps a part of the cases of a corpus to the milestone that implements it, and the harness runs the other parts and counts that part without running it. parity.py stops when a corpus file is missing from this list.",
   "corpora": [
     {"file": "json/rfc8785.json", "kind": "json"},
     {"file": "json/syntax.json", "kind": "json"},
@@ -66,5 +66,6 @@
     {"file": "results/structure.json", "kind": "results"},
     {"file": "results/valid.json", "kind": "results"},
     {"file": "results/version.json", "kind": "results"}
-  ]
+  ],
+  "zoo": {"index": "fixtures/zoo/index.json", "kind": "zoo"}
 }

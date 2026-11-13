@@ -1,22 +1,26 @@
 """The differential test of the two packages: runs the R and Python packages
 on every table of the families and of the regression attacks of the
-disclosure-attack harness, on generated realistic designs and on edge cases,
-in internal and in shareable mode, and compares their documents after the canonical serialisation
-(parity/README.md, Differential test).
+disclosure-attack harness, on generated realistic designs, on edge cases and
+on the fixtures of the pathology zoo, in internal and in shareable mode, and
+compares their documents after the canonical serialisation (parity/README.md,
+Differential test).
 
 Usage, from the repository root:
 
     python3 parity/differential/differential.py [--inputs DIR] [--generate]
         [--seeds N] [--edge-seeds N] [--widen N] [--families NAME,...]
         [--designs NAME,...] [--edges NAME,...] [--regressions NAME,...]
-        [--pseudonym-cases N]
+        [--zoo ID,...] [--pseudonym-cases N]
         [--python PYTHON] [--rscript RSCRIPT] [--r-lib DIR] [--r-locale LOCALE]
-        [--cores N] [--shards N] [--only ID ...] [--keep DIR] [--compare-only]
-        [--report FILE] [--shown N]
+        [--cores N] [--shards N] [--only ID ...] [--part I/N] [--keep DIR]
+        [--compare-only] [--report FILE] [--shown N]
 
-The script needs only the standard library of Python 3.11 or later and
-parity.py beside it. PYTHON must be an interpreter with the package mixedcheck
-installed, and R must find an installed mixedcheck, in DIR when it is given.
+--part I/N runs the files of inputs at positions I, I + N, I + 2N and so on
+of the index, counted from 1, and the pseudonym cases in part 1, so that N
+runs cover every input once, as the CI job does. The script needs only the
+standard library of Python 3.11 or later and parity.py beside it. PYTHON must
+be an interpreter with the package mixedcheck installed, and R must find an
+installed mixedcheck, in DIR when it is given.
 The exit status is 0 when the two packages give the same outcome for every
 input and mode, 1 when an outcome differs or a run fails, and 2 when the test
 cannot run.
@@ -134,7 +138,7 @@ def generate(args: argparse.Namespace, inputs: Path, env: dict[str, str]) -> flo
     """Write the inputs with inputs.R and return the time it took."""
     command = [args.rscript, str(HERE / "inputs.R"), str(inputs), "--seeds", str(args.seeds)]
     command += ["--edge-seeds", str(args.edge_seeds), "--widen", str(args.widen)]
-    for name in ("families", "designs", "edges", "regressions"):
+    for name in ("families", "designs", "edges", "regressions", "zoo"):
         value = getattr(args, name)
         if value is not None:
             command += [f"--{name}", value]
@@ -370,6 +374,11 @@ class Inputs:
                 f"run {source['run']} of the regression attack {source['attack']}, "
                 f"{source['rows']} rows"
             )
+        elif source["kind"] == "zoo":
+            text = (
+                f"the fixture {source['fixture']} of the pathology zoo, read with "
+                f"pathology_zoo(), {source['rows']} rows"
+            )
         else:
             text = (
                 f"the design {source['design']} with a {source['outcome']} outcome at "
@@ -392,7 +401,8 @@ class Results:
         self.times: dict[str, Counter[str]] = {language: Counter() for language in LANGUAGES}
 
     def add(self, identifier: str, mode: str, records: dict[str, dict[str, Any] | None]) -> None:
-        group = " ".join(identifier.split("/")[:2])
+        # The inputs of the pathology zoo make one line of the summary.
+        group = "zoo" if identifier.startswith("zoo/") else " ".join(identifier.split("/")[:2])
         outcomes = {
             language: None if record is None else record["outcome"]
             for language, record in records.items()
@@ -636,6 +646,10 @@ def main(argv: list[str] | None = None) -> int:
         help="the regression attacks whose tables to write, or 'none' (default: all)",
     )
     parser.add_argument(
+        "--zoo",
+        help="the fixtures of the pathology zoo to write, or 'none' (default: all)",
+    )
+    parser.add_argument(
         "--pseudonym-cases",
         type=int,
         default=2000,
@@ -657,6 +671,10 @@ def main(argv: list[str] | None = None) -> int:
         help="parts of the inputs for each language (default: 3 times --cores)",
     )
     parser.add_argument("--only", nargs="+", help="the identifiers of the inputs to run")
+    parser.add_argument(
+        "--part",
+        help="I/N: run part I of N of the files of inputs, the pseudonym cases in part 1",
+    )
     parser.add_argument("--keep", help="a directory for the inputs and outputs, which are kept")
     parser.add_argument(
         "--compare-only",
@@ -675,6 +693,11 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.reconfigure(errors="backslashreplace")
     if args.compare_only and not args.keep:
         parser.error("--compare-only needs --keep")
+    if args.part is not None:
+        found = re.fullmatch(r"([1-9][0-9]*)/([1-9][0-9]*)", args.part)
+        if found is None or int(found.group(1)) > int(found.group(2)):
+            parser.error("--part takes I/N with 1 <= I <= N, such as 2/2")
+        args.part = (int(found.group(1)), int(found.group(2)))
     try:
         return differential(args)
     except HarnessError as err:
@@ -706,10 +729,20 @@ def differential(args: argparse.Namespace) -> int:
             shards = max(1, min(shards, len(inputs.index["chunks"])))
             settings.write_text(json.dumps({"shards": shards}) + "\n", encoding="utf-8")
         only = set(args.only) if args.only else None
+        pseudonyms = only is None and (args.part is None or args.part[0] == 1)
+        if args.part is not None:
+            part, parts = args.part
+            in_part = {
+                identifier
+                for position, chunk in enumerate(inputs.index["chunks"])
+                if position % parts == part - 1
+                for identifier in chunk["ids"]
+            }
+            only = in_part if only is None else only & in_part
         cases = work / "pseudonyms.json"
         if not args.compare_only:
             cases.unlink(missing_ok=True)
-            if only is None and args.pseudonym_cases > 0:
+            if pseudonyms and args.pseudonym_cases > 0:
                 write_pseudonym_cases(cases, args.pseudonym_cases)
         only_file = None
         if only is not None:
@@ -731,7 +764,7 @@ def differential(args: argparse.Namespace) -> int:
         compared = time.monotonic()
         check_registries(work, shards)
         results, headers = compare_outputs(inputs, work, shards, only)
-        if only is None:
+        if pseudonyms:
             compare_pseudonyms(results, work)
         timing["comparison"] = round(time.monotonic() - compared, 1)
         timing["total"] = round(time.monotonic() - started, 1)

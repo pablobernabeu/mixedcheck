@@ -1,0 +1,67 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z13N Crossed design linked by two subjects",
+  "features": [
+    "crossed_experiment"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "item",
+        "type": "string"
+      },
+      {
+        "name": "group",
+        "type": "string",
+        "categories": [
+          "g1",
+          "g2"
+        ]
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    },
+    {
+      "name": "item",
+      "columns": [
+        "item"
+      ],
+      "role": "item"
+    }
+  ],
+  "crossings": [
+    {
+      "units": [
+        "subject",
+        "item"
+      ]
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "item"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

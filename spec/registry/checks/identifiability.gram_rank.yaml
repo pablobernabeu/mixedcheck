@@ -39,6 +39,7 @@ statistics:
   rank:
     kind: count
     count_class: non_person
+    suppress_with: [smallest_eigenvalue]
     definition: >-
       parameters minus the number of vanishing parameters minus the number of
       eigenvalues of C at or below rank_tolerance. For the gaussian family
@@ -118,7 +119,10 @@ statistics:
       it gives back the rows and the level sizes, and a shareable document
       writes it only where the privacy filter does not hide the rows of the
       design sample, or the levels of one of its items, beside the analysis
-      sample (docs/spec/privacy.md, Across findings, rule 5).
+      sample (docs/spec/privacy.md, Across findings, rule 5). rank is
+      suppressed with it, since M_ss = n - rank(X) and the vanishing of the
+      residual follow the same rows, so that rank can follow them in a
+      design whose parameters it confounds.
   vanishing_parameters:
     kind: names
     definition: >-
@@ -266,6 +270,11 @@ messages:
       part: the Gram matrix of their bases has rank {rank} for {parameters}.
       Parameters that the fixed effects absorb: {vanishing}. Parameters that
       cannot be separated from one another: {confounded}.
+    fallback: >-
+      The design does not identify the covariance parameters of the random
+      part ({parameters} in all). Parameters that the fixed effects absorb:
+      {vanishing}. Parameters that cannot be separated from one another:
+      {confounded}.
     args:
       rank: {source: statistic, name: rank}
       parameters: {source: statistic, name: parameters, noun: [parameter, parameters]}

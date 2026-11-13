@@ -1,0 +1,64 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z06 Fewer levels than the dimension of a random term",
+  "table": {
+    "fields": [
+      {
+        "name": "school",
+        "type": "string"
+      },
+      {
+        "name": "pupil",
+        "type": "string"
+      },
+      {
+        "name": "x1",
+        "type": "integer"
+      },
+      {
+        "name": "x2",
+        "type": "integer"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "school",
+      "columns": [
+        "school"
+      ],
+      "role": "cluster"
+    },
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "nested_in": "school",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "pupil",
+    "key": [
+      "pupil"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "x1": {
+      "role": "baseline_covariate"
+    },
+    "x2": {
+      "role": "baseline_covariate"
+    }
+  }
+}

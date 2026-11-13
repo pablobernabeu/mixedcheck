@@ -8,6 +8,7 @@ test produces must pass validate_results()."""
 
 from __future__ import annotations
 
+import math
 import re
 import statistics
 import warnings
@@ -1850,6 +1851,153 @@ def test_a_count_of_levels_lost_beside_the_analysis_sample_is_compared_with_no_o
     assert written(finding_of(pair[0], "sample.raw_vs_analysis"), "contributors") == 50
 
 
+def test_a_ratio_is_suppressed_with_its_numerator_or_denominator_whatever_their_class() -> None:
+    # 50 schools of 3 pupils with one row each, pupils the disclosure unit, so
+    # that the schools count as non-person, school a fixed term and a grouping
+    # factor, and the outcome constant within 12 schools and missing in 3.
+    # The end of rule 1 hides the 47 analysed schools beside the 50 that kept
+    # counts, and constant_levels 12 over constant_share would give them back.
+    school = rep(labels("s%02d", range(1, 51)), each=3)
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+    )
+    constant = set(labels("s%02d", range(21, 33)))
+    for lacking in (0, 3):
+        missing = set(labels("s%02d", range(1, lacking + 1)))
+        y = [
+            None if s in missing else (2.5 if s in constant else (i * 7) % 11 + 0.5)
+            for i, s in zip(seq_len(150), school, strict=True)
+        ]
+        data = frame(
+            y=y,
+            x=[i % 5 + 0.25 for i in seq_len(150)],
+            school=school,
+            pupil=labels("p%03d", seq_len(150)),
+        )
+        found = audit_both(
+            data,
+            "y ~ x + school + (1 | school)",
+            outcome_access="T1",
+            reason="Constant.",
+            declaration=declaration,
+        )
+        shared = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
+        assert shared["statistics"]["multi_row_levels"]["count_class"] == "non_person"
+        assert detail(shared, "multi_row_levels") == "secondary"
+        assert written(shared, "constant_levels") == 12
+        assert detail(shared, "constant_share") == "ratio"
+    # 30 class labels in 3 schools, 12 of which recur in a second school, two
+    # pupils of one row in each combination, so that the classes count as
+    # non-person, and no outcome missing: rule 1 hides the classes of the
+    # design sample beside the analysed ones, rule 5 their shared and changing
+    # labels, and changing_share would give back one beside the other.
+    schools = ["S1", "S2", "S3"]
+    combos = [(f"c{c:02d}", schools[(c - 1) % 3]) for c in range(1, 31)]
+    combos += [(f"c{c:02d}", schools[c % 3]) for c in range(1, 13)]
+    rows = [combo for combo in combos for _ in range(2)]
+    tx = [1.0 if 31 <= j + 1 <= 34 else 0.0 for j in range(len(combos)) for _ in range(2)]
+    n = len(rows)
+    data = frame(
+        count=[i % 3 for i in seq_len(n)],
+        x=[i % 7 + 0.5 for i in seq_len(n)],
+        tx=tx,
+        school=[school for _, school in rows],
+        **{"class": [label for label, _ in rows]},
+        pupil=labels("p%03d", seq_len(n)),
+    )
+    found = audit_both(
+        data,
+        "count ~ x + tx + (1 | school) + (1 | class)",
+        declaration=units(unit("pupil", "participant")),
+        **T1_ZEROS,
+    )
+    internal = finding_of(found["internal"], "structure.id_scope_evidence")
+    assert written(internal, "changing_labels") == 4
+    assert written(internal, "shared_labels") == 12
+    evidence = finding_of(found["shareable"], "structure.id_scope_evidence")
+    assert evidence["statistics"]["shared_labels"]["count_class"] == "non_person"
+    for name in ("shared_labels", "changing_labels"):
+        assert detail(evidence, name) == "secondary"
+    assert detail(evidence, "changing_share") == "ratio"
+
+
+def test_the_analysis_sample_loses_the_levels_of_the_disclosure_unit_with_its_contributors() -> (
+    None
+):
+    # 50 schools of 2 pupils with two rows each, pupils the disclosure unit
+    # and a grouping factor, school a fixed term. With 9 pupils without an
+    # outcome, the 50 schools of two pupils or more that the columns of school
+    # count bound the pupils of the design sample by 100, so that the
+    # analysis sample loses its 91 contributors, and with them its pupils,
+    # which the levels of outcome.zero_shares would give back. With 0 or 12,
+    # both stay.
+    pupil = rep(labels("p%03d", range(1, 101)), each=2)
+    school = [f"s{(int(p[1:]) - 1) // 2 + 1:02d}" for p in pupil]
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+    )
+    for lacking in (0, 9, 12):
+        missing = set(labels("p%03d", range(1, 2 * lacking, 2)))
+        data = frame(
+            count=[
+                None if p in missing else i % 4 for i, p in zip(seq_len(200), pupil, strict=True)
+            ],
+            x=[i % 7 + 0.5 for i in seq_len(200)],
+            school=school,
+            pupil=pupil,
+        )
+        found = audit_both(
+            data, "count ~ x + school + (1 | pupil)", declaration=declaration, **T1_ZEROS
+        )
+        zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="pupil")
+        if lacking == 9:
+            assert support_detail(zeros, "distinct") == "secondary"
+            assert detail(zeros, "levels") == "secondary"
+        else:
+            assert written(zeros, "contributors") == 100 - lacking
+            assert written(zeros, "levels") == 100 - lacking
+
+
+def test_the_analysis_sample_loses_the_levels_of_a_non_person_item_that_the_members_bound() -> None:
+    # 30 schools of two pupils with one row each, pupils the disclosure unit,
+    # and the second pupil of 10 schools without an outcome: the 60 rows and
+    # pupils of the design sample, which rule 1 leaves written beside the 50
+    # analysed, hold at most 30 schools of two pupils or more, so that 30
+    # analysed schools would show that none lacks every outcome. With a third
+    # pupil in those 10 schools, the 70 pupils leave 35 possible schools, and
+    # the analysed schools stay written.
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+    )
+    for third in (0, 10):
+        pupils = [3] * third + [2] * (30 - third)
+        school = [f"s{s:02d}" for s, n in zip(range(1, 31), pupils, strict=True) for _ in range(n)]
+        last = [j == n for n in pupils for j in range(1, n + 1)]
+        lacking = set(labels("s%02d", range(1, 11)))
+        n = len(school)
+        data = frame(
+            count=[
+                None if end and s in lacking else i % 3
+                for i, s, end in zip(seq_len(n), school, last, strict=True)
+            ],
+            x=[i % 7 + 0.5 for i in seq_len(n)],
+            school=school,
+            pupil=labels("p%02d", seq_len(n)),
+        )
+        found = audit_both(data, "count ~ x + (1 | school)", declaration=declaration, **T1_ZEROS)
+        sizes = finding_of(found["shareable"], "structure.cluster_sizes", factor="school")
+        assert sizes["statistics"]["levels"]["count_class"] == "non_person"
+        assert written(sizes, "contributors") == 60 + third
+        zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+        if third == 0:
+            assert detail(zeros, "levels") == "secondary"
+        else:
+            assert written(zeros, "levels") == 30
+
+
 def test_a_disclosure_unit_whose_members_each_have_one_row_keeps_its_counts() -> None:
     # 200 pupils of one row each in 20 schools, 30 of them without an
     # outcome: the analysed pupils are the analysed rows whatever the
@@ -1877,6 +2025,69 @@ def test_a_disclosure_unit_whose_members_each_have_one_row_keeps_its_counts() ->
     assert written(sizes, "effective_size") is not None
     within = finding_of(found["shareable"], "structure.within_between", factor="school", term="x")
     assert written(within, "within_share") is not None
+
+
+def test_the_analysis_sample_loses_its_rows_with_the_levels_of_an_item_of_one_row_a_level() -> None:
+    # 10 class labels reused in 10 schools, one pupil of one row in each
+    # combination, the pupils the disclosure unit. The crossing of class and
+    # school writes the 100 combinations of the design sample, which are the
+    # pupils, so the end of rule 1 hides the analysed pupils, and with them
+    # the analysed rows, which equal them whatever the outcome: written rows
+    # of 100 would show that no outcome is missing, as hidden rows show that
+    # one or more is.
+    declaration = units(
+        unit("school", "cluster"),
+        unit("class", "cluster", nested_in="school", id_scope="within_parent"),
+        unit("pupil", "participant", nested_in="class", id_scope="global"),
+        observation={"unit": "pupil", "key": ["pupil"]},
+    )
+    for lacking in (0, 1):
+        y = [round(math.sin(i) * 3, 2) for i in seq_len(100)]
+        data = frame(
+            **{"class": rep(labels("%02d", range(1, 11)), 10)},
+            school=labels("S%02d", rep(range(1, 11), each=10)),
+            pupil=labels("P%03d", seq_len(100)),
+            y=[None if i <= lacking else value for i, value in enumerate(y, start=1)],
+        )
+        found = audit_both(
+            data,
+            "y ~ 1 + (1 | school) + (1 | class)",
+            declaration=declaration,
+            outcome_access="T1",
+            reason="Constant classes.",
+        )
+        constant = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
+        assert support_detail(constant, "rows") == "secondary"
+        assert support_detail(constant, "contributors") == "secondary"
+    # 67 schools, the first of two pupils and the others of one, one row for
+    # each pupil and 9 pupils without an outcome. The 67 schools that kept
+    # writes bound the rows of the design sample from below beside the 59
+    # analysed rows, so the end of rule 1 hides the analysed rows, and the
+    # analysed pupils, which equal them, are hidden with them. With 10
+    # without an outcome and a third pupil in the first school, both stay.
+    pupil_declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "participant", nested_in="school", id_scope="global"),
+        observation={"unit": "pupil", "key": ["pupil"]},
+    )
+    for lacking in (9, 10):
+        school = labels("s%02d", [1] * (lacking - 7) + list(range(2, 68)))
+        n = len(school)
+        data = frame(
+            count=[None if 3 <= i <= 2 + lacking else i % 4 for i in seq_len(n)],
+            x=[round(math.cos(i) * 3, 1) for i in seq_len(n)],
+            school=school,
+            pupil=labels("p%02d", seq_len(n)),
+        )
+        found = audit_both(
+            data, "count ~ x + school + (1 | school)", declaration=pupil_declaration, **T1_ZEROS
+        )
+        zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+        if lacking == 9:
+            assert support_detail(zeros, "rows") == "secondary"
+            assert support_detail(zeros, "contributors") == "secondary"
+        else:
+            assert [written(zeros, "support_rows"), written(zeros, "contributors")] == [59, 59]
 
 
 def test_outcome_separation_with_one_kept_column_of_two_variables_or_one_factor_is_suppressed() -> (
@@ -2269,6 +2480,58 @@ def test_the_columns_of_a_term_on_the_rows_of_an_assignment_are_hidden_with_thei
     assert detail(arm, "units") == "secondary"
     incidence = finding_of(found["shareable"], "structure.label_incidence", first="site")
     assert written(incidence, "levels_first") == 12
+
+
+def test_the_columns_of_a_term_on_rows_of_an_assignment_beside_the_analysed_rows_hide_the_analysed_levels() -> (  # noqa: E501
+    None
+):
+    # 60 schools of 2 pupils of one row and 2 of two rows, school a fixed
+    # term and a grouping factor, and treat assigned to the pupils. Neither
+    # treat nor the outcome is present in schools 51 to 60. When the outcome
+    # is also missing in schools 1 to 9, the rows of the assignment hold the
+    # 50 schools 1 to 50 and the analysis sample 41 of them, and when treat
+    # alone is missing there, the rows of the assignment hold 41 schools and
+    # the analysis sample 50. Rule 1 hides the schools of the rows of the
+    # assignment beside the analysed ones, and units less design_df would
+    # give them back, so that beside the analysed schools they would show the
+    # 9 that lack an outcome, or treat. The end of rule 1 hides the analysed
+    # schools instead.
+    school = rep(labels("s%02d", range(1, 61)), each=6)
+    pupil = [
+        f"p{s:02d}_{j}"
+        for s, j in zip(rep(range(1, 61), each=6), rep([1, 2, 3, 3, 4, 4], 60), strict=True)
+    ]
+    order = list(dict.fromkeys(pupil))
+    neither = set(labels("s%02d", range(51, 61)))
+    first = set(labels("s%02d", range(1, 10)))
+    declaration = units(
+        unit("school", "cluster"),
+        unit("pupil", "cluster", nested_in="school", id_scope="global"),
+        assignment=[assignment("treat", "pupil")],
+    )
+    for missing in ("count", "treat"):
+        count = [i % 4 for i in seq_len(360)]
+        treat = ["a" if (order.index(p) + 1) % 2 == 0 else "b" for p in pupil]
+        values = {"count": count, "treat": treat}
+        for i, s in enumerate(school):
+            if s in neither:
+                count[i] = None
+                treat[i] = None
+            elif s in first:
+                values[missing][i] = None
+        data = frame(count=count, school=school, pupil=pupil, treat=treat)
+        found = audit_both(
+            data, "count ~ school + (1 | school)", declaration=declaration, **T1_ZEROS
+        )
+        shared = finding_of(found["shareable"], "assignment.design_df", column="treat")
+        n_units = 200 if missing == "count" else 164
+        assert written(shared, "units") == n_units
+        assert written(shared, "design_df") == n_units - (50 if missing == "count" else 41)
+        assert written(finding_of(found["shareable"], "design.rank_deficiency"), "kept") == 60
+        internal = finding_of(found["internal"], "outcome.zero_shares", factor="school")
+        assert written(internal, "levels") == (41 if missing == "count" else 50)
+        zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+        assert detail(zeros, "levels") == "secondary"
 
 
 def test_the_columns_of_the_combination_of_a_term_s_factors_are_hidden_with_its_levels() -> None:

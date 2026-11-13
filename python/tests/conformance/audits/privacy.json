@@ -4795,7 +4795,7 @@
     },
     {
       "id": "audits-privacy-070",
-      "description": "A T1 run on a count outcome without missing values or a disclosure unit, with 20 subjects of two rows and the covariate of audits-privacy-053. outcome.zero_shares, whose decision reads no statistic, is written, so the document shows the analysis sample (privacy.md, Across findings). The design and analysis samples have the same rows, so rule 1 hides the rows, the contributors, the levels and the levels with two rows of the design sample beside it, and rule 5 every real of a finding on the design sample: smallest_eigenvalue of identifiability.gram_rank, effective_size of structure.cluster_sizes and icc and within_share of structure.within_between, which beside the 40 analysed rows could show that no outcome is missing. The counts of the levels and the supports of these findings are suppressed with the detail 'secondary', the quantiles lose their n and the median of 2 rows, whose quantile rule holds for 20 values, takes the detail 'quantile', and the messages that render them fall back. In outcome.zero_shares, all_zero_levels, a part of the levels below min_count, is suppressed with the detail 'secondary', and its message falls back too, while the 40 rows, the 10 zeros and the 20 levels of the analysis sample are written.",
+      "description": "A T1 run on a count outcome without missing values or a disclosure unit, with 20 subjects of two rows and the covariate of audits-privacy-053. outcome.zero_shares, whose decision reads no statistic, is written, so the document shows the analysis sample (privacy.md, Across findings). The design and analysis samples have the same rows, so rule 1 hides the rows, the contributors, the levels and the levels with two rows of the design sample beside it, and rule 5 every real of a finding on the design sample: smallest_eigenvalue of identifiability.gram_rank, effective_size of structure.cluster_sizes and icc and within_share of structure.within_between, which beside the 40 analysed rows could show that no outcome is missing. rank of identifiability.gram_rank, which names smallest_eigenvalue in suppress_with, is suppressed with it with the detail 'secondary', and the message necessary_only, which does not render it, stays. The counts of the levels and the supports of these findings are suppressed with the detail 'secondary', the quantiles lose their n and the median of 2 rows, whose quantile rule holds for 20 values, takes the detail 'quantile', and the messages that render them fall back. In outcome.zero_shares, all_zero_levels, a part of the levels below min_count, is suppressed with the detail 'secondary', and its message falls back too, while the 40 rows, the 10 zeros and the 20 levels of the analysis sample are written.",
       "checks": ["identifiability.gram_rank", "outcome.zero_shares", "structure.cluster_sizes", "structure.within_between"],
       "data": {
         "count": [1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 1],
@@ -4893,7 +4893,7 @@
             "statistics": {
               "confounded_parameters": {"kind": "names", "value": []},
               "parameters": {"kind": "count", "value": 1, "count_class": "non_person"},
-              "rank": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "smallest_eigenvalue": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
               "vanishing_parameters": {"kind": "names", "value": []},
               "verdict": {"kind": "category", "value": "necessary_condition_met"}
@@ -5528,6 +5528,60 @@
               "levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count_rule"}}
             },
             "support": {"rows": {"value": 24}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "min_count"}}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-077",
+      "description": "A T1 run on a count outcome with 12 levels of three rows of a grouping factor g and a copy h of it, so that the variances of '1 | g' and '1 | h' have the same basis: C has the eigenvalues 0 and 2, rank is 1 for 2 parameters and the verdict is not_identified with both parameters confounded. The outcome lacks one value, so that outcome.zero_shares, whose decision reads no statistic, is written and the document shows the analysis sample, and rule 1 hides the 36 rows and the 12 contributors of the design sample beside the 35 rows and 12 levels of the analysis sample. Rule 5 suppresses smallest_eigenvalue with the detail 'secondary', rank names it in suppress_with and is suppressed with it, and the message not_identified falls back to its text without rank.",
+      "checks": ["identifiability.gram_rank"],
+      "data": {
+        "count": [null, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2, 4, 1, 3, 0, 2],
+        "g": ["g01", "g01", "g01", "g02", "g02", "g02", "g03", "g03", "g03", "g04", "g04", "g04", "g05", "g05", "g05", "g06", "g06", "g06", "g07", "g07", "g07", "g08", "g08", "g08", "g09", "g09", "g09", "g10", "g10", "g10", "g11", "g11", "g11", "g12", "g12", "g12"],
+        "h": ["g01", "g01", "g01", "g02", "g02", "g02", "g03", "g03", "g03", "g04", "g04", "g04", "g05", "g05", "g05", "g06", "g06", "g06", "g07", "g07", "g07", "g08", "g08", "g08", "g09", "g09", "g09", "g10", "g10", "g10", "g11", "g11", "g11", "g12", "g12", "g12"]
+      },
+      "formula": "count ~ 1 + (1 | g) + (1 | h)",
+      "family": "poisson",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part: the Gram matrix of their bases has rank 1 for 2 parameters. Parameters that the fixed effects absorb: none. Parameters that cannot be separated from one another: '1 | g: var((Intercept))' and '1 | h: var((Intercept))'."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": ["1 | g: var((Intercept))", "1 | h: var((Intercept))"]},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "smallest_eigenvalue": {"kind": "real", "value": 0},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": 36}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "identifiability.gram_rank",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "not_identified", "text": "The design does not identify the covariance parameters of the random part (2 parameters in all). Parameters that the fixed effects absorb: none. Parameters that cannot be separated from one another: '1 | g: var((Intercept))' and '1 | h: var((Intercept))'."},
+            "statistics": {
+              "confounded_parameters": {"kind": "names", "value": ["1 | g: var((Intercept))", "1 | h: var((Intercept))"]},
+              "parameters": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "rank": {"kind": "count", "value": null, "count_class": "non_person", "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "smallest_eigenvalue": {"kind": "real", "value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}},
+              "vanishing_parameters": {"kind": "names", "value": []},
+              "verdict": {"kind": "category", "value": "not_identified"}
+            },
+            "support": {"rows": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"value": "not_available", "reason": "privacy_suppressed", "detail": "secondary"}}, "dominated": false}}
           }
         ]
       }

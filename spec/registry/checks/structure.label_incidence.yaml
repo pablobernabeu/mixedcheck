@@ -108,9 +108,18 @@ statistics:
   composite:
     kind: boolean
     definition: >-
-      Whether some grouping factor of the IR is an interaction that contains
-      both columns, such as the factor school:class of (1 | school/class)
-      (ir.md, Random terms).
+      Whether the IR combines the two columns so that the units of one of
+      them are split: some grouping factor of the IR is an interaction that
+      contains both columns (ir.md, Random terms) and, for a pair whose
+      declared is nested_within_parent, nested_global or nested_mobile, the
+      inner column appears in no grouping factor without the outer column,
+      or, for any other pair, one of the two columns appears in no grouping
+      factor without the other. The factor school:class of (1 | school/class)
+      makes it true for classes nested in schools, (1 | pupil) + (1 |
+      school:pupil) makes it false for pupils nested in schools, (1 |
+      subject:item) alone or with (1 | subject) makes it true for subjects
+      and items declared crossed, and (1 | subject) + (1 | item) + (1 |
+      subject:item) makes it false for them.
   inner_alone:
     kind: boolean
     definition: >-

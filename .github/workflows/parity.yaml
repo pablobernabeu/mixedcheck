@@ -1,11 +1,13 @@
 # Runs the parity harness (parity/README.md): both packages run every case of
-# the conformance corpora, and their outcomes are compared with each other and
-# with the expected outcomes. A second job runs its differential test, which
-# compares the two packages in both privacy modes on the tables of the
-# disclosure-attack tests, on generated designs and on edge cases. Both run on
-# every push to main and every pull request that touches either package, the
-# shared artefacts, the harness or the files of sim/disclosure/R/ from which
-# the differential test builds its inputs, and when started by hand.
+# the conformance corpora and every directory of the pathology zoo, and their
+# outcomes are compared with each other and with the expected outcomes. A
+# second job runs its differential test, which compares the two packages in
+# both privacy modes on the tables of the disclosure-attack tests, on
+# generated designs, on edge cases and on the zoo. Both run on every push to
+# main and every pull request that touches either package, the shared
+# artefacts, the harness, the generators of the zoo or the files of
+# sim/disclosure/R/ from which the differential test builds its inputs, and
+# when started by hand.
 name: parity
 
 on:
@@ -20,6 +22,8 @@ on:
       - 'sim/disclosure/R/families.R'
       - 'sim/disclosure/R/harness.R'
       - 'sim/disclosure/R/regressions.R'
+      - 'sim/disclosure/R/zoo.R'
+      - 'sim/zoo/**'
       - '.github/workflows/parity.yaml'
   pull_request:
     paths:
@@ -31,6 +35,8 @@ on:
       - 'sim/disclosure/R/families.R'
       - 'sim/disclosure/R/harness.R'
       - 'sim/disclosure/R/regressions.R'
+      - 'sim/disclosure/R/zoo.R'
+      - 'sim/zoo/**'
       - '.github/workflows/parity.yaml'
   workflow_dispatch:
 
@@ -85,10 +91,17 @@ jobs:
       - name: Run the harness
         run: python3 parity/parity.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib"
 
+  # Two parts of the inputs, each in its own job, keep a run well within the
+  # time limit on the two cores of the runners for private repositories.
+  # Part 1 also runs the pseudonym cases (differential.py --part).
   differential:
-    name: Differential test
+    name: Differential test (${{ matrix.part }} of 2)
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [1, 2]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -118,4 +131,4 @@ jobs:
       # The default inputs, with R in C.UTF-8. The widened grids and the other
       # locales and interpreters are run by hand (parity/README.md).
       - name: Run the differential test
-        run: python3 parity/differential/differential.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib" --cores "$(nproc)"
+        run: python3 parity/differential/differential.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib" --cores "$(nproc)" --part "${{ matrix.part }}/2"

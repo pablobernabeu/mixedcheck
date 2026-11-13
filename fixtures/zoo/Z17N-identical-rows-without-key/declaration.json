@@ -1,0 +1,42 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z17N Identical trial rows without a declared key",
+  "features": [
+    "trial_level"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "cond",
+        "type": "string",
+        "categories": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "name": "acc",
+        "type": "integer"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    }
+  ],
+  "variables": {
+    "acc": {
+      "role": "outcome",
+      "measurement": "binary"
+    }
+  }
+}

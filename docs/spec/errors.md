@@ -419,7 +419,7 @@ The rules behind these codes, the stages in which they are checked and their loc
 | E7021 | results_statistic_shown | a shareable document writes a statistic of a finding that fails the minimum-count or dominance rule |
 | E7022 | results_quantile_shown | a shareable document writes a quantile without its n or one that the quantile rule suppresses |
 | E7023 | results_label_not_pseudonym | a shareable document writes a label that is not a pseudonym |
-| E7024 | results_ratio_shown | a shareable document writes a ratio whose numerator or denominator is a person count that is suppressed or below the minimum count |
+| E7024 | results_ratio_shown | a shareable document writes a ratio whose numerator or denominator is suppressed, or is a person count below the minimum count |
 | E7025 | results_quantile_n | a finding writes the n of a quantile without the count that gives it, or with a value other than that count's |
 | E7040 | results_unknown_check | a finding names a check that the registry does not have |
 | E7041 | results_registry_value | a finding's check version, tier, statistic kind, count class or the p of a quantile differs from its registry entry, or a by_unit count of a document without a disclosure unit is not a person count |

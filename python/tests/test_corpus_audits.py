@@ -62,9 +62,9 @@ def test_audit_corpus_shareable(case: dict[str, Any]) -> None:
     )
 
 
-def test_the_audit_corpus_holds_294_cases_in_nine_files() -> None:
-    assert len(CASES) == 294
-    assert len({case["id"] for case in CASES}) == 294
+def test_the_audit_corpus_holds_298_cases_in_nine_files() -> None:
+    assert len(CASES) == 298
+    assert len({case["id"] for case in CASES}) == 298
 
 
 def message_finding(

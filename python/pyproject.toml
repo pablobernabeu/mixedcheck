@@ -54,7 +54,8 @@ include = ["src/mixedcheck", "tests", "CHANGELOG.md"]
 
 [tool.hatch.build.targets.wheel]
 # Hatchling includes the non-Python files under the package directory, which
-# carries the vendored _spec/ files into the wheel.
+# carries the vendored _spec/ files and the pathology zoo in _fixtures/ into
+# the wheel.
 packages = ["src/mixedcheck"]
 
 [tool.pytest.ini_options]

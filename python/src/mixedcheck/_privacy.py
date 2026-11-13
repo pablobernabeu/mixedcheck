@@ -186,8 +186,11 @@ def privacy_quantile_hidden(finding: Finding, name: str, k: int) -> bool:
 
 
 def privacy_ratios(finding: Finding, k: int) -> Finding:
-    """Step 5: a ratio whose numerator or denominator is a person count that
-    is suppressed or below k."""
+    """Step 5: a ratio whose numerator or denominator is suppressed, whatever
+    its class, or is a person count below k. A non-person count that a rule
+    across findings suppresses would otherwise follow from the ratio and the
+    other count, as multi_row_levels of outcome.constant_clusters follows from
+    constant_levels and constant_share."""
     defined = entry_statistics(finding)
     names = []
     for name in finding.values:
@@ -196,8 +199,8 @@ def privacy_ratios(finding: Finding, k: int) -> Finding:
             continue
         parts = (statistic["numerator"], statistic["denominator"])
         if any(
-            privacy_person(finding, part)
-            and (part in finding.suppressed or finding.values[part] < k)
+            part in finding.suppressed
+            or (privacy_person(finding, part) and finding.values[part] < k)
             for part in parts
         ):
             names.append(name)

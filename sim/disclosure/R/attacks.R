@@ -1,12 +1,14 @@
 # The attacks together (sim/disclosure/README.md): the consistency search (a)
-# and the interval audit (b) on every family, the regression attacks (c) and
-# the validation attacks (v), with a report of the leaks, the candidates of
-# the families that do not gate the run, the determinations that privacy.md
+# and the interval audit (b) on every family, the interval audit and the
+# validation of the documents of the stored instances of the pathology zoo
+# when instances is TRUE (R/zoo.R), the regression attacks (c) and the
+# validation attacks (v), with a report of the leaks, the candidates of the
+# families that do not gate the run, the determinations that privacy.md
 # accepts, those of design-structure values that it leaves as residual risk
 # and the errors of the harness.
 
 dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families = NULL,
-                           cores = 1L, widen = 1L, log = FALSE) {
+                           cores = 1L, widen = 1L, log = FALSE, instances = FALSE) {
   say <- function(...) if (log) cat(sprintf(...), "\n", sep = "")
   leaks <- list()
   candidates <- list()
@@ -34,6 +36,17 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
       timing[[family$name]] <- proc.time()[["elapsed"]] - started
       say("%-24s %5d tables %4.0f s", family$name, result$tables, timing[[family$name]])
     }
+  }
+  if ("b" %in% attacks && instances) {
+    # Attack (b) and the validation of stages 4 and 5 on the documents of the
+    # stored instances, at the registry's k, without attack (a).
+    started <- proc.time()[["elapsed"]]
+    result <- dh_family_attacks(ns, dz_instances(ns), "b", cores, widen = 0L)
+    leaks <- c(leaks, list(result$leaks))
+    residual <- c(residual, list(result$residual))
+    errors <- c(errors, result$errors)
+    timing[["zoo-instances"]] <- proc.time()[["elapsed"]] - started
+    say("%-24s %5d tables %4.0f s", "zoo-instances", result$tables, timing[["zoo-instances"]])
   }
   if ("c" %in% attacks) {
     started <- proc.time()[["elapsed"]]

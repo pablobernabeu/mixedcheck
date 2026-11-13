@@ -1,0 +1,63 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z04N Classes nested in schools",
+  "table": {
+    "fields": [
+      {
+        "name": "school",
+        "type": "string"
+      },
+      {
+        "name": "class",
+        "type": "string"
+      },
+      {
+        "name": "pupil",
+        "type": "string"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "school",
+      "columns": [
+        "school"
+      ],
+      "role": "cluster"
+    },
+    {
+      "name": "class",
+      "columns": [
+        "class"
+      ],
+      "nested_in": "school",
+      "id_scope": "global",
+      "role": "cluster"
+    },
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "nested_in": "class",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "pupil",
+    "key": [
+      "pupil"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

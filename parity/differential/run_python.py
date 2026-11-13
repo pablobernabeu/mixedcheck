@@ -6,7 +6,9 @@ Usage: python run_python.py INPUTS OUTPUT SHARD SHARDS [ONLY]
 INPUTS is the directory that inputs.R wrote. The runner takes the files of
 inputs whose position in index.json, counted from 0, leaves the remainder
 SHARD when divided by SHARDS, and with ONLY, a file with one identifier on
-each line, only the inputs it names. It runs audit() on each input in
+each line, only the inputs it names. An input of the pathology zoo is read
+with pathology_zoo(), which gives its data, formula, declaration and the
+arguments of its run. It runs audit() on each input in
 internal and in shareable mode, at the input's k, with the commitment key
 00 01 02 ... 1F and MIXEDCHECK_TIME set to 0, and writes to OUTPUT, compressed
 with gzip, a header and one JSON object per line for each input and mode, as
@@ -130,13 +132,20 @@ def set_k(k: int) -> None:
 
 def run_input(case: dict[str, Any]) -> list[dict[str, Any]]:
     set_k(case["k"])
-    data = input_frame(case["data"])
-    arguments = dict(case["arguments"])
+    if "fixture" in case:
+        fixture = mixedcheck.pathology_zoo(case["fixture"])
+        data = fixture["data"]
+        formula = fixture["formula"]
+        arguments = {"declaration": fixture["declaration"], **fixture["arguments"]}
+    else:
+        data = input_frame(case["data"])
+        formula = case["formula"]
+        arguments = dict(case["arguments"])
     records = []
     for mode in MODES:
 
         def compute(mode: str = mode) -> dict[str, Any]:
-            results = mixedcheck.audit(data, case["formula"], privacy=mode, key=KEY, **arguments)
+            results = mixedcheck.audit(data, formula, privacy=mode, key=KEY, **arguments)
             document = {
                 key: value
                 for key, value in results.document.items()

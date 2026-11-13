@@ -266,3 +266,39 @@
   from a frozen factor, which has one column. The fallbacks of the messages
   budget of identifiability.df_budget and design_df of assignment.design_df
   no longer say that the levels are hidden.
+
+* The privacy filter of `audit()` hides the analysed levels of a fixed factor
+  beside design_df on rows of an assignment that hold the analysed rows or
+  lie in them, suppresses a ratio whose numerator or denominator it
+  suppresses whatever their class, hides the analysed levels of the
+  disclosure unit with the analysed contributors and hides the analysed
+  levels of an item of two members or more per level when the written rows
+  or contributors would show how many lose every outcome, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  (step 5 of Steps and rule 1 of Across findings) states. `validate_results()`
+  reports E7024 for a written ratio beside a suppressed count of any class.
+
+* `pathology_zoo()` lists the fixtures of the pathology zoo, small simulated
+  data sets installed with the package, or returns one of them with its data,
+  declaration, formula, the arguments of `audit()` for its run and its
+  expected findings, after comparing each installed file with the
+  MANIFEST.json of the package. The examples of `audit()`, `write_results()`
+  and `validate_results()` audit fixtures of the zoo.
+
+* The privacy filter hides the analysed rows together with the analysed
+  levels of an item none of whose levels holds two rows of the design
+  sample, and with the analysed contributors when the disclosure unit is such
+  an item, since each gives back the other, as the
+  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  (rule 3 of Across findings) states. rank of identifiability.gram_rank is
+  suppressed with smallest_eigenvalue, and the message not_identified falls
+  back to a text without it.
+
+* The statistic composite of structure.label_incidence is true only when the
+  IR splits the units of one column of the pair: when the inner column of a
+  pair declared nested, or either column of another pair, appears in no
+  grouping factor without the other, as the
+  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/structure.label_incidence.yaml)
+  states. crossed_split and movers_split no longer fire for a model such as
+  `(1 | subject) + (1 | item) + (1 | subject:item)`, in which each column
+  keeps a random effect of its own.

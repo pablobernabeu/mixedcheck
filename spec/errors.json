@@ -2117,7 +2117,7 @@
       "name": "results_ratio_shown",
       "area": "results",
       "location": "pointer",
-      "template": "The ratio at {location} must be suppressed in a shareable document, because a person count behind it is suppressed or below the minimum count.",
+      "template": "The ratio at {location} must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
       "args": {}
     },
     {

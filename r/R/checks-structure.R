@@ -23,10 +23,15 @@ audit_check_structure_label_incidence <- function(run, entry, elements) {
     declared <- declared_relation(run$declaration, first, second)
     nested <- startsWith(declared$value, "nested_")
     factors <- run$factors
-    composite <- any(vapply(factors, function(keys) all(c(first, second) %in% keys), NA))
-    inner_alone <- nested && any(vapply(factors, function(keys) {
-      declared$inner %in% keys && !declared$outer %in% keys
-    }, NA))
+    alone <- function(column, other) {
+      any(vapply(factors, function(keys) column %in% keys && !other %in% keys, NA))
+    }
+    inner_alone <- nested && alone(declared$inner, declared$outer)
+    # The IR splits the units of a column that appears in no grouping factor
+    # without the other column of the pair: the inner column of a pair
+    # declared nested, and either column of any other pair.
+    split <- if (nested) !inner_alone else !(alone(first, second) && alone(second, first))
+    composite <- split && any(vapply(factors, function(keys) all(c(first, second) %in% keys), NA))
     statistics <- list(
       levels_first = incidence$levels_first,
       levels_second = incidence$levels_second,

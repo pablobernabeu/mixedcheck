@@ -805,6 +805,228 @@ def show_audit(outcome: dict[str, Any] | None) -> list[str]:
     return show(outcome)
 
 
+# Outcomes of the pathology zoo, compared with each other by
+# audit_differences() and with expected.json of each directory by the rules
+# of fixtures/zoo/README.md (Comparison).
+
+# The line of the summary and the file of the records of the zoo.
+ZOO = "zoo"
+ZOO_PARTS = ("internal", "shareable")
+# The defaults of the status fields that an expected finding leaves out.
+STATUS_DEFAULTS = {
+    "availability": "available",
+    "assessability": "adequate",
+    "threshold_proximity": "clear",
+    "validation": "descriptive",
+}
+
+
+def zoo_list() -> dict[str, Path]:
+    """The directories of the pathology zoo that parity/corpora.json names, by
+    identifier in the order of its index.json, which must list every
+    directory of the zoo and no other."""
+    entry = json.loads((HERE / "corpora.json").read_text(encoding="utf-8")).get("zoo")
+    if not isinstance(entry, dict) or entry.get("kind") != "zoo":
+        raise HarnessError("parity/corpora.json has no member 'zoo' of the kind 'zoo'.")
+    index = ROOT / entry["index"]
+    if not index.is_file():
+        raise HarnessError(f"{entry['index']} is missing.")
+    listed = {
+        fixture["id"]: f"{fixture['id']}-{fixture['name']}"
+        for fixture in json.loads(index.read_text(encoding="utf-8"))["fixtures"]
+    }
+    present = sorted(path.name for path in index.parent.iterdir() if path.is_dir())
+    problems = [
+        f"{index.parent.relative_to(ROOT).as_posix()}/{name} is not listed in {entry['index']}"
+        for name in present
+        if name not in listed.values()
+    ]
+    problems += [
+        f"{name} is listed in {entry['index']} but missing"
+        for name in listed.values()
+        if name not in present
+    ]
+    if problems:
+        raise HarnessError("\n".join(problems))
+    return {fixture_id: index.parent / name for fixture_id, name in listed.items()}
+
+
+def expected_status(status: dict[str, Any]) -> dict[str, Any]:
+    """The status of an expected finding of the zoo with the defaults filled
+    in, unless the finding is not available."""
+    expanded = {
+        name: {"value": field} if isinstance(field, str) else field
+        for name, field in status.items()
+    }
+    if expanded.get("availability", {}).get("value") == "not_available":
+        return expanded
+    for name, value in STATUS_DEFAULTS.items():
+        expanded.setdefault(name, {"value": value})
+    return expanded
+
+
+def zoo_statistic_differences(
+    actual: dict[str, Any], wanted: dict[str, Any], check: str, name: str, here: str
+) -> list[str]:
+    """How a written statistic differs from its expectation."""
+    found = []
+    if "count_class" in wanted and actual.get("count_class") != wanted["count_class"]:
+        found.append(
+            f"{here}: count class {brief(actual.get('count_class'))} and "
+            f"{brief(wanted['count_class'])}"
+        )
+    value = actual.get("value")
+    if wanted.get("absent"):
+        found.append(f"{here}: {brief(value)} and absent")
+    elif "ratio" in wanted:
+        numerator, denominator = wanted["ratio"]
+        if not (isinstance(value, int | float) and value == numerator / denominator):
+            found.append(f"{here}: {brief(value)} and the ratio {brief(wanted['ratio'])}")
+    elif "interval" in wanted:
+        low, high = wanted["interval"]
+        values = value if isinstance(value, list) else [value]
+        numeric = all(isinstance(v, int | float) and not isinstance(v, bool) for v in values)
+        if not values or not numeric or any(v < low or v > high for v in values):
+            found.append(f"{here}: {brief(value)} and the interval {brief(wanted['interval'])}")
+    elif actual.get("kind") in ("real", "reals"):
+        xs = value if isinstance(value, list) else [value]
+        ys = wanted["value"] if isinstance(wanted["value"], list) else [wanted["value"]]
+        if len(xs) != len(ys) or not all(
+            reals_match(x, y, check, name) for x, y in zip(xs, ys, strict=False)
+        ):
+            found.append(f"{here}: {brief(value)} and {brief(wanted['value'])}")
+    elif json_differences(value, wanted["value"], ""):
+        found.append(f"{here}: {brief(value)} and {brief(wanted['value'])}")
+    return found
+
+
+def zoo_finding_differences(
+    actual: dict[str, Any],
+    wanted: dict[str, Any],
+    samples: dict[str, Any],
+    privacy: str,
+    here: str,
+) -> list[str]:
+    """How a finding of a run differs from its expectation in a mode."""
+    check = wanted["check"]
+    shareable = privacy == "shareable"
+    status = actual.get("status", {})
+    availability = status.get("availability", {})
+    if (
+        shareable
+        and actual.get("tier") != "T0"
+        and availability.get("reason") == "privacy_suppressed"
+        and availability.get("detail") == "decision"
+    ):
+        return []
+    expanded = expected_status(wanted["status"])
+    if json_differences(status, expanded, ""):
+        return [f"{here}/status: {brief(status)} and {brief(expanded)}"]
+    if availability.get("value") != "available":
+        return []
+    found = []
+    message = actual.get("message", {}).get("id")
+    if message != wanted.get("message"):
+        found.append(f"{here}/message: {brief(message)} and {brief(wanted.get('message'))}")
+    statistics = actual.get("statistics", {})
+    expected = wanted.get("statistics", {})
+    for name, statistic_wanted in expected.items():
+        where = f"{here}/statistics/{name}"
+        statistic = statistics.get(name)
+        if statistic is None:
+            if not statistic_wanted.get("absent"):
+                found.append(f"{where}: nothing and {brief(statistic_wanted)}")
+            continue
+        if shareable and statistic.get("value") is None:
+            if (
+                "count_class" in statistic_wanted
+                and statistic.get("count_class") != statistic_wanted["count_class"]
+            ):
+                found.append(
+                    f"{where}: count class {brief(statistic.get('count_class'))} and "
+                    f"{brief(statistic_wanted['count_class'])}"
+                )
+            continue
+        found += zoo_statistic_differences(statistic, statistic_wanted, check, name, where)
+    for name, statistic in statistics.items():
+        if name not in expected and statistic.get("kind") not in ("real", "reals"):
+            found.append(f"{here}/statistics/{name}: {brief(statistic.get('value'))} and nothing")
+    sample = samples[registry_entries()[check]["sample"]]
+    support = actual.get("support", {})
+    rows = support.get("rows", {}).get("value")
+    if (not shareable or rows is not None) and rows != sample["rows"]:
+        found.append(f"{here}/support/rows: {brief(rows)} and {sample['rows']}")
+    contributors = support.get("contributors", {})
+    distinct = contributors.get("distinct", {}).get("value")
+    if (
+        contributors.get("basis") != sample["basis"]
+        or contributors.get("dominated") != sample["dominated"]
+        or ((not shareable or distinct is not None) and distinct != sample["distinct"])
+    ):
+        found.append(f"{here}/support/contributors: {brief(contributors)} and {brief(sample)}")
+    return found
+
+
+def zoo_differences(outcome: Any, expected: dict[str, Any], privacy: str) -> list[str]:
+    """How the outcome of a run of a directory of the zoo differs from its
+    expected.json, as lines that name the JSON Pointer of the member and both
+    values. validate_results() on the shareable document runs in the tests of
+    the packages."""
+    if outcome is None:
+        return ["no outcome"]
+    issue = expected.get("issue")
+    if issue is not None:
+        wanted = encode({"issues": [issue]})
+        return [] if agree(outcome, wanted) else [f"/issue: {brief(issue)}"]
+    if "document" not in outcome:
+        return ["/findings: " + "; ".join(show(outcome))]
+    found = []
+    if outcome.get("warnings"):
+        found.append("the run warns: " + "; ".join(show({"warnings": outcome["warnings"]})))
+    findings = json_text(outcome["document"]).get("findings", [])
+    wanted = expected["findings"]
+
+    def key(finding: dict[str, Any]) -> str:
+        return json.dumps([finding.get("check"), finding.get("scope")], sort_keys=True)
+
+    keys = [key(finding) for finding in findings]
+    wanted_keys = [key(finding) for finding in wanted]
+    if keys != wanted_keys:
+        beyond = [k for k in keys if k not in wanted_keys]
+        lacks = [k for k in wanted_keys if k not in keys]
+        order = ", in another order" if sorted(keys) == sorted(wanted_keys) else ""
+        return [
+            *found,
+            f"/findings: the run has {beyond} beyond the expectation and lacks {lacks}{order}",
+        ]
+    for i, (actual, finding) in enumerate(zip(findings, wanted, strict=True)):
+        found += zoo_finding_differences(
+            actual, finding, expected["samples"], privacy, f"/findings/{i}"
+        )
+    return found
+
+
+def zoo_part_differences(a: Any, b: Any) -> list[str]:
+    """How the outcome a of a part of the zoo differs from b, the outcome of
+    another run, compared by audit_differences(), or the expected one, held
+    as {'zoo': expected.json, 'privacy': mode}."""
+    if isinstance(a, dict) and "zoo" in a:
+        a, b = b, a
+    if isinstance(b, dict) and "zoo" in b:
+        return zoo_differences(a, b["zoo"], b["privacy"])
+    return audit_differences(a, b, [])
+
+
+def show_zoo(outcome: dict[str, Any] | None) -> list[str]:
+    """Lines that describe an outcome of the zoo or its expectation."""
+    if outcome is not None and "zoo" in outcome:
+        expected = outcome["zoo"]
+        if "issue" in expected:
+            return [f"the issue {expected['issue']['code']}"]
+        return [f"{len(expected['findings'])} findings in {outcome['privacy']} mode"]
+    return show_audit(outcome)
+
+
 class Report:
     def __init__(self, runs: list[tuple[dict[str, Any], dict[tuple[Any, Any, Any], Any]]]) -> None:
         self.runs = runs
@@ -917,6 +1139,7 @@ def compare_runs(
     listed: list[dict[str, Any]],
     artefacts: list[str],
     runs: list[tuple[dict[str, Any], list[dict[str, Any]]]],
+    zoo: dict[str, Path] | None = None,
 ) -> int:
     """Compare the outcomes of every run, print every mismatch and a summary,
     and return the number of mismatches."""
@@ -985,6 +1208,31 @@ def compare_runs(
                     agreed = False
                     continue
                 agreed = report.compare(title, expected[part], found, **rule) and agreed
+            row.mismatched += not agreed
+    if zoo is not None:
+        row = Row(ZOO, len(zoo), report.names)
+        rows.append(row)
+        for fixture_id, directory in zoo.items():
+            for run_name in report.names:
+                row.ran[run_name] += 1
+            row.shared += 1
+            expected_json = json.loads((directory / "expected.json").read_text(encoding="utf-8"))
+            agreed = True
+            for part in ZOO_PARTS:
+                key = (ZOO, fixture_id, part)
+                seen.add(key)
+                found = {header["run"]: outcomes.get(key) for header, outcomes in indexed}
+                row.parts += 1
+                agreed = (
+                    report.compare(
+                        f"{ZOO} {fixture_id} [{part}]",
+                        {"zoo": expected_json, "privacy": part},
+                        found,
+                        differences=zoo_part_differences,
+                        describe=show_zoo,
+                    )
+                    and agreed
+                )
             row.mismatched += not agreed
     expected_artefact = expected_artefacts(artefacts)
     row = Row(FILES, len(expected_artefact), report.names)
@@ -1115,6 +1363,7 @@ def main(argv: list[str] | None = None) -> int:
 def harness(args: argparse.Namespace) -> int:
     corpus = Path(args.corpus).resolve()
     listed = corpus_list(corpus)
+    zoo = zoo_list()
     artefacts = vendored_artefacts()
     locales = args.r_locale or list(DEFAULT_R_LOCALES)
     with tempfile.TemporaryDirectory(prefix="mixedcheck-parity-") as scratch:
@@ -1127,6 +1376,7 @@ def harness(args: argparse.Namespace) -> int:
             plan = {
                 "corpus": str(corpus),
                 "corpora": [entry for entry in listed if "pending" not in entry],
+                "zoo": list(zoo),
                 "artefacts": artefacts,
             }
             (work / "plan.json").write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
@@ -1171,7 +1421,7 @@ def harness(args: argparse.Namespace) -> int:
                 print(
                     f"  {header['run']} cannot read YAML, so the cases of yaml/ give E3001 there."
                 )
-        mismatches = compare_runs(corpus, listed, artefacts, runs)
+        mismatches = compare_runs(corpus, listed, artefacts, runs, zoo)
     if mismatches:
         print(f"\n{mismatches} {'mismatch' if mismatches == 1 else 'mismatches'}.")
         return 1

@@ -9,13 +9,16 @@
 # --lib loads mixedcheck from a library other than the default ones, such as
 # a copy installed from an earlier commit. --attacks chooses among the
 # consistency search (a), the interval audit (b), the regression attacks (c)
-# and the validation attacks (v), all by default. --families restricts the
-# families of a and b. --shard I/N splits the families of a and b into N
-# shards by their position in dh_families(), position p falling in shard
-# ((p - 1) mod N) + 1, runs shard I and leaves the regression and validation
-# attacks to shard 1, so that N runs cover every family and attack once, as
-# the CI job does. --out writes the results as an RDS file. --no-fail exits
-# with status 0 whatever the results, as the historical check does.
+# and the validation attacks (v), all by default. Attack (b) also reads the
+# documents of the stored instances of the pathology zoo (R/zoo.R).
+# --families restricts the families of a and b, and the stored instances run
+# only when it names zoo-instances. --shard I/N splits the families of a and
+# b into N shards by their position in dh_families(), position p falling in
+# shard ((p - 1) mod N) + 1, runs shard I and leaves the stored instances and
+# the regression and validation attacks to shard 1, so that N runs cover
+# every family and attack once, as the CI job does. --out writes the results
+# as an RDS file. --no-fail exits with status 0 whatever the results, as the
+# historical check does.
 
 options(warn = 1)
 args <- commandArgs(trailingOnly = TRUE)
@@ -38,6 +41,7 @@ widen <- as.integer(option("widen", "1"))
 attacks <- strsplit(option("attacks", "a,b,c,v"), ",")[[1L]]
 only <- option("families")
 only <- if (is.null(only)) NULL else strsplit(only, ",")[[1L]]
+instances <- is.null(only) || "zoo-instances" %in% only
 shard <- option("shard")
 if (!is.null(shard)) {
   parts <- suppressWarnings(as.integer(strsplit(shard, "/", fixed = TRUE)[[1L]]))
@@ -50,6 +54,7 @@ if (!is.null(shard)) {
   only <- if (is.null(only)) in_shard else intersect(only, in_shard)
   if (parts[1L] != 1L) {
     attacks <- setdiff(attacks, c("c", "v"))
+    instances <- FALSE
   }
 }
 
@@ -57,7 +62,7 @@ ns <- dh_load(lib)
 dh_capture_on(ns)
 started <- proc.time()[["elapsed"]]
 report <- dh_run_attacks(ns, root, attacks = attacks, families = only, cores = cores,
-                         widen = widen, log = TRUE)
+                         widen = widen, log = TRUE, instances = instances)
 cat(sprintf("\nmixedcheck %s from %s, %.0f s\n", getNamespaceVersion(ns),
             dirname(getNamespaceInfo(ns, "path")), proc.time()[["elapsed"]] - started))
 dh_print_report(report)

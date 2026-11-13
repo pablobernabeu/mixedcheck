@@ -74,8 +74,12 @@ privacy_across <- function(run, findings, k) {
   marks <- privacy_blank_marks(quantities)
   shown <- FALSE
   if (!is.null(samples$analysis)) {
+    holders <- Filter(function(s) {
+      s != "analysis" && all(samples$analysis %in% samples[[s]])
+    }, names(samples))
     marks$analysis <- privacy_analysis_marks(findings[available], finding_samples[available], run,
-                                             items, quantities, written, basis, k)
+                                             items, quantities, written, holders, basis,
+                                             unit_item, k)
     for (i in which(available & finding_samples == "analysis")) {
       finding <- privacy_across_finding(run, findings[[i]], "analysis", items, factor_items,
                                         unit_item, quantities, marks)
@@ -185,9 +189,23 @@ privacy_quantity <- function(quantity, member, item = NULL) {
 # contributors, when the other sample's exceed them by fewer than k and that
 # bound exceeds them. The levels with two rows that the written levels and
 # rows of the other sample bound from above are protected by the sizes of
-# the levels in privacy_lost().
+# the levels in privacy_lost(). With the basis disclosure_unit, the
+# contributors are the levels of the disclosure unit, at unit_item, which
+# the analysis sample loses with them.
+#
+# Each level of an item whose counts resolve as non-person in a sample
+# holds two members or more, so that the rows of the sample, and with the
+# basis disclosure_unit its contributors, are at least twice its levels,
+# which the analysed levels bound from below. holders names the samples
+# that hold the analysis sample's rows. Of their rows and contributors,
+# those that exceed the analysis sample's by k or more, which rule 1 does
+# not hide beside it, bound the levels that lose every outcome, and the
+# analysis sample loses its levels of such an item when the fewer of them
+# exceeds twice those levels by fewer than k, since they would then confine
+# the levels that lose every outcome to fewer than k / 2 values, a single
+# one when every level holds two members.
 privacy_analysis_marks <- function(findings, finding_samples, run, items, quantities, written,
-                                   basis, k) {
+                                   holders, basis, unit_item, k) {
   analysis <- quantities$analysis
   marks <- privacy_blank_marks(quantities["analysis"])$analysis
   for (w in written) {
@@ -214,6 +232,23 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
       marks$contributors <- TRUE
     }
   }
+  for (s in holders) {
+    other <- quantities[[s]]
+    members <- c(if (other$rows - analysis$rows >= k) other$rows,
+                 if (identical(basis, "disclosure_unit") &&
+                     other$contributors - analysis$contributors >= k) other$contributors)
+    if (!length(members)) {
+      next
+    }
+    for (i in seq_along(other$items)) {
+      if (!other$items[[i]]$person && min(members) - 2 * analysis$items[[i]]$levels < k) {
+        marks$items[[i]][["levels"]] <- TRUE
+      }
+    }
+  }
+  if (marks$contributors && identical(basis, "disclosure_unit") && !is.na(unit_item)) {
+    marks$items[[unit_item]][["levels"]] <- TRUE
+  }
   quartiles <- list()
   for (j in seq_along(findings)) {
     finding <- findings[[j]]
@@ -224,7 +259,39 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
       )
     }
   }
-  privacy_rule_3(analysis, quantities$design, privacy_rule_2(analysis, marks, k), quartiles, k)
+  marks <- privacy_single_row_items(quantities$design, marks, basis, unit_item)
+  marks <- privacy_rule_3(analysis, quantities$design, privacy_rule_2(analysis, marks, k),
+                          quartiles, k)
+  privacy_rule_2(analysis, privacy_single_row_items(quantities$design, marks, basis, unit_item),
+                 k)
+}
+
+# The levels of an item none of whose levels holds two rows of the design
+# sample are the analysis sample's rows whatever the outcome (rule 3 of
+# Across findings), and with the basis disclosure_unit, when the item is the
+# disclosure unit, its contributors too. So the analysis sample loses its
+# rows when it loses its levels of such an item, or the contributors that
+# count them, and it loses its levels of every such item, and the
+# contributors that count them, when it loses its rows.
+privacy_single_row_items <- function(design, marks, basis, unit_item) {
+  single <- which(vapply(design$items, function(item) {
+    item$levels > 0L && item$levels_with_two_rows == 0L
+  }, NA))
+  if (!length(single)) {
+    return(marks)
+  }
+  unit <- identical(basis, "disclosure_unit") && !is.na(unit_item) && unit_item %in% single
+  if (any(vapply(single, function(i) marks$items[[i]][["levels"]], NA)) ||
+      (unit && marks$contributors)) {
+    marks$rows <- TRUE
+  }
+  if (marks$rows) {
+    for (i in single) {
+      marks$items[[i]][["levels"]] <- TRUE
+    }
+    marks$contributors <- marks$contributors || unit
+  }
+  marks
 }
 
 # The items whose levels a sample writes whatever rule 1 hides, each as a
@@ -238,7 +305,11 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
 # table, which columns of design.rank_deficiency and dimension of
 # identifiability.levels_vs_dimension count, all of them non-person counts
 # that no comparison with the analysis sample suppresses (rule 6 of Across
-# findings). When structure.label_incidence finds two columns crossed in a
+# findings). So does a fixed term on the rows of an assignment that hold the
+# analysis sample's rows or lie in them, whose columns design_df of
+# assignment.design_df counts there, and more generally a term of a count
+# of columns, marked term_levels, of a finding on a sample other than these
+# three. When structure.label_incidence finds two columns crossed in a
 # sample, of which one holds the analysis sample's rows, the levels of their
 # combinations there are the product of the levels of the two columns, which
 # that sample writes or the analysis sample's bound from below.
@@ -247,12 +318,38 @@ privacy_written_items <- function(run, findings, finding_samples, items, compari
   add <- function(i, larger, smaller) {
     written[[length(written) + 1L]] <<- list(item = i, larger = larger, smaller = smaller)
   }
+  # Every pair of compared samples of which one is the analysis sample and
+  # the other the sample given.
+  beside_analysis <- function(sample) {
+    Filter(function(comparison) {
+      setequal(c(comparison$larger, comparison$smaller), c(sample, "analysis"))
+    }, comparisons)
+  }
   if (!any(vapply(comparisons, function(c) "analysis" %in% c(c$larger, c$smaller), NA))) {
     return(written)
   }
   for (larger in c("design", "table")) {
     for (i in privacy_variable_items(run, items, samples[[larger]])) {
       add(i, larger, "analysis")
+    }
+  }
+  for (j in seq_along(findings)) {
+    finding <- findings[[j]]
+    sample <- finding_samples[j]
+    if (sample %in% c("table", "design", "analysis")) {
+      next
+    }
+    defined <- finding$entry[["statistics"]]
+    if (!any(vapply(names(finding$values), function(name) {
+      identical(defined[[name]][["measures"]], "term_levels")
+    }, NA))) {
+      next
+    }
+    terms <- privacy_finding_terms(run, finding)
+    for (i in privacy_term_items(run, items, terms, samples[[sample]])) {
+      for (comparison in beside_analysis(sample)) {
+        add(i, comparison$larger, comparison$smaller)
+      }
     }
   }
   for (j in seq_along(findings)) {
@@ -266,10 +363,8 @@ privacy_written_items <- function(run, findings, finding_samples, items, compari
     if (is.na(i)) {
       next
     }
-    for (comparison in comparisons) {
-      if (setequal(c(comparison$larger, comparison$smaller), c(sample, "analysis"))) {
-        add(i, comparison$larger, comparison$smaller)
-      }
+    for (comparison in beside_analysis(sample)) {
+      add(i, comparison$larger, comparison$smaller)
     }
   }
   written

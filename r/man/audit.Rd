@@ -153,26 +153,18 @@ ordinary error.
 }
 
 \examples{
-data <- data.frame(
-  y = c(2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, NA),
-  x = c(1, 2, 3, 4, 5, 6, 7, 8),
-  subject = c("s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4"),
-  trial = c(1, 2, 1, 2, 1, 2, 1, 1)
-)
-declaration <- list(
-  vocabulary = "0.1.0",
-  units = list(list(name = "subject", columns = list("subject"), role = "participant")),
-  observation = list(key = list("subject", "trial"))
-)
+# Fixture Z08 of the pathology zoo: classes randomised within schools,
+# with a formula that leaves out the class (pathology_zoo()).
+fixture <- pathology_zoo("Z08")
 key <- paste(sprintf("\%02x", 0:31), collapse = "")
-results <- audit(data, "y ~ x + (1 | subject)", declaration, key = key)
+results <- audit(fixture$data, fixture$formula, fixture$declaration, key = key)
 results
 
 # Internal mode writes every value.
-audit(data, "y ~ x + (1 | subject)", declaration, privacy = "internal", key = key)
+audit(fixture$data, fixture$formula, fixture$declaration, privacy = "internal", key = key)
 
 # A family that audit() does not accept.
-problem <- tryCatch(audit(data, "y ~ x", family = "logit", privacy = "internal"),
+problem <- tryCatch(audit(fixture$data, "y ~ arm", family = "logit", privacy = "internal"),
                     mixedcheck_error = function(e) e)
 problem$issues[[1]]$message
 }

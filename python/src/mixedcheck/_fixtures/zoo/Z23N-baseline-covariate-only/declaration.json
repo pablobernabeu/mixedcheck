@@ -1,0 +1,96 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z23N Baseline covariate only",
+  "features": [
+    "multisite"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "school",
+        "type": "string"
+      },
+      {
+        "name": "pupil",
+        "type": "string"
+      },
+      {
+        "name": "arm",
+        "type": "string",
+        "categories": [
+          "control",
+          "tutoring"
+        ]
+      },
+      {
+        "name": "pre",
+        "type": "number"
+      },
+      {
+        "name": "attendance",
+        "type": "number"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "school",
+      "columns": [
+        "school"
+      ],
+      "role": "site"
+    },
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "nested_in": "school",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "pupil",
+    "key": [
+      "pupil"
+    ]
+  },
+  "assignment": [
+    {
+      "column": "arm",
+      "unit": "pupil",
+      "randomised": true,
+      "level": "between_unit",
+      "blocks": [
+        "school"
+      ]
+    }
+  ],
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "arm": {
+      "role": "assigned"
+    },
+    "pre": {
+      "role": "baseline_covariate"
+    },
+    "attendance": {
+      "role": "post_assignment_covariate"
+    }
+  },
+  "estimands": [
+    {
+      "id": "ITT",
+      "term": "arm",
+      "kind": "total_effect"
+    }
+  ]
+}

@@ -704,6 +704,7 @@
     "fixtures/conformance/results/sidecar/declaration_table.json",
     "fixtures/conformance/results/sidecar/sentinel.csv",
     "fixtures/conformance/results/sidecar/sentinel.json",
-    "fixtures/conformance/results/sidecar/sentinel_sidecar.json"
+    "fixtures/conformance/results/sidecar/sentinel_sidecar.json",
+    "fixtures/zoo/"
   ]
 }

@@ -68,6 +68,11 @@ class PairRows:
     second: Array
 
 
+def _alone(factors: list[Any], column: str | None, other: str | None) -> bool:
+    """Whether some grouping factor contains a column without the other."""
+    return any(column in keys and other not in keys for keys in factors)
+
+
 def column_pair_rows(run: Run, first: str, second: str) -> PairRows:
     """The rows of the design sample in which both columns of a pair are
     present, with the codes of the two columns in those rows, compared by
@@ -187,10 +192,15 @@ def check_structure_label_incidence(
         declared = declared_relation(run.declaration, first, second)
         nested = declared.value.startswith("nested_")
         factors = list(run.factors.values())
-        composite = any(first in keys and second in keys for keys in factors)
-        inner_alone = nested and any(
-            declared.inner in keys and declared.outer not in keys for keys in factors
-        )
+        inner_alone = nested and _alone(factors, declared.inner, declared.outer)
+        # The IR splits the units of a column that appears in no grouping
+        # factor without the other column of the pair: the inner column of a
+        # pair declared nested, and either column of any other pair.
+        if nested:
+            split = not inner_alone
+        else:
+            split = not (_alone(factors, first, second) and _alone(factors, second, first))
+        composite = split and any(first in keys and second in keys for keys in factors)
         statistics: dict[str, Any] = {
             "levels_first": incidence.levels_first,
             "levels_second": incidence.levels_second,

@@ -317,7 +317,7 @@ The T0 audits listed in 03-execution-plan.md (M2) map to these entries.
 | labels that differ only in Unicode form | labels.unicode_forms |
 | duplicates against the declared observation key | keys.duplicates |
 
-The three assignment checks and structure.connectivity are not in that list. They are included because the prototyped zoo fixtures Z08, Z09 and Z13 expect their findings and the M2 gate requires exact parity on the zoo, and because Q4 and Q8 of 02-decisions.md name the randomisation level, the design df and connectivity among the Stream B checks.
+The three assignment checks and structure.connectivity are not in that list. They are included because the zoo fixtures Z08, Z09 and Z13 expect their findings and the M2 gate requires exact parity on the zoo, and because Q4 and Q8 of 02-decisions.md name the randomisation level, the design df and connectivity among the Stream B checks.
 
 ## References
 

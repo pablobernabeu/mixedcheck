@@ -206,41 +206,31 @@ def audit(
             columns, and an invalid MIXEDCHECK_TIME.
 
     Examples:
-        >>> import pandas as pd
-        >>> data = pd.DataFrame(
-        ...     {
-        ...         "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, None],
-        ...         "x": [1, 2, 3, 4, 5, 6, 7, 8],
-        ...         "subject": ["s1", "s1", "s2", "s2", "s3", "s3", "s4", "s4"],
-        ...         "trial": [1, 2, 1, 2, 1, 2, 1, 1],
-        ...     },
-        ...     dtype=object,
-        ... )
-        >>> declaration = {
-        ...     "vocabulary": "0.1.0",
-        ...     "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}],
-        ...     "observation": {"key": ["subject", "trial"]},
-        ... }
+        >>> # Fixture Z08 of the pathology zoo: classes randomised within
+        >>> # schools, with a formula that leaves out the class.
+        >>> fixture = pathology_zoo("Z08")
         >>> key = bytes(range(32)).hex()
-        >>> results = audit(data, "y ~ x + (1 | subject)", declaration, key=key)
+        >>> results = audit(fixture["data"], fixture["formula"], fixture["declaration"], key=key)
         >>> results.document["privacy"]["mode"]
         'shareable'
-        >>> keys = [f for f in results.document["findings"] if f["check"] == "keys.duplicates"]
-        >>> keys[0]["status"]["finding"]["value"]
-        'consequential'
-        >>> # The 4 subjects are fewer than the minimum count of 10.
-        >>> keys[0]["statistics"]["duplicated_keys"]["availability"]["detail"]
-        'min_count_rule'
+        >>> [f["message"]["id"] for f in results.document["findings"]
+        ...  if f["check"] == "assignment.unit_in_random_part"]
+        ['unit_missing']
+        >>> # The quantile rule hides the size of the smallest school.
+        >>> [f["statistics"]["smallest"]["availability"]["detail"]
+        ...  for f in results.document["findings"] if f["check"] == "structure.cluster_sizes"]
+        ['quantile']
         >>> # Internal mode writes every value.
         >>> results = audit(
-        ...     data, "y ~ x + (1 | subject)", declaration, privacy="internal", key=key
+        ...     fixture["data"], fixture["formula"], fixture["declaration"], privacy="internal",
+        ...     key=key,
         ... )
-        >>> [f["statistics"]["duplicated_keys"]["value"] for f in results.document["findings"]
-        ...  if f["check"] == "keys.duplicates"]
-        [1]
+        >>> [f["statistics"]["smallest"]["value"] for f in results.document["findings"]
+        ...  if f["check"] == "structure.cluster_sizes"]
+        [60]
         >>> # A family that audit() does not accept.
         >>> try:
-        ...     audit(data, "y ~ x", family="logit", privacy="internal")
+        ...     audit(fixture["data"], "y ~ arm", family="logit", privacy="internal")
         ... except MixedcheckError as err:
         ...     print(err.issues[0]["code"])
         E7008

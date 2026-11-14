@@ -14,7 +14,7 @@ Three status values are used. 'Decided' means the evidence settles the question.
 | Q4 Declarations | Optional by default and required for confirmatory goals, outcome-blind and preregistration exports, and trial features. Canonical JSON with JSON Schema, RFC 8785 hashing and a Frictionless table subset | Decided |
 | Q5 Reports | A results object, a self-contained static HTML report and an optional engine-free .qmd export. One privacy filter with shareable output by default and two tiers of protection, and WCAG 2.2 AA | Decided, privacy settings: maintainer |
 | Q6 Dependencies | Independent computation, engines in Suggests with the availability guard in the generic, opt-in external cross-checks and no package split | Decided |
-| Q7 Names and layout | mixedcheck in both languages, chosen by the maintainer with lmecheck as the fallback, in a monorepo with vendored shared artefacts | Decided, name provisional until the registry checks |
+| Q7 Names and layout | mixedcheck in both languages, chosen by the maintainer with lmecheck as the fallback and confirmed by the registry checks, in a monorepo with vendored shared artefacts | Decided |
 | Q8 Domains and corpus | Nested education data and crossed designs drive the defaults, and a four-layer corpus is built around a simulated pathology zoo | Decided |
 | Q9 Validation and papers | Preregistered validation on ARC, a Stage 1 Registered Report on the ladder study and a JOSS paper for the software | Decided, venue facts provisional, paper route: maintainer, at P1 |
 | Q10 Versions and licence | R ≥ 4.2.0, Python ≥ 3.11 with SPEC 0 floors, MIT for everything that ships, with clean-room implementation | Decided |
@@ -312,7 +312,7 @@ The maintainer chose mixedcheck in both languages on 8 November 2026: the CRAN p
 
 CRAN names are permanent, so the name should fit the eventual scope, which extends beyond linear models to GLMMs. 'lme' and 'lmm' signal linear models only, and 'lme' also evokes `nlme::lme`, which 1.x does not cover. 'mix' suggests mixture models or MCMC mixing. 'audit' fits Stream B but undersells the diagnostics and reports.
 
-`pak::pkg_name_check()` and an R-universe search must confirm the name before the repository goes public. They run as a GitHub Actions job, because the runners can reach CRAN and R-universe. Once M0 is merged and the checks pass, the repository is renamed mixedcheck and made public (03-execution-plan.md, M0). Renaming keeps the repository's history. No placeholder is uploaded to PyPI, because PEP 541 prohibits name squatting.
+`pak::pkg_name_check()` and queries of the registries confirm the name in a GitHub Actions job, name-check.yaml, because the runners can reach CRAN and R-universe. The job found mixedcheck free on CRAN (current and archived), Bioconductor, R-universe, PyPI and conda-forge on the pull request that merged M0 on 8 November 2026, before the repository went public, and again on main on 14 November 2026 (03-execution-plan.md, M0). The repository was renamed mixedcheck and made public on 14 November 2026, and the rename kept its history. No placeholder is uploaded to PyPI, because PEP 541 prohibits name squatting.
 
 The project is one monorepo:
 
@@ -384,7 +384,7 @@ The recommended paper route has three parts. The first paper is a Stage 1 Regist
 
 Studies V1, V2 and V7 run under an OSF preregistration that gates release 1.0 without waiting for journal review, and their results, including cross-engine conformance, go into the validation paper. That paper goes to Behavior Research Methods as a preregistered regular article, which is also the fallback route for the ladder study. Psychological Methods becomes the target only if the paper is reframed as a general comparison of diagnostic procedures.
 
-The software paper goes to JOSS, for both packages, once the repository has more than six months of public history and evidence of research use beyond the tool's own papers. JOSS scrutinises single-author projects without community engagement, and its papers must not focus on research results. The JOSS paper therefore describes only the software, covering the diagnostic contract and the design audits. JSS is the single-paper alternative and would replace JOSS.
+The software paper goes to JOSS, for both packages, once the repository has more than six months of public history and evidence of research use beyond the tool's own papers. The condition on public history is met after 14 May 2027. JOSS scrutinises single-author projects without community engagement, and its papers must not focus on research results. The JOSS paper therefore describes only the software, covering the diagnostic contract and the design audits. JSS is the single-paper alternative and would replace JOSS.
 
 Venue facts beyond JOSS's own documentation remain to be confirmed on the publishers' sites in the local session (03-execution-plan.md, Open checks). The work is gated by milestones rather than months (03-execution-plan.md).
 
@@ -419,7 +419,7 @@ The following choices rest with the maintainer. On 8 November 2026, the maintain
 | Choice | Decision or recommended default |
 |---|---|
 | Copyright holder | The maintainer, as LICENSE states (Q10) |
-| Repository visibility | Renamed mixedcheck and made public once M0 is merged and the name checks pass (Q7 and 03-execution-plan.md, M0). The six months of public history JOSS requires start only then (Q9) |
+| Repository visibility | Renamed mixedcheck and made public on 14 November 2026, after M0 was merged and the name checks passed (Q7 and 03-execution-plan.md, M0), which started the six months of public history that JOSS requires (Q9) |
 | First paper and gating of 1.0 | Recommended: a Stage 1 Registered Report on the ladder study after M3 and M3b, with V1, V2 and V7 under an OSF preregistration that gates 1.0 without waiting for review. Settled at P1, with the H0 results in hand (Q9) |
 | Privacy settings | The shareable defaults of Q5 (k = 10 members of the disclosure unit, dominance (2, 0.90), shareable files by default, detail only in internal mode, and exact counts for non-person units, parameters and df), adopted on 8 November 2026, with the counts of columns and df that give back levels that the filter hides suppressed since 12 November 2026 and the class kept-levels accepted in the tier-A guarantee since 13 November 2026 and restated as one class on 14 November 2026, and checked against the UK guidance before 1.0 (Q5) |
 | Python route for designs statsmodels cannot express | statsmodels and bring-your-own estimates, with not_available naming the R and bring-your-own routes (Q1, Q3) |

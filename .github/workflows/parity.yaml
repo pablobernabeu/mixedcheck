@@ -92,8 +92,10 @@ jobs:
         run: python3 parity/parity.py --python "$RUNNER_TEMP/venv/bin/python" --r-lib "$RUNNER_TEMP/rlib"
 
   # Two parts of the inputs, each in its own job, keep a run well within the
-  # time limit on the two cores of the runners for private repositories.
-  # Part 1 also runs the pseudonym cases (differential.py --part).
+  # time limit. They were sized while the repository was private, on runners
+  # with two cores, and each part runs on all the cores of its runner, four on
+  # the Linux runners of a public repository. Part 1 also runs the pseudonym
+  # cases (differential.py --part).
   differential:
     name: Differential test (${{ matrix.part }} of 2)
     runs-on: ubuntu-latest

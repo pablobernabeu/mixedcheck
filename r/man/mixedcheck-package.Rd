@@ -11,8 +11,8 @@ Audits study designs before mixed-effects models are fitted and diagnoses and re
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/pablobernabeu/lmecheck}
-  \item Report bugs at \url{https://github.com/pablobernabeu/lmecheck/issues}
+  \item \url{https://github.com/pablobernabeu/mixedcheck}
+  \item Report bugs at \url{https://github.com/pablobernabeu/mixedcheck/issues}
 }
 
 }

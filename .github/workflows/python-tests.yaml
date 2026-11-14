@@ -157,11 +157,11 @@ jobs:
           PY
           uv tool run --from twine twine check --strict "$RUNNER_TEMP"/dist/*
 
-  # Scheduled runs are paid for while the repository is private, so the
-  # scheduled full matrix runs only once the repository is public. The payload
-  # of a scheduled event may lack the repository object. This job then reads
-  # the visibility from the API, and it is skipped whenever the payload states
-  # it.
+  # The standard runners are free for a public repository and paid for in a
+  # private one, so the scheduled full matrix runs only while the repository
+  # is public. The payload of a scheduled event may lack the repository
+  # object. This job then reads the visibility from the API, and it is skipped
+  # whenever the payload states it.
   visibility:
     name: Repository visibility
     if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'

@@ -315,7 +315,7 @@ class Unreachable(Exception):
 
 def fetch(doi: str) -> dict[str, Any] | None:
     """The Crossref record of a DOI, or None when Crossref does not hold it."""
-    agent = "mixedcheck-reference-check (https://github.com/pablobernabeu/lmecheck)"
+    agent = "mixedcheck-reference-check (https://github.com/pablobernabeu/mixedcheck)"
     mailto = os.environ.get("CROSSREF_MAILTO")
     if mailto:
         agent += f"; mailto:{mailto}"

@@ -10,8 +10,8 @@ Description: Audits study designs before mixed-effects models are fitted
     schemas and the test fixtures are shared with the 'Python' package of
     the same name.
 License: MIT + file LICENSE
-URL: https://github.com/pablobernabeu/lmecheck
-BugReports: https://github.com/pablobernabeu/lmecheck/issues
+URL: https://github.com/pablobernabeu/mixedcheck
+BugReports: https://github.com/pablobernabeu/mixedcheck/issues
 Depends:
     R (>= 4.2.0)
 Imports:

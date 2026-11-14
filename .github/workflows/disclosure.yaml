@@ -4,9 +4,8 @@
 # privacy cases of the audit corpus that the regression attacks read, the
 # pathology zoo, whose stored instances and generators the tests read, or
 # the tests, and with the full matrix of R-CMD-check.yaml: when started by hand,
-# on the 'full-ci' label and nightly once the repository is public. The job
-# fails when an attack recovers a value that docs/spec/privacy.md undertakes
-# to hide.
+# on the 'full-ci' label and nightly. The job fails when an attack recovers a
+# value that docs/spec/privacy.md undertakes to hide.
 name: disclosure
 
 on:
@@ -33,9 +32,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Scheduled runs are paid for while the repository is private. The payload
-  # of a scheduled event may lack the repository object, and this job then
-  # reads the visibility from the API, as in R-CMD-check.yaml.
+  # The standard runners are free for a public repository and paid for in a
+  # private one, so scheduled runs start only while the repository is public.
+  # The payload of a scheduled event may lack the repository object, and this
+  # job then reads the visibility from the API, as in R-CMD-check.yaml.
   visibility:
     name: Repository visibility
     if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'
@@ -50,9 +50,11 @@ jobs:
         run: echo "public=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.private | not')" >> "$GITHUB_OUTPUT"
 
   # Four shards of the families, each in its own job, keep a run within the
-  # time limit on the two cores of the runners for private repositories.
-  # Shard 1 also runs the stored instances of the zoo and the regression and
-  # validation attacks (run.R --shard).
+  # time limit. They were sized while the repository was private, on runners
+  # with two cores, and each shard runs on all the cores of its runner, four
+  # on the Linux runners of a public repository. Shard 1 also runs the stored
+  # instances of the zoo and the regression and validation attacks
+  # (run.R --shard).
   attacks:
     name: Disclosure-attack tests (${{ matrix.shard }} of 4)
     needs: visibility

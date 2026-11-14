@@ -32,7 +32,7 @@
   declaration and YAML corpora, also with `options(OutDec = ",")`.
 
 * `read_table()` reads a CSV file with the strict table reader of the
-  [table specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/tables.md),
+  [table specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/tables.md),
   under the table block of a declaration or with the types inferred from the
   values, and returns a data frame whose attribute `types` holds the column
   types, or reports the first problem with a code of the table area. The
@@ -40,7 +40,7 @@
 
 * `formula_ir()` parses an lme4-style formula with the in-house parser and
   builds the canonical IR of the
-  [IR specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/ir.md)
+  [IR specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/ir.md)
   from the formula, a declaration, the data, the coding argument, the weights
   and the sample columns, or reports the first problem with a code of the
   formula area. It reads a data frame in which only NA is missing, so that
@@ -58,7 +58,7 @@
   cases with a formula.
 
 * `validate_results()` validates a results document in the five stages of the
-  [results specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/documents.md)
+  [results specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/documents.md)
   and, with its internal sidecar, checks the sidecar and verifies the results
   file hash, the commitment keys and, from the data of the run, the
   commitments to the data file, the analysis table and the outcome columns.
@@ -70,9 +70,9 @@
   M2 added, among them E4022 to E4024.
 
 * `audit()` runs the 24 checks of the
-  [registry](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/registry.md)
+  [registry](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/registry.md)
   on the design of a model and returns a results object, in the steps of the
-  [execution plan](https://github.com/pablobernabeu/lmecheck/blob/main/docs/design/03-execution-plan.md)
+  [execution plan](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/design/03-execution-plan.md)
   (M2), with an access log that commits to every outcome column read. The
   outcome-blind checks never read the response, its trials or a declared
   outcome column, and a run that would gives E6069. The environment variable
@@ -84,7 +84,7 @@
   with lpSolve, which joins the Suggests, and is not available without it.
 
 * In shareable mode, the default of `audit()`, the privacy filter of the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   writes as null the values that could disclose a person's data, suppresses
   a finding of an outcome check that rests on such a value, renders messages
   from the written values and replaces labels with pseudonyms, which the
@@ -101,7 +101,7 @@
 
 * The messages of findings write a real statistic of at least 1e15 in
   absolute value in scientific notation, such as 2e+20, as the
-  [registry specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/registry.md)
+  [registry specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/registry.md)
   (Messages) states, and a positive one whose rounding shows only zeros as
   under the smallest positive value, such as under 0.1, so that 1 minority
   event for 21 fixed-effects columns no longer reads as none.
@@ -131,7 +131,7 @@
   predictor removes and suppresses outcome.separation for a fixed
   part that codes one variable, such as one factor, or whose values two rows
   share, in the design or the analysis sample, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   states.
 
 * The privacy filter of `audit()` writes the detail 'secondary' or
@@ -170,7 +170,7 @@
   of one row and another of hundreds of thousands no longer has its
   variance reported as absorbed by the fixed effects, and a covariance whose
   basis cancels across the levels vanishes, as the
-  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
+  [registry entry](https://github.com/pablobernabeu/mixedcheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
   states.
 
 * identifiability.gram_rank is near_threshold when rounding error, whose
@@ -180,7 +180,7 @@
   slope, while exactly confounded parameters stay clear up to about 1e5
   rows. It no longer reports the residual as absorbed by the fixed effects
   when the weights differ by many orders of magnitude, as the
-  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
+  [registry entry](https://github.com/pablobernabeu/mixedcheck/blob/main/spec/registry/checks/identifiability.gram_rank.yaml)
   states.
 
 * `validate_results()` validates a results document in about half the time,
@@ -192,7 +192,7 @@
   minimum-count step suppresses, and to both parts of a total, hides the
   levels of a factor whose analysed rows are too few for levels without one
   row and no longer suppresses a count because it equals a suppressed one, as
-  the [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  the [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   states.
 
 * outcome.separation compares the objectives of the programs that give the
@@ -202,12 +202,12 @@
   further from the exact one than the parameter bound_tolerance allows,
   including when lpSolve cannot solve a program of bounds, so that two clear
   findings of the R and Python packages give the same bounds within it
-  ([registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
+  ([registry entry](https://github.com/pablobernabeu/mixedcheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
 
 * design.scale_disparity sums the squared differences of each column from
   its mean exactly, so that sd_largest and sd_smallest no longer depend on
   the precision of long double on the platform and are the doubles that the
-  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/design.scale_disparity.yaml)
+  [registry entry](https://github.com/pablobernabeu/mixedcheck/blob/main/spec/registry/checks/design.scale_disparity.yaml)
   defines.
 
 * outcome.separation limits the size of its linear programs, the values
@@ -219,10 +219,10 @@
   finding leaves out bounds and columns_involved and keeps its verdict, and
   a program whose dual has no verified solution is solved itself only up to
   the size max_primal_size
-  ([registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
+  ([registry entry](https://github.com/pablobernabeu/mixedcheck/blob/main/spec/registry/checks/outcome.separation.yaml)).
 
 * The privacy filter of `audit()` protects two tiers of values, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   (Tiers) states. Shareable documents write effective_size of
   structure.cluster_sizes, icc of structure.within_between and
   smallest_eigenvalue of identifiability.gram_rank, and combinations of
@@ -259,7 +259,7 @@
   identifiability.levels_vs_dimension, columns of
   identifiability.residual_confounding, budget of identifiability.df_budget
   and design_df of assignment.design_df, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   (Across findings, rule 6) states. The messages that render them fall back
   to texts without these values.
 
@@ -280,7 +280,7 @@
   disclosure unit with the analysed contributors and hides the analysed
   levels of an item of two members or more per level when the written rows
   or contributors would show how many lose every outcome, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   (step 5 of Steps and rule 1 of Across findings) states. `validate_results()`
   reports E7024 for a written ratio beside a suppressed count of any class.
 
@@ -298,7 +298,7 @@
   levels of an item none of whose levels holds two rows of the design
   sample, and with the analysed contributors when the disclosure unit is such
   an item, since each gives back the other, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   (rule 3 of Across findings) states. rank of identifiability.gram_rank is
   suppressed with smallest_eigenvalue, and the message not_identified falls
   back to a text without it.
@@ -307,7 +307,7 @@
   IR splits the units of one column of the pair: when the inner column of a
   pair declared nested, or either column of another pair, appears in no
   grouping factor without the other, as the
-  [registry entry](https://github.com/pablobernabeu/lmecheck/blob/main/spec/registry/checks/structure.label_incidence.yaml)
+  [registry entry](https://github.com/pablobernabeu/mixedcheck/blob/main/spec/registry/checks/structure.label_incidence.yaml)
   states. crossed_split and movers_split no longer fire for a model such as
   `(1 | subject) + (1 | item) + (1 | subject:item)`, in which each column
   keeps a random effect of its own.
@@ -324,7 +324,7 @@
   level lacks every outcome, and events and non_events of a binary outcome
   beside hidden analysed rows, beside which the verdict of the separation
   check stays written, as the
-  [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
+  [privacy specification](https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md)
   (Decisions, Across findings) states. It also hides the analysed rows when
   they come within min_count of the bound that a declared observation key
   places on the design sample, the product of the levels of the key's
@@ -345,3 +345,6 @@
   checked. `validate_results()` reads the data of sidecar verification as
   `audit()` does, so such a data frame gives E5012 there too, where it gave
   E1314 before.
+
+* URL and BugReports in DESCRIPTION give the repository under its new name,
+  https://github.com/pablobernabeu/mixedcheck.

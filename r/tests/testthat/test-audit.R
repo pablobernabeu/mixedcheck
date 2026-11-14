@@ -145,6 +145,58 @@ test_that("the declaration's missing values apply to a data frame", {
   expect_identical(sample$statistics$incomplete_columns$value, list("x"))
 })
 
+test_that("a data frame must keep every declared column within its categories", {
+  # The rule on observation keys of the privacy filter counts a column with
+  # declared categories among those whose levels the declaration gives, so
+  # trial and cond, which the formula does not read, are refused outside
+  # them too, as the table reader refuses them in a file.
+  data <- audit_data()
+  data$cond <- rep(c("A", "E\u0301"), 4L)
+  data$flag <- rep(c(TRUE, FALSE), 4L)
+  declaration <- list(vocabulary = "0.1.0", observation = list(key = list("subject", "trial")),
+                      table = list(missingValues = list("", "-99"), fields = list(
+    list(name = "y", type = "number"), list(name = "x", type = "number"),
+    list(name = "subject", type = "string"),
+    list(name = "trial", type = "integer", categories = list(1, 2)),
+    list(name = "cond", type = "string",
+         categories = list(list(value = "A"), list(value = "\u00c9", label = "E acute"))),
+    list(name = "flag", type = "boolean")
+  )))
+  # NFC compares strings, and a category given as an object matches
+  # through its value.
+  expect_s3_class(audit_at_zero(data = data, declaration = declaration), "mixedcheck_results")
+  data$cond[2L] <- "E"
+  issue <- audit_issue(data = data, declaration = declaration)
+  expect_identical(issue$code, "E5012")
+  expect_identical(issue$pointer, "/data/cond/1")
+  expect_identical(issue$message,
+                   "The value of the column 'cond' at /data/cond/1 is not one of its declared categories.")
+  # Missing values are not compared.
+  data$cond[c(2L, 4L)] <- c("-99", NA)
+  expect_s3_class(audit_at_zero(data = data, declaration = declaration), "mixedcheck_results")
+  # Integers compare by value, the earliest row comes first and, within a
+  # row, the first column of the data frame.
+  data$trial[7L] <- 3
+  data$cond[7L] <- "C"
+  expect_identical(audit_issue(data = data, declaration = declaration)$pointer, "/data/trial/6")
+  data$trial[7L] <- 1.5
+  data$cond[5L] <- "C"
+  expect_identical(audit_issue(data = data, declaration = declaration)$pointer, "/data/cond/4")
+  data$cond[5L] <- "A"
+  expect_identical(audit_issue(data = data, declaration = declaration)$pointer, "/data/trial/6")
+  data$trial[7L] <- NaN
+  expect_identical(audit_issue(data = data, declaration = declaration)$pointer, "/data/trial/6")
+  data$trial[7L] <- 1L
+  data$cond[7L] <- "A"
+  expect_s3_class(audit_at_zero(data = data, declaration = declaration), "mixedcheck_results")
+  # The pointer names the column as the data frame does.
+  names(data)[5L] <- "co/nd~"
+  declaration$table$fields[[5L]]$name <- "co/nd~"
+  data[[5L]][2L] <- "C"
+  expect_identical(audit_issue(data = data, declaration = declaration)$pointer,
+                   "/data/co~1nd~0/1")
+})
+
 test_that("MIXEDCHECK_TIME sets every time of a run, and other values are refused", {
   results <- audit_at_zero(time = "1767225600", outcome_access = "T1", reason = "Look.")
   document <- results$document

@@ -246,13 +246,11 @@
   analysed row, unless each member has one row in the design sample. The
   documentation of `audit()` states what shareable mode hides. The guarantee
   for values derived from the outcome accepts, as the privacy specification
-  (Guarantees) states, that a document which bounds the rows without an
-  outcome, below min_count when the rows of the design sample exceed the
-  analysed rows by fewer than min_count, or through its written rows, also
-  shows that a level known to hold more rows than that bound kept an
-  analysed row, and two when it holds one row more, such as a subject
-  crossed with more items than the bound. The specification names the
-  determinations that the guarantee does not yet cover.
+  (Guarantees) states, that a document may show, by any of its values, that
+  no level of a grouping factor and no member of the disclosure unit lost
+  every outcome, or that none of two rows or more kept fewer than two
+  analysed rows, but not such a count above 0, the rows or a count of levels
+  that are the rows themselves.
 
 * The privacy filter of `audit()` suppresses, with the detail 'secondary',
   the counts of columns that would give back the levels of an item that it
@@ -337,3 +335,13 @@
   a level of fewer than min_count rows, since beside levels that the
   document shows to have kept an outcome the analysed rows would show that
   no outcome is missing.
+
+* `audit()` refuses a data frame whose column holds a value outside the
+  declared categories of its field with E5012, whether or not the formula
+  reads the column, as `read_table()` refuses such a value in a file with
+  E5007, since the privacy filter relies on the declared categories of a
+  column of the observation key to bound its levels. A predictor outside its
+  categories gave an ordinary error before, and other columns were not
+  checked. `validate_results()` reads the data of sidecar verification as
+  `audit()` does, so such a data frame gives E5012 there too, where it gave
+  E1314 before.

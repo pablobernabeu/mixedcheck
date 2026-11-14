@@ -112,7 +112,9 @@ def validate_results(
             sidecar lacks and E1314 at each commitment that the data do not
             match. A declaration that is not valid, or data that cannot be
             read, give the error of :func:`validate_declaration` or
-            :func:`read_table`.
+            :func:`read_table`, and a DataFrame with a value outside the
+            declared categories of its field gives E5012, as in
+            :func:`audit`.
         TypeError: An argument of the wrong type.
         ValueError: ``data`` without a sidecar, ``declaration`` without
             ``data``, or a document that commits to a data file verified with

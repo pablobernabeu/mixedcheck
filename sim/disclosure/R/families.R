@@ -706,14 +706,15 @@ dh_family_blocks <- function() {
 # disclosure unit, or there is none. crossed takes g and h of 2 to 4, so
 # that its tables of 3 levels of each lie inside its limits, and valid()
 # leaves every level of h a combination that is not empty. Its alternatives
-# trace the determinations of those tables (dh_crossed_alternatives()).
+# trace the determinations of those tables (dh_crossed_alternatives()), and
+# the class kept-levels accepts the others (R/kept.R), so both gate attack
+# (a).
 dh_family_crossed <- function(unit) {
   sizes <- if (unit) 3:4 else 2:4
   dh_family(
     name = paste0("crossed", if (unit) "-unit" else ""),
     probe = "^structure\\.(label_incidence|connectivity)|g:h",
     description = "two crossed factors, cells of one row, empty cells, missing outcomes, T1",
-    gate = unit,
     alternatives = if (!unit) dh_crossed_alternatives,
     params = list(
       g = dh_param(sizes, person = FALSE, natural = c(FALSE, FALSE)),
@@ -767,7 +768,9 @@ dh_crossed_case <- function(sizes, missing, unit = FALSE) {
 
 # The alternatives of crossed, tables outside the family that read alike with
 # a table of 3 levels of g and of h and give a determination of it another
-# value, found by the analysis of 13 November 2026 (docs/provenance.md): the
+# value, found by the analysis of 13 November 2026 (docs/provenance.md) and,
+# for the determinations that only the full reduction makes, by the review
+# of 14 November 2026: the
 # cells rearranged within the 3 by 3 design, a further level of g or of h, or
 # of both, with rows without an outcome, the analysed rows gathered in one
 # level and cells of one row placed so that rule 3 hides the analysed
@@ -905,6 +908,12 @@ dh_crossed_tables <- c(
     "2,0,0/0,0,0/0,0,0",
   "1,0,0", "single_half_7", "2,2,2/2,2,2/2,2,2",
     "0,0,1/0,0,0/0,0,0",
+  "1,0,1", "singles_1_5_9", "1,2,2/2,1,2/2,2,1",
+    "0,0,0/0,0,0/0,0,0",
+  "1,0,1", "singles_1_5_half_9", "1,2,2/2,1,2/2,2,2",
+    "0,0,0/0,0,0/0,0,1",
+  "1,0,1", "halves_5_9", "1,2,2/2,2,2/2,2,2",
+    "0,0,0/0,1,0/0,0,1",
   "1,0,2", "E1", "2,2,1/2,3,1/4,1,1",
     "0,0,0/0,1,1/0,1,1",
   "1,0,2", "T13a", "1,1,1/3,2,2/2,3,2",
@@ -937,6 +946,8 @@ dh_crossed_tables <- c(
     "0,0,0,1/0,0,0,0/0,0,0,0",
   "1,1,0", "single_half_8", "2,2,0/2,2,2/2,2,2",
     "0,0,0/0,0,1/0,0,0",
+  "1,1,0", "extra_missing_1", "3,2,0/2,2,1/2,2,2",
+    "1,0,0/0,0,0/0,0,0",
   "1,1,1", "T12b", "4,1,0/1,3,1/1,1,1/1,1,0",
     "0,0,0/0,0,1/0,0,0/0,1,0",
   "1,1,1", "c1+1+0 c2-1+0", "3,2,0/1,2,1/2,2,2",

@@ -54,7 +54,9 @@
 #'   `/results_hash`, E1313 for each key that the sidecar lacks and E1314 at
 #'   each commitment that the data do not match. A declaration that is not
 #'   valid, or data that cannot be read, give the error of
-#'   [validate_declaration()] or [read_table()]. Arguments of the wrong type,
+#'   [validate_declaration()] or [read_table()], and a data frame with a
+#'   value outside the declared categories of its field gives E5012, as in
+#'   [audit()]. Arguments of the wrong type,
 #'   `data` without a sidecar and `declaration` without `data` give an
 #'   ordinary error.
 #' @family results documents

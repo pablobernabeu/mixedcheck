@@ -12,11 +12,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from mixedcheck._declaration import list_item_value
-from mixedcheck._errors import internal_error
+from mixedcheck._errors import internal_error, raise_issue
 from mixedcheck._formula_ir import ModelTable, _declared_column, input_string, model_table
 from mixedcheck._hash import keyed_commitment
 from mixedcheck._json_read import read_input_bytes
-from mixedcheck._json_write import quote_json_string
+from mixedcheck._json_write import json_pointer, quote_json_string
 from mixedcheck._numbers import format_number
 from mixedcheck._table import _BAD_TYPE, _number, read_table_bytes, table_frame
 from mixedcheck._unicode import comparison_form
@@ -38,7 +38,8 @@ def run_data(data: Any, declaration: Any) -> RunData:
     """The data of a run (03-execution-plan.md, M2, step 3): a CSV file read by
     the table reader with the declaration's table block, or a DataFrame
     converted as formula_ir() converts it, after the declaration's missing
-    values are applied when it has a table block (tables.md, Missing values).
+    values are applied when it has a table block and with E5012 for a value
+    outside the declared categories of its field (tables.md, Missing values).
     The declaration is None or a value that validate_declaration() returned."""
     import pandas as pd
 
@@ -55,7 +56,48 @@ def run_data(data: Any, declaration: Any) -> RunData:
     _check_missing_value_strings(data, table_block)
     table = model_table(data, [])
     apply_missing_values(table, table_block)
+    declared_categories_held(table, fields)
     return RunData(table, None)
+
+
+def declared_categories_held(table: ModelTable, fields: list[dict[str, Any]]) -> None:
+    """E5012 for the first value of a DataFrame, in row order and then in the
+    order of its columns, that is not missing and is not one of the declared
+    categories of its field, compared after NFC for a field of type 'string'
+    and by value for one of type 'integer', as the table reader checks a file
+    (tables.md, Missing values). The rule on observation keys of the privacy
+    filter counts a column with declared categories among those whose levels
+    the declaration gives, whether or not the formula reads it."""
+    import numpy as np
+
+    field_keys = [comparison_form(field["name"]) for field in fields]
+    first: tuple[int, str] | None = None
+    for j, key in enumerate(table.keys):
+        if key not in field_keys:
+            continue
+        categories = fields[field_keys.index(key)].get("categories")
+        if categories is None:
+            continue
+        allowed = [list_item_value(item) for item in categories]
+        values = table.values[j]
+        if table.types[j] == "string":
+            forms = {comparison_form(value) for value in allowed}
+            inside = np.fromiter(
+                (
+                    m or comparison_form(value) in forms
+                    for value, m in zip(values.tolist(), table.missing[j].tolist(), strict=True)
+                ),
+                dtype=bool,
+                count=len(values),
+            )
+        else:
+            inside = np.isin(values, np.array(allowed, dtype=np.float64)) | table.missing[j]
+        outside = np.flatnonzero(~inside)
+        if outside.size and (first is None or int(outside[0]) < first[0]):
+            first = (int(outside[0]), table.names[j])
+    if first is not None:
+        row, name = first
+        raise_issue("E5012", {"column": name}, pointer=json_pointer(["data", name, str(row)]))
 
 
 def _missing_values(table_block: dict[str, Any], key: str) -> list[str]:

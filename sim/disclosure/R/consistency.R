@@ -162,6 +162,10 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
     # Whether each target is of the class kept-levels in this table
     # (R/kept.R).
     targets$kept <- dh_kept_levels(ns, result, targets)
+    # Whether each target is a value that rule 1 or 3 of Across findings
+    # exists to hide (R/kept.R), which a determination of the full
+    # reduction alone leaves a candidate (dh_determinations()).
+    targets$hides <- dh_rule_hides(result, targets)
     full <- dh_reduce(document)
     lp <- NULL
     if (intervals && is.null(audited[[full]])) {
@@ -188,13 +192,18 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
 # for each hidden value or person-count parameter that a group of interior
 # tables determines, with the mode of the reduction, the target, its value,
 # the size of the group, its first table, its tier (dh_tier()), whether it
-# is of the class kept-levels in every table of the group (dh_kept_levels())
-# and the verdict: 'leak' when the strict reduction determines an
-# outcome-derived value, 'residual' when it determines a design-structure
-# value, 'accepted' when only the full reduction determines it, or when the
-# value is a quantile shared by k or more values, a count derived from
-# written statistics or a value that the design forces in every table of
-# the group. dh_kept_verdict() gives a leak of the class its own verdict.
+# is of the class kept-levels in every table of the group (dh_kept_levels()),
+# whether it is a value that rule 1 or 3 of Across findings exists to hide
+# (dh_rule_hides()) and the verdict: 'leak' when the strict reduction
+# determines an outcome-derived value, 'residual' when it determines a
+# design-structure value, 'full' when only the full reduction determines
+# such a value of rule 1 or 3 outside the class, which privacy.md
+# (Guarantees) asks the filter to close where a narrow rule exists and which
+# dh_alternatives() then traces or leaves 'full-only', and 'accepted' when
+# only the full reduction determines another value, or when the value is a
+# quantile shared by k or more values, a count derived from written
+# statistics or a value that the design forces in every table of the group.
+# dh_kept_verdict() gives a leak of the class its own verdict.
 # The differences from the analysis sample (dh_difference_targets()) are
 # kept whatever the probe of the family, since every family with a T1 or T2
 # run varies the rows without an outcome.
@@ -252,7 +261,8 @@ dh_determinations <- function(ran, k = ran$family$k) {
             shared = row$shared,
             derived = any(mine$derived[mine$key == key]) || all(mine$forced[mine$key == key]),
             group = length(group), table = inside[1L], tier = row$tier,
-            kept = all(mine$kept[mine$key == key]), stringsAsFactors = FALSE)
+            kept = all(mine$kept[mine$key == key]), hides = any(mine$hides[mine$key == key]),
+            stringsAsFactors = FALSE)
         }
       }
       for (p in persons) {
@@ -263,6 +273,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
             mode = mode, target = paste("parameter", p), value = as.character(values),
             class = "person", shared = NA_real_, derived = FALSE, group = length(group),
             table = inside[1L], tier = dh_tier(paste("parameter", p), family), kept = FALSE,
+            hides = identical(dh_tier(paste("parameter", p), family), "A"),
             stringsAsFactors = FALSE)
         }
       }
@@ -272,7 +283,8 @@ dh_determinations <- function(ran, k = ran$family$k) {
     return(data.frame(mode = character(0), target = character(0), value = character(0),
                       class = character(0), shared = numeric(0), derived = logical(0),
                       group = integer(0), table = integer(0), tier = character(0),
-                      kept = logical(0), verdict = character(0), stringsAsFactors = FALSE))
+                      kept = logical(0), hides = logical(0), verdict = character(0),
+                      stringsAsFactors = FALSE))
   }
   found <- do.call(rbind, found)
   strict <- paste(found$table, found$target)[found$mode == "strict"]
@@ -284,6 +296,14 @@ dh_determinations <- function(ran, k = ran$family$k) {
   # Guarantees).
   shared <- !is.na(found$shared) & found$shared >= k
   found$verdict[shared | found$derived] <- "accepted"
+  # Where the full reduction alone fixes a value that rule 1 or 3 exists to
+  # hide, outside the class kept-levels, privacy.md (Guarantees) asks the
+  # filter to close the inference with a narrow rule where one exists, so
+  # the determination is traced by the alternatives of the family, compared
+  # in the full reduction, or reported as a candidate.
+  full <- found$mode == "full" & found$verdict == "accepted" & !shared & !found$derived &
+    found$tier == "A" & found$hides & !found$kept
+  found$verdict[full] <- "full"
   # A design-structure value is protected against the linear relations of
   # the document alone, which attack (b) models. The search cannot tell a
   # linear determination from another, so its determinations of
@@ -326,24 +346,29 @@ dh_search <- function(ns, family, cores = 1L, widen = 1L, intervals = FALSE) {
 }
 
 # The alternatives of a family (dh_family(alternatives =)): for each table at
-# which the strict reduction determines a value, the tables outside the
-# family that its alternatives() builds from the table's parameters and case
-# are audited, and those whose strict reduction equals the table's trace
-# every determination whose target takes another value in them, or, for a
-# parameter of the family, whose value the alternative's attribute params
-# gives otherwise. A traced determination has the verdict 'traced' and the
-# name of the alternative in the column traced, and never fails the run.
-# The alternatives themselves are never reported, as the widened tables are
-# not.
+# which the strict reduction determines a value, or the full reduction alone
+# a value of rule 1 or 3 (the verdict 'full' of dh_determinations()), the
+# tables outside the family that its alternatives() builds from the table's
+# parameters and case are audited, and those whose reduction of the same
+# mode equals the table's trace every determination of that mode whose
+# target takes another value in them, or, for a parameter of the family,
+# whose value the alternative's attribute params gives otherwise. A traced
+# determination has the verdict 'traced' and the name of the alternative in
+# the column traced, and never fails the run. A determination of the full
+# reduction that no alternative traces has the verdict 'full-only', which
+# the report lists as a candidate. The alternatives themselves are never
+# reported, as the widened tables are not.
 dh_alternatives <- function(ns, family, ran, found) {
   found$traced <- rep("", nrow(found))
   if (is.null(family$alternatives) || !nrow(found)) {
+    found$verdict[found$verdict == "full"] <- "full-only"
     return(found)
   }
   old <- dh_set_k(ns, family$k)
   on.exit(dh_set_k(ns, old), add = TRUE)
   reals <- isTRUE(family$reals)
-  open <- found$mode == "strict" & found$verdict %in% c("leak", "residual")
+  open <- (found$mode == "strict" & found$verdict %in% c("leak", "residual")) |
+    found$verdict == "full"
   for (t in unique(found$table[open])) {
     p <- as.list(ran$grid[t, , drop = FALSE])
     base <- ran$runs[[t]]
@@ -361,7 +386,10 @@ dh_alternatives <- function(ns, family, ran, found) {
         next
       }
       document <- if (reals) result$document else dh_mask_reals(result$document)
-      if (!identical(dh_reduce(document, strict = TRUE), base$strict)) {
+      alike <- c(strict = identical(dh_reduce(document, strict = TRUE), base$strict),
+                 full = identical(dh_reduce(document), base$full))
+      rows <- rows[alike[found$mode[rows]]]
+      if (!length(rows)) {
         next
       }
       targets <- dh_targets(result)
@@ -383,6 +411,7 @@ dh_alternatives <- function(ns, family, ran, found) {
     }
   }
   found$verdict[found$traced != ""] <- "traced"
+  found$verdict[found$verdict == "full"] <- "full-only"
   found
 }
 

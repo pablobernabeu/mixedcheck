@@ -244,6 +244,75 @@ def test_the_declarations_missing_values_apply_to_a_data_frame() -> None:
     assert error is not None and "declares the type 'number'" in error
 
 
+def test_a_data_frame_must_keep_every_declared_column_within_its_categories() -> None:
+    # The rule on observation keys of the privacy filter counts a column with
+    # declared categories among those whose levels the declaration gives, so
+    # trial and cond, which the formula does not read, are refused outside
+    # them too, as the table reader refuses them in a file.
+    data = audit_data()
+    data["cond"] = ["A", "E\u0301"] * 4
+    data["flag"] = [True, False] * 4
+    declaration: dict[str, Any] = {
+        "vocabulary": "0.1.0",
+        "observation": {"key": ["subject", "trial"]},
+        "table": {
+            "missingValues": ["", "-99"],
+            "fields": [
+                {"name": "y", "type": "number"},
+                {"name": "x", "type": "number"},
+                {"name": "subject", "type": "string"},
+                {"name": "trial", "type": "integer", "categories": [1, 2]},
+                {
+                    "name": "cond",
+                    "type": "string",
+                    "categories": [{"value": "A"}, {"value": "\u00c9", "label": "E acute"}],
+                },
+                {"name": "flag", "type": "boolean"},
+            ],
+        },
+    }
+
+    def pointer() -> str | None:
+        issue = audit_issue(data=data, declaration=declaration)
+        return None if issue is None else str(issue["pointer"])
+
+    # NFC compares strings, and a category given as an object matches
+    # through its value.
+    assert isinstance(audit_at_zero(data=data, declaration=declaration), Results)
+    data.loc[1, "cond"] = "E"
+    issue = audit_issue(data=data, declaration=declaration)
+    assert issue is not None
+    assert issue["code"] == "E5012"
+    assert issue["pointer"] == "/data/cond/1"
+    assert issue["message"] == (
+        "The value of the column 'cond' at /data/cond/1 is not one of its declared categories."
+    )
+    # Missing values are not compared.
+    data.loc[1, "cond"] = "-99"
+    data.loc[3, "cond"] = None
+    assert isinstance(audit_at_zero(data=data, declaration=declaration), Results)
+    # Integers compare by value, the earliest row comes first and, within a
+    # row, the first column of the data frame.
+    data.loc[6, "trial"] = 3.0
+    data.loc[6, "cond"] = "C"
+    assert pointer() == "/data/trial/6"
+    data.loc[6, "trial"] = 1.5
+    data.loc[4, "cond"] = "C"
+    assert pointer() == "/data/cond/4"
+    data.loc[4, "cond"] = "A"
+    assert pointer() == "/data/trial/6"
+    data.loc[6, "trial"] = math.nan
+    assert pointer() == "/data/trial/6"
+    data.loc[6, "trial"] = 1.0
+    data.loc[6, "cond"] = "A"
+    assert isinstance(audit_at_zero(data=data, declaration=declaration), Results)
+    # The pointer names the column as the data frame does.
+    data = data.rename(columns={"cond": "co/nd~"})
+    declaration["table"]["fields"][4]["name"] = "co/nd~"
+    data.loc[1, "co/nd~"] = "C"
+    assert pointer() == "/data/co~1nd~0/1"
+
+
 def test_mixedcheck_time_sets_every_time_of_a_run(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MIXEDCHECK_TIME", "1767225600")
     results = audit_at_zero(outcome_access="T1", reason="Look.")

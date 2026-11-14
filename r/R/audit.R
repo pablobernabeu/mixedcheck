@@ -106,7 +106,9 @@
 #'   valid reason, at T2 without the exploratory mode or with a formula
 #'   without a response, E1311 for a key of the wrong form, E1312 when no
 #'   secure source of random bytes is available to create one, the error of
-#'   [validate_declaration()] or [read_table()], E5011 for a column that the
+#'   [validate_declaration()] or [read_table()], E5012 for a value of a data
+#'   frame that is not one of the declared categories of its field, whether
+#'   or not the formula reads its column, E5011 for a column that the
 #'   declaration names and the data lack, the error of [formula_ir()], E6069
 #'   for a predictor, grouping variable, offset, weights column, sample
 #'   column, column of the observation key, column of a declared unit or

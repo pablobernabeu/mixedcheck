@@ -40,6 +40,8 @@ A data frame passed in memory to `audit()` with a declaration that has a table b
 
 A data frame is not matched against the fields of the table block, since it has no header: the rules on column names that `formula_ir()` applies to a data frame give ordinary errors (03-execution-plan.md, M2), `audit()` refuses a declared column that the data frame lacks with E5011, and the keys of the table block are not checked, so that keys.duplicates reports what it finds.
 
+`audit()` checks the values of a data frame against the declared categories as the reader checks those of a file (Categories), once it has applied the missing values. Each column of the data frame whose name equals the name of a field with `categories` after NFC must hold only missing values and categories of its field, compared after NFC for a field of type 'string' and by value for a field of type 'integer', whether or not the formula reads the column. Otherwise `audit()` reports E5012 at the JSON Pointer of the value, `/data/<column>/<row>`, with the column named as the data frame names it and the row counted from 0, for the value in the earliest such row and, within that row, in the first such column of the data frame, which is the order in which the reader meets the values of a file. `validate_results()` reads the data frame of sidecar verification as `audit()` does, so it reports E5012 there too. The privacy filter relies on this, since the rule on observation keys counts a column with declared categories among the columns whose levels the declaration gives, also when the formula does not read it (privacy.md, Across findings, rule 1). `formula_ir()` and `design_matrices()` do not check a data frame against the declared categories, and `design_matrices()` refuses a value of a predictor that is not one of its levels in the IR with an ordinary error.
+
 ## Field types
 
 Each value that is not missing must have the lexical form of its field's type, or the reader reports E5006 at its field, naming the type as 'an integer', 'a number', 'a boolean', 'a date' or 'a date and time'. These forms are the Frictionless defaults: no group character, '.' as the decimal character and bare numbers without currency signs or units.
@@ -59,7 +61,7 @@ A field without a type has the Frictionless type 'any' and is read as a string (
 
 ## Categories
 
-A value of a field with `categories` that is not missing and has the field's type must be one of the categories (E5007 at its field), compared after NFC for a field of type 'string' and by value, as an integer, for a field of type 'integer'. A category given as an object matches through its `value`. A value outside the categories is never read as missing or recoded.
+A value of a field with `categories` that is not missing and has the field's type must be one of the categories (E5007 at its field), compared after NFC for a field of type 'string' and by value, as an integer, for a field of type 'integer'. A category given as an object matches through its `value`. A value outside the categories is never read as missing or recoded. `audit()` applies the same rule to a data frame, with E5012 (Missing values).
 
 ## Columns without a table block
 
@@ -91,7 +93,7 @@ The declared observation key need not be a key of the table block. Its duplicate
 | E5009 | table_primary_key_duplicate | a record has the same values in the primary key as an earlier record |
 | E5010 | table_unique_key_duplicate | a record has the same values in a unique key as an earlier record |
 
-The argument {value} of E5006 and E5007 is the raw value and {column} of E5006 to E5008 the column name as the header writes it, each after display escaping and truncation (errors.md, Rendering messages). {earlier} of E5009 and E5010 is the byte offset of the first earlier record with the same values, and {index} of E5010 the position of the unique key in `uniqueKeys`, counted from 1.
+The argument {value} of E5006 and E5007 is the raw value and {column} of E5006 to E5008 the column name as the header writes it, and {column} of E5012 the column name as the data frame names it, each after display escaping and truncation (errors.md, Rendering messages). {earlier} of E5009 and E5010 is the byte offset of the first earlier record with the same values, and {index} of E5010 the position of the unique key in `uniqueKeys`, counted from 1.
 
 ## References
 

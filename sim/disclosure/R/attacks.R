@@ -152,11 +152,13 @@ dh_run_attacks <- function(ns, root, attacks = c("a", "b", "c", "v"), families =
 # determinations that privacy.md accepts, those of the class kept-levels
 # (dh_kept_levels()), those that an alternative of the family traces
 # (dh_alternatives()), those that it leaves as residual risk and the errors
-# of the harness, with the number of tables. A
-# determination of an outcome-derived value is a leak of attack (a) in a
-# family that gates the run and a candidate in another, and a leak of attack
-# (b) when it is determined, or bound below k by the written values without
-# the bounds of details. A design-structure value is a leak of attack (b)
+# of the harness, with the number of tables. A determination of an
+# outcome-derived value by the strict reduction is a leak of attack (a) in a
+# family that gates the run and a candidate in another, a determination of
+# a value of rule 1 or 3 that only the full reduction makes and no
+# alternative traces is a candidate in every family, and a value is a leak
+# of attack (b) when it is determined, or bound below k by the written
+# values without the bounds of details. A design-structure value is a leak of attack (b)
 # when the linear relations alone determine it, and residual risk when only
 # other inferences do.
 # Each leak has a key that identifies where it was found whatever the order
@@ -220,6 +222,17 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
           reproducer = params, key = params, stringsAsFactors = FALSE)
       }
     }
+    # A value of rule 1 or 3 that only the full reduction determines and no
+    # alternative traces is a candidate in every family, since privacy.md
+    # (Guarantees) states the guarantee in the strict reduction and asks the
+    # filter to close such an inference where a narrow rule exists.
+    for (j in which(found$verdict == "full-only")) {
+      params <- dh_params(grid, found$table[j])
+      candidates[[length(candidates) + 1L]] <- data.frame(
+        attack = "a", where = family$name,
+        target = paste(found$target[j], "(full reduction)"), value = found$value[j],
+        reproducer = params, key = params, stringsAsFactors = FALSE)
+    }
   }
   if ("b" %in% attacks) {
     for (i in which(!failed)) {
@@ -263,44 +276,27 @@ dh_family_attacks <- function(ns, family, attacks = c("a", "b"), cores = 1L, wid
 # The channels of outcome-derived values, or linear relations of
 # design-structure values, that docs/spec/privacy.md (Guarantees) records as
 # not closed, each a list with an id, the attack and the families, or for
-# attack (c) the regression attack, that find it, and its places: each
+# attack (c) the regression attacks, that find it, and its places: each
 # target with the table of the family, as its reproducer names it, or
 # 'R/regressions.R' for attack (c). A determination elsewhere, even of the
 # same target, is reported as a leak or a candidate, and a listed place that
 # no attack finds is an error of the harness when its family runs.
-# privacy.md records three kinds of determinations that the guarantee does
-# not yet cover (03-execution-plan.md, M2, Open items): values that a bound
-# on the rows without an outcome fixes only together with the dominance
-# rule, its detail or the written counts of combinations of crossed
-# columns, the seven of crossed that the README lists, values that it fixes
-# only with a status of a T0 check that is inferred within a tolerance, the
-# analysed subjects of zoo-separation, and values that the written rows of
-# a sample that holds the design sample fix through the relation crossed,
-# which bounds the product of the levels of the two columns there by those
-# rows, as R14-product-bound shows.
+# privacy.md records one such channel, an inference that the full reduction
+# makes and that docs/design/03-execution-plan.md (M2, Decisions that bind
+# later milestones) accepts: the relation crossed and the number of combinations of
+# two crossed columns that the design sample writes, or that the message
+# unique of keys.duplicates makes its rows, fix a count above 0 of levels
+# without any outcome.
 dh_known_channels <- function() {
   place <- function(target, table) {
     data.frame(target = target, table = table, stringsAsFactors = FALSE)
   }
-  difference <- function(member) sprintf("D design minus analysis | %s | difference", member)
-  crossed <- function(single, empty, y_missing) {
-    sprintf("g=3, h=3, single=%d, empty=%d, y_missing=%d", single, empty, y_missing)
-  }
-  product <- Find(function(a) a$id == "R14-product-bound", rg_attacks())
+  product <- Filter(function(a) a$id %in% c("R14-crossed-product", "R14-crossed-key-product"),
+                    rg_attacks())
   list(
-    list(id = "bound-with-other-values", attack = "a", family = "crossed",
-         places = rbind(
-           place(difference(c("levels_with_two_rows g", "levels_with_two_rows h")),
-                 crossed(0L, 0L, 0L)),
-           place(difference("contributors"), crossed(0L, 0L, 2L)),
-           place(difference("contributors"), crossed(1L, 0L, 3L)),
-           place(difference(c("contributors", "levels g", "levels h")), crossed(1L, 0L, 2L)))),
-    list(id = "bound-with-inferred-status", attack = "a", family = "zoo-separation",
-         places = place(sprintf("outcome.minority_events factor=subject | %s | secondary",
-                                c("levels", "support.distinct")),
-                        "subjects=3, items_per_condition=1, ceiling=0, y_missing=0")),
-    list(id = "bound-through-crossed-rows", attack = "c", family = product$id,
-         places = place(product$channel, "R/regressions.R"))
+    list(id = "crossed-product", attack = "c",
+         family = vapply(product, function(a) a$id, ""),
+         places = place(vapply(product, function(a) a$channel, ""), "R/regressions.R"))
   )
 }
 

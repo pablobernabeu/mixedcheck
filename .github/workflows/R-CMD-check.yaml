@@ -44,10 +44,9 @@ jobs:
     timeout-minutes: 30
     # check-r-package turns CRAN's incoming checks off unless
     # _R_CHECK_CRAN_INCOMING_ is set, and this job checks the package as CRAN
-    # would. The remote incoming checks would report a new submission and,
-    # while the repository is private, invalid URLs. The development version
-    # 0.0.0.9000 has a large component by convention. The full matrix runs
-    # without the incoming checks.
+    # would. The remote incoming checks would report a new submission. The
+    # development version 0.0.0.9000 has a large component by convention. The
+    # full matrix runs without the incoming checks.
     env:
       _R_CHECK_CRAN_INCOMING_: true
       _R_CHECK_CRAN_INCOMING_REMOTE_: false
@@ -73,11 +72,11 @@ jobs:
           args: 'c("--no-manual", "--as-cran")'
           error-on: '"note"'
 
-  # Scheduled runs are paid for while the repository is private, and macOS
-  # minutes count tenfold, so the scheduled full matrix runs only once the
-  # repository is public. The payload of a scheduled event may lack the
-  # repository object. This job then reads the visibility from the API, and it
-  # is skipped whenever the payload states it.
+  # The standard runners are free for a public repository and paid for in a
+  # private one, so the scheduled full matrix runs only while the repository
+  # is public. The payload of a scheduled event may lack the repository
+  # object. This job then reads the visibility from the API, and it is skipped
+  # whenever the payload states it.
   visibility:
     name: Repository visibility
     if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'

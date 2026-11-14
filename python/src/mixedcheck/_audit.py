@@ -132,7 +132,7 @@ def audit(
 
     Shareable mode, the default, passes the findings through the privacy
     filter of the `privacy specification
-    <https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md>`_.
+    <https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md>`_.
     It writes as null, with the reason privacy_suppressed and the rule that
     applied, the values that could disclose a person's data: counts of
     persons below the minimum count of the registry, values of findings with

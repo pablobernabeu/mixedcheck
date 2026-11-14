@@ -118,7 +118,7 @@ a run can be repeated byte for byte.
 
 Shareable mode, the default, passes the findings through the privacy
 filter of the
-\href{https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md}{privacy specification}.
+\href{https://github.com/pablobernabeu/mixedcheck/blob/main/docs/spec/privacy.md}{privacy specification}.
 It writes as null, with the reason privacy_suppressed and the rule that
 applied, the values that could disclose a person's data: counts of
 persons below the minimum count of the registry, values of findings with

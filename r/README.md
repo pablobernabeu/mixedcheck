@@ -51,7 +51,7 @@ and `None` in Python. The tests run every case of the JSON, number, Unicode,
 hash, HMAC, declaration, YAML, table, formula, results and audit corpora,
 with the cases of the privacy filter in both modes, and audit every fixture
 of the pathology zoo in both modes. The
-[parity harness](https://github.com/pablobernabeu/lmecheck/tree/main/parity)
+[parity harness](https://github.com/pablobernabeu/mixedcheck/tree/main/parity)
 of the repository checks that both packages agree on every case of the
 corpora and the pathology zoo, and its differential test that they agree on
 the tables of the disclosure-attack harness, on generated designs and on the
@@ -82,7 +82,7 @@ It needs R 4.2.0 or later. To install it from a clone of the repository:
 R CMD INSTALL r
 ```
 
-The [repository](https://github.com/pablobernabeu/lmecheck) holds the design
+The [repository](https://github.com/pablobernabeu/mixedcheck) holds the design
 documents and both packages. Changes are listed in
-[NEWS.md](https://github.com/pablobernabeu/lmecheck/blob/main/r/NEWS.md). The
+[NEWS.md](https://github.com/pablobernabeu/mixedcheck/blob/main/r/NEWS.md). The
 package is MIT-licensed.

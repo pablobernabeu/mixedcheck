@@ -35,9 +35,9 @@ dependencies = ["numpy>=2.3", "pandas>=2.3", "scipy>=1.15.3"]
 yaml = ["PyYAML>=6.0.1"]
 
 [project.urls]
-Repository = "https://github.com/pablobernabeu/lmecheck"
-Issues = "https://github.com/pablobernabeu/lmecheck/issues"
-Changelog = "https://github.com/pablobernabeu/lmecheck/blob/main/python/CHANGELOG.md"
+Repository = "https://github.com/pablobernabeu/mixedcheck"
+Issues = "https://github.com/pablobernabeu/mixedcheck/issues"
+Changelog = "https://github.com/pablobernabeu/mixedcheck/blob/main/python/CHANGELOG.md"
 
 [dependency-groups]
 test = ["pytest>=8.0"]

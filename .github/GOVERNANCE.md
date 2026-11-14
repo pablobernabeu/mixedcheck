@@ -20,4 +20,4 @@ discussed there, and the maintainer decides.
 
 An arrangement for succession, stating who can take over maintenance and
 releases if the maintainer can no longer continue, is to be settled before the
-repository goes public.
+first release of the packages (R0 in `03-execution-plan.md`).

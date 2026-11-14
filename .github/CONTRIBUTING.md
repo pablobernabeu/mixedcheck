@@ -86,10 +86,10 @@ _R_CHECK_CRAN_INCOMING_REMOTE_=false _R_CHECK_CRAN_INCOMING_SKIP_LARGE_VERSION_=
 ```
 
 The quick CI job sets the same two variables. They stop CRAN's incoming checks
-from reporting a new submission, the repository's URLs while it is private and
-the large component of the development version number, and without them these
-checks report a NOTE. Without access to a time server, as in the cloud
-containers of the development sessions, also set `_R_CHECK_SYSTEM_CLOCK_=false`,
+from reporting a new submission and the large component of the development
+version number, and without them these checks report a NOTE. Without access to
+a time server, as in the cloud containers of the development sessions, also set
+`_R_CHECK_SYSTEM_CLOCK_=false`,
 or the check of future file timestamps reports a NOTE that it is unable to
 verify the current time. `_R_CHECK_CRAN_INCOMING_=false` in place of the two
 variables skips the incoming checks altogether, so that in such a container
@@ -155,12 +155,12 @@ Rscript sim/zoo/regenerate.R --check
 
 Continuous integration runs these checks on every push to main and every pull
 request that touches the files concerned. The full matrix of R and Python versions and
-platforms runs when started by hand from the Actions tab and, once the
-repository is public, every night. The references in docs/ that carry a DOI
-are checked against their Crossref records by `.github/scripts/check_references.py`
-in the workflow references.yaml, which runs when started by hand or when the
-label 'references' is added to a pull request, since the cloud sessions cannot
-reach Crossref. Its tests need no network:
+platforms runs when started by hand from the Actions tab and every night. The
+references in docs/ that carry a DOI are checked against their Crossref records
+by `.github/scripts/check_references.py` in the workflow references.yaml, which
+runs when started by hand or when the label 'references' is added to a pull
+request, since the cloud sessions cannot reach Crossref. Its tests need no
+network:
 
 ```bash
 python3 -m unittest discover -s .github/scripts -v

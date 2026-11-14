@@ -5,8 +5,8 @@
 # those of R itself, and that the script refuses an option it does not know.
 # It runs on every push to main and every pull request that touches the
 # generators, the stored files or this workflow, when started by hand and
-# nightly once the repository is public, so that a change of R's random
-# number generator or arithmetic shows.
+# nightly, so that a change of R's random number generator or arithmetic
+# shows.
 name: zoo
 
 on:
@@ -33,9 +33,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Scheduled runs are paid for while the repository is private. The payload
-  # of a scheduled event may lack the repository object, and this job then
-  # reads the visibility from the API, as in R-CMD-check.yaml.
+  # The standard runners are free for a public repository and paid for in a
+  # private one, so scheduled runs start only while the repository is public.
+  # The payload of a scheduled event may lack the repository object, and this
+  # job then reads the visibility from the API, as in R-CMD-check.yaml.
   visibility:
     name: Repository visibility
     if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'

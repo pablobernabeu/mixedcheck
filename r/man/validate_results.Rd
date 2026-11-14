@@ -66,7 +66,9 @@ and E7061), or the issues of verification in this order: E1321 at
 \verb{/results_hash}, E1313 for each key that the sidecar lacks and E1314 at
 each commitment that the data do not match. A declaration that is not
 valid, or data that cannot be read, give the error of
-\code{\link[=validate_declaration]{validate_declaration()}} or \code{\link[=read_table]{read_table()}}. Arguments of the wrong type,
+\code{\link[=validate_declaration]{validate_declaration()}} or \code{\link[=read_table]{read_table()}}, and a data frame with a
+value outside the declared categories of its field gives E5012, as in
+\code{\link[=audit]{audit()}}. Arguments of the wrong type,
 \code{data} without a sidecar and \code{declaration} without \code{data} give an
 ordinary error.
 }

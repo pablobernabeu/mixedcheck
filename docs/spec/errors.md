@@ -311,7 +311,7 @@ The compiler reports these codes for the YAML sources, with pointers into the en
 
 ### table
 
-The table reader reports one issue, the first that its stages find (tables.md, Stages), with a byte offset into the file when the issue has a place there. The rules behind these codes are in [tables.md](tables.md). E5011 is raised by `audit()`, which checks the columns that the declaration names against the data before any check (03-execution-plan.md, M2), located by the JSON Pointer into the declaration.
+The table reader reports one issue, the first that its stages find (tables.md, Stages), with a byte offset into the file when the issue has a place there. The rules behind these codes are in [tables.md](tables.md). E5011 is raised by `audit()`, which checks the columns that the declaration names against the data before any check (03-execution-plan.md, M2), located by the JSON Pointer into the declaration. E5012 is raised by `audit()` for a data frame, which it checks against the declared categories as the reader checks a file, and by `validate_results()` for the data frame of sidecar verification, which it reads as `audit()` does, located by the JSON Pointer of the value in the data, `/data/<column>/<row>` (tables.md, Missing values).
 
 | Code | Name | Raised when |
 |---|---|---|
@@ -326,6 +326,7 @@ The table reader reports one issue, the first that its stages find (tables.md, S
 | E5009 | table_primary_key_duplicate | a record has the same values in the primary key as an earlier record |
 | E5010 | table_unique_key_duplicate | a record has the same values in a unique key as an earlier record |
 | E5011 | table_declared_column | a column that the declaration names is not a column of the data passed to `audit()` |
+| E5012 | table_declared_category | a value of a data frame passed to `audit()` or `validate_results()` is not one of the declared categories of its field |
 
 ### formula
 

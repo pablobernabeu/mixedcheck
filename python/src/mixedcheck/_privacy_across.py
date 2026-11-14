@@ -559,8 +559,10 @@ def privacy_bounded_columns(run: Run) -> set[str]:
 
 def privacy_declared_level_columns(declaration: dict[str, Any] | None) -> set[str]:
     """The columns of the table block whose levels the declaration gives,
-    those with declared categories and those of type 'boolean', which hold the
-    values false and true alone (tables.md), as keys."""
+    those with declared categories, which the table reader and audit() keep
+    within them whether or not the formula reads the column, and those of type
+    'boolean', which hold the values false and true alone (tables.md), as
+    keys."""
     table = (declaration or {}).get("table") or {}
     return {
         comparison_form(entry["name"])

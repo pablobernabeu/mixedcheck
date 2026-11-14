@@ -411,18 +411,17 @@ dz_family_reference <- function() {
 # and B, and of C when ceiling is 0, so that C is answered without error
 # when ceiling is 1 (Z24), and rows of condition A without an outcome, in a
 # T2 run. The rotation fixes every answer once the parameters are given, so
-# the outcome values follow the rows of the template, and the analysed
-# subjects that outcome.minority_events counts stay determined, so the
-# family does not gate attack (a), and dh_known_channels() lists them
-# (README, The zoo, Gates). Its alternative
-# subject_two_lost traces the subjects of two analysed rows or more that
-# outcome.constant_clusters counts.
+# the outcome values follow the rows of the template. The analysed subjects
+# that outcome.minority_events counts, which no subject lost, are of the
+# class kept-levels (R/kept.R), and its alternative subject_two_lost traces
+# the subjects of two analysed rows or more that outcome.constant_clusters
+# counts where some lost them, so the family gates attack (a) (README, The
+# zoo, Gates).
 dz_family_separation <- function() {
   dh_family(
     name = "zoo-separation",
     probe = "^outcome\\.",
     description = "Z24: binary accuracy separated by condition, T2",
-    gate = FALSE,
     alternatives = dz_alternatives_separation,
     params = list(
       subjects = dh_param(2:4, person = TRUE),

@@ -356,8 +356,9 @@ privacy_bounded_columns <- function(run) {
 }
 
 # The columns of the table block whose levels the declaration gives, those
-# with declared categories and those of type 'boolean', which hold the
-# values false and true alone (tables.md), as keys.
+# with declared categories, which the table reader and audit() keep within
+# them whether or not the formula reads the column, and those of type
+# 'boolean', which hold the values false and true alone (tables.md), as keys.
 privacy_declared_level_columns <- function(declaration) {
   declared <- Filter(function(field) {
     !is.null(field[["categories"]]) || identical(field[["type"]], "boolean")

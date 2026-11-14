@@ -1445,6 +1445,16 @@
       }
     },
     {
+      "code": "E5012",
+      "name": "table_declared_category",
+      "area": "table",
+      "location": "pointer",
+      "template": "The value of the column '{column}' at {location} is not one of its declared categories.",
+      "args": {
+        "column": "text"
+      }
+    },
+    {
       "code": "E6001",
       "name": "formula_too_long",
       "area": "formula",

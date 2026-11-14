@@ -8,7 +8,10 @@
 # tier B recovers a design-structure value that privacy.md leaves as
 # residual risk, and what it recovers is reported without failing the run.
 # The reproducers are those of r/tests/testthat/test-privacy.R,
-# fixtures/conformance/audits/privacy.json and the pathology zoo.
+# fixtures/conformance/audits/privacy.json and the pathology zoo. An attack
+# builds its tables with this file, harness.R, families.R and zoo.R alone,
+# which are all that parity/differential/inputs.R loads to give its tables
+# to the differential test.
 
 # A case of the audit corpus by its identifier, as a case of the harness.
 rg_corpus_case <- function(root, id) {
@@ -366,12 +369,18 @@ rg_attacks <- function() {
     list(id = "R14-key-duplicates", round = 14L,
          channel = "the analysed rows, written beside 4 conditions of a fixed factor and the 10 declared categories of item in the key (condition, item), equal the product of their levels plus duplicate_rows 20 less duplicated_keys 10 of keys.duplicates, so that no outcome is missing",
          attack = rg_key_duplicates),
-    list(id = "R14-product-bound", round = 14L,
-         channel = "the 240 written rows of the design sample and the relation crossed bound the subjects of the design sample by 240 over the 12 analysed items, which equals the 20 analysed subjects, so that no subject lost every outcome, which the bound of the class kept-levels leaves open for subjects of 12 rows",
-         attack = rg_product_bound),
     list(id = "R14-key-boolean", round = 14L,
          channel = "the analysed rows, written beside 10 subjects crossed with 10 items whose levels the crossing and the firing of rule 1 give, equal their product times the 2 values of second, declared of type boolean in the unique key (subject, item, second), so that no outcome is missing",
-         attack = rg_key_boolean)
+         attack = rg_key_boolean),
+    list(id = "R14-key-missing", round = 14L,
+         channel = "the analysed rows, written beside 10 subjects crossed with 10 items whose levels the crossing and the firing of rule 1 give, equal their product times the 2 declared categories of rep in the unique key (subject, item, rep) plus missing_key_rows 10 of keys.duplicates, the rows without a key value, so that no outcome is missing",
+         attack = rg_key_missing),
+    list(id = "R14-crossed-product", round = 14L,
+         channel = "the relation crossed of structure.label_incidence makes the 120 combinations of g and h that structure.cluster_sizes writes for g:h in the design sample the product of the levels of g and h there, which beside 11 analysed levels of g and 10 of h can only be 12 and 10, so that one level of g lost every outcome",
+         attack = rg_crossed_product),
+    list(id = "R14-crossed-key-product", round = 14L,
+         channel = "the relation crossed and the message unique of keys.duplicates for the key (subject, item) make the 240 written rows of the design sample the product of its subjects and items, which beside 19 analysed subjects and 12 analysed items can only be 20 and 12, so that one subject lost every outcome",
+         attack = rg_crossed_key_product)
   )
 }
 
@@ -2817,40 +2826,135 @@ rg_key_boolean <- function(ns, root) {
           "the analysed rows tell 0 rows without an outcome from 1 beside the product of the key's levels")
 }
 
-rg_product_bound <- function(ns, root) {
-  # 20 subjects crossed with 12 items, one row in each combination, the
-  # subjects the disclosure unit and 6 outcomes of s01 and 6 of s02 missing,
-  # in a gaussian T1 run at the registry's k. The relation crossed of
-  # structure.label_incidence gives the design sample a row in every
-  # combination of its subjects and items, and multi_row_levels of
-  # outcome.constant_clusters for item bounds its items from below by 12, so
-  # the 240 written rows of the design sample bound its subjects by 20, the
-  # analysed subjects that the contributors of that finding count. No subject
-  # lost every outcome, whereas the bound that the document shows on the rows
-  # without an outcome, 12, leaves that count open for subjects of 12 rows
-  # (privacy.md, Guarantees). privacy.md names this kind as not yet covered,
-  # and the report lists the attack under the known channel
-  # bound-through-crossed-rows (R/attacks.R).
+rg_key_missing <- function(ns, root) {
+  # The design of R14-key-rows with rep, declared with the categories 1 and
+  # 2, read by no term, and 10 further rows, one for each subject with the
+  # item of its number, whose rep is missing, so that they have no key value
+  # and stay in the design sample. The key bounds the design sample by the
+  # product of the levels of its columns, 200, plus its rows without a key
+  # value, which missing_key_rows 10 of keys.duplicates writes, so analysed
+  # rows of 210 written beside them would show that no outcome is missing,
+  # unless the end of rule 1 hides them. Without the rows without a key
+  # value, the bound of 200 would lie below the analysed rows and the rule
+  # would not fire.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "rep", type = "integer",
+                                    categories = list(1L, 2L)))),
+    observation = list(key = list("subject", "item", "rep")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  make <- function(lacking) {
+    data <- expand.grid(rep = 1:2, item = sprintf("i%02d", 1:10), subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item", "rep")]
+    data <- rbind(data, data.frame(subject = sprintf("s%02d", 1:10), item = sprintf("i%02d", 1:10),
+                                   rep = NA_integer_, stringsAsFactors = FALSE))
+    data$count <- (seq_len(nrow(data)) %% 4L) + 1
+    data$count[seq_len(lacking)] <- NA
+    list(data = data, formula = "count ~ 1 + (1 | subject) + (1 | item)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Counts.",
+                     declaration = declaration))
+  }
+  rg_pair(ns, list(make(0L), make(1L)),
+          "the analysed rows tell 0 rows without an outcome from 1 beside the product of the key's levels and its rows without a key value")
+}
+
+# --- The open item of 14 November 2026 ---------------------------------------------
+
+# The pairs of levels of two crossed columns of the design sample whose
+# product is the number of their combinations there, with at least the
+# analysed levels of each.
+rg_factorisations <- function(combinations, first, second) {
+  out <- list()
+  for (a in seq_len(combinations)) {
+    if (combinations %% a == 0L && a >= first && combinations %/% a >= second) {
+      out[[length(out) + 1L]] <- c(a, combinations %/% a)
+    }
+  }
+  out
+}
+
+rg_crossed_product <- function(ns, root) {
+  # 12 levels of g crossed with 10 of h, one row in each combination, and
+  # every outcome of g12 missing, in a Poisson T1 run at the registry's k.
+  # The design sample writes its 120 combinations as the levels of g:h of
+  # structure.cluster_sizes, which beside the 110 analysed combinations rule
+  # 1 leaves written, and outcome.zero_shares writes 11 analysed levels of g
+  # and 10 of h. With the relation crossed of structure.label_incidence, a
+  # category of a T0 check that the strict reduction leaves out, the levels
+  # of g and h of the design sample, which rule 1 hides, multiply to 120,
+  # which the analysed levels leave the single factorisation 12 by 10, so
+  # one level of g lost every outcome. privacy.md (Guarantees) asks the
+  # filter to close such an inference of the full reduction where a narrow
+  # rule exists, and docs/design/03-execution-plan.md (M2, Decisions that
+  # bind later milestones) accepts this one, for which none exists, so the
+  # report lists the attack under the known channel crossed-product
+  # (R/attacks.R).
+  data <- expand.grid(h = sprintf("h%02d", 1:10), g = sprintf("g%02d", 1:12),
+                      stringsAsFactors = FALSE)[, c("g", "h")]
+  n <- nrow(data)
+  data$count <- (seq_len(n) %% 4L) + 1
+  data$count[data$g == "g12"] <- NA
+  data$x <- (seq_len(n) * 7L) %% 11L + 0.5
+  document <- rg_document(ns, data, "count ~ x + (1 | g) + (1 | h) + (1 | g:h)",
+                          family = "poisson", outcome_access = "T1", reason = "Zeros.")
+  incidence <- rg_finding(document, "structure.label_incidence", first = "g", second = "h")
+  combinations <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "g:h"),
+                           "levels")
+  first <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "g"), "levels")
+  second <- rg_value(rg_finding(document, "outcome.zero_shares", factor = "h"), "levels")
+  if (!identical(rg_value(incidence, "relation"), "crossed") || is.null(combinations) ||
+      is.null(first) || is.null(second)) {
+    return(rg_result(FALSE))
+  }
+  pairs <- rg_factorisations(combinations, first, second)
+  found <- length(pairs) == 1L && pairs[[1L]][1L] > first
+  rg_result(found, if (found) sprintf("%d levels of g of the design sample, %d without any outcome",
+                                      pairs[[1L]][1L], pairs[[1L]][1L] - first))
+}
+
+rg_crossed_key_product <- function(ns, root) {
+  # The table of dh_kept_levels_one_lost() (R/kept.R), built here so that the
+  # attack needs no other file of the harness: 20 subjects crossed with 12
+  # items, one row in each combination, the key (subject, item) and every
+  # outcome of s01 missing, in a gaussian T1 run at the registry's k.
+  # The message unique of keys.duplicates shows that every row has its own
+  # key value, and the relation crossed that the design sample holds every
+  # combination of its subjects and items, so its 240 written rows are
+  # their product, which beside the 19 analysed subjects and 12 analysed
+  # items of outcome.constant_clusters for 'item' leaves the single
+  # factorisation 20 by 12, so one subject lost every outcome. The report
+  # lists the attack under the known channel crossed-product (R/attacks.R).
   data <- expand.grid(item = sprintf("i%02d", 1:12), subject = sprintf("s%02d", 1:20),
                       stringsAsFactors = FALSE)[, c("subject", "item")]
   n <- nrow(data)
-  data$y <- dh_outcome(n)
-  data$x <- dh_covariate(n)
-  data$y[c(which(data$subject == "s01")[1:6], which(data$subject == "s02")[1:6])] <- NA
+  data$y <- (seq_len(n) * 5L) %% 13L + 0.25
+  data$y[data$subject == "s01"] <- NA
+  data$x <- (seq_len(n) * 7L) %% 11L + 0.5
   declaration <- list(vocabulary = "0.1.0",
-    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")),
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"))),
+    observation = list(key = list("subject", "item")))
   document <- rg_document(ns, data, "y ~ x + (1 | subject) + (1 | item)",
-                          declaration = declaration, outcome_access = "T1", reason = "Means.")
-  rows <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"),
-                   "support.rows")
+                          declaration = declaration, outcome_access = "T1",
+                          reason = "Disclosure-attack tests.")
   incidence <- rg_finding(document, "structure.label_incidence", first = "item",
                           second = "subject") %||%
     rg_finding(document, "structure.label_incidence", first = "subject", second = "item")
+  keys <- rg_finding(document, "keys.duplicates")
+  rows <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"),
+                   "support.rows")
   constant <- rg_finding(document, "outcome.constant_clusters", factor = "item")
-  items <- rg_value(constant, "multi_row_levels")
   subjects <- rg_value(constant, "support.distinct")
-  found <- identical(rg_value(incidence, "relation"), "crossed") && !is.null(rows) &&
-    !is.null(items) && !is.null(subjects) && items > 0 && floor(rows / items) == subjects
-  rg_result(found, if (found) sprintf("%d subjects of the design sample, none without an outcome",
-                                      subjects))
+  items <- rg_value(constant, "multi_row_levels")
+  if (!identical(rg_value(incidence, "relation"), "crossed") ||
+      !identical(keys$message$id, "unique") || is.null(rows) || is.null(subjects) ||
+      is.null(items)) {
+    return(rg_result(FALSE))
+  }
+  pairs <- rg_factorisations(rows, subjects, items)
+  found <- length(pairs) == 1L && pairs[[1L]][1L] > subjects
+  rg_result(found, if (found) sprintf("%d subjects of the design sample, %d without any outcome",
+                                      pairs[[1L]][1L], pairs[[1L]][1L] - subjects))
 }

@@ -8,7 +8,8 @@
 # The data of a run (03-execution-plan.md, M2, step 3): a CSV file read by the
 # table reader with the declaration's table block, or a data frame converted
 # as formula_ir() converts it, after the declaration's missing values are
-# applied when it has a table block (tables.md, Missing values). The
+# applied when it has a table block and with E5012 for a value outside the
+# declared categories of its field (tables.md, Missing values). The
 # declaration is NULL or a value that validate_declaration() returned.
 # Returns the table and, for a file, the bytes that the commitment to the
 # data file covers.
@@ -25,7 +26,44 @@ run_data <- function(data, declaration) {
   if (!is.null(table_block)) {
     data <- apply_missing_values(data, table_block)
   }
-  list(table = model_table(data, fields), file = NULL)
+  table <- model_table(data, fields)
+  declared_categories_held(table, fields)
+  list(table = table, file = NULL)
+}
+
+# E5012 for the first value of a data frame, in row order and then in the
+# order of its columns, that is not missing and is not one of the declared
+# categories of its field, compared after NFC for a field of type 'string'
+# and by value for one of type 'integer', as the table reader checks a file
+# (tables.md, Missing values). The rule on observation keys of the privacy
+# filter counts a column with declared categories among those whose levels
+# the declaration gives, whether or not the formula reads it.
+declared_categories_held <- function(table, fields) {
+  field_keys <- comparison_form(vapply(fields, function(field) field[["name"]], ""))
+  first <- NULL
+  for (j in seq_along(table$keys)) {
+    f <- match(table$keys[j], field_keys)
+    categories <- if (!is.na(f)) fields[[f]][["categories"]]
+    if (is.null(categories)) {
+      next
+    }
+    allowed <- lapply(categories, list_item_value)
+    values <- table$values[[j]]
+    inside <- if (is.character(values)) {
+      comparison_form(values) %in% comparison_form(as.character(unlist(allowed)))
+    } else {
+      values %in% as.double(unlist(allowed))
+    }
+    outside <- which(!inside & !table$missing[[j]])
+    if (length(outside) && (is.null(first) || outside[1L] < first$row)) {
+      first <- list(row = outside[1L], name = table$names[j])
+    }
+  }
+  if (!is.null(first)) {
+    raise_issue("E5012", list(column = first$name),
+                pointer = json_pointer(c("data", first$name, first$row - 1L)))
+  }
+  invisible()
 }
 
 # Applies the missing values of a table block to a data frame in memory: in

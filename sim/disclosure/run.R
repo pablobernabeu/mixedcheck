@@ -8,7 +8,8 @@
 #
 # --lib loads mixedcheck from a library other than the default ones, such as
 # a copy installed from an earlier commit. --attacks chooses among the
-# consistency search (a), the interval audit (b), the regression attacks (c)
+# consistency search (a), the interval audit (b), the regression attacks (c),
+# with the self-test of the predicate of the class kept-levels (R/kept.R),
 # and the validation attacks (v), all by default. Attack (b) also reads the
 # documents of the stored instances of the pathology zoo (R/zoo.R).
 # --families restricts the families of a and b, and the stored instances run
@@ -62,7 +63,7 @@ ns <- dh_load(lib)
 dh_capture_on(ns)
 started <- proc.time()[["elapsed"]]
 report <- dh_run_attacks(ns, root, attacks = attacks, families = only, cores = cores,
-                         widen = widen, log = TRUE, instances = instances)
+                         widen = widen, log = TRUE, instances = instances, selftest = TRUE)
 cat(sprintf("\nmixedcheck %s from %s, %.0f s\n", getNamespaceVersion(ns),
             dirname(getNamespaceInfo(ns, "path")), proc.time()[["elapsed"]] - started))
 dh_print_report(report)

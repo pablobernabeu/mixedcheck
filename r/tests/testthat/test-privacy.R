@@ -2758,3 +2758,167 @@ test_that("the rows of a level without a member count towards its loss to one me
   constant <- finding_of(found$shareable, "outcome.constant_clusters", factor = "school")
   expect_identical(constant$status$availability$detail, "decision")
 })
+
+test_that("the analysed rows are hidden within k of the product of a unique key's levels", {
+  # 10 subjects crossed with 10 items, each combination twice, the key
+  # (subject, item, rep) unique and rep declared with the categories 1 and
+  # 2, in a Poisson T1 run with no outcome missing or one. The crossing
+  # bounds every subject and item by 20 rows, so that beside the firing of
+  # rule 1 none can have lost every outcome, and the 10 analysed subjects
+  # and items give the levels of the design sample. The key then bounds the
+  # design sample by 200 rows, which written analysed rows of 200 would
+  # show to hold every row, so that no outcome is missing.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "rep", type = "integer",
+                                    categories = list(1L, 2L)))),
+    observation = list(key = list("subject", "item", "rep")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  make <- function(lacking) {
+    data <- expand.grid(rep = 1:2, item = sprintf("i%02d", 1:10), subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item", "rep")]
+    data$count <- (seq_len(nrow(data)) %% 4L) + 1
+    data$count[seq_len(lacking)] <- NA
+    audit_both(data, "count ~ rep + (1 | subject) + (1 | item)", family = "poisson",
+               outcome_access = "T1", reason = "Counts.", declaration = declaration)$shareable
+  }
+  pair <- lapply(0:1, make)
+  expect_same_reading(pair[[1L]], pair[[2L]])
+  zeros <- finding_of(pair[[1L]], "outcome.zero_shares", factor = "subject")
+  expect_identical(detail(zeros, "rows"), "secondary")
+  expect_identical(zeros$support$rows$availability$detail, "secondary")
+})
+
+test_that("a key column whose levels nothing gives leaves the analysed rows written", {
+  # The design of the test above with the key (subject, item, slot), slot a
+  # copy of rep that the formula does not read and the declaration does not
+  # give categories. Nothing gives the levels of slot, so the key bounds the
+  # rows of the design sample by no product that the document shows, and the
+  # analysed rows stay written.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "rep", type = "integer", categories = list(1L, 2L)),
+                               list(name = "slot", type = "integer"))),
+    observation = list(key = list("subject", "item", "slot")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  data <- expand.grid(rep = 1:2, item = sprintf("i%02d", 1:10), subject = sprintf("s%02d", 1:10),
+                      stringsAsFactors = FALSE)[, c("subject", "item", "rep")]
+  data$slot <- data$rep
+  data$count <- (seq_len(nrow(data)) %% 4L) + 1
+  found <- audit_both(data, "count ~ rep + (1 | subject) + (1 | item)", family = "poisson",
+                      outcome_access = "T1", reason = "Counts.", declaration = declaration)
+  zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "subject")
+  expect_identical(written(zeros, "rows"), 200)
+})
+
+test_that("a key column with a level of fewer than k rows leaves the analysed rows written", {
+  # 60 pupils in 12 schools, each at waves 1 and 2, the key (pupil, wave)
+  # unique and the pupils the disclosure unit, in a Poisson T1 run with one
+  # count missing. Beside the firing of rule 1 a pupil of two rows may have
+  # lost both outcomes, so the analysed pupils do not give the pupils of the
+  # design sample, which rule 1 hides, the key bounds the rows by nothing that
+  # the document shows, and the 119 analysed rows stay written.
+  declaration <- list(vocabulary = "0.1.0", observation = list(key = list("pupil", "wave")),
+    units = list(list(name = "pupil", columns = list("pupil"), role = "participant")))
+  data <- data.frame(school = rep(sprintf("S%02d", 1:12), each = 10L),
+                     pupil = rep(sprintf("p%02d", 1:60), each = 2L), wave = rep(1:2, 60),
+                     stringsAsFactors = FALSE)
+  data$count <- (seq_len(120) %% 4L) + 1
+  data$count[1L] <- NA
+  found <- audit_both(data, "count ~ wave + (1 | school)", family = "poisson",
+                      outcome_access = "T1", reason = "Counts.", declaration = declaration)
+  zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+  expect_identical(written(zeros, "rows"), 119)
+})
+
+test_that("the rows that repeat a key value count towards the bound of the key's levels", {
+  # 4 conditions of a fixed factor crossed with the 10 items of a list
+  # declared with the categories 1 to 10, the key (condition, item) and the
+  # first 10 combinations twice, in a Poisson T1 run with no outcome missing
+  # or one. keys.duplicates writes duplicate_rows 20 and duplicated_keys 10,
+  # so the design sample holds at most 4 times 10 rows with distinct key
+  # values and 20 - 10 rows that repeat one, 50 rows, and written analysed
+  # rows of 50 would show that no outcome is missing.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "condition", type = "string"),
+                               list(name = "item", type = "integer",
+                                    categories = as.list(1:10)))),
+    observation = list(key = list("condition", "item")))
+  make <- function(lacking) {
+    data <- expand.grid(item = 1:10, condition = c("a", "b", "c", "d"),
+                        stringsAsFactors = FALSE)[, c("condition", "item")]
+    data <- rbind(data, data[1:10, ])
+    data$count <- (seq_len(nrow(data)) %% 3L) + 0
+    data$count[seq_len(lacking) + 2L] <- NA
+    audit_both(data, "count ~ condition + (1 | item)", family = "poisson",
+               outcome_access = "T1", reason = "Counts.", declaration = declaration)$shareable
+  }
+  pair <- lapply(0:1, make)
+  keys <- finding_of(pair[[1L]], "keys.duplicates")
+  expect_identical(written(keys, "duplicate_rows"), 20)
+  expect_identical(written(keys, "duplicated_keys"), 10)
+  expect_same_reading(pair[[1L]], pair[[2L]])
+  zeros <- finding_of(pair[[1L]], "outcome.zero_shares", factor = "item")
+  expect_identical(detail(zeros, "rows"), "secondary")
+})
+
+test_that("a key column declared boolean gives its two levels", {
+  # The design of the test of the product of a unique key's levels with the
+  # key (subject, item, second) and second declared of type 'boolean', which
+  # the formula does not read and whose values are false and true alone, so
+  # that the declaration bounds its levels by 2 as categories 1 and 2 would.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "second", type = "boolean"))),
+    observation = list(key = list("subject", "item", "second")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  make <- function(lacking) {
+    data <- expand.grid(second = c(FALSE, TRUE), item = sprintf("i%02d", 1:10),
+                        subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item", "second")]
+    data$count <- (seq_len(nrow(data)) %% 4L) + 1
+    data$count[seq_len(lacking)] <- NA
+    audit_both(data, "count ~ 1 + (1 | subject) + (1 | item)", family = "poisson",
+               outcome_access = "T1", reason = "Counts.", declaration = declaration)$shareable
+  }
+  pair <- lapply(0:1, make)
+  expect_same_reading(pair[[1L]], pair[[2L]])
+  zeros <- finding_of(pair[[1L]], "outcome.zero_shares", factor = "subject")
+  expect_identical(detail(zeros, "rows"), "secondary")
+})
+
+test_that("the rows without a key value count towards the bound of the key's levels", {
+  # The design of the test of the product of a unique key's levels with rep
+  # not read by the formula and 10 further rows, one for each subject at
+  # item i01, without a value of rep, which keeps them in the design sample.
+  # keys.duplicates writes missing_key_rows 10, so the design sample holds
+  # at most 10 times 10 times 2 rows with a key value and 10 without one,
+  # 210 rows, and written analysed rows of 210 would show that no outcome is
+  # missing.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "rep", type = "integer",
+                                    categories = list(1L, 2L)))),
+    observation = list(key = list("subject", "item", "rep")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  make <- function(lacking) {
+    data <- expand.grid(rep = 1:2, item = sprintf("i%02d", 1:10), subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item", "rep")]
+    data <- rbind(data, data.frame(subject = sprintf("s%02d", 1:10), item = "i01",
+                                   rep = NA_integer_, stringsAsFactors = FALSE))
+    data$count <- (seq_len(nrow(data)) %% 4L) + 1
+    data$count[seq_len(lacking)] <- NA
+    audit_both(data, "count ~ 1 + (1 | subject) + (1 | item)", family = "poisson",
+               outcome_access = "T1", reason = "Counts.", declaration = declaration)$shareable
+  }
+  pair <- lapply(0:1, make)
+  keys <- finding_of(pair[[1L]], "keys.duplicates")
+  expect_identical(written(keys, "missing_key_rows"), 10)
+  expect_same_reading(pair[[1L]], pair[[2L]])
+  zeros <- finding_of(pair[[1L]], "outcome.zero_shares", factor = "subject")
+  expect_identical(detail(zeros, "rows"), "secondary")
+})

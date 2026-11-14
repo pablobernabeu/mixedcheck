@@ -159,6 +159,9 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
       difference$shared <- NA_real_
       targets <- rbind(targets, difference[names(targets)])
     }
+    # Whether each target is of the class kept-levels in this table
+    # (R/kept.R).
+    targets$kept <- dh_kept_levels(ns, result, targets)
     full <- dh_reduce(document)
     lp <- NULL
     if (intervals && is.null(audited[[full]])) {
@@ -184,12 +187,14 @@ dh_run_family <- function(ns, family, grid = dh_grid(family), cores = 1L, interv
 # The determinations of a run of a family. Returns a data frame with one row
 # for each hidden value or person-count parameter that a group of interior
 # tables determines, with the mode of the reduction, the target, its value,
-# the size of the group, its first table and its tier (dh_tier()), and the
-# verdict: 'leak' when the strict reduction determines an outcome-derived
-# value, 'residual' when it determines a design-structure value, 'accepted'
-# when only the full reduction determines it, or when the value is a
-# quantile shared by k or more values, a count derived from written
-# statistics or a value that the design forces in every table of the group.
+# the size of the group, its first table, its tier (dh_tier()), whether it
+# is of the class kept-levels in every table of the group (dh_kept_levels())
+# and the verdict: 'leak' when the strict reduction determines an
+# outcome-derived value, 'residual' when it determines a design-structure
+# value, 'accepted' when only the full reduction determines it, or when the
+# value is a quantile shared by k or more values, a count derived from
+# written statistics or a value that the design forces in every table of
+# the group. dh_kept_verdict() gives a leak of the class its own verdict.
 # The differences from the analysis sample (dh_difference_targets()) are
 # kept whatever the probe of the family, since every family with a T1 or T2
 # run varies the rows without an outcome.
@@ -212,7 +217,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
                           detail = character(0), value = character(0), kind = character(0),
                           class = character(0), shared = numeric(0), derived = logical(0),
                           forced = logical(0), tier = character(0), check = character(0),
-                          stringsAsFactors = FALSE)
+                          kept = logical(0), stringsAsFactors = FALSE)
   }
   # Determinations of reals and names are left to the counts that they
   # derive from, which the families vary.
@@ -246,7 +251,8 @@ dh_determinations <- function(ran, k = ran$family$k) {
             mode = mode, target = key, value = values, class = row$class,
             shared = row$shared,
             derived = any(mine$derived[mine$key == key]) || all(mine$forced[mine$key == key]),
-            group = length(group), table = inside[1L], tier = row$tier, stringsAsFactors = FALSE)
+            group = length(group), table = inside[1L], tier = row$tier,
+            kept = all(mine$kept[mine$key == key]), stringsAsFactors = FALSE)
         }
       }
       for (p in persons) {
@@ -256,7 +262,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
           found[[length(found) + 1L]] <- data.frame(
             mode = mode, target = paste("parameter", p), value = as.character(values),
             class = "person", shared = NA_real_, derived = FALSE, group = length(group),
-            table = inside[1L], tier = dh_tier(paste("parameter", p), family),
+            table = inside[1L], tier = dh_tier(paste("parameter", p), family), kept = FALSE,
             stringsAsFactors = FALSE)
         }
       }
@@ -266,7 +272,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
     return(data.frame(mode = character(0), target = character(0), value = character(0),
                       class = character(0), shared = numeric(0), derived = logical(0),
                       group = integer(0), table = integer(0), tier = character(0),
-                      verdict = character(0), stringsAsFactors = FALSE))
+                      kept = logical(0), verdict = character(0), stringsAsFactors = FALSE))
   }
   found <- do.call(rbind, found)
   strict <- paste(found$table, found$target)[found$mode == "strict"]
@@ -296,7 +302,7 @@ dh_determinations <- function(ran, k = ran$family$k) {
 dh_search <- function(ns, family, cores = 1L, widen = 1L, intervals = FALSE) {
   base <- dh_grid(family)
   ran <- dh_run_family(ns, family, base, cores = cores, intervals = intervals)
-  found <- dh_alternatives(ns, family, ran, dh_determinations(ran))
+  found <- dh_kept_verdict(dh_alternatives(ns, family, ran, dh_determinations(ran)))
   if (!any(found$verdict == "leak") || widen < 1L) {
     return(list(ran = ran, found = found, widened = 0L))
   }
@@ -315,8 +321,8 @@ dh_search <- function(ns, family, cores = 1L, widen = 1L, intervals = FALSE) {
   extra <- extra[near, , drop = FALSE]
   more <- dh_run_family(ns, family, extra, cores = cores)
   ran <- list(family = family, grid = rbind(base, extra), runs = c(ran$runs, more$runs))
-  list(ran = ran, found = dh_alternatives(ns, family, ran, dh_determinations(ran)),
-       widened = nrow(extra))
+  found <- dh_kept_verdict(dh_alternatives(ns, family, ran, dh_determinations(ran)))
+  list(ran = ran, found = found, widened = nrow(extra))
 }
 
 # The alternatives of a family (dh_family(alternatives =)): for each table at

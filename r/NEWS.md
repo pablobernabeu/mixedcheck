@@ -244,7 +244,15 @@
   and with a disclosure unit, the contributors of an outcome check have the
   detail 'secondary' where the analysed rows show that a member has one
   analysed row, unless each member has one row in the design sample. The
-  documentation of `audit()` states what shareable mode hides.
+  documentation of `audit()` states what shareable mode hides. The guarantee
+  for values derived from the outcome accepts, as the privacy specification
+  (Guarantees) states, that a document which bounds the rows without an
+  outcome, below min_count when the rows of the design sample exceed the
+  analysed rows by fewer than min_count, or through its written rows, also
+  shows that a level known to hold more rows than that bound kept an
+  analysed row, and two when it holds one row more, such as a subject
+  crossed with more items than the bound. The specification names the
+  determinations that the guarantee does not yet cover.
 
 * The privacy filter of `audit()` suppresses, with the detail 'secondary',
   the counts of columns that would give back the levels of an item that it
@@ -319,4 +327,13 @@
   beside hidden analysed rows, beside which the verdict of the separation
   check stays written, as the
   [privacy specification](https://github.com/pablobernabeu/lmecheck/blob/main/docs/spec/privacy.md)
-  (Decisions, Across findings) states.
+  (Decisions, Across findings) states. It also hides the analysed rows when
+  they come within min_count of the bound that a declared observation key
+  places on the design sample, the product of the levels of the key's
+  columns plus the rows that repeat a key value or lack one, where each
+  column is a predictor, a grouping column, a column of a declared unit, a
+  column with declared categories or a column declared boolean, and none
+  other than a predictor or a column whose levels the declaration gives has
+  a level of fewer than min_count rows, since beside levels that the
+  document shows to have kept an outcome the analysed rows would show that
+  no outcome is missing.

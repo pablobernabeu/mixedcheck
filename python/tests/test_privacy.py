@@ -3372,3 +3372,244 @@ def test_the_rows_of_a_level_without_a_member_count_towards_its_loss_to_one_memb
     assert written(internal, "contributors") >= 10
     constant = finding_of(found["shareable"], "outcome.constant_clusters", factor="school")
     assert constant["status"]["availability"].get("detail") == "decision"
+
+
+def test_the_analysed_rows_are_hidden_within_k_of_the_product_of_a_unique_keys_levels() -> None:
+    # 10 subjects crossed with 10 items, each combination twice, the key
+    # (subject, item, rep) unique and rep declared with the categories 1 and
+    # 2, in a Poisson T1 run with no outcome missing or one. The crossing
+    # bounds every subject and item by 20 rows, so that beside the firing of
+    # rule 1 none can have lost every outcome, and the 10 analysed subjects
+    # and items give the levels of the design sample. The key then bounds the
+    # design sample by 200 rows, which written analysed rows of 200 would
+    # show to hold every row, so that no outcome is missing.
+    declaration = units(
+        unit("subject", "participant"),
+        table={
+            "fields": [
+                {"name": "subject", "type": "string"},
+                {"name": "item", "type": "string"},
+                {"name": "rep", "type": "integer", "categories": [1, 2]},
+            ]
+        },
+        observation={"key": ["subject", "item", "rep"]},
+    )
+
+    def make(lacking: int) -> dict[str, Any]:
+        data = frame(
+            subject=labels("s%02d", rep(seq_len(10), each=20)),
+            item=rep(labels("i%02d", rep(seq_len(10), each=2)), 10),
+            rep=rep([1, 2], 100),
+            count=[None if i <= lacking else float(i % 4 + 1) for i in seq_len(200)],
+        )
+        return audit_both(
+            data,
+            "count ~ rep + (1 | subject) + (1 | item)",
+            family="poisson",
+            outcome_access="T1",
+            reason="Counts.",
+            declaration=declaration,
+        )
+
+    first = make(0)
+    second = make(1)
+    expect_same_reading(first["shareable"], second["shareable"])
+    zeros = finding_of(first["shareable"], "outcome.zero_shares", factor="subject")
+    assert detail(zeros, "rows") == "secondary"
+    assert support_detail(zeros, "rows") == "secondary"
+
+
+def test_a_key_column_whose_levels_nothing_gives_leaves_the_analysed_rows_written() -> None:
+    # The design of the test above with the key (subject, item, slot), slot a
+    # copy of rep that the formula does not read and the declaration does not
+    # give categories. Nothing gives the levels of slot, so the key bounds the
+    # rows of the design sample by no product that the document shows, and
+    # the analysed rows stay written.
+    declaration = units(
+        unit("subject", "participant"),
+        table={
+            "fields": [
+                {"name": "subject", "type": "string"},
+                {"name": "item", "type": "string"},
+                {"name": "rep", "type": "integer", "categories": [1, 2]},
+                {"name": "slot", "type": "integer"},
+            ]
+        },
+        observation={"key": ["subject", "item", "slot"]},
+    )
+    data = frame(
+        subject=labels("s%02d", rep(seq_len(10), each=20)),
+        item=rep(labels("i%02d", rep(seq_len(10), each=2)), 10),
+        rep=rep([1, 2], 100),
+        slot=rep([1, 2], 100),
+        count=[float(i % 4 + 1) for i in seq_len(200)],
+    )
+    found = audit_both(
+        data,
+        "count ~ rep + (1 | subject) + (1 | item)",
+        family="poisson",
+        outcome_access="T1",
+        reason="Counts.",
+        declaration=declaration,
+    )
+    zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="subject")
+    assert written(zeros, "rows") == 200
+
+
+def test_a_key_column_with_a_level_of_fewer_than_k_rows_leaves_the_analysed_rows_written() -> None:
+    # 60 pupils in 12 schools, each at waves 1 and 2, the key (pupil, wave)
+    # unique and the pupils the disclosure unit, in a Poisson T1 run with one
+    # count missing. Beside the firing of rule 1 a pupil of two rows may have
+    # lost both outcomes, so the analysed pupils do not give the pupils of the
+    # design sample, which rule 1 hides, the key bounds the rows by nothing
+    # that the document shows, and the 119 analysed rows stay written.
+    declaration = units(unit("pupil", "participant"), observation={"key": ["pupil", "wave"]})
+    data = frame(
+        school=labels("S%02d", rep(seq_len(12), each=10)),
+        pupil=labels("p%02d", rep(seq_len(60), each=2)),
+        wave=rep([1, 2], 60),
+        count=[None if i == 1 else float(i % 4 + 1) for i in seq_len(120)],
+    )
+    found = audit_both(
+        data,
+        "count ~ wave + (1 | school)",
+        family="poisson",
+        outcome_access="T1",
+        reason="Counts.",
+        declaration=declaration,
+    )
+    zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+    assert written(zeros, "rows") == 119
+
+
+def test_the_rows_that_repeat_a_key_value_count_towards_the_bound_of_the_keys_levels() -> None:
+    # 4 conditions of a fixed factor crossed with the 10 items of a list
+    # declared with the categories 1 to 10, the key (condition, item) and the
+    # first 10 combinations twice, in a Poisson T1 run with no outcome missing
+    # or one. keys.duplicates writes duplicate_rows 20 and duplicated_keys 10,
+    # so the design sample holds at most 4 times 10 rows with distinct key
+    # values and 20 - 10 rows that repeat one, 50 rows, and written analysed
+    # rows of 50 would show that no outcome is missing.
+    declaration = {
+        "vocabulary": "0.1.0",
+        "table": {
+            "fields": [
+                {"name": "condition", "type": "string"},
+                {"name": "item", "type": "integer", "categories": list(seq_len(10))},
+            ]
+        },
+        "observation": {"key": ["condition", "item"]},
+    }
+
+    def make(lacking: int) -> dict[str, Any]:
+        condition = rep(["a", "b", "c", "d"], each=10)
+        item = rep(seq_len(10), 4)
+        condition = condition + condition[:10]
+        item = item + item[:10]
+        data = frame(
+            condition=condition,
+            item=item,
+            count=[None if 3 <= i <= 2 + lacking else float(i % 3) for i in seq_len(50)],
+        )
+        return audit_both(
+            data,
+            "count ~ condition + (1 | item)",
+            family="poisson",
+            outcome_access="T1",
+            reason="Counts.",
+            declaration=declaration,
+        )
+
+    first = make(0)["shareable"]
+    second = make(1)["shareable"]
+    keys = finding_of(first, "keys.duplicates")
+    assert written(keys, "duplicate_rows") == 20
+    assert written(keys, "duplicated_keys") == 10
+    expect_same_reading(first, second)
+    zeros = finding_of(first, "outcome.zero_shares", factor="item")
+    assert detail(zeros, "rows") == "secondary"
+
+
+def test_a_key_column_declared_boolean_gives_its_two_levels() -> None:
+    # The design of the test of the product of a unique key's levels with the
+    # key (subject, item, second) and second declared of type 'boolean', which
+    # the formula does not read and whose values are false and true alone, so
+    # that the declaration bounds its levels by 2 as categories 1 and 2 would.
+    declaration = units(
+        unit("subject", "participant"),
+        table={
+            "fields": [
+                {"name": "subject", "type": "string"},
+                {"name": "item", "type": "string"},
+                {"name": "second", "type": "boolean"},
+            ]
+        },
+        observation={"key": ["subject", "item", "second"]},
+    )
+
+    def make(lacking: int) -> dict[str, Any]:
+        data = frame(
+            subject=labels("s%02d", rep(seq_len(10), each=20)),
+            item=rep(labels("i%02d", rep(seq_len(10), each=2)), 10),
+            second=rep([False, True], 100),
+            count=[None if i <= lacking else float(i % 4 + 1) for i in seq_len(200)],
+        )
+        return audit_both(
+            data,
+            "count ~ 1 + (1 | subject) + (1 | item)",
+            family="poisson",
+            outcome_access="T1",
+            reason="Counts.",
+            declaration=declaration,
+        )
+
+    first = make(0)["shareable"]
+    second = make(1)["shareable"]
+    expect_same_reading(first, second)
+    zeros = finding_of(first, "outcome.zero_shares", factor="subject")
+    assert detail(zeros, "rows") == "secondary"
+
+
+def test_the_rows_without_a_key_value_count_towards_the_bound_of_the_keys_levels() -> None:
+    # The design of the test of the product of a unique key's levels with rep
+    # not read by the formula and 10 further rows, one for each subject at
+    # item i01, without a value of rep, which keeps them in the design sample.
+    # keys.duplicates writes missing_key_rows 10, so the design sample holds
+    # at most 10 times 10 times 2 rows with a key value and 10 without one,
+    # 210 rows, and written analysed rows of 210 would show that no outcome is
+    # missing.
+    declaration = units(
+        unit("subject", "participant"),
+        table={
+            "fields": [
+                {"name": "subject", "type": "string"},
+                {"name": "item", "type": "string"},
+                {"name": "rep", "type": "integer", "categories": [1, 2]},
+            ]
+        },
+        observation={"key": ["subject", "item", "rep"]},
+    )
+
+    def make(lacking: int) -> dict[str, Any]:
+        data = frame(
+            subject=labels("s%02d", rep(seq_len(10), each=20)) + labels("s%02d", seq_len(10)),
+            item=rep(labels("i%02d", rep(seq_len(10), each=2)), 10) + ["i01"] * 10,
+            rep=rep([1, 2], 100) + [None] * 10,
+            count=[None if i <= lacking else float(i % 4 + 1) for i in seq_len(210)],
+        )
+        return audit_both(
+            data,
+            "count ~ 1 + (1 | subject) + (1 | item)",
+            family="poisson",
+            outcome_access="T1",
+            reason="Counts.",
+            declaration=declaration,
+        )
+
+    first = make(0)["shareable"]
+    second = make(1)["shareable"]
+    keys = finding_of(first, "keys.duplicates")
+    assert written(keys, "missing_key_rows") == 10
+    expect_same_reading(first, second)
+    zeros = finding_of(first, "outcome.zero_shares", factor="subject")
+    assert detail(zeros, "rows") == "secondary"

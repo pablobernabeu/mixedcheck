@@ -103,7 +103,9 @@ dh_outcome <- function(n) (seq_len(n) * 5L) %% 13L + 0.25
 # Every family of the search, in the order in which they run. run.R --shard
 # gives position p to shard ((p - 1) mod N) + 1, so the order also spreads
 # the run time of the families over the four shards of CI: crossed, eigen
-# and zoo-families stand where they balance them.
+# and zoo-families stand where they balance them, and bounds and
+# factor-separation take the places of minority and labels, which moved to
+# the shards that crossed does not lengthen.
 dh_families <- function() {
   c(
     list(
@@ -111,15 +113,15 @@ dh_families <- function() {
       dh_family_sizes(unit = TRUE),
       dh_family_sizes(unit = FALSE, wide = TRUE),
       dh_family_four_sizes(),
-      dh_family_minority(),
+      dh_family_bounds(),
       dh_family_constant(),
       dh_family_zeros(),
-      dh_family_bounds(),
+      dh_family_minority(),
       dh_family_crossed(unit = FALSE),
       dh_family_blocks(),
       dh_family_assign(),
       dh_family_crossed(unit = TRUE),
-      dh_family_labels(),
+      dh_family_factor_separation(),
       dh_family_nested(),
       dh_family_aliased(),
       dh_family_keys(),
@@ -129,7 +131,7 @@ dh_families <- function() {
       dh_family_quartile(),
       dh_family_assign_school(),
       dh_family_binomial(),
-      dh_family_factor_separation(),
+      dh_family_labels(),
       dh_family_two_factor_separation(),
       dh_family_separation_missing(),
       dh_family_chain(),
@@ -701,43 +703,279 @@ dh_family_blocks <- function() {
 # Two crossed grouping factors whose combinations hold two rows each, apart
 # from combinations of one row, empty combinations and combinations without
 # an outcome, in a T1 run of a Poisson model. Each row is a pupil, the
-# disclosure unit, or there is none.
+# disclosure unit, or there is none. crossed takes g and h of 2 to 4, so
+# that its tables of 3 levels of each lie inside its limits, and valid()
+# leaves every level of h a combination that is not empty. Its alternatives
+# trace the determinations of those tables (dh_crossed_alternatives()).
 dh_family_crossed <- function(unit) {
+  sizes <- if (unit) 3:4 else 2:4
   dh_family(
     name = paste0("crossed", if (unit) "-unit" else ""),
     probe = "^structure\\.(label_incidence|connectivity)|g:h",
     description = "two crossed factors, cells of one row, empty cells, missing outcomes, T1",
+    gate = unit,
+    alternatives = if (!unit) dh_crossed_alternatives,
     params = list(
-      g = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
-      h = dh_param(3:4, person = FALSE, natural = c(FALSE, FALSE)),
+      g = dh_param(sizes, person = FALSE, natural = c(FALSE, FALSE)),
+      h = dh_param(sizes, person = FALSE, natural = c(FALSE, FALSE)),
       single = dh_param(0:2, person = TRUE),
       empty = dh_param(0:2, person = TRUE),
       y_missing = dh_param(0:4, person = TRUE, tier = "A")
     ),
     build = function(p) {
-      cells <- expand.grid(h = dh_labels("h", p$h), g = dh_labels("g", p$g),
-                           stringsAsFactors = FALSE)[, c("g", "h")]
-      m <- nrow(cells)
+      m <- p$g * p$h
       rows <- rep(2L, m)
       # The cells changed lie apart, one in each row of g where possible.
       order <- order(seq_len(m) %% p$h, seq_len(m))
       rows[order[seq_len(p$empty)]] <- 0L
       rows[order[p$empty + seq_len(p$single)]] <- 1L
       lost <- order[p$empty + p$single + seq_len(p$y_missing)]
-      data <- cells[rep(seq_len(m), rows), , drop = FALSE]
-      n <- nrow(data)
-      data$count <- (seq_len(n) %% 4L) + 1
-      data$count[rep(seq_len(m), rows) %in% lost] <- NA
-      data$x <- dh_covariate(n)
-      data$pupil <- dh_labels("p", n)
-      rownames(data) <- NULL
-      declaration <- if (unit) dh_declaration(units = list(dh_participant("pupil")))
-      list(data = data, formula = "count ~ x + (1 | g) + (1 | h) + (1 | g:h)",
-           args = c(list(declaration = declaration, family = "poisson"), dh_t1()))
+      missing <- rep(0L, m)
+      missing[lost] <- rows[lost]
+      dh_crossed_case(matrix(rows, p$g, p$h, byrow = TRUE),
+                      matrix(missing, p$g, p$h, byrow = TRUE), unit)
     },
-    valid = function(p) p$single + p$empty + p$y_missing <= p$g * p$h - 1L
+    valid = function(p) {
+      p$single + p$empty + p$y_missing <= p$g * p$h - 1L && p$empty < p$g
+    }
   )
 }
+
+# A table of the template of crossed from the rows of each combination of g
+# and h, sizes, a matrix with one row for each level of g and one column for
+# each level of h, and missing, the rows among them without an outcome, which
+# are the last rows of their combination. The rows take the outcome and the
+# covariate of the template in order.
+dh_crossed_case <- function(sizes, missing, unit = FALSE) {
+  cells <- expand.grid(h = dh_labels("h", ncol(sizes)), g = dh_labels("g", nrow(sizes)),
+                       stringsAsFactors = FALSE)[, c("g", "h")]
+  rows <- as.vector(t(sizes))
+  lost <- as.vector(t(missing))
+  cell <- rep(seq_len(nrow(cells)), rows)
+  data <- cells[cell, , drop = FALSE]
+  n <- nrow(data)
+  data$count <- (seq_len(n) %% 4L) + 1
+  position <- ave(seq_len(n), cell, FUN = seq_along)
+  data$count[position > (rows - lost)[cell]] <- NA
+  data$x <- dh_covariate(n)
+  data$pupil <- dh_labels("p", n)
+  rownames(data) <- NULL
+  declaration <- if (unit) dh_declaration(units = list(dh_participant("pupil")))
+  list(data = data, formula = "count ~ x + (1 | g) + (1 | h) + (1 | g:h)",
+       args = c(list(declaration = declaration, family = "poisson"), dh_t1()))
+}
+
+# The alternatives of crossed, tables outside the family that read alike with
+# a table of 3 levels of g and of h and give a determination of it another
+# value, found by the analysis of 13 November 2026 (docs/provenance.md): the
+# cells rearranged within the 3 by 3 design, a further level of g or of h, or
+# of both, with rows without an outcome, the analysed rows gathered in one
+# level and cells of one row placed so that rule 3 hides the analysed
+# combinations of a design that is no longer crossed. Each is given by the
+# rows of its combinations and the rows among them without an outcome, rows
+# of g separated by '/', for the values of single, empty and y_missing of
+# the table that it serves. Every table with a row without an outcome also
+# has the alternative x_missing, in which its first such row has an outcome
+# and lacks the covariate, so that it leaves the design sample. The value of
+# y_missing that describes an alternative is the number of its combinations
+# without any outcome, as in the family.
+dh_crossed_alternatives <- function(p, case) {
+  describe <- function(alternative) {
+    d <- alternative$data
+    lost <- tapply(is.na(d$count), paste(d$g, d$h), all)
+    attr(alternative, "params") <- list(y_missing = sum(lost))
+    alternative
+  }
+  out <- list()
+  if (p$g == 3L && p$h == 3L) {
+    table <- matrix(dh_crossed_tables, ncol = 4L, byrow = TRUE)
+    matrix_of <- function(text) {
+      groups <- strsplit(strsplit(text, "/", fixed = TRUE)[[1L]], ",", fixed = TRUE)
+      do.call(rbind, lapply(groups, as.integer))
+    }
+    mine <- table[table[, 1L] == paste(p$single, p$empty, p$y_missing, sep = ","), , drop = FALSE]
+    for (i in seq_len(nrow(mine))) {
+      out[[mine[i, 2L]]] <- describe(dh_crossed_case(matrix_of(mine[i, 3L]),
+                                                     matrix_of(mine[i, 4L])))
+    }
+  }
+  lacking <- which(is.na(case$data$count))
+  if (length(lacking)) {
+    first <- lacking[1L]
+    case$data$count[first] <- (first %% 4L) + 1
+    case$data$x[first] <- NA
+    out$x_missing <- describe(case)
+  }
+  out
+}
+
+# The alternatives of dh_crossed_alternatives(): the values of single, empty
+# and y_missing of the table, the name, the rows of each combination and the
+# rows without an outcome among them.
+dh_crossed_tables <- c(
+  "0,0,0", "lose_1_2_3", "2,2,2/3,2,2/3,2,2",
+    "2,0,0/0,0,0/0,0,0",
+  "0,0,1", "H5", "2,2,1,1/2,2,2,0/2,1,2,0/1,0,0,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0/1,0,0,0",
+  "0,0,1", "H6", "2,2,1/2,2,2/2,1,2/1,1,0",
+    "0,0,0/0,0,0/0,0,0/1,1,0",
+  "0,0,1", "H7", "2,2,1,1/2,2,2,1/2,1,2,0",
+    "0,0,0,1/0,0,0,1/0,0,0,0",
+  "0,0,2", "A1", "2,2,1/2,2,1/2,2,1/1,1,1",
+    "0,0,0/0,0,0/0,0,1/1,1,1",
+  "0,0,2", "A2", "2,2,2,1/2,2,2,1/1,1,1,1",
+    "0,0,0,1/0,0,0,1/0,0,1,1",
+  "0,0,2", "split_1_1", "2,2,2/2,2,2/2,2,2",
+    "1,0,1/0,0,2/0,0,0",
+  "0,0,3", "T7a", "2,2,1,1/2,2,1,1/2,2,1,1",
+    "0,0,1,1/0,0,1,1/0,0,1,1",
+  "0,0,3", "T7b", "2,2,1/2,2,1/2,2,1/1,1,1",
+    "0,0,1/0,0,1/0,0,1/1,1,1",
+  "0,0,3", "T7c", "4,1,1/4,1,1/4,1,1",
+    "0,1,1/0,1,1/0,1,1",
+  "0,0,3", "c1+1+0 c2-1+0", "3,2,2/1,2,2/2,2,2",
+    "0,0,2/0,0,2/0,0,2",
+  "0,0,3", "c1+1+1 c7-1-1", "3,2,1/2,2,2/2,2,2",
+    "1,0,1/0,0,2/0,0,2",
+  "0,1,0", "c1+1+0 c2+0+1", "3,2,0/2,2,2/2,2,2",
+    "0,0,0/1,0,0/0,0,0",
+  "0,1,0", "c1+1+0 c2-1+0", "3,2,0/1,2,2/2,2,2",
+    "0,0,0/0,0,0/0,0,0",
+  "0,1,0", "extra_missing_1", "3,2,0/2,2,2/2,2,2",
+    "1,0,0/0,0,0/0,0,0",
+  "0,1,0", "gX@1+hX@1", "2,2,0,1/2,2,2,0/2,2,2,0/1,0,0,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0/1,0,0,0",
+  "0,1,0", "gX@1m c4+1+1", "2,2,0/2,2,2/2,2,2/2,0,0",
+    "0,0,0/0,0,0/0,0,0/2,0,0",
+  "0,1,0", "gX@1m", "2,2,0/2,2,2/2,2,2/1,0,0",
+    "0,0,0/0,0,0/0,0,0/1,0,0",
+  "0,1,0", "hX@1m c10+1+1", "2,2,0,2/2,2,2,0/2,2,2,0",
+    "0,0,0,2/0,0,0,0/0,0,0,0",
+  "0,1,0", "hX@1m", "2,2,0,1/2,2,2,0/2,2,2,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0",
+  "0,1,1", "T10a", "2,2,0/2,2,0/2,2,2/1,1,0",
+    "0,0,0/0,0,0/0,0,0/1,1,0",
+  "0,1,1", "T10b", "2,2,0,1/2,2,0,1/2,2,2,0",
+    "0,0,0,1/0,0,0,1/0,0,0,0",
+  "0,1,1", "c1+1+0 c2-1+0", "3,2,0/1,2,2/2,2,2",
+    "0,0,0/0,0,2/0,0,0",
+  "0,1,1", "c8-1-1 gX@1m", "2,2,0/2,2,1/2,2,2/1,0,0",
+    "0,0,0/0,0,1/0,0,0/1,0,0",
+  "0,1,1", "c8-1-1 hX@1m", "2,2,0,1/2,2,1,0/2,2,2,0",
+    "0,0,0,1/0,0,1,0/0,0,0,0",
+  "0,1,1", "gX@3+hX@1 c10-1-1 c10-1-1", "2,2,0,1/2,2,0,0/2,2,2,0/0,0,1,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0/0,0,1,0",
+  "0,1,1", "lost_one_8", "2,2,0/2,2,1/2,2,2",
+    "0,0,0/0,0,1/0,0,0",
+  "0,1,2", "C1", "4,1,0/4,0,1/4,1,1",
+    "0,1,0/0,0,1/0,1,1",
+  "0,1,2", "C2", "3,2,0/2,2,2/3,1,1",
+    "0,0,0/0,0,2/0,1,1",
+  "0,1,2", "T4a", "2,1,0/3,3,1/3,2,1",
+    "1,1,0/0,0,1/0,0,1",
+  "0,1,2", "c1+1+0 c2-1+0", "3,2,0/1,2,2/2,2,2",
+    "0,0,0/0,0,2/0,0,2",
+  "0,1,2", "c1+1+1 c8-1-1", "3,2,0/2,2,1/2,2,2",
+    "1,0,0/0,0,1/0,0,2",
+  "0,1,2", "c8-1-1 gX@1m", "2,2,0/2,2,1/2,2,2/1,0,0",
+    "0,0,0/0,0,1/0,0,2/1,0,0",
+  "0,1,2", "c8-1-1 hX@1m", "2,2,0,1/2,2,1,0/2,2,2,0",
+    "0,0,0,1/0,0,1,0/0,0,2,0",
+  "0,1,2", "gX@1+hX@1 c10-1-1 c11-1-1", "2,2,0,1/2,2,1,0/2,2,1,0/1,0,0,0",
+    "0,0,0,1/0,0,1,0/0,0,1,0/1,0,0,0",
+  "0,1,3", "T8a", "4,2,0/3,0,2/3,1,1",
+    "0,2,0/0,0,2/0,1,1",
+  "0,1,3", "c1-1-1 gX@1m", "1,2,0/2,2,2/2,2,2/1,0,0",
+    "1,0,0/0,0,2/0,0,2/1,0,0",
+  "0,1,3", "c1-1-1 hX@1m", "1,2,0,1/2,2,2,0/2,2,2,0",
+    "1,0,0,1/0,0,2,0/0,0,2,0",
+  "0,1,3", "c2+1+0 c4-1+0", "2,1,0/3,2,2/2,2,2",
+    "2,0,0/0,0,2/0,0,2",
+  "0,1,3", "gX@1+hX@1 c1-1-1 c1-1-1", "0,2,0,1/2,2,2,0/2,2,2,0/1,0,0,0",
+    "0,0,0,1/0,0,2,0/0,0,2,0/1,0,0,0",
+  "0,1,3", "split_1_2", "2,2,0/2,2,2/2,2,2",
+    "1,0,0/1,0,2/0,0,2",
+  "1,0,0", "G1", "2,2,1,1/2,2,2,0/2,2,2,0/1,0,0,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0/1,0,0,0",
+  "1,0,0", "G3", "2,2,1/2,2,2/2,2,2/1,1,0",
+    "0,0,0/0,0,0/0,0,0/1,1,0",
+  "1,0,0", "G4", "2,2,1,1/2,2,2,1/2,2,2,0",
+    "0,0,0,1/0,0,0,1/0,0,0,0",
+  "1,0,0", "lose_1_2_3", "2,2,1/3,2,2/3,2,2",
+    "2,0,0/0,0,0/0,0,0",
+  "1,0,0", "single_half_7", "2,2,2/2,2,2/2,2,2",
+    "0,0,1/0,0,0/0,0,0",
+  "1,0,2", "E1", "2,2,1/2,3,1/4,1,1",
+    "0,0,0/0,1,1/0,1,1",
+  "1,0,2", "T13a", "1,1,1/3,2,2/2,3,2",
+    "0,1,1/0,0,1/0,0,1",
+  "1,0,2", "c1+1+0 c2-1+0", "3,2,1/1,2,2/2,2,2",
+    "0,0,0/0,0,2/0,0,2",
+  "1,0,2", "c1+1+1 c8-1-1", "3,2,1/2,2,1/2,2,2",
+    "1,0,0/0,0,1/0,0,2",
+  "1,0,3", "T6a", "2,2,1/2,2,1/2,1,1/1,1,1",
+    "0,0,0/0,0,1/0,1,1/1,1,1",
+  "1,0,3", "T6b", "2,2,1,1/2,2,2,1/1,1,1,1",
+    "0,0,0,1/0,0,1,1/0,1,1,1",
+  "1,0,3", "T6c", "2,2,1,1/2,2,1,1/2,1,1,1",
+    "0,0,0,1/0,0,1,1/0,1,1,1",
+  "1,0,3", "split_1_2", "2,2,1/2,2,2/2,2,2",
+    "1,0,0/1,0,2/0,0,2",
+  "1,1,0", "B2", "4,1,1/1,4,1/1,1,1/1,0,0",
+    "0,0,0/0,0,0/0,0,0/1,0,0",
+  "1,1,0", "c1+1+0 c2-1+0", "3,2,0/1,2,1/2,2,2",
+    "0,0,0/0,0,0/0,0,0",
+  "1,1,0", "gX@1+hX@1", "2,2,0,1/2,2,1,0/2,2,2,0/1,0,0,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0/1,0,0,0",
+  "1,1,0", "gX@1m c4+1+1", "2,2,0/2,2,1/2,2,2/2,0,0",
+    "0,0,0/0,0,0/0,0,0/2,0,0",
+  "1,1,0", "gX@1m", "2,2,0/2,2,1/2,2,2/1,0,0",
+    "0,0,0/0,0,0/0,0,0/1,0,0",
+  "1,1,0", "hX@1m c10+1+1", "2,2,0,2/2,2,1,0/2,2,2,0",
+    "0,0,0,2/0,0,0,0/0,0,0,0",
+  "1,1,0", "hX@1m", "2,2,0,1/2,2,1,0/2,2,2,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0",
+  "1,1,0", "single_half_8", "2,2,0/2,2,2/2,2,2",
+    "0,0,0/0,0,1/0,0,0",
+  "1,1,1", "T12b", "4,1,0/1,3,1/1,1,1/1,1,0",
+    "0,0,0/0,0,1/0,0,0/0,1,0",
+  "1,1,1", "c1+1+0 c2-1+0", "3,2,0/1,2,1/2,2,2",
+    "0,0,0/0,0,0/0,0,2",
+  "1,1,1", "c8-1+0 c9+0-1", "2,2,0/2,2,0/2,2,2",
+    "0,0,0/0,0,0/0,0,1",
+  "1,1,1", "c9-1-1 gX@1m", "2,2,0/2,2,1/2,2,1/1,0,0",
+    "0,0,0/0,0,0/0,0,1/1,0,0",
+  "1,1,1", "c9-1-1 hX@1m", "2,2,0,1/2,2,1,0/2,2,1,0",
+    "0,0,0,1/0,0,0,0/0,0,1,0",
+  "1,1,1", "gX@1+hX@1 c11-1-1 c11-1-1", "2,2,0,1/2,2,1,0/2,2,0,0/1,0,0,0",
+    "0,0,0,1/0,0,0,0/0,0,0,0/1,0,0,0",
+  "1,1,1", "lost_one_9", "2,2,0/2,2,1/2,2,1",
+    "0,0,0/0,0,0/0,0,1",
+  "1,1,2", "c1-1-1 gX@1m", "1,2,0/2,2,1/2,2,2/1,0,0",
+    "1,0,0/0,0,0/0,0,2/1,0,0",
+  "1,1,2", "c1-1-1 hX@1m", "1,2,0,1/2,2,1,0/2,2,2,0",
+    "1,0,0,1/0,0,0,0/0,0,2,0",
+  "1,1,2", "gX@1+hX@1 c1-1-1 c1-1-1", "0,2,0,1/2,2,1,0/2,2,2,0/1,0,0,0",
+    "0,0,0,1/0,0,0,0/0,0,2,0/1,0,0,0",
+  "1,1,2", "split_1_2", "2,2,0/2,2,1/2,2,2",
+    "1,0,0/1,0,0/0,0,2",
+  "1,1,2", "split_2_4", "2,2,0/2,2,1/2,2,2",
+    "2,1,0/0,0,0/0,0,1",
+  "1,1,3", "T9a", "2,3,0/1,2,2/2,1,2",
+    "1,0,0/0,1,2/2,0,0",
+  "1,1,3", "c1+1+1 c2-1-1", "3,2,0/1,2,1/2,2,2",
+    "3,0,0/1,0,0/0,0,2",
+  "1,1,3", "c1-1-1 gX@1m", "1,2,0/2,2,1/2,2,2/1,0,0",
+    "1,0,0/2,0,0/0,0,2/1,0,0",
+  "1,1,3", "c1-1-1 hX@1m", "1,2,0,1/2,2,1,0/2,2,2,0",
+    "1,0,0,1/2,0,0,0/0,0,2,0",
+  "1,1,3", "c3+1+0 c4-1+0", "2,1,0/2,2,1/3,2,2",
+    "2,0,0/2,0,0/0,0,2",
+  "1,1,3", "c3-1+0 c4+1+0", "2,3,0/2,2,1/1,2,2",
+    "2,0,0/2,0,0/0,0,2",
+  "1,1,3", "gX@1+hX@1 c1-1-1 c1-1-1", "0,2,0,1/2,2,1,0/2,2,2,0/1,0,0,0",
+    "0,0,0,1/2,0,0,0/0,0,2,0/1,0,0,0"
+)
 
 # Class labels that recur in two schools or occur in one, without a
 # declared scope, and combinations without a school, in a T0 run.
@@ -890,8 +1128,8 @@ dh_family_unicode <- function() {
     ),
     build = function(p) {
       plain <- dh_labels("s", p$plain)
-      composed <- paste0("é", seq_len(p$merged))
-      decomposed <- paste0("é", seq_len(p$merged))
+      composed <- paste0("\u00e9", seq_len(p$merged))
+      decomposed <- paste0("e\u0301", seq_len(p$merged))
       subject <- c(rep(plain, each = 2L), composed, decomposed)
       n <- length(subject)
       list(data = data.frame(y = dh_outcome(n), subject = enc2utf8(subject),

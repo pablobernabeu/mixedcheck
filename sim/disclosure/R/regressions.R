@@ -1,7 +1,7 @@
 # Attack (c), regression attacks (sim/disclosure/README.md): one attack for
 # each value that a shareable document gave back in the four adversarial
 # reviews of M2b-2 (rounds 1 to 4) and in the reviews and analyses since
-# (rounds 5 to 12), although docs/spec/privacy.md undertook to hide it. Each
+# (rounds 5 to 14), although docs/spec/privacy.md undertook to hide it. Each
 # attack runs audit() on the reproducer at the registry's k, or at the k
 # that it sets, reads the shareable document as the adversary would and
 # returns whether it recovers the value, with what it found. An attack of
@@ -359,7 +359,19 @@ rg_attacks <- function() {
          attack = rg_dominated_contributors),
     list(id = "R13-levels-contributors", round = 13L,
          channel = "at k = 5, multi_row_levels 2 of outcome.constant_clusters, of schools of two pupils or more that each hold their pupils, shows four analysed contributors or more, which beside contributors below 5 are 4",
-         attack = rg_levels_contributors)
+         attack = rg_levels_contributors),
+    list(id = "R14-key-rows", round = 14L,
+         channel = "the analysed rows, written beside 10 subjects crossed with 10 items whose levels the crossing and the firing of rule 1 give, equal the product of the levels of the unique key (subject, item, rep) with rep declared as 1 and 2, so that no outcome is missing",
+         attack = rg_key_rows),
+    list(id = "R14-key-duplicates", round = 14L,
+         channel = "the analysed rows, written beside 4 conditions of a fixed factor and the 10 declared categories of item in the key (condition, item), equal the product of their levels plus duplicate_rows 20 less duplicated_keys 10 of keys.duplicates, so that no outcome is missing",
+         attack = rg_key_duplicates),
+    list(id = "R14-product-bound", round = 14L,
+         channel = "the 240 written rows of the design sample and the relation crossed bound the subjects of the design sample by 240 over the 12 analysed items, which equals the 20 analysed subjects, so that no subject lost every outcome, which the bound of the class kept-levels leaves open for subjects of 12 rows",
+         attack = rg_product_bound),
+    list(id = "R14-key-boolean", round = 14L,
+         channel = "the analysed rows, written beside 10 subjects crossed with 10 items whose levels the crossing and the firing of rule 1 give, equal their product times the 2 values of second, declared of type boolean in the unique key (subject, item, second), so that no outcome is missing",
+         attack = rg_key_boolean)
   )
 }
 
@@ -2719,4 +2731,126 @@ rg_levels_contributors <- function(ns, root) {
   on.exit(dh_set_k(ns, old), add = TRUE)
   found <- rg_contributors_given(rg_case_document(ns, rg_pupils_two_rows(10L, 4L)))
   rg_result(length(found) > 0L, sprintf("%d analysed pupils", found))
+}
+
+# --- Round 14 --------------------------------------------------------------------------
+
+rg_key_rows <- function(ns, root) {
+  # 10 subjects crossed with 10 items, each combination twice, the key
+  # (subject, item, rep) unique and rep declared with the categories 1 and
+  # 2, in a Poisson T1 run with no outcome missing or one. Beside the firing
+  # of rule 1, the crossing gives every subject and item 20 rows, so none can
+  # have lost every outcome and the 10 analysed subjects and items are those
+  # of the design sample. The key bounds the design sample by their product
+  # times 2, 200 rows, so analysed rows of 200 written beside them would
+  # show that no outcome is missing, unless the end of rule 1 hides them.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "rep", type = "integer",
+                                    categories = list(1L, 2L)))),
+    observation = list(key = list("subject", "item", "rep")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  make <- function(lacking) {
+    data <- expand.grid(rep = 1:2, item = sprintf("i%02d", 1:10), subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item", "rep")]
+    data$count <- (seq_len(nrow(data)) %% 4L) + 1
+    data$count[seq_len(lacking)] <- NA
+    list(data = data, formula = "count ~ rep + (1 | subject) + (1 | item)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Counts.",
+                     declaration = declaration))
+  }
+  rg_pair(ns, list(make(0L), make(1L)),
+          "the analysed rows tell 0 rows without an outcome from 1 beside the product of the key's levels")
+}
+
+rg_key_duplicates <- function(ns, root) {
+  # 4 conditions of a fixed factor crossed with the 10 items of a list
+  # declared with the categories 1 to 10, the key (condition, item) and the
+  # first 10 combinations twice, in a Poisson T1 run with no outcome missing
+  # or one. kept of design.rank_deficiency and the categories give 4 times 10
+  # distinct key values at most, and duplicate_rows 20 less duplicated_keys 10
+  # the rows that repeat one, so analysed rows of 50 written beside them
+  # would show that no outcome is missing, unless the end of rule 1 hides
+  # them.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "condition", type = "string"),
+                               list(name = "item", type = "integer",
+                                    categories = as.list(1:10)))),
+    observation = list(key = list("condition", "item")))
+  make <- function(lacking) {
+    data <- expand.grid(item = 1:10, condition = c("a", "b", "c", "d"),
+                        stringsAsFactors = FALSE)[, c("condition", "item")]
+    data <- rbind(data, data[1:10, ])
+    data$count <- as.numeric(seq_len(nrow(data)) %% 3L)
+    data$count[seq_len(lacking) + 2L] <- NA
+    list(data = data, formula = "count ~ condition + (1 | item)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Counts.",
+                     declaration = declaration))
+  }
+  rg_pair(ns, list(make(0L), make(1L)),
+          "the analysed rows tell 0 rows without an outcome from 1 beside the key's levels and repeated rows")
+}
+
+rg_key_boolean <- function(ns, root) {
+  # The design of R14-key-rows with the key (subject, item, second) and
+  # second declared of type boolean, which the formula does not read. A
+  # boolean column holds false and true alone, so the declaration bounds its
+  # levels by 2, as the categories 1 and 2 bound those of rep.
+  declaration <- list(vocabulary = "0.1.0",
+    table = list(fields = list(list(name = "subject", type = "string"),
+                               list(name = "item", type = "string"),
+                               list(name = "second", type = "boolean"))),
+    observation = list(key = list("subject", "item", "second")),
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  make <- function(lacking) {
+    data <- expand.grid(second = c(FALSE, TRUE), item = sprintf("i%02d", 1:10),
+                        subject = sprintf("s%02d", 1:10),
+                        stringsAsFactors = FALSE)[, c("subject", "item", "second")]
+    data$count <- (seq_len(nrow(data)) %% 4L) + 1
+    data$count[seq_len(lacking)] <- NA
+    list(data = data, formula = "count ~ 1 + (1 | subject) + (1 | item)",
+         args = list(family = "poisson", outcome_access = "T1", reason = "Counts.",
+                     declaration = declaration))
+  }
+  rg_pair(ns, list(make(0L), make(1L)),
+          "the analysed rows tell 0 rows without an outcome from 1 beside the product of the key's levels")
+}
+
+rg_product_bound <- function(ns, root) {
+  # 20 subjects crossed with 12 items, one row in each combination, the
+  # subjects the disclosure unit and 6 outcomes of s01 and 6 of s02 missing,
+  # in a gaussian T1 run at the registry's k. The relation crossed of
+  # structure.label_incidence gives the design sample a row in every
+  # combination of its subjects and items, and multi_row_levels of
+  # outcome.constant_clusters for item bounds its items from below by 12, so
+  # the 240 written rows of the design sample bound its subjects by 20, the
+  # analysed subjects that the contributors of that finding count. No subject
+  # lost every outcome, whereas the bound that the document shows on the rows
+  # without an outcome, 12, leaves that count open for subjects of 12 rows
+  # (privacy.md, Guarantees). privacy.md names this kind as not yet covered,
+  # and the report lists the attack under the known channel
+  # bound-through-crossed-rows (R/attacks.R).
+  data <- expand.grid(item = sprintf("i%02d", 1:12), subject = sprintf("s%02d", 1:20),
+                      stringsAsFactors = FALSE)[, c("subject", "item")]
+  n <- nrow(data)
+  data$y <- dh_outcome(n)
+  data$x <- dh_covariate(n)
+  data$y[c(which(data$subject == "s01")[1:6], which(data$subject == "s02")[1:6])] <- NA
+  declaration <- list(vocabulary = "0.1.0",
+    units = list(list(name = "subject", columns = list("subject"), role = "participant")))
+  document <- rg_document(ns, data, "y ~ x + (1 | subject) + (1 | item)",
+                          declaration = declaration, outcome_access = "T1", reason = "Means.")
+  rows <- rg_value(rg_finding(document, "structure.cluster_sizes", factor = "subject"),
+                   "support.rows")
+  incidence <- rg_finding(document, "structure.label_incidence", first = "item",
+                          second = "subject") %||%
+    rg_finding(document, "structure.label_incidence", first = "subject", second = "item")
+  constant <- rg_finding(document, "outcome.constant_clusters", factor = "item")
+  items <- rg_value(constant, "multi_row_levels")
+  subjects <- rg_value(constant, "support.distinct")
+  found <- identical(rg_value(incidence, "relation"), "crossed") && !is.null(rows) &&
+    !is.null(items) && !is.null(subjects) && items > 0 && floor(rows / items) == subjects
+  rg_result(found, if (found) sprintf("%d subjects of the design sample, none without an outcome",
+                                      subjects))
 }

@@ -267,6 +267,9 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
       }
     }
   }
+  if (privacy_close(privacy_key_bound(run, findings, k), analysis$rows, k)) {
+    marks$rows <- TRUE
+  }
   if (marks$contributors && identical(basis, "disclosure_unit") && !is.na(unit_item)) {
     marks$items[[unit_item]][["levels"]] <- TRUE
   }
@@ -285,6 +288,81 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
                           quartiles, k)
   privacy_rule_2(analysis, privacy_single_row_items(quantities$design, marks, basis, unit_item),
                  k)
+}
+
+# The bound that a declared observation key places on the rows of the design
+# sample, or 0 when keys.duplicates does not run, or when a column of the key
+# is none whose levels the document or the declaration can give
+# (privacy_bounded_columns()). The design sample holds at most as many
+# distinct key values as the product of the levels of the key's columns
+# there, and its rows exceed its distinct key values by its rows with a key
+# value that repeat one, which duplicate_rows less duplicated_keys of
+# keys.duplicates bound in the table, and by its rows without a key value,
+# which missing_key_rows bounds. Beside the firing of rule 1, which shows
+# fewer than k rows without an outcome, the levels of crossed columns that it
+# shows to have kept an outcome, a column's declared categories, the two
+# values of a column declared boolean or the columns of a fixed factor can
+# give that product, which beside the analysed rows would give back the rows
+# without an outcome (privacy.md, Across findings, the end of rule 1). The
+# bound counts the repeated rows and the rows without a key value of the
+# design sample, no more than those that the written counts of the table
+# bound, so that it comes within k of the analysed rows wherever theirs
+# does. A column other than a predictor or a column whose levels the
+# declaration gives (privacy_declared_level_columns()) that has a level of
+# fewer than k rows of the design sample, as the label of a pupil of two rows
+# does, also gives 0: beside the firing of rule 1 such a level may have lost
+# every outcome, so its analysed levels do not give its levels there, which
+# rule 1 hides as the levels of an item, or no count writes, wherever the
+# bound would come within k of the analysed rows.
+privacy_key_bound <- function(run, findings, k) {
+  declared <- any(vapply(findings, function(finding) {
+    finding$check == "keys.duplicates" && isTRUE(finding$available)
+  }, NA))
+  if (!declared) {
+    return(0)
+  }
+  key <- comparison_form(as.character(observation_key_columns(run$declaration)))
+  if (!all(key %in% privacy_bounded_columns(run))) {
+    return(0)
+  }
+  given <- c(names(run$ir$predictors), privacy_declared_level_columns(run$declaration))
+  levels <- vapply(key, function(column) {
+    codes <- value_codes(run, column, run$design)
+    sizes <- table(codes[!is.na(codes)])
+    if (!column %in% given && (!length(sizes) || any(sizes < k))) {
+      return(NA_real_)
+    }
+    as.numeric(length(sizes))
+  }, 0)
+  if (anyNA(levels)) {
+    return(0)
+  }
+  codes <- value_codes(run, key, run$design)
+  keyed <- codes[!is.na(codes)]
+  prod(levels) + length(keyed) - length(unique(keyed)) + sum(is.na(codes))
+}
+
+# The columns whose levels in the design sample the document or the
+# declaration can give: the predictors and grouping columns of the IR, the
+# label columns of the declared units and the columns whose levels the
+# declaration gives (privacy_declared_level_columns()), as keys.
+privacy_bounded_columns <- function(run) {
+  declaration <- run$declaration
+  units <- lapply(names(declared_units(declaration)), function(name) {
+    unit_label_columns(declaration, name)
+  })
+  unique(c(names(run$ir$predictors), run$grouping_columns, unlist(units),
+           privacy_declared_level_columns(declaration)))
+}
+
+# The columns of the table block whose levels the declaration gives, those
+# with declared categories and those of type 'boolean', which hold the
+# values false and true alone (tables.md), as keys.
+privacy_declared_level_columns <- function(declaration) {
+  declared <- Filter(function(field) {
+    !is.null(field[["categories"]]) || identical(field[["type"]], "boolean")
+  }, declaration[["table"]][["fields"]])
+  comparison_form(vapply(declared, function(field) field[["name"]], ""))
 }
 
 # The items of two crossed columns whose findings of the T1 and T2 checks

@@ -5996,6 +5996,192 @@
           }
         ]
       }
+    },
+    {
+      "id": "audits-privacy-084",
+      "description": "4 conditions crossed with the 10 items of a fixed list, one row in each combination, the observation key (condition, item), which keys.duplicates finds unique, condition a fixed factor, item a grouping factor declared with the categories 1 to 10, and no outcome missing, in a Poisson T1 run. Each combination of the key's values occurs in one row at most, so the design sample holds at most the product of the levels of the key's columns there, 4 conditions times 10 items, 40 rows, which the columns of condition and the declared categories of item can give. The analysed rows exceed that product by fewer than k, so the end of rule 1 of Across findings hides them: rows, zeros and zero_share of outcome.zero_shares and its support.rows. Written, 40 analysed rows would equal the product and show that no outcome is missing.",
+      "checks": ["keys.duplicates", "outcome.zero_shares"],
+      "data": {
+        "count": [1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1],
+        "condition": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d"],
+        "item": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "formula": "count ~ condition + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "condition", "type": "string"}, {"name": "item", "type": "integer", "categories": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}]},
+        "observation": {"key": ["condition", "item"]}
+      },
+      "family": "poisson",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unique", "text": "Every row has its own value of the observation key 'condition' and 'item'."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["condition", "item"]},
+              "missing_key_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "rows": {"kind": "count", "value": 40, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros", "text": "Of the 40 counts, 32.5% are 0, and every count is 0 in 0 of the 10 levels of 'item'. Many zeros alone do not indicate zero inflation in a model with random effects."},
+            "statistics": {
+              "all_zero_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows": {"kind": "count", "value": 40, "count_class": "person"},
+              "zero_share": {"kind": "ratio", "value": 0.325, "count_class": "person"},
+              "zeros": {"kind": "count", "value": 13, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 40}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "unique", "text": "Every row has its own value of the observation key 'condition' and 'item'."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "duplicate_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "duplicated_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "min_count", "reason": "privacy_suppressed", "value": "not_available"}},
+              "identical_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "key_columns": {"kind": "names", "value": ["condition", "item"]},
+              "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}, "dominated": false}}
+          },
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros", "text": "The statistics give the zeros of the counts and the levels of 'item' in which every count is 0 as far as they can be shown. Many zeros alone do not indicate zero inflation in a model with random effects."},
+            "statistics": {
+              "all_zero_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "zero_share": {"kind": "ratio", "value": null, "count_class": "person", "availability": {"detail": "ratio", "reason": "privacy_suppressed", "value": "not_available"}},
+              "zeros": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-privacy-085",
+      "description": "2 conditions crossed with the 10 items of a fixed list, the 10 combinations of condition a twice, as rows imported twice, the observation key (condition, item), condition a fixed factor, item a grouping factor declared with the categories 1 to 10, and no outcome missing, in a Poisson T1 run. keys.duplicates writes duplicate_rows 20 and duplicated_keys 10, so the design sample holds at most the product of the levels of the key's columns there, 2 conditions times 10 items, 20 rows with distinct key values, and 20 less 10 rows that repeat one, 30 rows, which the columns of condition, the declared categories of item and the two written counts can give. The analysed rows exceed that bound by fewer than k, so the end of rule 1 of Across findings hides them: rows, zeros and zero_share of outcome.zero_shares and its support.rows. Written, 30 analysed rows would equal the bound and show that no outcome is missing.",
+      "checks": ["keys.duplicates", "outcome.zero_shares"],
+      "data": {
+        "count": [1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0],
+        "condition": ["a", "a", "a", "a", "a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "a", "a", "a", "a", "a", "a", "a", "a", "a", "a"],
+        "item": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      },
+      "formula": "count ~ condition + (1 | item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "condition", "type": "string"}, {"name": "item", "type": "integer", "categories": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}]},
+        "observation": {"key": ["condition", "item"]}
+      },
+      "family": "poisson",
+      "outcome_access": "T1",
+      "reason": "Inspect the outcome before the model is chosen.",
+      "expected": {
+        "findings": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "double_import", "text": "Values of the observation key 'condition' and 'item' shared by identical rows: 10, with 20 rows in all, which suggests rows imported twice. Remove the copies at the source."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": 0, "count_class": "person"},
+              "duplicate_rows": {"kind": "count", "value": 20, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 10, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": 10, "count_class": "person"},
+              "key_columns": {"kind": "names", "value": ["condition", "item"]},
+              "missing_key_rows": {"kind": "count", "value": 0, "count_class": "person"},
+              "rows": {"kind": "count", "value": 30, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 30}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 10}, "dominated": false}}
+          },
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros", "text": "Of the 30 counts, 33.3% are 0, and every count is 0 in 0 of the 10 levels of 'item'. Many zeros alone do not indicate zero inflation in a model with random effects."},
+            "statistics": {
+              "all_zero_levels": {"kind": "count", "value": 0, "count_class": "person"},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows": {"kind": "count", "value": 30, "count_class": "person"},
+              "zero_share": {"kind": "ratio", "value": 0.3333333333333333, "count_class": "person"},
+              "zeros": {"kind": "count", "value": 10, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 30}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ],
+        "shareable": [
+          {
+            "check": "keys.duplicates",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "double_import", "text": "Some values of the observation key 'condition' and 'item' are shared by identical rows, which suggests rows imported twice. Remove the copies at the source."},
+            "statistics": {
+              "conflicting_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "duplicate_rows": {"kind": "count", "value": 20, "count_class": "person"},
+              "duplicated_keys": {"kind": "count", "value": 10, "count_class": "person"},
+              "identical_keys": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "key_columns": {"kind": "names", "value": ["condition", "item"]},
+              "missing_key_rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": null, "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}, "dominated": false}}
+          },
+          {
+            "check": "outcome.zero_shares",
+            "check_version": 1,
+            "tier": "T1",
+            "scope": {"factor": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "zeros", "text": "The statistics give the zeros of the counts and the levels of 'item' in which every count is 0 as far as they can be shown. Many zeros alone do not indicate zero inflation in a model with random effects."},
+            "statistics": {
+              "all_zero_levels": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "levels": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}},
+              "zero_share": {"kind": "ratio", "value": null, "count_class": "person", "availability": {"detail": "ratio", "reason": "privacy_suppressed", "value": "not_available"}},
+              "zeros": {"kind": "count", "value": null, "count_class": "person", "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}
+            },
+            "support": {"rows": {"value": null, "availability": {"detail": "secondary", "reason": "privacy_suppressed", "value": "not_available"}}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 10}, "dominated": false}}
+          }
+        ]
+      }
     }
   ]
 }

@@ -481,6 +481,8 @@ def privacy_analysis_marks(
         for i, item in enumerate(other.items):
             if not item.person and min(members) - 2 * analysis.items[i].levels < k:
                 marks.items[i]["levels"] = True
+    if privacy_close(privacy_key_bound(run, findings, k), analysis.rows, k):
+        marks.rows = True
     if marks.contributors and basis == "disclosure_unit" and unit_item is not None:
         marks.items[unit_item]["levels"] = True
     quartiles: list[tuple[int | None, list[tuple[str, int]]]] = []
@@ -496,6 +498,75 @@ def privacy_analysis_marks(
     marks = privacy_single_row_items(design, marks, basis, unit_item)
     marks = privacy_rule_3(analysis, design, privacy_rule_2(analysis, marks, k), quartiles, k)
     return privacy_rule_2(analysis, privacy_single_row_items(design, marks, basis, unit_item), k)
+
+
+def privacy_key_bound(run: Run, findings: list[Finding], k: int) -> int:
+    """The bound that a declared observation key places on the rows of the
+    design sample, or 0 when keys.duplicates does not run, or when a column of
+    the key is none whose levels the document or the declaration can give
+    (privacy_bounded_columns()). The design sample holds at most as many
+    distinct key values as the product of the levels of the key's columns
+    there, and its rows exceed its distinct key values by its rows with a key
+    value that repeat one, which duplicate_rows less duplicated_keys of
+    keys.duplicates bound in the table, and by its rows without a key value,
+    which missing_key_rows bounds. Beside the firing of rule 1, which shows
+    fewer than k rows without an outcome, the levels of crossed columns that
+    it shows to have kept an outcome, a column's declared categories, the two
+    values of a column declared boolean or the columns of a fixed factor can
+    give that product, which beside the analysed rows would give back the rows
+    without an outcome (privacy.md, Across findings, the end of rule 1). The
+    bound counts the repeated rows and the rows without a key value of the
+    design sample, no more than those that the written counts of the table
+    bound, so that it comes within k of the analysed rows wherever theirs
+    does. A column other than a predictor or a column whose levels the
+    declaration gives (privacy_declared_level_columns()) that has a level of
+    fewer than k rows of the design sample, as the label of a pupil of two
+    rows does, also gives 0: beside the firing of rule 1 such a level may have
+    lost every outcome, so its analysed levels do not give its levels there,
+    which rule 1 hides as the levels of an item, or no count writes, wherever
+    the bound would come within k of the analysed rows."""
+    import numpy as np
+
+    if not any(finding.check == "keys.duplicates" and finding.available for finding in findings):
+        return 0
+    key = [comparison_form(column) for column in observation_key_columns(run.declaration)]
+    if not set(key) <= privacy_bounded_columns(run):
+        return 0
+    given = set(run.ir["predictors"]) | privacy_declared_level_columns(run.declaration)
+    bound = 1
+    for column in key:
+        codes = value_codes(run, [column], run.design)
+        sizes = np.unique(codes[codes >= 0], return_counts=True)[1]
+        if column not in given and (sizes.size == 0 or int(np.min(sizes)) < k):
+            return 0
+        bound *= int(sizes.size)
+    codes = value_codes(run, key, run.design)
+    keyed = codes[codes >= 0]
+    return bound + int(keyed.size) - int(np.unique(keyed).size) + int((codes < 0).sum())
+
+
+def privacy_bounded_columns(run: Run) -> set[str]:
+    """The columns whose levels in the design sample the document or the
+    declaration can give: the predictors and grouping columns of the IR, the
+    label columns of the declared units and the columns whose levels the
+    declaration gives (privacy_declared_level_columns()), as keys."""
+    declaration = run.declaration
+    columns = set(run.ir["predictors"]) | set(run.grouping_columns)
+    for name in declared_units(declaration):
+        columns.update(unit_label_columns(declaration, name))
+    return columns | privacy_declared_level_columns(declaration)
+
+
+def privacy_declared_level_columns(declaration: dict[str, Any] | None) -> set[str]:
+    """The columns of the table block whose levels the declaration gives,
+    those with declared categories and those of type 'boolean', which hold the
+    values false and true alone (tables.md), as keys."""
+    table = (declaration or {}).get("table") or {}
+    return {
+        comparison_form(entry["name"])
+        for entry in table.get("fields") or []
+        if entry.get("categories") is not None or entry.get("type") == "boolean"
+    }
 
 
 def privacy_crossed_guarded(

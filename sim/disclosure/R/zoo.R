@@ -127,8 +127,8 @@ dz_instances <- function(ns) {
 # the tables outside them that read alike (dz_alternatives_*()), or witness
 # parameters whose value 1 lies at a limit of the family and joins the
 # groups of the interior tables (reduced, extra and tied). Attack (b) gates
-# every family, and attack (a) every family but zoo-reuse and
-# zoo-separation (README, The zoo, Gates).
+# every family, and attack (a) every family but zoo-separation (README, The
+# zoo, Gates).
 dz_families <- function() {
   list(
     dz_family_reuse(),
@@ -147,16 +147,13 @@ dz_families <- function() {
 
 # Classes whose labels recur in every school and are declared within_parent,
 # with a formula that uses class without school (Z01), and pupils without an
-# outcome, in a T1 run. Attack (a) does not gate it: beside the firing of
-# rule 1, levels of k rows or more of crossed columns are shown not to have
-# lost every outcome, the class of determinations that privacy.md
-# (Guarantees) names as an exception until the coordinator settles it
-# (03-execution-plan.md, M2, Open items) and that dh_known_channels() lists
-# (README, The zoo, Gates).
+# outcome, in a T1 run. Beside the firing of rule 1, schools and labels of k
+# rows or more of crossed columns are shown not to have lost every outcome,
+# determinations of the class kept-levels that privacy.md (Guarantees)
+# accepts (README, The zoo, Gates).
 dz_family_reuse <- function() {
   dh_family(
     name = "zoo-reuse",
-    gate = FALSE,
     probe = "^(structure|identifiability|sample|outcome)\\.",
     description = "Z01: class labels reused across schools, declared within_parent, T1",
     alternatives = dz_alternatives_reuse,
@@ -414,15 +411,19 @@ dz_family_reference <- function() {
 # and B, and of C when ceiling is 0, so that C is answered without error
 # when ceiling is 1 (Z24), and rows of condition A without an outcome, in a
 # T2 run. The rotation fixes every answer once the parameters are given, so
-# the outcome values follow the rows of the template, and its remaining
-# determinations are of the class that dh_known_channels() lists, so the
-# family does not gate attack (a) (README, The zoo, Gates).
+# the outcome values follow the rows of the template, and the analysed
+# subjects that outcome.minority_events counts stay determined, so the
+# family does not gate attack (a), and dh_known_channels() lists them
+# (README, The zoo, Gates). Its alternative
+# subject_two_lost traces the subjects of two analysed rows or more that
+# outcome.constant_clusters counts.
 dz_family_separation <- function() {
   dh_family(
     name = "zoo-separation",
     probe = "^outcome\\.",
     description = "Z24: binary accuracy separated by condition, T2",
     gate = FALSE,
+    alternatives = dz_alternatives_separation,
     params = list(
       subjects = dh_param(2:4, person = TRUE),
       items_per_condition = dh_param(1:2, natural = c(TRUE, FALSE)),
@@ -704,6 +705,17 @@ dz_alternatives_reuse <- function(p, case) {
     out$school_lost_two_labels <- crossing(J, 2L, analysed %/% (2L * J), TRUE, FALSE)
   }
   out
+}
+
+# zoo-separation: the first subject without two of its outcomes, so that
+# beside the firing of rule 1 it keeps one analysed row.
+dz_alternatives_separation <- function(p, case) {
+  first <- which(case$data$subject == case$data$subject[1L] & !is.na(case$data$acc))
+  if (length(first) < 3L) {
+    return(list())
+  }
+  case$data$acc[first[1:2]] <- NA
+  list(subject_two_lost = dz_alt(case, sum(is.na(case$data$acc))))
 }
 
 # zoo-mobility: a further pupil without an outcome at wave 1 of S1, at wave 2

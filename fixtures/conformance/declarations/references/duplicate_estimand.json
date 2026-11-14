@@ -1,0 +1,4 @@
+{
+  "vocabulary": "0.1.0",
+  "estimands": [{"id": "ITT", "term": "arm"}, {"id": "ITT", "term": "arm:pre"}]
+}

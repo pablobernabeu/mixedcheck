@@ -1,0 +1,5 @@
+# The oracles that make_canonicaliser_corpora.py uses, installed into a virtual environment
+# of Python 3.11, whose unicodedata implements Unicode 14.0.0.
+jsonschema==4.26.0
+referencing==0.37.0
+rfc8785==0.1.4

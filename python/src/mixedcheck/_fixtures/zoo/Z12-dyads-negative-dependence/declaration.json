@@ -1,0 +1,58 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z12 Distinguishable dyads with negative dependence",
+  "table": {
+    "fields": [
+      {
+        "name": "dyad",
+        "type": "string"
+      },
+      {
+        "name": "person",
+        "type": "string"
+      },
+      {
+        "name": "role",
+        "type": "string",
+        "categories": [
+          "parent",
+          "child"
+        ]
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "dyad",
+      "columns": [
+        "dyad"
+      ],
+      "role": "dyad"
+    },
+    {
+      "name": "person",
+      "columns": [
+        "person"
+      ],
+      "nested_in": "dyad",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "person",
+    "key": [
+      "person"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

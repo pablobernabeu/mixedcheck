@@ -1,0 +1,16 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {"name": "u0", "columns": ["c0"]},
+    {"name": "u1", "columns": ["c1"]},
+    {"name": "u2", "columns": ["c2"]},
+    {"name": "u3", "columns": ["c3"]},
+    {"name": "u4", "columns": ["c4"]},
+    {"name": "u5", "columns": ["c5"]},
+    {"name": "u6", "columns": ["c6"]},
+    {"name": "u7", "columns": ["c7"]},
+    {"name": "u8", "columns": ["c8"]},
+    {"name": "u9", "columns": ["c9"], "parent": "u1"},
+    {"name": "u10", "columns": ["c10"], "parent": "u1"}
+  ]
+}

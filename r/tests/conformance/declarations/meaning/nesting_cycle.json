@@ -1,0 +1,8 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {"name": "a", "columns": ["a"], "nested_in": "b", "id_scope": "global"},
+    {"name": "b", "columns": ["b"], "nested_in": "a", "id_scope": "global"},
+    {"name": "c", "columns": ["c"], "nested_in": "a", "id_scope": "global"}
+  ]
+}

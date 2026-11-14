@@ -1,0 +1,393 @@
+{
+  "description": "Cases of sample.raw_vs_analysis: complete tables, missing values in the response and in columns that the model does not read, dropped rows through predictors, weights and sample columns, factors and grouping factors that lose levels, new singletons and reference levels that the design sample lacks.",
+  "cases": [
+    {
+      "id": "audits-sample-001",
+      "description": "No column that the model reads has a missing value: every row of the table is in the design sample, and the message complete gives the number of rows.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8],
+        "a": ["A1", "A2", "A1", "A2", "A1", "A2", "A1", "A2"],
+        "g": ["g1", "g1", "g2", "g2", "g3", "g3", "g4", "g4"]
+      },
+      "formula": "y ~ x + a + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "Every row of the table is complete in the columns that the model reads (8 in all)."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 0, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": []},
+              "emptied_factors": {"kind": "names", "value": []},
+              "reference_emptied": {"kind": "names", "value": []},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-002",
+      "description": "Missing values in the response and in a column that the model does not read leave the design sample whole: incomplete_columns names neither, no row is dropped and the message is complete.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, null, 1.8, 2.9, null, 4.1, 2.6, 3.7],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8],
+        "g": ["g1", "g1", "g2", "g2", "g3", "g3", "g4", "g4"],
+        "z": [0.5, 0.25, null, 1, 0.75, 0.5, 0.25, 1]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "complete", "text": "Every row of the table is complete in the columns that the model reads (8 in all)."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 0, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": []},
+              "emptied_factors": {"kind": "names", "value": []},
+              "reference_emptied": {"kind": "names", "value": []},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-003",
+      "description": "Two rows with a missing x leave the design sample: a loses its level A3, which is not its reference level, g loses its level g5 and its level g3 keeps one of its two rows, so the finding is detectable_inconsequential with the message rows_dropped.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7, 3.1, 2.2],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, null, null],
+        "a": ["A1", "A2", "A1", "A2", "A1", "A2", "A1", "A2", "A3", "A3"],
+        "g": ["g1", "g1", "g2", "g2", "g3", "g4", "g4", "g4", "g5", "g3"]
+      },
+      "formula": "y ~ x + a + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "rows_dropped", "text": "Rows of the table that leave the design sample because of a missing value in 'x': 2 of 10. Factors that lose a level: 'a'. Grouping factors that lose levels: 'g'. Grouping factors with new singletons: 'g'."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 2, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["x"]},
+              "emptied_factors": {"kind": "names", "value": ["a"]},
+              "reference_emptied": {"kind": "names", "value": []},
+              "factors_losing_levels": {"kind": "names", "value": ["g"]},
+              "new_singletons": {"kind": "names", "value": ["g"]}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-004",
+      "description": "Every row of A1, the reference level of a by treatment contrasts, has a missing x, so reference_emptied names a and the finding is consequential with the message reference_emptied, which comes before the rule on dropped rows.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7],
+        "a": ["A1", "A1", "A2", "A2", "A3", "A3", "A2", "A3"],
+        "x": [null, null, 1, 2, 3, 4, 5, 6]
+      },
+      "formula": "y ~ a + x",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reference_emptied", "text": "Factors whose reference level has no rows in the design sample: 'a'. Their coefficients no longer compare with the reference level. Rows of the table that leave the design sample: 2 of 8."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 6, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 2, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["x"]},
+              "emptied_factors": {"kind": "names", "value": ["a"]},
+              "reference_emptied": {"kind": "names", "value": ["a"]},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-005",
+      "description": "The declared categories of a begin with A0, which no row of the table holds, so the reference level has no row in the design sample although no row is dropped: reference_emptied names a and emptied_factors does not, since A0 does not occur in the table. The message reference_emptied gives 0 of 6 rows.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1],
+        "a": ["A1", "A2", "A1", "A2", "A1", "A2"],
+        "x": [1, 2, 3, 4, 5, 6]
+      },
+      "formula": "y ~ a + x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "y", "type": "number"}, {"name": "a", "type": "string", "categories": ["A0", "A1", "A2"]}, {"name": "x", "type": "number"}]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reference_emptied", "text": "Factors whose reference level has no rows in the design sample: 'a'. Their coefficients no longer compare with the reference level. Rows of the table that leave the design sample: 0 of 6."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 6, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 6, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 0, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": []},
+              "emptied_factors": {"kind": "names", "value": []},
+              "reference_emptied": {"kind": "names", "value": ["a"]},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-006",
+      "description": "The data of audits-sample-004 without an intercept: a is coded by indicators in its only term and has no reference level, so reference_emptied is empty although A1 loses its rows. The message is rows_dropped.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7],
+        "a": ["A1", "A1", "A2", "A2", "A3", "A3", "A2", "A3"],
+        "x": [null, null, 1, 2, 3, 4, 5, 6]
+      },
+      "formula": "y ~ 0 + a + x",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "rows_dropped", "text": "Rows of the table that leave the design sample because of a missing value in 'x': 2 of 8. Factors that lose a level: 'a'. Grouping factors that lose levels: none. Grouping factors with new singletons: none."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 6, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 2, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["x"]},
+              "emptied_factors": {"kind": "names", "value": ["a"]},
+              "reference_emptied": {"kind": "names", "value": []},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-007",
+      "description": "The coding argument makes A2 the reference level of a, and every row of A2 has a missing x, while A1 keeps its rows: reference_emptied names a.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7],
+        "a": ["A1", "A1", "A2", "A2", "A3", "A3", "A1", "A3"],
+        "x": [1, 2, null, null, 3, 4, 5, 6]
+      },
+      "formula": "y ~ a + x",
+      "coding": {"a": {"reference": "A2"}},
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reference_emptied", "text": "Factors whose reference level has no rows in the design sample: 'a'. Their coefficients no longer compare with the reference level. Rows of the table that leave the design sample: 2 of 8."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 6, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 2, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["x"]},
+              "emptied_factors": {"kind": "names", "value": ["a"]},
+              "reference_emptied": {"kind": "names", "value": ["a"]},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-008",
+      "description": "Rows leave the design sample through the weights column w, the sample column s and the predictor x, which incomplete_columns lists in code-point order. The response y is also named as a sample column, but it is not a sample column of the IR, so its missing value removes no row and y is not listed.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7, null, 2.2],
+        "x": [1, 2, 3, 4, 5, 6, null, 8, 9, 10],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g3"],
+        "w": [1, null, 2, 1, 2, 1, 2, 1, 2, 1],
+        "s": [0, 1, 0, 1, null, 0, 1, 0, 1, 0]
+      },
+      "formula": "y ~ x + (1 | g)",
+      "weights": "w",
+      "sample_columns": ["s", "y"],
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "rows_dropped", "text": "Rows of the table that leave the design sample because of a missing value in 's', 'w' and 'x': 3 of 10. Factors that lose a level: none. Grouping factors that lose levels: none. Grouping factors with new singletons: none."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 7, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 3, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["s", "w", "x"]},
+              "emptied_factors": {"kind": "names", "value": []},
+              "reference_emptied": {"kind": "names", "value": []},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-009",
+      "description": "In y ~ x + (1 | school/class), a missing x removes the only row of the class S2:c5, so school:class loses a level, while school keeps S2. A missing class removes another row, whose combination of school and class is not a level, because the factor's own columns are missing there.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7, 3.1, 2.2],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, null, 9],
+        "school": ["S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4", "c5", null]
+      },
+      "formula": "y ~ x + (1 | school/class)",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "rows_dropped", "text": "Rows of the table that leave the design sample because of a missing value in 'class' and 'x': 2 of 10. Factors that lose a level: none. Grouping factors that lose levels: 'school:class'. Grouping factors with new singletons: none."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 2, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["class", "x"]},
+              "emptied_factors": {"kind": "names", "value": []},
+              "reference_emptied": {"kind": "names", "value": []},
+              "factors_losing_levels": {"kind": "names", "value": ["school:class"]},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-010",
+      "description": "The factor a appears only in a random slope, where it is the only variable of its term and is coded by contrasts. It is a categorical predictor of the IR, so the loss of its reference level A1 is reported.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1, 2.6, 3.7, 3, 2.4],
+        "x": [null, null, 3, 4, 5, 6, 7, 8, 9, 10],
+        "a": ["A1", "A1", "A2", "A3", "A2", "A3", "A2", "A3", "A2", "A3"],
+        "g": ["g1", "g2", "g1", "g1", "g1", "g2", "g2", "g2", "g1", "g2"]
+      },
+      "formula": "y ~ x + (1 + a | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reference_emptied", "text": "Factors whose reference level has no rows in the design sample: 'a'. Their coefficients no longer compare with the reference level. Rows of the table that leave the design sample: 2 of 10."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 10, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 8, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 2, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["x"]},
+              "emptied_factors": {"kind": "names", "value": ["a"]},
+              "reference_emptied": {"kind": "names", "value": ["a"]},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 10}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-sample-011",
+      "description": "A boolean predictor has the levels false and true, with false as its reference level. Every row with false has a missing x, so reference_emptied names it.",
+      "checks": ["sample.raw_vs_analysis"],
+      "data": {
+        "y": [2.1, 3.4, 1.8, 2.9, 3.3, 4.1],
+        "flag": [false, false, true, true, true, false],
+        "x": [null, null, 1, 2, 3, null]
+      },
+      "formula": "y ~ flag + x",
+      "expected": {
+        "findings": [
+          {
+            "check": "sample.raw_vs_analysis",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "reference_emptied", "text": "Factors whose reference level has no rows in the design sample: 'flag'. Their coefficients no longer compare with the reference level. Rows of the table that leave the design sample: 3 of 6."},
+            "statistics": {
+              "rows_raw": {"kind": "count", "value": 6, "count_class": "person"},
+              "rows_kept": {"kind": "count", "value": 3, "count_class": "person"},
+              "rows_dropped": {"kind": "count", "value": 3, "count_class": "person"},
+              "incomplete_columns": {"kind": "names", "value": ["x"]},
+              "emptied_factors": {"kind": "names", "value": ["flag"]},
+              "reference_emptied": {"kind": "names", "value": ["flag"]},
+              "factors_losing_levels": {"kind": "names", "value": []},
+              "new_singletons": {"kind": "names", "value": []}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    }
+  ]
+}

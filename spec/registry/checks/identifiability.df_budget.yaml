@@ -1,0 +1,114 @@
+id: identifiability.df_budget
+version: 1
+title: Degrees of freedom between the levels of a grouping factor
+tier: T0
+summary: >-
+  Counts the independent contrasts between the levels of a grouping factor
+  that remain after the fixed effects, d = rank([X, Z]) - rank(X) with Z the
+  indicator matrix of the factor. When it is 0, as when the factor is also a
+  fixed effect or its levels are used up by level-constant covariates, the
+  variance of its random intercept is not identified under REML. In balanced
+  random-intercept designs it equals the denominator degrees of freedom for
+  effects that are constant within levels. It is computed by rank, never by
+  counting columns, because columns that vary within levels can combine into a
+  direction that does not.
+reads: [formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: grouping_factor
+applies_when: A random term of the factor has an intercept.
+availability: []
+statistics:
+  levels:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels
+    definition: The number of levels of the factor in the design sample.
+  budget:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    suppress_with: [levels]
+    measures: term_levels
+    definition: >-
+      J - k + r, where J is levels, k the number of fixed-effects columns that
+      the sequential rule keeps and r the within-level rank of those columns
+      for the levels of the factor, computed as assignment.design_df states.
+      In exact arithmetic it equals the number of indicator columns of the
+      factor, one for each level, that the sequential rule keeps when it is
+      applied to the fixed-effects columns followed by the indicator columns.
+      It is a number of degrees of freedom, but it equals levels minus 1 when
+      the intercept is the only fixed effect that is constant within levels,
+      so it takes the count class of levels, so that it cannot give back a
+      suppressed count of levels (docs/spec/privacy.md). Beside levels, it
+      gives back k - r, to which a factor of a fixed term that is constant
+      within the levels adds its levels less 1, so it measures the levels of
+      the items of the fixed terms too.
+  consuming_terms:
+    kind: names
+    definition: >-
+      The fixed terms, the intercept included, in term order, whose kept
+      columns lower the budget: a term t is listed when the budget computed as
+      above from the kept fixed-effects columns of the terms up to and
+      including t is below the budget computed from the terms before t, the
+      budget of no terms being the number of levels. Gram-Schmidt and the
+      sequential rule treat each column in turn, so one computation of the
+      within-level rank gives every one of these budgets. The list is not
+      empty when budget is below levels.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: budget is 0.
+      statistics: [budget]
+      thresholds: []
+      message: no_budget
+  otherwise:
+    finding: consistent
+    message: budget
+assessability: []
+messages:
+  no_budget:
+    template: >-
+      No degrees of freedom between the {levels} of '{factor}' remain after the
+      fixed effects, so the variance of its random intercept is not identified
+      under REML. Fixed terms that use up these levels: {terms}.
+    fallback: >-
+      No degrees of freedom between the levels of '{factor}' remain after the
+      fixed effects, so the variance of its random intercept is not identified
+      under REML. Fixed terms that use up these levels: {terms}.
+    args:
+      factor: {source: scope, name: factor}
+      terms: {source: statistic, name: consuming_terms}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
+  budget:
+    template: >-
+      '{factor}' has {levels} and {budget} between levels after the fixed
+      effects.
+    fallback: >-
+      The privacy rules do not allow the degrees of freedom that '{factor}'
+      has between its levels after the fixed effects to be shown.
+    args:
+      factor: {source: scope, name: factor}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
+      budget: {source: statistic, name: budget, noun: [degree of freedom, degrees of freedom]}
+remedies:
+  - id: remove_level_terms
+    description: >-
+      Remove fixed effects that are constant within the levels of the factor,
+      or treat the factor as a fixed effect without a random intercept.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-10, with
+      the verifier's correction that d equals J minus the dimension of the
+      intersection of the column spaces of X and Z, computed by rank.
+catalogue: [L1-10]

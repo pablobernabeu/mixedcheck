@@ -1,0 +1,52 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z17 Duplicate keys from a double import",
+  "features": [
+    "trial_level"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "trial",
+        "type": "integer"
+      },
+      {
+        "name": "cond",
+        "type": "string",
+        "categories": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "name": "acc",
+        "type": "integer"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "trial"
+    ]
+  },
+  "variables": {
+    "acc": {
+      "role": "outcome",
+      "measurement": "binary"
+    }
+  }
+}

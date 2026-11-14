@@ -1,0 +1,27 @@
+{
+  "vocabulary": "0.1.0",
+  "features": ["partially_nested"],
+  "units": [
+    {"name": "group", "columns": ["group"], "role": "cluster"},
+    {
+      "name": "patient",
+      "columns": ["patient"],
+      "nested_in": "group",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {"unit": "patient", "key": ["patient"]},
+  "assignment": [{"column": "arm", "unit": "patient", "randomised": true, "level": "between_unit"}],
+  "variables": {
+    "distress": {"role": "outcome", "measurement": "continuous"},
+    "arm": {"role": "assigned"},
+    "baseline": {"role": "baseline_covariate", "measurement": "continuous"},
+    "sessions": {"role": "post_assignment_covariate", "measurement": "count"},
+    "alliance": {"role": "mediator", "measurement": "continuous"}
+  },
+  "estimands": [
+    {"id": "total", "term": "arm", "kind": "total_effect"},
+    {"id": "direct", "term": "arm", "kind": "direct_effect", "focal": false}
+  ]
+}

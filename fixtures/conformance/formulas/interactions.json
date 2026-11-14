@@ -1,0 +1,1543 @@
+{
+  "description": "Fixed-part operators ':', '*', '/', '^' and '-', the order of terms and of their variables, and the choice between contrasts and indicators in each term.",
+  "cases": [
+    {
+      "id": "interactions-01",
+      "description": "'*' crosses two factors: both main effects use contrasts, as does the interaction.",
+      "formula": "y ~ a * b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B2]", "term": 2, "levels": {"b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 3, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 3, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:37fc5e2fb06618d6f88c3ea7aca9654268407a3a0492ad13609919032bfc3ed0",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, 0, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0],
+            [1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 1, 0, 0],
+            [1, 1, 0, 0, 0, 0],
+            [1, 0, 1, 0, 0, 0],
+            [1, 0, 0, 1, 0, 0],
+            [1, 1, 0, 1, 1, 0],
+            [1, 0, 1, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
+            [1, 1, 0, 1, 1, 0],
+            [1, 0, 1, 1, 0, 1]
+          ],
+          "x_dropped": []
+        }
+      }
+    },
+    {
+      "id": "interactions-02",
+      "description": "The expanded form gives the same IR as interactions-01.",
+      "formula": "y ~ a + b + a:b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B2]", "term": 2, "levels": {"b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 3, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 3, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:37fc5e2fb06618d6f88c3ea7aca9654268407a3a0492ad13609919032bfc3ed0"
+      }
+    },
+    {
+      "id": "interactions-03",
+      "description": "An interaction without its main effects codes both factors by indicators, as R does.",
+      "formula": "y ~ a:b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "indicator"}, {"variable": "b", "coding": "indicator"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A1]:b[B1]", "term": 1, "levels": {"a": "A1", "b": "B1"}},
+              {"name": "a[A2]:b[B1]", "term": 1, "levels": {"a": "A2", "b": "B1"}},
+              {"name": "a[A3]:b[B1]", "term": 1, "levels": {"a": "A3", "b": "B1"}},
+              {"name": "a[A1]:b[B2]", "term": 1, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 1, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 1, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:2edf3794c1343bd8c3306833c751c636839d7303a98a668260d5da35c62a185a"
+      }
+    },
+    {
+      "id": "interactions-04",
+      "description": "With 'a' in the formula, 'b' in 'a:b' uses contrasts, since 'a' is an earlier term, and 'a' uses indicators, since 'b' is not.",
+      "formula": "y ~ a + a:b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "indicator"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "a[A1]:b[B2]", "term": 2, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 2, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 2, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:87dbdba2ae776c235d4d27cf95bd6d0bc499188d2fe02f31092a9cd056b129e2"
+      }
+    },
+    {
+      "id": "interactions-05",
+      "description": "A numeric variable crossed with a factor.",
+      "formula": "y ~ x * a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {
+                "name": "x:a",
+                "variables": [{"variable": "x"}, {"variable": "a", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}},
+              {"name": "a[A2]", "term": 2, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 2, "levels": {"a": "A3"}},
+              {"name": "x:a[A2]", "term": 3, "levels": {"a": "A2"}},
+              {"name": "x:a[A3]", "term": 3, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:85ef3b3d8a3681bff675529a892e0f0187e9131ee3d6ca336589817ecdce188c",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, 1, 0, 0, 0, 0],
+            [1, 2, 1, 0, 2, 0],
+            [1, 3, 0, 1, 0, 3],
+            [1, 4, 0, 0, 0, 0],
+            [1, 5, 1, 0, 5, 0],
+            [1, 6, 0, 1, 0, 6],
+            [1, 1, 0, 0, 0, 0],
+            [1, 2, 1, 0, 2, 0],
+            [1, 3, 0, 1, 0, 3],
+            [1, 4, 0, 0, 0, 0],
+            [1, 5, 1, 0, 5, 0],
+            [1, 6, 0, 1, 0, 6]
+          ],
+          "x_dropped": []
+        }
+      }
+    },
+    {
+      "id": "interactions-06",
+      "description": "A numeric-by-factor interaction without the factor's margin codes the factor by indicators.",
+      "formula": "y ~ x:a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {
+                "name": "x:a",
+                "variables": [{"variable": "x"}, {"variable": "a", "coding": "indicator"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x:a[A1]", "term": 1, "levels": {"a": "A1"}},
+              {"name": "x:a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "x:a[A3]", "term": 1, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:cccea4344e674177028ba5332e1a4358264dcd4f39bc234d06f571c5189b8a53"
+      }
+    },
+    {
+      "id": "interactions-07",
+      "description": "Without an intercept, the first categorical variable of the first term that has one is coded by indicators, and the later factors by contrasts.",
+      "formula": "y ~ 0 + a + b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "a", "variables": [{"variable": "a", "coding": "indicator"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "a[A1]", "term": 0, "levels": {"a": "A1"}},
+              {"name": "a[A2]", "term": 0, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 0, "levels": {"a": "A3"}},
+              {"name": "b[B2]", "term": 1, "levels": {"b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:73b2b98707121f8e52218698f04c46bea6defecd3d8f0f73d1873eea464f6ae0",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 1],
+            [1, 0, 0, 1],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [1, 0, 0, 1],
+            [0, 1, 0, 1],
+            [0, 0, 1, 0],
+            [1, 0, 0, 0],
+            [0, 1, 0, 1],
+            [0, 0, 1, 1]
+          ],
+          "x_dropped": []
+        }
+      }
+    },
+    {
+      "id": "interactions-08",
+      "description": "Without an intercept, 'b' sorts before 'x:a' and takes the indicators. In 'x:a', 'a' uses contrasts, since 'x' is an earlier term.",
+      "formula": "y ~ 0 + x + x:a + b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "indicator"}]},
+              {
+                "name": "x:a",
+                "variables": [{"variable": "x"}, {"variable": "a", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "x", "term": 0, "levels": {}},
+              {"name": "b[B1]", "term": 1, "levels": {"b": "B1"}},
+              {"name": "b[B2]", "term": 1, "levels": {"b": "B2"}},
+              {"name": "x:a[A2]", "term": 2, "levels": {"a": "A2"}},
+              {"name": "x:a[A3]", "term": 2, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:cad318add11f9164116262138898ac7d52eff79c2e840ee57dd31ce4e54a4f85"
+      }
+    },
+    {
+      "id": "interactions-09",
+      "description": "Without an intercept, the first categorical variable met, 'b' in 'z:b', already uses indicators, so 'a' in 'z:b:a' keeps its contrasts.",
+      "formula": "y ~ 0 + z:b + z:b:a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {
+                "name": "z:b",
+                "variables": [{"variable": "z"}, {"variable": "b", "coding": "indicator"}]
+              },
+              {
+                "name": "z:b:a",
+                "variables": [
+                  {"variable": "z"},
+                  {"variable": "b", "coding": "indicator"},
+                  {"variable": "a", "coding": "contrast"}
+                ]
+              }
+            ],
+            "columns": [
+              {"name": "z:b[B1]", "term": 0, "levels": {"b": "B1"}},
+              {"name": "z:b[B2]", "term": 0, "levels": {"b": "B2"}},
+              {"name": "z:b[B1]:a[A2]", "term": 1, "levels": {"b": "B1", "a": "A2"}},
+              {"name": "z:b[B2]:a[A2]", "term": 1, "levels": {"b": "B2", "a": "A2"}},
+              {"name": "z:b[B1]:a[A3]", "term": 1, "levels": {"b": "B1", "a": "A3"}},
+              {"name": "z:b[B2]:a[A3]", "term": 1, "levels": {"b": "B2", "a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:db6d6d4a781263db9c0fc96c7f39ef9e723f9c3da781c84df161e8d5fce1ab3d"
+      }
+    },
+    {
+      "id": "interactions-10",
+      "description": "'^' gives every product of the terms up to the power.",
+      "formula": "y ~ (a + b + c)^2",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"],
+        "c": ["C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "c": {
+              "kind": "categorical",
+              "levels": ["C1", "C2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "C1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {"name": "c", "variables": [{"variable": "c", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "b", "coding": "contrast"}]
+              },
+              {
+                "name": "a:c",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "c", "coding": "contrast"}]
+              },
+              {
+                "name": "b:c",
+                "variables": [{"variable": "b", "coding": "contrast"}, {"variable": "c", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B2]", "term": 2, "levels": {"b": "B2"}},
+              {"name": "c[C2]", "term": 3, "levels": {"c": "C2"}},
+              {"name": "a[A2]:b[B2]", "term": 4, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 4, "levels": {"a": "A3", "b": "B2"}},
+              {"name": "a[A2]:c[C2]", "term": 5, "levels": {"a": "A2", "c": "C2"}},
+              {"name": "a[A3]:c[C2]", "term": 5, "levels": {"a": "A3", "c": "C2"}},
+              {"name": "b[B2]:c[C2]", "term": 6, "levels": {"b": "B2", "c": "C2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:fc8ef1dfd0b19ff1c5e96b41f0a8f7f611dddd300cade712d0825aa592376d40"
+      }
+    },
+    {
+      "id": "interactions-11",
+      "description": "'^' is the interaction of the terms with themselves, so the order within a degree follows that product: 'x:z' comes before 'a:b'.",
+      "formula": "y ~ (x + z + a:b)^2",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "z", "variables": [{"variable": "z"}]},
+              {"name": "x:z", "variables": [{"variable": "x"}, {"variable": "z"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "indicator"}, {"variable": "b", "coding": "indicator"}]
+              },
+              {
+                "name": "x:a:b",
+                "variables": [
+                  {"variable": "x"},
+                  {"variable": "a", "coding": "indicator"},
+                  {"variable": "b", "coding": "indicator"}
+                ]
+              },
+              {
+                "name": "z:a:b",
+                "variables": [
+                  {"variable": "z"},
+                  {"variable": "a", "coding": "indicator"},
+                  {"variable": "b", "coding": "indicator"}
+                ]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}},
+              {"name": "z", "term": 2, "levels": {}},
+              {"name": "x:z", "term": 3, "levels": {}},
+              {"name": "a[A1]:b[B1]", "term": 4, "levels": {"a": "A1", "b": "B1"}},
+              {"name": "a[A2]:b[B1]", "term": 4, "levels": {"a": "A2", "b": "B1"}},
+              {"name": "a[A3]:b[B1]", "term": 4, "levels": {"a": "A3", "b": "B1"}},
+              {"name": "a[A1]:b[B2]", "term": 4, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 4, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 4, "levels": {"a": "A3", "b": "B2"}},
+              {"name": "x:a[A1]:b[B1]", "term": 5, "levels": {"a": "A1", "b": "B1"}},
+              {"name": "x:a[A2]:b[B1]", "term": 5, "levels": {"a": "A2", "b": "B1"}},
+              {"name": "x:a[A3]:b[B1]", "term": 5, "levels": {"a": "A3", "b": "B1"}},
+              {"name": "x:a[A1]:b[B2]", "term": 5, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "x:a[A2]:b[B2]", "term": 5, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "x:a[A3]:b[B2]", "term": 5, "levels": {"a": "A3", "b": "B2"}},
+              {"name": "z:a[A1]:b[B1]", "term": 6, "levels": {"a": "A1", "b": "B1"}},
+              {"name": "z:a[A2]:b[B1]", "term": 6, "levels": {"a": "A2", "b": "B1"}},
+              {"name": "z:a[A3]:b[B1]", "term": 6, "levels": {"a": "A3", "b": "B1"}},
+              {"name": "z:a[A1]:b[B2]", "term": 6, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "z:a[A2]:b[B2]", "term": 6, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "z:a[A3]:b[B2]", "term": 6, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:97cb396db81093c899d9c599ca0c8fa13e4c01a25c73bd85aa7d22337a5d5cd8"
+      }
+    },
+    {
+      "id": "interactions-12",
+      "description": "'/' nests: 'a/b' is 'a + a:b'.",
+      "formula": "y ~ a / b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "indicator"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "a[A1]:b[B2]", "term": 2, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 2, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 2, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:87dbdba2ae776c235d4d27cf95bd6d0bc499188d2fe02f31092a9cd056b129e2"
+      }
+    },
+    {
+      "id": "interactions-13",
+      "description": "'/' with a sum on the left nests within all its variables together.",
+      "formula": "y ~ (a + x) / b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {
+                "name": "a:x:b",
+                "variables": [
+                  {"variable": "a", "coding": "indicator"},
+                  {"variable": "x"},
+                  {"variable": "b", "coding": "indicator"}
+                ]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "x", "term": 2, "levels": {}},
+              {"name": "a[A1]:x:b[B1]", "term": 3, "levels": {"a": "A1", "b": "B1"}},
+              {"name": "a[A2]:x:b[B1]", "term": 3, "levels": {"a": "A2", "b": "B1"}},
+              {"name": "a[A3]:x:b[B1]", "term": 3, "levels": {"a": "A3", "b": "B1"}},
+              {"name": "a[A1]:x:b[B2]", "term": 3, "levels": {"a": "A1", "b": "B2"}},
+              {"name": "a[A2]:x:b[B2]", "term": 3, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:x:b[B2]", "term": 3, "levels": {"a": "A3", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:e06bc73c918ea874e9a95acf08c7d4f9e581d89211d351699fcc1acf49193979"
+      }
+    },
+    {
+      "id": "interactions-14",
+      "description": "'-' removes a term that is present.",
+      "formula": "y ~ a * b - a:b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B2]", "term": 2, "levels": {"b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:39fa85dec5eae9a782e93dc4472551560021db9d68fad995374c7509880faad4"
+      }
+    },
+    {
+      "id": "interactions-15",
+      "description": "'+' and '-' apply from left to right, so the term added again comes last.",
+      "formula": "y ~ a + b - a + a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "b[B2]", "term": 1, "levels": {"b": "B2"}},
+              {"name": "a[A2]", "term": 2, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 2, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:f0905b60b0172bff060ebc7ba8abab45a0a99d2ec357dca3ab193c7f2876ee98"
+      }
+    },
+    {
+      "id": "interactions-16",
+      "description": "The variables of a term follow their first appearance in the fixed part, so 'b:a' keeps 'b' first and 'b' varies fastest.",
+      "formula": "y ~ b:a + a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {
+                "name": "b:a",
+                "variables": [{"variable": "b", "coding": "contrast"}, {"variable": "a", "coding": "indicator"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B2]:a[A1]", "term": 2, "levels": {"b": "B2", "a": "A1"}},
+              {"name": "b[B2]:a[A2]", "term": 2, "levels": {"b": "B2", "a": "A2"}},
+              {"name": "b[B2]:a[A3]", "term": 2, "levels": {"b": "B2", "a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:c0f40b5ea33c040091905b6fb54c8934d6036e7ffef349be4f5b0627a6413b8f"
+      }
+    },
+    {
+      "id": "interactions-17",
+      "description": "':' distributes over sums.",
+      "formula": "y ~ (x + z):(a + b)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {
+                "name": "x:a",
+                "variables": [{"variable": "x"}, {"variable": "a", "coding": "indicator"}]
+              },
+              {
+                "name": "x:b",
+                "variables": [{"variable": "x"}, {"variable": "b", "coding": "contrast"}]
+              },
+              {
+                "name": "z:a",
+                "variables": [{"variable": "z"}, {"variable": "a", "coding": "indicator"}]
+              },
+              {
+                "name": "z:b",
+                "variables": [{"variable": "z"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x:a[A1]", "term": 1, "levels": {"a": "A1"}},
+              {"name": "x:a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "x:a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "x:b[B2]", "term": 2, "levels": {"b": "B2"}},
+              {"name": "z:a[A1]", "term": 3, "levels": {"a": "A1"}},
+              {"name": "z:a[A2]", "term": 3, "levels": {"a": "A2"}},
+              {"name": "z:a[A3]", "term": 3, "levels": {"a": "A3"}},
+              {"name": "z:b[B2]", "term": 4, "levels": {"b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:6ceeb0207ccb8e09a79680b9d01126e6907dde12e58c57c08ce13e4afe06effe"
+      }
+    },
+    {
+      "id": "interactions-18",
+      "description": "A variable crossed with itself is the variable.",
+      "formula": "y ~ x:x + a * a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}},
+              {"name": "a[A2]", "term": 2, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 2, "levels": {"a": "A3"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:79ef4b73d0357cf0dcde66e405141a618830c580a12b9a9c5c7369b5f7240fad"
+      }
+    },
+    {
+      "id": "interactions-19",
+      "description": "A three-way factorial, with terms sorted by degree.",
+      "formula": "y ~ a * b * c",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"],
+        "c": ["C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "c": {
+              "kind": "categorical",
+              "levels": ["C1", "C2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "C1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {"name": "c", "variables": [{"variable": "c", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "b", "coding": "contrast"}]
+              },
+              {
+                "name": "a:c",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "c", "coding": "contrast"}]
+              },
+              {
+                "name": "b:c",
+                "variables": [{"variable": "b", "coding": "contrast"}, {"variable": "c", "coding": "contrast"}]
+              },
+              {
+                "name": "a:b:c",
+                "variables": [
+                  {"variable": "a", "coding": "contrast"},
+                  {"variable": "b", "coding": "contrast"},
+                  {"variable": "c", "coding": "contrast"}
+                ]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B2]", "term": 2, "levels": {"b": "B2"}},
+              {"name": "c[C2]", "term": 3, "levels": {"c": "C2"}},
+              {"name": "a[A2]:b[B2]", "term": 4, "levels": {"a": "A2", "b": "B2"}},
+              {"name": "a[A3]:b[B2]", "term": 4, "levels": {"a": "A3", "b": "B2"}},
+              {"name": "a[A2]:c[C2]", "term": 5, "levels": {"a": "A2", "c": "C2"}},
+              {"name": "a[A3]:c[C2]", "term": 5, "levels": {"a": "A3", "c": "C2"}},
+              {"name": "b[B2]:c[C2]", "term": 6, "levels": {"b": "B2", "c": "C2"}},
+              {"name": "a[A2]:b[B2]:c[C2]", "term": 7, "levels": {"a": "A2", "b": "B2", "c": "C2"}},
+              {"name": "a[A3]:b[B2]:c[C2]", "term": 7, "levels": {"a": "A3", "b": "B2", "c": "C2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:f5ed0e53ac3b1a2d14ca6f3d5f27cfb6aede7600b23560b1851c8232c5af53a2"
+      }
+    },
+    {
+      "id": "interactions-20",
+      "description": "In 'x:b', 'b' uses contrasts because 'x' lies within the earlier term 'a:x'.",
+      "formula": "y ~ a:x + b:x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            },
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {
+                "name": "a:x",
+                "variables": [{"variable": "a", "coding": "indicator"}, {"variable": "x"}]
+              },
+              {
+                "name": "x:b",
+                "variables": [{"variable": "x"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A1]:x", "term": 1, "levels": {"a": "A1"}},
+              {"name": "a[A2]:x", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]:x", "term": 1, "levels": {"a": "A3"}},
+              {"name": "x:b[B2]", "term": 2, "levels": {"b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:623f8f56ceeb8af5d150945472d12adacd81cd5d302726a73e437c1fa2bc9f04"
+      }
+    },
+    {
+      "id": "interactions-21",
+      "description": "Sum coding on both factors of an interaction.",
+      "formula": "y ~ a * b",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2", "B1", "B1", "B2", "B2"]
+      },
+      "coding": {"a": {"contrast": "sum"}, "b": {"contrast": "sum", "reference": "B2"}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2", "A3"],
+              "levels_source": "table",
+              "contrast": "sum",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "sum",
+              "reference": "B2"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "a[A3]", "term": 1, "levels": {"a": "A3"}},
+              {"name": "b[B1]", "term": 2, "levels": {"b": "B1"}},
+              {"name": "a[A2]:b[B1]", "term": 3, "levels": {"a": "A2", "b": "B1"}},
+              {"name": "a[A3]:b[B1]", "term": 3, "levels": {"a": "A3", "b": "B1"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:be841be6d07b4840735b91ea65a5e89ab4700a78f218155a6db61ad844eab365",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, -1, -1, 1, -1, -1],
+            [1, 1, 0, 1, 1, 0],
+            [1, 0, 1, -1, 0, -1],
+            [1, -1, -1, -1, 1, 1],
+            [1, 1, 0, 1, 1, 0],
+            [1, 0, 1, 1, 0, 1],
+            [1, -1, -1, -1, 1, 1],
+            [1, 1, 0, -1, -1, 0],
+            [1, 0, 1, 1, 0, 1],
+            [1, -1, -1, 1, -1, -1],
+            [1, 1, 0, -1, -1, 0],
+            [1, 0, 1, -1, 0, -1]
+          ],
+          "x_dropped": []
+        }
+      }
+    },
+    {
+      "id": "interactions-22",
+      "description": "Mean centring applies wherever the variable appears, including the interaction.",
+      "formula": "y ~ x * z",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "coding": {"x": {"centring": "mean"}, "z": {"centring": "mean", "significant_digits": 3}},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {
+              "kind": "numeric",
+              "centring": {
+                "rule": "mean",
+                "sample": "design",
+                "constant": {"significant_digits": 6, "value": "3.5"}
+              }
+            },
+            "z": {
+              "kind": "numeric",
+              "centring": {
+                "rule": "mean",
+                "sample": "design",
+                "constant": {"significant_digits": 3, "value": "1.27"}
+              }
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "z", "variables": [{"variable": "z"}]},
+              {"name": "x:z", "variables": [{"variable": "x"}, {"variable": "z"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}},
+              {"name": "z", "term": 2, "levels": {}},
+              {"name": "x:z", "term": 3, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:e27688bd99b163e5a8c382824382b142a5fd46bed94506bf966ac41f52c08382",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+          "x": [
+            [1, -2.5, -0.77, 1.925],
+            [1, -1.5, -1.02, 1.53],
+            [1, -0.5, 0.22999999999999998, -0.11499999999999999],
+            [1, 0.5, 0.73, 0.365],
+            [1, 1.5, -0.52, -0.78],
+            [1, 2.5, -0.020000000000000018, -0.050000000000000044],
+            [1, -2.5, -0.27, 0.675],
+            [1, -1.5, -0.77, 1.155],
+            [1, -0.5, 1.23, -0.615],
+            [1, 0.5, 0.48, 0.24],
+            [1, 1.5, -1.02, -1.53],
+            [1, 2.5, 1.73, 4.325]
+          ],
+          "x_dropped": []
+        }
+      }
+    },
+    {
+      "id": "interactions-23",
+      "description": "An empty cell of 'a:b' leaves a column of zeros, which the sequential rule drops.",
+      "formula": "y ~ a*b",
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A1", "A2", "A2", "A1", "A2"],
+        "b": ["B1", "B2", "B1", "B1", "B2", "B1"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "a": {
+              "kind": "categorical",
+              "levels": ["A1", "A2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A1"
+            },
+            "b": {
+              "kind": "categorical",
+              "levels": ["B1", "B2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "B1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "a", "variables": [{"variable": "a", "coding": "contrast"}]},
+              {"name": "b", "variables": [{"variable": "b", "coding": "contrast"}]},
+              {
+                "name": "a:b",
+                "variables": [{"variable": "a", "coding": "contrast"}, {"variable": "b", "coding": "contrast"}]
+              }
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "a[A2]", "term": 1, "levels": {"a": "A2"}},
+              {"name": "b[B2]", "term": 2, "levels": {"b": "B2"}},
+              {"name": "a[A2]:b[B2]", "term": 3, "levels": {"a": "A2", "b": "B2"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:eb8a7a24b3882fe83839633cf1f23f2d2077a4f8250fda1b0aaaf84872664d46",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5],
+          "x": [[1, 0, 0, 0], [1, 0, 1, 0], [1, 1, 0, 0], [1, 1, 0, 0], [1, 0, 1, 0], [1, 1, 0, 0]],
+          "x_dropped": ["a[A2]:b[B2]"]
+        }
+      }
+    },
+    {
+      "id": "interactions-24",
+      "description": "'w' equals 'x' plus 'z', and the sequential rule drops the later member of the dependency, 'w'.",
+      "formula": "y ~ x + z + w",
+      "data": {"y": [1, 3, 2, 5, 4], "x": [1, 2, 3, 4, 5], "z": [2, 0, 1, 3, 1], "w": [3, 2, 4, 7, 6]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "w": {"kind": "numeric", "centring": {"rule": "none"}},
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "z", "variables": [{"variable": "z"}]},
+              {"name": "w", "variables": [{"variable": "w"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}},
+              {"name": "z", "term": 2, "levels": {}},
+              {"name": "w", "term": 3, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:e23d13e2935c7a3688e308e4eccda8aae8f4e3006cee6fc95d268c5b5b200d54",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4],
+          "x": [[1, 1, 2, 3], [1, 2, 0, 2], [1, 3, 1, 4], [1, 4, 3, 7], [1, 5, 1, 6]],
+          "x_dropped": ["w"]
+        }
+      }
+    },
+    {
+      "id": "interactions-25",
+      "description": "The data of interactions-24 with 'w' written first: the sequential rule now drops 'z'.",
+      "formula": "y ~ w + x + z",
+      "data": {"y": [1, 3, 2, 5, 4], "x": [1, 2, 3, 4, 5], "z": [2, 0, 1, 3, 1], "w": [3, 2, 4, 7, 6]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "w": {"kind": "numeric", "centring": {"rule": "none"}},
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "w", "variables": [{"variable": "w"}]},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "z", "variables": [{"variable": "z"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "w", "term": 1, "levels": {}},
+              {"name": "x", "term": 2, "levels": {}},
+              {"name": "z", "term": 3, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:4c191bb79c4ff8c3d6fb2624418e4d21fdf2d44bac217ad563a29f94ac924825",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4],
+          "x": [[1, 3, 1, 2], [1, 2, 2, 0], [1, 4, 3, 1], [1, 7, 4, 3], [1, 6, 5, 1]],
+          "x_dropped": ["z"]
+        }
+      }
+    },
+    {
+      "id": "interactions-26",
+      "description": "Near the tolerance 1e-7: 'u' has a relative residual of about 1e-6 and is kept, and 'v' one of about 1e-9 and is dropped.",
+      "formula": "y ~ x + u + v",
+      "data": {
+        "y": [2, 1, 4, 3, 6, 5],
+        "x": [1, 2, 3, 4, 5, 6],
+        "u": [1.000005, 1.999995, 2.999995, 4.000005, 5, 6],
+        "v": [1, 1.999999995, 3.000000005, 4, 5.000000005, 5.999999995]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "u": {"kind": "numeric", "centring": {"rule": "none"}},
+            "v": {"kind": "numeric", "centring": {"rule": "none"}},
+            "x": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]},
+              {"name": "u", "variables": [{"variable": "u"}]},
+              {"name": "v", "variables": [{"variable": "v"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}},
+              {"name": "u", "term": 2, "levels": {}},
+              {"name": "v", "term": 3, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:ced4afe507f2e34c8309e76b89d5f58998d588befd527216a6428d14ddaaa059",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5],
+          "x": [
+            [1, 1, 1.000005, 1],
+            [1, 2, 1.999995, 1.999999995],
+            [1, 3, 2.999995, 3.000000005],
+            [1, 4, 4.000005, 4],
+            [1, 5, 5, 5.000000005],
+            [1, 6, 6, 5.999999995]
+          ],
+          "x_dropped": ["v"]
+        }
+      }
+    }
+  ]
+}

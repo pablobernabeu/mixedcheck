@@ -1,0 +1,139 @@
+{
+  "description": "Stage 2 of validation: the version check at /results_version, which comes before every other check and reports E1441 alone, and versions that it leaves to the structural check.",
+  "cases": [
+    {
+      "id": "results-version-001",
+      "description": "The version 0.2.0, outside the supported line 0.1.x: E1441.",
+      "document": "version/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-002",
+      "description": "The version 1.0.0: E1441.",
+      "document": "version/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '1.0.0' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-003",
+      "description": "The version 0.1.01, whose patch has a leading zero: E1441.",
+      "document": "version/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1.01' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-004",
+      "description": "The version 0.1.0-rc1, which the pattern of the line does not match: E1441.",
+      "document": "version/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1.0-rc1' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-005",
+      "description": "A version of 33 characters that matches the pattern of the line but is longer than 32 characters: E1441.",
+      "document": "version/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1.11111111111111111111111111111' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-006",
+      "description": "An unsupported version in a document that also lacks 'created', has an unknown member and an invalid stream: E1441 alone, since nothing else is checked after it.",
+      "document": "version/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.3.0' at /results_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-007",
+      "description": "The supported patch version 0.1.12: no issue.",
+      "document": "version/007.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-version-008",
+      "description": "A version written as a number: the version check leaves it to the structural check, which reports E1401.",
+      "document": "version/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected string at /results_version, found number.",
+            "pointer": "/results_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-009",
+      "description": "A document without results_version: the structural check reports E1402 at the root.",
+      "document": "version/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at (root) lacks the required member 'results_version'.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-version-010",
+      "description": "A document that is an array, not an object: E1401 at the root.",
+      "document": "version/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected object at (root), found array.",
+            "pointer": ""
+          }
+        ]
+      }
+    }
+  ]
+}

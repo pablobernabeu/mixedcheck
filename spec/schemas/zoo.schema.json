@@ -1,0 +1,608 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:zoo",
+  "title": "Files of the pathology zoo",
+  "description": "The expected findings of a fixture of the pathology zoo (fixtures/zoo/<id>-<name>/expected.json) and the list of its directories (fixtures/zoo/index.json), which sim/zoo/regenerate.R writes and fixtures/zoo/README.md describes. spec/tools/test_zoo.py validates every such file against this schema and checks the rules that it cannot state against the compiled registry. The packages read the files without validating them, so the schema is not vendored. A file with the member 'fixtures' is the index, and any other file the expected findings of one directory.",
+  "allOf": [
+    {
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/data_value"
+    }
+  ],
+  "if": {
+    "required": [
+      "fixtures"
+    ]
+  },
+  "then": {
+    "$ref": "#/$defs/index"
+  },
+  "else": {
+    "$ref": "#/$defs/expected"
+  },
+  "$defs": {
+    "id": {
+      "title": "zoo identifier",
+      "description": "The identifier of a fixture, 'Z01' to 'Z31', or of a matched negative, the identifier of its fixture followed by 'N'.",
+      "type": "string",
+      "pattern": "^Z(0[1-9]|[12][0-9]|3[01])N?$"
+    },
+    "name": {
+      "title": "zoo name",
+      "description": "The name of a directory of the zoo: lower-case words of ASCII letters and digits joined by '-'.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 40
+    },
+    "status_value": {
+      "description": "A status field as its value alone, or as the results document writes it, with value, reason and detail.",
+      "type": [
+        "string",
+        "object"
+      ],
+      "if": {
+        "type": "object"
+      },
+      "then": {
+        "additionalProperties": false,
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "description": "The status fields of an expected finding that differ from the defaults: availability available, assessability adequate, threshold_proximity clear and validation descriptive. finding has no default.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/status_value"
+        },
+        "assessability": {
+          "$ref": "#/$defs/status_value"
+        },
+        "finding": {
+          "$ref": "#/$defs/status_value"
+        },
+        "threshold_proximity": {
+          "$ref": "#/$defs/status_value"
+        },
+        "validation": {
+          "$ref": "#/$defs/status_value"
+        }
+      }
+    },
+    "statistic": {
+      "description": "An expected statistic: exactly one of value, ratio, interval and absent, and count_class for a statistic whose registry entry gives the class by_unit, which an absent statistic does not have.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": true,
+        "ratio": {
+          "description": "The numerator and the denominator, whose quotient the run writes as the nearest double.",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "interval": {
+          "description": "The bounds that the design guarantees for a real, or for every element of reals.",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "absent": {
+          "const": true
+        },
+        "count_class": {
+          "enum": [
+            "person",
+            "non_person"
+          ]
+        }
+      },
+      "if": {
+        "required": [
+          "count_class"
+        ]
+      },
+      "then": {
+        "minProperties": 2,
+        "maxProperties": 2,
+        "not": {
+          "required": [
+            "absent"
+          ]
+        }
+      },
+      "else": {
+        "minProperties": 1,
+        "maxProperties": 1
+      }
+    },
+    "scope": {
+      "description": "The parts of the scope element of a finding, {} for the model.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "factor": {
+          "type": "string"
+        },
+        "first": {
+          "type": "string"
+        },
+        "second": {
+          "type": "string"
+        },
+        "term": {
+          "type": "string"
+        },
+        "column": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check",
+        "scope",
+        "status",
+        "why"
+      ],
+      "properties": {
+        "check": {
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/check_id"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "status": {
+          "$ref": "#/$defs/status"
+        },
+        "message": {
+          "type": "string"
+        },
+        "statistics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/statistic"
+          }
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        }
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rows",
+        "basis",
+        "distinct",
+        "dominated"
+      ],
+      "properties": {
+        "rows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "basis": {
+          "enum": [
+            "disclosure_unit",
+            "grouping_factors",
+            "rows"
+          ]
+        },
+        "distinct": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dominated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check",
+        "scope",
+        "message"
+      ],
+      "properties": {
+        "check": {
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/check_id"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "message": {
+          "type": "string"
+        },
+        "statistics": {
+          "description": "Statistic names and the values through which the planted problem shows.",
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": true
+        }
+      }
+    },
+    "planned": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check",
+        "tier",
+        "catalogue",
+        "milestone",
+        "description"
+      ],
+      "properties": {
+        "check": {
+          "type": "string"
+        },
+        "tier": {
+          "enum": [
+            "T0",
+            "T1",
+            "T2",
+            "Stream A"
+          ]
+        },
+        "catalogue": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "registry": {
+          "$ref": "urn:mixedcheck:schema:defs#/$defs/release"
+        },
+        "milestone": {
+          "type": "string"
+        },
+        "needs": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "expected": {
+      "description": "The expected findings of one directory, or the issue that refuses its run.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "zoo",
+        "id",
+        "name",
+        "title",
+        "role",
+        "matched",
+        "negative_of",
+        "domain",
+        "catalogue",
+        "planted",
+        "registry",
+        "vocabulary",
+        "generator",
+        "run",
+        "rows",
+        "signal",
+        "planned"
+      ],
+      "properties": {
+        "zoo": {
+          "const": "0.1.0"
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "role": {
+          "enum": [
+            "fixture",
+            "negative"
+          ]
+        },
+        "matched": {
+          "$ref": "#/$defs/id"
+        },
+        "negative_of": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "domain": {
+          "enum": [
+            "education",
+            "crossed",
+            "families",
+            "dyads",
+            "eeg",
+            "trial-level",
+            "ild",
+            "any"
+          ]
+        },
+        "catalogue": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "planted": {
+          "type": "string",
+          "minLength": 1
+        },
+        "registry": {
+          "const": "0.1.0"
+        },
+        "vocabulary": {
+          "const": "0.1.0"
+        },
+        "generator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "file",
+            "function",
+            "seed",
+            "rng",
+            "parameters"
+          ],
+          "properties": {
+            "file": {
+              "title": "generator file",
+              "type": "string",
+              "pattern": "^sim/zoo/R/Z[0-9]{2}[.]R$"
+            },
+            "function": {
+              "title": "generator function",
+              "type": "string",
+              "pattern": "^zoo_Z[0-9]{2}N?$"
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "rng": {
+              "const": [
+                "Mersenne-Twister",
+                "Inversion",
+                "Rejection"
+              ]
+            },
+            "parameters": {
+              "description": "The named parameters of the generator, numbers as JSON numbers and decimal constants as strings.",
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "run": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "outcome_access"
+          ],
+          "properties": {
+            "outcome_access": {
+              "$ref": "urn:mixedcheck:schema:defs#/$defs/tier"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "exploratory": {
+              "const": true
+            }
+          }
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "samples": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "table",
+            "design"
+          ],
+          "properties": {
+            "table": {
+              "$ref": "#/$defs/sample"
+            },
+            "design": {
+              "$ref": "#/$defs/sample"
+            },
+            "analysis": {
+              "$ref": "#/$defs/sample"
+            }
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/finding"
+          }
+        },
+        "issue": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "$ref": "urn:mixedcheck:schema:defs#/$defs/error_code"
+            },
+            "message": {
+              "type": "string"
+            },
+            "pointer": {
+              "$ref": "urn:mixedcheck:schema:defs#/$defs/json_pointer"
+            }
+          }
+        },
+        "signal": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/signal"
+          }
+        },
+        "planned": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/planned"
+          }
+        },
+        "deferred": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "block",
+            "reason"
+          ],
+          "properties": {
+            "block": {
+              "enum": [
+                "dyad",
+                "eeg",
+                "intensive_longitudinal"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "if": {
+        "required": [
+          "issue"
+        ]
+      },
+      "then": {
+        "properties": {
+          "samples": false,
+          "findings": false
+        }
+      },
+      "else": {
+        "required": [
+          "samples",
+          "findings"
+        ]
+      }
+    },
+    "index": {
+      "description": "The list of the directories of the zoo, in code-point order of their identifiers.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "zoo",
+        "registry",
+        "fixtures"
+      ],
+      "properties": {
+        "zoo": {
+          "const": "0.1.0"
+        },
+        "registry": {
+          "const": "0.1.0"
+        },
+        "fixtures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "title",
+              "role",
+              "matched",
+              "tier",
+              "rows",
+              "domain",
+              "deferred"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "name": {
+                "$ref": "#/$defs/name"
+              },
+              "title": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "fixture",
+                  "negative"
+                ]
+              },
+              "matched": {
+                "$ref": "#/$defs/id"
+              },
+              "tier": {
+                "$ref": "urn:mixedcheck:schema:defs#/$defs/tier"
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "domain": {
+                "type": "string"
+              },
+              "deferred": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

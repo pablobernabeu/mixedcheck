@@ -1,0 +1,37 @@
+# Checks the title, year, journal, volume, issue, pages and authors of every
+# reference with a DOI in docs/ against its Crossref record
+# (.github/scripts/check_references.py). It runs when started by hand or when
+# the label 'references' is added to a pull request, because the cloud
+# sessions cannot reach Crossref.
+name: references
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Crossref
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'references'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # The script and its tests use the standard library only.
+      - name: Lint and test the script
+        run: |
+          pipx run ruff check .github/scripts
+          python3 -m unittest discover -s .github/scripts -v
+      # Crossref's etiquette asks for a contact address, which a repository
+      # variable CROSSREF_MAILTO can supply. Without it, the requests go to
+      # the public pool.
+      - name: Check the references against Crossref
+        env:
+          CROSSREF_MAILTO: ${{ vars.CROSSREF_MAILTO }}
+        run: python3 .github/scripts/check_references.py docs

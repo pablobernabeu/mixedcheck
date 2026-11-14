@@ -1,0 +1,11 @@
+{
+  "vocabulary": "0.1.0",
+  "provenance": {
+    "data_commitment": {
+      "algorithm": "hmac-sha256",
+      "covers": "file",
+      "key_id": "630dcd2966c43366",
+      "digest": "dd8943be1fcb832169c6f874652f017415a37dddc77d6e9407ac0d910f67227a"
+    }
+  }
+}

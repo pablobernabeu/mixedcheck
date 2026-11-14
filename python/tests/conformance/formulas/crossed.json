@@ -1,0 +1,691 @@
+{
+  "description": "Crossed grouping factors, factor slopes, implicit intercepts, the order of random terms and the levels of grouping factors.",
+  "cases": [
+    {
+      "id": "crossed-01",
+      "description": "Correlated slopes for a factor by subject and by item.",
+      "formula": "rt ~ cond + (1 + cond | subject) + (1 + cond | item)",
+      "data": {
+        "rt": [1, 2, 3, 4],
+        "cond": ["A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "item": ["i1", "i2", "i1", "i2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+              ]
+            },
+            {
+              "name": "1 + cond | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+              ]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "rt", "transform": "identity"}
+        },
+        "ir_hash": "sha256:fb5ac0b0dd0e1f589538882560088a2481c872a8bf065660c0c40ca1f7e6db7a"
+      }
+    },
+    {
+      "id": "crossed-02",
+      "description": "Zoo fixture Z07: a Latin square with one observation per cell, including the subject-by-item intercept.",
+      "formula": "y ~ cond + (1 + cond | subject) + (1 + cond | item) + (1 | subject:item)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "subject", "type": "string"},
+            {"name": "item", "type": "string"},
+            {"name": "list", "type": "string"},
+            {"name": "cond", "type": "string", "categories": ["A", "B", "C"]},
+            {"name": "y", "type": "number"}
+          ]
+        }
+      },
+      "data": {
+        "subject": ["s01", "s01", "s01", "s02", "s02", "s02"],
+        "item": ["i01", "i02", "i03", "i01", "i02", "i03"],
+        "list": ["L1", "L1", "L1", "L2", "L2", "L2"],
+        "cond": ["A", "B", "C", "B", "C", "A"],
+        "y": [-0.165087, -1.111662, 0.4, 0.25, -0.5, 1.25]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B", "C"],
+              "levels_source": "declared",
+              "contrast": "treatment",
+              "reference": "A"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}},
+              {"name": "cond[C]", "term": 1, "levels": {"cond": "C"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}},
+                {"name": "cond[C]", "term": 1, "levels": {"cond": "C"}}
+              ]
+            },
+            {
+              "name": "1 + cond | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}},
+                {"name": "cond[C]", "term": 1, "levels": {"cond": "C"}}
+              ]
+            },
+            {
+              "name": "1 | subject:item",
+              "factor": "subject:item",
+              "grouping": ["subject", "item"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:09d486eb7377c8c4dd7ee970330dc9e428e220fc54773972cecd882e6dc77300"
+      }
+    },
+    {
+      "id": "crossed-03",
+      "description": "Without an intercept in the random term, the factor slope is coded by indicators for every level.",
+      "formula": "y ~ cond + (0 + cond | subject)",
+      "data": {"y": [1, 2, 3, 4], "cond": ["A", "B", "C", "A"], "subject": ["s1", "s1", "s2", "s2"]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B", "C"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}},
+              {"name": "cond[C]", "term": 1, "levels": {"cond": "C"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "0 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "cond", "variables": [{"variable": "cond", "coding": "indicator"}]}],
+              "columns": [
+                {"name": "cond[A]", "term": 0, "levels": {"cond": "A"}},
+                {"name": "cond[B]", "term": 0, "levels": {"cond": "B"}},
+                {"name": "cond[C]", "term": 0, "levels": {"cond": "C"}}
+              ]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:e40617ca5083920d93bbce281678ae3e668f93fdcee25f005e08435b895406fb"
+      }
+    },
+    {
+      "id": "crossed-04",
+      "description": "A random term without '1' or '0' has an intercept.",
+      "formula": "y ~ x + (x | subject) + (1 | item)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [0.5, 1, 1.5, 2],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "item": ["i1", "i2", "i1", "i2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + x | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "x", "variables": [{"variable": "x"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "x", "term": 1, "levels": {}}
+              ]
+            },
+            {
+              "name": "1 | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:053786ec36391ad4943bc5ca0ae7ffc05d07acc109089186b33e6901e118524d"
+      }
+    },
+    {
+      "id": "crossed-05",
+      "description": "Random terms are grouped by grouping factor, in the order in which each factor first arises.",
+      "formula": "y ~ (1 | subject) + (1 | item) + (0 + x | subject)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [0.5, 1, 1.5, 2],
+        "subject": ["s1", "s1", "s2", "s2"],
+        "item": ["i1", "i2", "i1", "i2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:3f0501bf5a4caa5bbf306229fffb176ce4ebb8984cc48bf487138bd8f118d2df"
+      }
+    },
+    {
+      "id": "crossed-06",
+      "description": "Two random terms of one grouping factor cannot share a column, here the intercept.",
+      "formula": "y ~ cond + (1 | subject) + (1 + cond | subject)",
+      "data": {"y": [1, 2, 3, 4], "cond": ["A", "B", "A", "B"], "subject": ["s1", "s1", "s2", "s2"]},
+      "expected": {
+        "issue": {
+          "code": "E6058",
+          "message": "The random term at byte 27 repeats the column '(Intercept)' of an earlier random term of the grouping factor 'subject'.",
+          "offset": 27
+        }
+      }
+    },
+    {
+      "id": "crossed-07",
+      "description": "Levels of a numeric grouping column are ordered by value, so 2 comes before 10.",
+      "formula": "y ~ x + (1 | subject) + (1 | item)",
+      "data": {
+        "y": [1, 2, 3, 4, 5],
+        "x": [0.5, 1, 1.5, 2, 2.5],
+        "subject": [10, 2, 1, 10, 2],
+        "item": ["i2", "i1", "i2", "i1", "i10"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:b9c496ead5aac51c1dcff22f22ca44e96667ce2ca7d8d0ce3ce38d7ff523da87",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4],
+          "x": [[1, 0.5], [1, 1], [1, 1.5], [1, 2], [1, 2.5]],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "1", "column": "(Intercept)"},
+            {"term": 0, "level": "2", "column": "(Intercept)"},
+            {"term": 0, "level": "10", "column": "(Intercept)"},
+            {"term": 1, "level": "i1", "column": "(Intercept)"},
+            {"term": 1, "level": "i10", "column": "(Intercept)"},
+            {"term": 1, "level": "i2", "column": "(Intercept)"}
+          ],
+          "z": [
+            [0, 0, 1, 0, 0, 1],
+            [0, 1, 0, 1, 0, 0],
+            [1, 0, 0, 0, 0, 1],
+            [0, 0, 1, 1, 0, 0],
+            [0, 1, 0, 0, 1, 0]
+          ]
+        }
+      }
+    },
+    {
+      "id": "crossed-08",
+      "description": "Zoo fixture Z13: crossed intercepts with a between-group factor.",
+      "formula": "y ~ group + (1 | subject) + (1 | item)",
+      "data": {
+        "subject": ["s01", "s01", "s02"],
+        "item": ["i01", "i02", "i01"],
+        "group": ["g1", "g1", "g2"],
+        "y": [0.878184, 1.633405, 0.2]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "group": {
+              "kind": "categorical",
+              "levels": ["g1", "g2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "g1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "group", "variables": [{"variable": "group", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "group[g2]", "term": 1, "levels": {"group": "g2"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:54719cfd4bfa63abbb3c353b9938460bfee4e9bca297ba98e1d3b02996afc6be"
+      }
+    },
+    {
+      "id": "crossed-09",
+      "description": "Zoo fixture Z17: a factor slope by subject. The binary outcome is coded 0 and 1, so it needs no event level.",
+      "formula": "acc ~ cond + (1 + cond | subject)",
+      "data": {
+        "subject": ["s01", "s01", "s02"],
+        "trial": [1, 2, 1],
+        "cond": ["A", "B", "A"],
+        "acc": [1, 1, 0]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+              ]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "acc", "transform": "identity"}
+        },
+        "ir_hash": "sha256:7866e5f3e73302d4bc5565c29c3eb88ff6bbaf657cb7a1e53c9dcd9231e31e67"
+      }
+    },
+    {
+      "id": "crossed-10",
+      "description": "Design matrices of a crossed design with a factor slope by subject.",
+      "formula": "y ~ cond + (1 + cond | subject) + (1 | item)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "cond": ["A", "B", "B", "A"],
+        "subject": ["s2", "s2", "s1", "s1"],
+        "item": ["i1", "i2", "i1", "i2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": ["A", "B"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "A"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + cond | subject",
+              "factor": "subject",
+              "grouping": ["subject"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "cond", "variables": [{"variable": "cond", "coding": "contrast"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "cond[B]", "term": 1, "levels": {"cond": "B"}}
+              ]
+            },
+            {
+              "name": "1 | item",
+              "factor": "item",
+              "grouping": ["item"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:1da572e303d25632c126012b06cdeb3bdcbb50fad1eeb9837fc21848be2d9592",
+        "matrices": {
+          "rows": [0, 1, 2, 3],
+          "x": [[1, 0], [1, 1], [1, 1], [1, 0]],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "s1", "column": "(Intercept)"},
+            {"term": 0, "level": "s1", "column": "cond[B]"},
+            {"term": 0, "level": "s2", "column": "(Intercept)"},
+            {"term": 0, "level": "s2", "column": "cond[B]"},
+            {"term": 1, "level": "i1", "column": "(Intercept)"},
+            {"term": 1, "level": "i2", "column": "(Intercept)"}
+          ],
+          "z": [[0, 0, 1, 0, 1, 0], [0, 0, 1, 1, 0, 1], [1, 1, 0, 0, 1, 0], [1, 0, 0, 0, 0, 1]]
+        }
+      }
+    },
+    {
+      "id": "crossed-11",
+      "description": "Grouping factors of booleans and of numbers that are not integers: false comes before true, numbers are ordered by value and labelled as conventions.md writes them.",
+      "formula": "y ~ x + (1 | b) + (1 | v)",
+      "data": {
+        "y": [1, 2, 3, 4, 5],
+        "x": [0.5, 1, 1.5, 2, 3],
+        "b": [true, false, true, false, true],
+        "v": [1.5, 2, 10, 1.5, 0.25]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | b",
+              "factor": "b",
+              "grouping": ["b"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | v",
+              "factor": "v",
+              "grouping": ["v"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:c5ad705c66881b57fde85712d6fbdaa4ec72f0f7debb842467ffb2bc6d3f814b",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4],
+          "x": [[1, 0.5], [1, 1], [1, 1.5], [1, 2], [1, 3]],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "false", "column": "(Intercept)"},
+            {"term": 0, "level": "true", "column": "(Intercept)"},
+            {"term": 1, "level": "0.25", "column": "(Intercept)"},
+            {"term": 1, "level": "1.5", "column": "(Intercept)"},
+            {"term": 1, "level": "2", "column": "(Intercept)"},
+            {"term": 1, "level": "10", "column": "(Intercept)"}
+          ],
+          "z": [
+            [0, 1, 0, 1, 0, 0],
+            [1, 0, 0, 0, 1, 0],
+            [0, 1, 0, 0, 0, 1],
+            [1, 0, 0, 1, 0, 0],
+            [0, 1, 1, 0, 0, 0]
+          ]
+        }
+      }
+    },
+    {
+      "id": "crossed-12",
+      "description": "In a factor of two variables, ':' in a label is written as '\\:', so the levels ('a', 'b:c') and ('a:b', 'c') have distinct labels.",
+      "formula": "y ~ (1 | g:h)",
+      "data": {"y": [1, 2, 3, 4], "g": ["a:b", "a", "a:b", "a"], "h": ["c", "b:c", "c", "b:c"]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | g:h",
+              "factor": "g:h",
+              "grouping": ["g", "h"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:7bd1cda48f822e96cd8e7d85e428b2cfa9e83a70e2d3ba1a2af200f2c71bf571",
+        "matrices": {
+          "rows": [0, 1, 2, 3],
+          "x": [[1], [1], [1], [1]],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "a:b\\:c", "column": "(Intercept)"},
+            {"term": 0, "level": "a\\:b:c", "column": "(Intercept)"}
+          ],
+          "z": [[0, 1], [1, 0], [0, 1], [1, 0]]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "description": "Stages 1 and 2: files that do not exist or cannot be read, the byte-order mark, invalid UTF-8 and U+0000.",
+  "cases": [
+    {
+      "id": "tables-input-001",
+      "description": "A file that does not exist.",
+      "file": "missing",
+      "expected": {
+        "issue": {
+          "code": "E1001",
+          "message": "The file does not exist."
+        }
+      }
+    },
+    {
+      "id": "tables-input-002",
+      "description": "A directory in place of a file.",
+      "file": "directory",
+      "expected": {
+        "issue": {
+          "code": "E1002",
+          "message": "The file cannot be read."
+        }
+      }
+    },
+    {
+      "id": "tables-input-003",
+      "description": "A continuation byte without a lead byte.",
+      "path": "input/continuation_byte.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-input-004",
+      "description": "A sequence that the input ends inside is located at its lead byte.",
+      "path": "input/truncated_sequence.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-input-005",
+      "description": "An overlong encoding of '/'.",
+      "path": "input/overlong.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-input-006",
+      "description": "A sequence above U+10FFFF.",
+      "path": "input/above_10ffff.csv",
+      "expected": {
+        "issue": {
+          "code": "E1201",
+          "message": "Invalid UTF-8 at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-input-007",
+      "description": "U+0000 in a value.",
+      "path": "input/nul_value.csv",
+      "expected": {
+        "issue": {
+          "code": "E1202",
+          "message": "The string at byte 8 contains the character U+0000.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "tables-input-008",
+      "description": "U+0000 in the header.",
+      "path": "input/nul_in_header.csv",
+      "expected": {
+        "issue": {
+          "code": "E1202",
+          "message": "The string at byte 1 contains the character U+0000.",
+          "offset": 1
+        }
+      }
+    },
+    {
+      "id": "tables-input-009",
+      "description": "A byte-order mark is reported before invalid UTF-8.",
+      "path": "input/bom_before_invalid.csv",
+      "expected": {
+        "issue": {
+          "code": "E1003",
+          "message": "The input starts with a UTF-8 byte-order mark."
+        }
+      }
+    },
+    {
+      "id": "tables-input-010",
+      "description": "The noncharacter U+FFFE and the unassigned U+0378 are characters of values and column names.",
+      "path": "input/noncharacter.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "number",
+            "values": [
+              1.0
+            ]
+          },
+          {
+            "name": "\u0378",
+            "type": "string",
+            "values": [
+              "\ufffe"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

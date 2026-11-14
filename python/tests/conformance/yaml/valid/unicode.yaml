@@ -1,0 +1,11 @@
+vocabulary: 0.1.0
+title: Étude sur l'âge des réponses
+table:
+  fields:
+    - {name: âge, type: integer}
+    - {name: réponse, type: string, categories: [oui, non, 😀]}
+variables:
+  âge: {role: baseline_covariate}
+  réponse: {role: outcome, measurement: binary, event_level: oui}
+estimands:
+  - {id: age, term: '`âge`', kind: association}

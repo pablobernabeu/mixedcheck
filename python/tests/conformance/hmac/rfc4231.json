@@ -1,0 +1,114 @@
+{
+  "description": "HMAC-SHA-256 test cases 1 to 7 of RFC 4231 and further keys and messages of every length.",
+  "cases": [
+    {
+      "id": "hmac-rfc4231-001",
+      "description": "RFC 4231, test case 1.",
+      "key_hex": "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+      "message": "Hi There",
+      "expected": {
+        "digest": "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-002",
+      "description": "RFC 4231, test case 2, with a key shorter than the output.",
+      "key_hex": "4a656665",
+      "message": "what do ya want for nothing?",
+      "expected": {
+        "digest": "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-003",
+      "description": "RFC 4231, test case 3, with 50 bytes DD.",
+      "key_hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "message_hex": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "expected": {
+        "digest": "773ea91e36800e46854db8ebd09181a72959098b3ef8c122d9635514ced565fe"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-004",
+      "description": "RFC 4231, test case 4, with a 25-byte key and 50 bytes CD.",
+      "key_hex": "0102030405060708090a0b0c0d0e0f10111213141516171819",
+      "message_hex": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+      "expected": {
+        "digest": "82558a389a443c0ea4cc819899f2083a85f0faa3e578f8077a2e3ff46729665b"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-005",
+      "description": "RFC 4231, test case 5, whose output the RFC truncates to 128 bits.",
+      "key_hex": "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+      "message": "Test With Truncation",
+      "truncate": 16,
+      "expected": {
+        "digest": "a3b6167473100ee06e0c796c2955552b"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-006",
+      "description": "RFC 4231, test case 6, with a 131-byte key, which is hashed first.",
+      "key_hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "message": "Test Using Larger Than Block-Size Key - Hash Key First",
+      "expected": {
+        "digest": "60e431591ee0b67f0d8a26aacbf5b77f8e0bc6213728c5140546040f0ee37f54"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-007",
+      "description": "RFC 4231, test case 7, with a 131-byte key and a 152-byte message.",
+      "key_hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "message": "This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm.",
+      "expected": {
+        "digest": "9b09ffa71b942fcb27635fbcd5b0e944bfdc63644f0713938a7f51535c3a35e2"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-008",
+      "description": "A key of exactly 64 bytes, the block size, which is not hashed.",
+      "key_hex": "41414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141",
+      "message": "block",
+      "expected": {
+        "digest": "c27124035289699e34b6d20f0046e22e20ea64038677e2f57db98e2744c11129"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-009",
+      "description": "A key of 65 bytes, which is hashed first.",
+      "key_hex": "4141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141414141",
+      "message": "block",
+      "expected": {
+        "digest": "90c592a2ad7eea861668b639324ac3fbbe310aaf3e9280b5effc80882c8e8021"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-010",
+      "description": "An empty key.",
+      "key_hex": "",
+      "message": "message",
+      "expected": {
+        "digest": "eb08c1f56d5ddee07f7bdf80468083da06b64cf4fac64fe3a90883df5feacae4"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-011",
+      "description": "An empty message.",
+      "key_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "message": "",
+      "expected": {
+        "digest": "b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad"
+      }
+    },
+    {
+      "id": "hmac-rfc4231-012",
+      "description": "Every byte as the message.",
+      "key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "message_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+      "expected": {
+        "digest": "42bf6fcd2ae46e32b29ce8bcbfd1f43896ea948aa9df2744eb4a47d28a8386c8"
+      }
+    }
+  ]
+}

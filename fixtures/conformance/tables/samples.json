@@ -1,0 +1,505 @@
+{
+  "description": "The rows that missing values, sentinel codes and trials of 0 remove from the design and analysis samples of a formula.",
+  "cases": [
+    {
+      "id": "tables-samples-001",
+      "description": "A missing predictor removes its row from the design sample, a missing response only from the analysis sample, and a missing value of a column that the formula does not read from neither.",
+      "path": "samples/missing_columns.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "g",
+              "type": "string"
+            },
+            {
+              "name": "x",
+              "type": "number"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            },
+            {
+              "name": "note",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "formula": "y ~ x + g",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          {
+            "name": "g",
+            "type": "string",
+            "values": [
+              "a",
+              "b",
+              null,
+              "a",
+              "b"
+            ]
+          },
+          {
+            "name": "x",
+            "type": "number",
+            "values": [
+              1.0,
+              null,
+              2.0,
+              3.0,
+              4.0
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              2.0,
+              3.0,
+              4.0,
+              null,
+              5.0
+            ]
+          },
+          {
+            "name": "note",
+            "type": "string",
+            "values": [
+              null,
+              "n",
+              "n",
+              "n",
+              "n"
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          3,
+          4
+        ],
+        "analysis_sample": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "id": "tables-samples-002",
+      "description": "A missing grouping factor removes its row from the design sample.",
+      "path": "samples/grouping_factor.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "g",
+              "type": "string"
+            },
+            {
+              "name": "x",
+              "type": "number"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            },
+            {
+              "name": "note",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "formula": "y ~ x + (1 | g)",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "g",
+            "type": "string",
+            "values": [
+              "a",
+              null,
+              "b",
+              "a"
+            ]
+          },
+          {
+            "name": "x",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              2.0,
+              3.0,
+              4.0,
+              5.0
+            ]
+          },
+          {
+            "name": "note",
+            "type": "string",
+            "values": [
+              "n",
+              "n",
+              "n",
+              "n"
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          2,
+          3
+        ],
+        "analysis_sample": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "tables-samples-003",
+      "description": "A labelled sentinel code removes its row like any missing value, whereas 'NA' in a string column is a level.",
+      "path": "samples/sentinel.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "g",
+              "type": "string"
+            },
+            {
+              "name": "x",
+              "type": "integer",
+              "missingValues": [
+                {
+                  "value": "-99",
+                  "label": "refused"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "formula": "x ~ g",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          },
+          {
+            "name": "g",
+            "type": "string",
+            "values": [
+              "NA",
+              "a",
+              "a",
+              "NA"
+            ]
+          },
+          {
+            "name": "x",
+            "type": "integer",
+            "values": [
+              1,
+              null,
+              2,
+              -98
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "analysis_sample": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "tables-samples-004",
+      "description": "With an empty list of missing values, the empty string is a level, so its row stays in both samples.",
+      "path": "samples/empty_level.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "g",
+              "type": "string",
+              "missingValues": []
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "formula": "y ~ g",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "g",
+            "type": "string",
+            "values": [
+              "",
+              "a",
+              "b"
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0,
+              null
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1,
+          2
+        ],
+        "analysis_sample": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "id": "tables-samples-005",
+      "description": "A binomial response with trials: a row with 0 trials or missing trials leaves the analysis sample but stays in the design sample.",
+      "path": "samples/trials.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "x",
+              "type": "number"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            },
+            {
+              "name": "n",
+              "type": "integer"
+            }
+          ]
+        },
+        "variables": {
+          "k": {
+            "role": "outcome",
+            "measurement": "binomial",
+            "trials": "n"
+          }
+        }
+      },
+      "formula": "k ~ x",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          {
+            "name": "x",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              2,
+              0,
+              1,
+              null,
+              3
+            ]
+          },
+          {
+            "name": "n",
+            "type": "integer",
+            "values": [
+              5,
+              0,
+              null,
+              4,
+              3
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "analysis_sample": [
+          0,
+          4
+        ]
+      }
+    },
+    {
+      "id": "tables-samples-006",
+      "description": "NaN is a value of a number column, so its row stays in both samples. Computing a mean centring constant or building X later gives E6073 (ir.md).",
+      "path": "samples/nan_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "x",
+              "type": "number"
+            },
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "formula": "y ~ x",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "x",
+            "type": "number",
+            "values": [
+              "NaN",
+              2.0,
+              3.0
+            ]
+          },
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1.0,
+              null,
+              3.0
+            ]
+          }
+        ],
+        "design_sample": [
+          0,
+          1,
+          2
+        ],
+        "analysis_sample": [
+          0,
+          2
+        ]
+      }
+    }
+  ]
+}

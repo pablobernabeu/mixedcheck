@@ -1,0 +1,79 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Reading intervention, classes randomised within schools",
+  "goal": "confirmatory",
+  "features": ["cluster_randomised", "longitudinal"],
+  "table": {
+    "fields": [
+      {"name": "school", "type": "string"},
+      {"name": "class", "type": "string"},
+      {"name": "pupil", "type": "string"},
+      {
+        "name": "wave",
+        "type": "integer",
+        "categories": [0, 1],
+        "categoriesOrdered": true
+      },
+      {"name": "arm", "type": "string", "categories": ["control", "tutoring"]},
+      {"name": "pre", "type": "number"},
+      {
+        "name": "post",
+        "type": "number",
+        "missingValues": [{"value": ""}, {"value": "-99", "label": "absent on test day"}]
+      },
+      {"name": "attendance", "type": "number"}
+    ],
+    "missingValues": ["", "NA"],
+    "primaryKey": ["school", "class", "pupil", "wave"],
+    "uniqueKeys": [["pupil", "wave"]]
+  },
+  "units": [
+    {"name": "school", "columns": ["school"], "role": "cluster"},
+    {
+      "name": "class",
+      "columns": ["class"],
+      "nested_in": "school",
+      "id_scope": "within_parent",
+      "role": "cluster"
+    },
+    {
+      "name": "pupil",
+      "columns": ["pupil"],
+      "nested_in": "class",
+      "id_scope": "global",
+      "role": "participant",
+      "membership": "fixed"
+    }
+  ],
+  "observation": {
+    "key": ["school", "class", "pupil", "wave"],
+    "time": {"column": "wave", "kind": "occasion", "within": "pupil"}
+  },
+  "assignment": [
+    {
+      "column": "arm",
+      "unit": "class",
+      "randomised": true,
+      "level": "between_unit",
+      "blocks": ["school"]
+    }
+  ],
+  "variables": {
+    "post": {"role": "outcome", "measurement": "bounded_score", "bounds": [0, 40]},
+    "pre": {"role": "baseline_covariate", "measurement": "bounded_score", "bounds": [0, 40]},
+    "attendance": {"role": "post_assignment_covariate", "measurement": "continuous"},
+    "school": {"role": "block"},
+    "arm": {"role": "assigned"}
+  },
+  "estimands": [
+    {
+      "id": "ITT",
+      "term": "arm",
+      "kind": "total_effect",
+      "focal": true,
+      "outcome": "post"
+    }
+  ],
+  "provenance": {"created": "2026-11-07T10:00:00Z", "outcome_seen": false, "author": "PB"},
+  "disclosure_unit": "pupil"
+}

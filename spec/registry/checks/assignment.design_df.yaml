@@ -1,0 +1,180 @@
+id: assignment.design_df
+version: 1
+title: Design degrees of freedom of an assignment
+tier: T0
+summary: >-
+  For a variable assigned between units, counts the degrees of freedom between
+  the levels of the assignment unit that remain after the fixed effects, the
+  number of assigned units minus the unit-level fixed parameters computed by
+  rank. The information on an effect assigned to units grows with this number
+  rather than with the number of rows. The check also names declared blocking
+  units that the fixed part leaves out, since blocking factors used in the
+  assignment belong in the fixed part.
+reads: [declaration, formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: assignment
+applies_when: >-
+  The assignment's level is between_unit, declared or inferred (registry.md,
+  Terms), and some level of the unit has at least two rows of the
+  assignment.
+availability:
+  - reason: declaration_missing
+    condition: >-
+      The declaration has no assignment block, or every entry of the block
+      counts as absent (registry.md, Terms).
+    pointer: /assignment
+statistics:
+  units:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: unit}]
+    measures: levels
+    definition: >-
+      The number of levels of the assignment unit (registry.md, Terms) in the
+      rows of the assignment.
+  design_df:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: unit}]
+    suppress_with: [units]
+    measures: term_levels
+    definition: >-
+      J + r - k, where J is units, k the number of fixed-effects columns,
+      restricted to the rows of the assignment, that the sequential rule
+      (ir.md, Sequential rule for aliased columns) keeps on these rows and r
+      their within-level rank. Q holds the k kept columns, made orthonormal in
+      column order by classical Gram-Schmidt with a second pass over the rows:
+      each column in turn, divided by its largest absolute value, gives a
+      vector v, which is replaced with v - Q_b(Q_b'v), where Q_b holds the
+      columns of Q before it, then again with v - Q_b(Q_b'v) for the new v, and
+      is then divided by its norm. Q_d is Q with the first row of each level of
+      the unit, in table order, subtracted from every row of the level. r is
+      the number of columns of Q_d that the sequential rule keeps when it
+      compares the norm of each residual, in the units of Q_d, with 1e-7, its
+      tolerance, times the norm of the same column of Q, which is 1, in place
+      of the norm of the column of Q_d. A combination of the columns is
+      constant within the levels exactly when the subtraction maps it to 0, so
+      in exact arithmetic r is the rank of the columns centred within the
+      levels, and design_df equals the number of indicator columns of the
+      levels that the sequential rule keeps when it is applied to the
+      fixed-effects columns followed by the indicator columns, without building
+      the n by J indicator matrix. Each column of Q has lost what the columns
+      before it explain, such as a constant added to it when the intercept
+      comes first, so that r does not change with such a constant. Differences
+      within the levels that come from rounding stay near the unit roundoff
+      divided by the column's relative residual in the sequential rule, at most
+      about 1e-9 for a column that the rule keeps, below the tolerance, and are
+      not counted, as the indicator columns would absorb them. It gives back
+      units, so it takes the count class of units. Beside units, it gives back
+      k - r, to which a factor of a fixed term that is constant within the
+      levels adds its levels on these rows less 1, so it measures the levels
+      of the items of the fixed terms too.
+  missing_blocks:
+    kind: names
+    definition: >-
+      The declared blocks of the assignment of which some label column, by
+      the levels of a unit (registry.md, Terms), is not a variable of a term
+      of the fixed part, in declared order.
+  level_source:
+    kind: category
+    values: [declared, inferred_from_the_data]
+    definition: >-
+      declared when the assignment declares its level, and
+      inferred_from_the_data when its level is inferred (registry.md, Terms).
+thresholds: {}
+parameters:
+  agreement:
+    value: 0.99
+    definition: >-
+      The share of the rows of the assignment, pooled over the levels of the
+      unit with at least two rows, that must have the most frequent value of
+      their level for an assignment without a declared level to be inferred
+      as between_unit (registry.md, Terms).
+    sources:
+      - kind: decision
+        citation: >-
+          02-decisions.md, Q4. A rule that required 99% agreement within
+          clusters, pooled over the rows of all clusters, recovered the school
+          level in 99.3 to 100% of 2,000 replicates with up to 0.5% of rows
+          miscoded (evidence/decisions/E-verify/scripts/exp2_tolerant.py, rule
+          R2). The same share applied to each cluster separately behaves as
+          the exact rule R1 for clusters of fewer than 100 rows.
+decision:
+  rules:
+    - finding: consequential
+      condition: design_df is 0.
+      statistics: [design_df]
+      thresholds: []
+      message: no_df
+    - finding: detectable_inconsequential
+      condition: missing_blocks is not empty.
+      statistics: [missing_blocks]
+      thresholds: []
+      message: blocks_missing
+  otherwise:
+    finding: consistent
+    message: design_df
+assessability: []
+messages:
+  no_df:
+    template: >-
+      No degrees of freedom remain between the {units} of '{unit}' after the
+      fixed effects, so the effect of '{column}', assigned to '{unit}' at a
+      level between units that is {level}, cannot be compared with variation
+      between units.
+    fallback: >-
+      No degrees of freedom remain between the levels of '{unit}' after the
+      fixed effects, so the effect of '{column}', assigned to '{unit}' at a
+      level between units that is {level}, cannot be compared with variation
+      between units.
+    args:
+      units: {source: statistic, name: units, noun: [level, levels]}
+      unit: {source: scope, name: unit}
+      column: {source: scope, name: column}
+      level: {source: statistic, name: level_source}
+  blocks_missing:
+    template: >-
+      The assignment of '{column}' was blocked by {blocks}, which the fixed
+      part does not include. '{unit}', to which '{column}' was assigned at a
+      level between units that is {level}, leaves {df} between its {units}
+      after the fixed effects.
+    fallback: >-
+      The assignment of '{column}' was blocked by {blocks}, which the fixed
+      part does not include. '{column}' was assigned to '{unit}' at a level
+      between units that is {level}.
+    args:
+      column: {source: scope, name: column}
+      blocks: {source: statistic, name: missing_blocks}
+      unit: {source: scope, name: unit}
+      df: {source: statistic, name: design_df, noun: [degree of freedom, degrees of freedom]}
+      units: {source: statistic, name: units, noun: [level, levels]}
+      level: {source: statistic, name: level_source}
+  design_df:
+    template: >-
+      '{unit}', the unit to which '{column}' was assigned at a level between
+      units that is {level}, has {units} and leaves {df} between them after
+      the fixed effects.
+    fallback: >-
+      '{column}' was assigned to '{unit}' at a level between units that is
+      {level}, and the privacy rules do not allow the degrees of freedom
+      between the levels of '{unit}' after the fixed effects to be shown.
+    args:
+      unit: {source: scope, name: unit}
+      column: {source: scope, name: column}
+      units: {source: statistic, name: units, noun: [level, levels]}
+      df: {source: statistic, name: design_df, noun: [degree of freedom, degrees of freedom]}
+      level: {source: statistic, name: level_source}
+remedies:
+  - id: add_blocks
+    description: Add the blocking factors of the assignment to the fixed part.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [assignment.constant_within_unit]
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L7-03 and L7-04.
+catalogue: [L7-03, L7-04]

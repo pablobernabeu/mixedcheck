@@ -1,0 +1,15 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {"name": "b", "type": "boolean"},
+      {"name": "d", "type": "date"},
+      {"name": "t", "type": "datetime"}
+    ]
+  },
+  "variables": {
+    "b": {"role": "outcome", "measurement": "binary", "event_level": "true"},
+    "d": {"role": "outcome", "measurement": "binary", "event_level": "2026-11-08"},
+    "t": {"role": "outcome", "measurement": "binary", "event_level": 1}
+  }
+}

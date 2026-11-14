@@ -1,0 +1,22 @@
+vocabulary: 0.1.0
+table:
+  fields:
+    - {name: unit, type: string}
+    - {name: arm, type: string}
+    - {name: s, type: integer, categories: [1, 2, 3], categoriesOrdered: true}
+    - {name: score, type: number}
+    - {name: tiny, type: number}
+    - {name: big, type: number}
+units:
+  - {name: unit, columns: [unit]}
+assignment:
+  - {column: arm, unit: unit, randomised: false}
+variables:
+  score: {role: outcome, measurement: bounded_score, bounds: ['0', 2.5]}
+  tiny: {role: auxiliary, measurement: bounded_score, bounds: [-1.5E-7, 0]}
+  big: {role: auxiliary, measurement: bounded_score, bounds: [1e3, 1.0e4]}
+  arm: {role: assigned}
+estimands:
+  - {id: e, term: arm, focal: true}
+provenance:
+  outcome_seen: false

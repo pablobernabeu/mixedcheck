@@ -26,9 +26,10 @@ permissions:
   contents: read
 
 concurrency:
-  # The action keeps a 'full-ci' label run and a push to the same pull request
-  # in separate groups, so that neither cancels the other.
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.action }}-${{ github.ref }}
+  # The action and the label keep a push, a 'full-ci' label run and the
+  # skipped run of any other label in separate groups, so that none cancels
+  # another.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.action }}-${{ github.event.label.name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -43,10 +44,9 @@ jobs:
     timeout-minutes: 30
     # check-r-package turns CRAN's incoming checks off unless
     # _R_CHECK_CRAN_INCOMING_ is set, and this job checks the package as CRAN
-    # would. The remote incoming checks would report a new submission and,
-    # while the repository is private, invalid URLs. The development version
-    # 0.0.0.9000 has a large component by convention. The full matrix runs
-    # without the incoming checks.
+    # would. The remote incoming checks would report a new submission. The
+    # development version 0.0.0.9000 has a large component by convention. The
+    # full matrix runs without the incoming checks.
     env:
       _R_CHECK_CRAN_INCOMING_: true
       _R_CHECK_CRAN_INCOMING_REMOTE_: false
@@ -72,11 +72,11 @@ jobs:
           args: 'c("--no-manual", "--as-cran")'
           error-on: '"note"'
 
-  # Scheduled runs are paid for while the repository is private, and macOS
-  # minutes count tenfold, so the scheduled full matrix runs only once the
-  # repository is public. The payload of a scheduled event may lack the
-  # repository object. This job then reads the visibility from the API, and it
-  # is skipped whenever the payload states it.
+  # The standard runners are free for a public repository and paid for in a
+  # private one, so the scheduled full matrix runs only while the repository
+  # is public. The payload of a scheduled event may lack the repository
+  # object. This job then reads the visibility from the API, and it is skipped
+  # whenever the payload states it.
   visibility:
     name: Repository visibility
     if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'
@@ -108,8 +108,10 @@ jobs:
           - {name: 'Ubuntu, R-devel', os: ubuntu-latest, r: 'devel', http-user-agent: 'release'}
           - {name: 'Ubuntu, R release', os: ubuntu-latest, r: 'release'}
           - {name: 'Ubuntu, R oldrel-1', os: ubuntu-latest, r: 'oldrel-1'}
-          # The declared floor. It resolves to R 4.2.3.
-          - {name: 'Ubuntu, R 4.2', os: ubuntu-latest, r: '4.2'}
+          # The declared floors of R and Matrix. R resolves to 4.2.3, and the
+          # job installs Matrix 1.4-1, which R 4.2.0 bundles, in place of the
+          # bundled 1.5-3.
+          - {name: 'Ubuntu, R 4.2, Matrix 1.4-1', os: ubuntu-latest, r: '4.2', Matrix: '1.4-1'}
           - {name: 'Windows, R release', os: windows-latest, r: 'release'}
           - {name: 'macOS, R release', os: macos-latest, r: 'release'}
           - {name: 'Ubuntu, R release, without Suggests', os: ubuntu-latest, r: 'release', depends-only: 'true'}
@@ -125,8 +127,19 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
       - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        if: ${{ !matrix.config.Matrix }}
         with:
           extra-packages: ${{ matrix.config.lme4 && format('any::rcmdcheck, lme4@{0}', matrix.config.lme4) || 'any::rcmdcheck' }}
+          needs: check
+          working-directory: r
+      # lme4 2.x needs Matrix 1.5-0 or later, so the job at the Matrix floor
+      # installs only the hard dependencies with testthat and yaml. The lme4
+      # oracle skips there.
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        if: matrix.config.Matrix
+        with:
+          dependencies: '"hard"'
+          extra-packages: ${{ format('any::rcmdcheck, any::testthat, any::yaml, Matrix@{0}', matrix.config.Matrix) }}
           needs: check
           working-directory: r
       - name: Confirm the lme4 version
@@ -134,11 +147,18 @@ jobs:
         env:
           LME4: ${{ matrix.config.lme4 }}
         run: Rscript -e 'stopifnot(packageVersion("lme4") == Sys.getenv("LME4"))'
+      - name: Confirm the Matrix version
+        if: matrix.config.Matrix
+        env:
+          MATRIX: ${{ matrix.config.Matrix }}
+        run: Rscript -e 'stopifnot(packageVersion("Matrix") == Sys.getenv("MATRIX"))'
       - name: Confirm the C locale
         if: matrix.config.locale
         env:
           LC_ALL: ${{ matrix.config.locale }}
         run: Rscript -e 'stopifnot(!l10n_info()[["UTF-8"]])'
+      # setup-r sets NOT_CRAN to true, so the tests that skip on CRAN, among
+      # them the lme4 oracle and the timing tests, also run under --as-cran.
       - uses: r-lib/actions/check-r-package@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
         env:
           _R_CHECK_DEPENDS_ONLY_: ${{ matrix.config.depends-only || 'false' }}

@@ -1,0 +1,135 @@
+id: identifiability.levels_vs_dimension
+version: 1
+title: Levels against the dimension of a random term
+tier: T0
+summary: >-
+  Compares the number of levels of a grouping factor with the number of random
+  effects that a term estimates for each level. When the term's columns also
+  appear in the fixed part, J levels support a covariance matrix of rank at
+  most J - 1, and at most J otherwise, so a term whose dimension exceeds this
+  bound gives a singular fit whatever the data, and a fit reported as
+  non-singular then suggests that the optimiser stopped early. Levels in which
+  the term's columns do not all vary inform the covariance only in part, so
+  few informative levels make a singular fit likely.
+reads: [formula, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: random_term
+availability: []
+statistics:
+  dimension:
+    kind: count
+    count_class: non_person
+    measures: table_term_levels
+    definition: The number of columns of the term, which is the number of random effects for each level.
+  levels:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels
+    definition: The number of levels of the term's grouping factor in the design sample.
+  informative_levels:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    part_of: levels
+    definition: >-
+      The number of levels in which the term's columns, restricted to the
+      level's rows, have rank equal to dimension by the sequential rule.
+  counterparts:
+    kind: boolean
+    definition: >-
+      Whether the sequential rule, applied to the fixed-effects columns
+      followed by the term's columns, keeps none of the term's columns.
+  bound:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    suppress_with: [levels]
+    definition: >-
+      levels minus 1 when counterparts is true, and levels otherwise. It
+      gives back levels, so it takes the count class of levels.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: bound is below dimension.
+      statistics: [bound, dimension]
+      thresholds: []
+      message: guaranteed
+    - finding: detectable_inconsequential
+      condition: informative_levels is at most dimension.
+      statistics: [informative_levels, dimension]
+      thresholds: []
+      message: likely
+  otherwise:
+    finding: consistent
+    message: adequate
+assessability: []
+messages:
+  guaranteed:
+    template: >-
+      '{term}' has {dimension} for each level of '{factor}', but with {levels}
+      the covariance matrix of these effects has rank {bound} at most, so the
+      fit will be singular. A fit reported as non-singular would suggest that
+      the optimiser stopped early.
+    fallback: >-
+      '{term}' has more random effects for each level of '{factor}' than its
+      levels can support, so the fit will be singular. A fit reported as
+      non-singular would suggest that the optimiser stopped early.
+    args:
+      term: {source: scope, name: term}
+      factor: {source: scope, name: factor}
+      dimension: {source: statistic, name: dimension, noun: [random effect, random effects]}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
+      bound: {source: statistic, name: bound}
+  likely:
+    template: >-
+      In only {informative} of '{factor}' do all columns of '{term}' vary, no
+      more than its {dimension} for each level, so a singular fit is likely.
+    fallback: >-
+      In few levels of '{factor}' do all columns of '{term}' vary, no more than
+      its random effects for each level, so a singular fit is likely.
+    args:
+      informative: {source: statistic, name: informative_levels, noun: [level, levels]}
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+      dimension: {source: statistic, name: dimension, noun: [random effect, random effects]}
+  adequate:
+    template: >-
+      In {informative} of the {levels} of '{factor}', all columns of '{term}'
+      vary, and the term has {dimension} for each level.
+    fallback: >-
+      '{term}' has fewer random effects for each level of '{factor}' than the
+      levels in which all its columns vary.
+    args:
+      informative: {source: statistic, name: informative_levels}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
+      factor: {source: scope, name: factor}
+      term: {source: scope, name: term}
+      dimension: {source: statistic, name: dimension, noun: [random effect, random effects]}
+remedies:
+  - id: simplify_term
+    description: >-
+      Reduce the term along the plan's ladder, removing correlations before
+      variances and terms that few levels inform before the others.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [structure.cluster_sizes, structure.within_between]
+references:
+  - kind: decision
+    citation: 02-decisions.md, Q3
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-07. The
+      verifier gives the bound J - 1 when every column of the term, or at
+      least its intercept, also appears in the fixed part, and reports rank 1
+      in 10 of 10 fits at J = 2 with a fixed intercept only. counterparts
+      requires every column, which is stricter, because 'guaranteed' needs
+      the proof that the case of every column gives and 10 simulated fits do
+      not.
+catalogue: [L1-07]

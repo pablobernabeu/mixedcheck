@@ -1,0 +1,831 @@
+{
+  "description": "Declarations that each break one keyword of declaration.schema.json, or one of the three checks that complete it, with the issues of stage 3.",
+  "cases": [
+    {
+      "id": "declarations-structure-001",
+      "description": "A declaration that is an array.",
+      "path": "structure/not_object.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected object at (root), found array.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-002",
+      "description": "A version written as a number, which stage 2 leaves to the schema.",
+      "path": "structure/vocabulary_number.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected string at /vocabulary, found number.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-003",
+      "description": "A declaration without a version.",
+      "path": "structure/missing_vocabulary.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at (root) lacks the required member 'vocabulary'.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-004",
+      "description": "A units block that is a string.",
+      "path": "structure/units_string.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected array at /units, found string.",
+            "pointer": "/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-005",
+      "description": "A variables entry that is a string instead of an object.",
+      "path": "structure/variable_string.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected object at /variables/y, found string.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-006",
+      "description": "A unit without its columns.",
+      "path": "structure/unit_without_columns.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /units/0 lacks the required member 'columns'.",
+            "pointer": "/units/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-007",
+      "description": "A misspelt 'nested_in' (the draft's bad2, without its id_scope).",
+      "path": "structure/unit_key_typo.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/0.",
+            "pointer": "/units/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-008",
+      "description": "A misspelt 'categoriesOrdered' in a field descriptor.",
+      "path": "structure/field_key_typo.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'categoriesordered' in the object at /table/fields/0.",
+            "pointer": "/table/fields/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-009",
+      "description": "The draft's example ex4 with its dyad block, which follows in a later vocabulary.",
+      "path": "structure/dyad_block.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'dyad' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-010",
+      "description": "The draft's example ex6 with its EEG block, which follows in a later vocabulary.",
+      "path": "structure/eeg_block.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'eeg' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-011",
+      "description": "An imputation block, which follows in a later vocabulary.",
+      "path": "structure/imputation_block.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'imputation' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-012",
+      "description": "An 'x-' extension key, which the draft allowed.",
+      "path": "structure/extension_key.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x-note' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-013",
+      "description": "A time zone in observation.time, which follows in a later vocabulary.",
+      "path": "structure/time_zone.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'timezone' in the object at /observation/time.",
+            "pointer": "/observation/time"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-014",
+      "description": "The draft's 'scheme' in an assignment entry.",
+      "path": "structure/assignment_scheme.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'scheme' in the object at /assignment/0.",
+            "pointer": "/assignment/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-015",
+      "description": "Categories on a field of type 'number'.",
+      "path": "structure/categories_on_number.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'categories' is not allowed in the object at /table/fields/0.",
+            "pointer": "/table/fields/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-016",
+      "description": "An event level for an outcome that is not binary.",
+      "path": "structure/event_level_not_binary.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'event_level' is not allowed in the object at /variables/y.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-017",
+      "description": "A trials column for a count outcome.",
+      "path": "structure/trials_not_binomial.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'trials' is not allowed in the object at /variables/y.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-018",
+      "description": "A binomial outcome without its trials column.",
+      "path": "structure/binomial_without_trials.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /variables/y lacks the required member 'trials'.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-019",
+      "description": "An exposure for an outcome that is not a count.",
+      "path": "structure/exposure_not_count.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'exposure' is not allowed in the object at /variables/y.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-020",
+      "description": "Bounds for a measurement other than bounded_score.",
+      "path": "structure/bounds_not_bounded.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'bounds' is not allowed in the object at /variables/y.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-021",
+      "description": "A bounded score without bounds.",
+      "path": "structure/bounded_without_bounds.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /variables/y lacks the required member 'bounds'.",
+            "pointer": "/variables/y"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-022",
+      "description": "The prediction goal, which follows after 1.0.",
+      "path": "structure/goal_prediction.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /goal must be 'confirmatory' or 'exploratory'.",
+            "pointer": "/goal"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-023",
+      "description": "The estimand kind 'prediction', which follows after 1.0.",
+      "path": "structure/kind_prediction.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /estimands/0/kind must be 'total_effect', 'direct_effect' or 'association'.",
+            "pointer": "/estimands/0/kind"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-024",
+      "description": "The draft's feature 'dyadic' (the draft's bad3).",
+      "path": "structure/feature_dyadic.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /features/0 must be 'cluster_randomised', 'multisite', 'stepped_wedge', 'partially_nested', 'longitudinal', 'intensive_longitudinal', 'family', 'crossed_experiment', 'counterbalanced', 'trial_level', 'corpus' or 'observational'.",
+            "pointer": "/features/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-025",
+      "description": "The Frictionless type 'any', which is written by leaving the type out.",
+      "path": "structure/field_type_any.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /table/fields/0/type must be 'string', 'integer', 'number', 'boolean', 'date' or 'datetime'.",
+            "pointer": "/table/fields/0/type"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-026",
+      "description": "A data commitment that covers the outcome column, which only a results document records.",
+      "path": "structure/covers_outcome_column.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /provenance/data_commitment/covers must be 'data_file' or 'analysis_table'.",
+            "pointer": "/provenance/data_commitment/covers"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-027",
+      "description": "A unit name that starts with a digit.",
+      "path": "structure/unit_name_pattern.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /units/0/name is not a valid name.",
+            "pointer": "/units/0/name"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-028",
+      "description": "An estimand term written with '*', which is not an interaction of the grammar.",
+      "path": "structure/term_pattern.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /estimands/0/term is not a valid estimand term.",
+            "pointer": "/estimands/0/term"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-029",
+      "description": "29 February of a year that is not a leap year, which matches the pattern but fails the day check in code.",
+      "path": "structure/created_day.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /provenance/created is not a valid UTC timestamp.",
+            "pointer": "/provenance/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-030",
+      "description": "29 February of 2100, which is divisible by 100 and not by 400.",
+      "path": "structure/created_century.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /provenance/created is not a valid UTC timestamp.",
+            "pointer": "/provenance/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-031",
+      "description": "A creation time without the time of day.",
+      "path": "structure/created_date_only.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /provenance/created is not a valid UTC timestamp.",
+            "pointer": "/provenance/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-032",
+      "description": "A title with a tab.",
+      "path": "structure/title_tab.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /title is not a valid single-line text.",
+            "pointer": "/title"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-033",
+      "description": "A column name with a line feed.",
+      "path": "structure/column_control.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /units/0/columns/0 is not a valid column name.",
+            "pointer": "/units/0/columns/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-034",
+      "description": "An inferred entry that is not a JSON Pointer.",
+      "path": "structure/inferred_pattern.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /provenance/inferred/0 is not a valid JSON Pointer.",
+            "pointer": "/provenance/inferred/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-035",
+      "description": "A commitment digest in upper-case hexadecimal.",
+      "path": "structure/digest_pattern.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /provenance/data_commitment/digest is not a valid HMAC-SHA-256 digest.",
+            "pointer": "/provenance/data_commitment/digest"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-036",
+      "description": "A quoted variable with a character outside the BMP, which matches the pattern of a term and is refused in code.",
+      "path": "structure/term_outside_bmp.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1207",
+            "message": "The identifier at /estimands/0/term contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/estimands/0/term"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-037",
+      "description": "An empty title.",
+      "path": "structure/title_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1407",
+            "message": "The string at /title has fewer than 1 characters.",
+            "pointer": "/title"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-038",
+      "description": "An empty column name.",
+      "path": "structure/column_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1407",
+            "message": "The string at /observation/key/0 has fewer than 1 characters.",
+            "pointer": "/observation/key/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-039",
+      "description": "A title of 201 characters.",
+      "path": "structure/title_too_long.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1408",
+            "message": "The string at /title has more than 200 characters.",
+            "pointer": "/title"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-040",
+      "description": "A field name of 129 characters.",
+      "path": "structure/column_too_long.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1408",
+            "message": "The string at /table/fields/0/name has more than 128 characters.",
+            "pointer": "/table/fields/0/name"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-041",
+      "description": "An empty units block, which must be left out instead.",
+      "path": "structure/units_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1413",
+            "message": "The array at /units has fewer than 1 items.",
+            "pointer": "/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-042",
+      "description": "Bounds with one value.",
+      "path": "structure/bounds_one.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1413",
+            "message": "The array at /variables/y/bounds has fewer than 2 items.",
+            "pointer": "/variables/y/bounds"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-043",
+      "description": "Bounds with three values.",
+      "path": "structure/bounds_three.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1414",
+            "message": "The array at /variables/y/bounds has more than 2 items.",
+            "pointer": "/variables/y/bounds"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-044",
+      "description": "A crossing of three units.",
+      "path": "structure/crossing_three_units.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1414",
+            "message": "The array at /crossings/0/units has more than 2 items.",
+            "pointer": "/crossings/0/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-045",
+      "description": "A feature listed twice.",
+      "path": "structure/features_repeated.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1415",
+            "message": "The item at /features/1 repeats an earlier item.",
+            "pointer": "/features/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-046",
+      "description": "A column listed twice in the observation key.",
+      "path": "structure/key_repeated.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1415",
+            "message": "The item at /observation/key/1 repeats an earlier item.",
+            "pointer": "/observation/key/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-047",
+      "description": "A unit crossed with itself.",
+      "path": "structure/crossing_same_unit.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1415",
+            "message": "The item at /crossings/0/units/1 repeats an earlier item.",
+            "pointer": "/crossings/0/units/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-048",
+      "description": "An empty variables block (E-verify e11).",
+      "path": "structure/variables_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1416",
+            "message": "The object at /variables has fewer than 1 members.",
+            "pointer": "/variables"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-049",
+      "description": "An empty observation block.",
+      "path": "structure/observation_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1416",
+            "message": "The object at /observation has fewer than 1 members.",
+            "pointer": "/observation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-050",
+      "description": "An empty provenance block.",
+      "path": "structure/provenance_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1416",
+            "message": "The object at /provenance has fewer than 1 members.",
+            "pointer": "/provenance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-051",
+      "description": "A variables key with a tab, which is not a column name.",
+      "path": "structure/variable_key_tab.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1418",
+            "message": "The key 'a\\u0009b' in the object at /variables is not a valid column name.",
+            "pointer": "/variables"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-052",
+      "description": "A variables key of 129 characters, reported by propertyNames alone.",
+      "path": "structure/variable_key_too_long.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1418",
+            "message": "The key 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk...' in the object at /variables is not a valid column name.",
+            "pointer": "/variables"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-053",
+      "description": "A nested unit without its id_scope (the draft's bad1).",
+      "path": "structure/nested_without_scope.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1419",
+            "message": "The member 'nested_in' in the object at /units/1 requires the member 'id_scope'.",
+            "pointer": "/units/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-054",
+      "description": "An id_scope without nested_in.",
+      "path": "structure/scope_without_nesting.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1419",
+            "message": "The member 'id_scope' in the object at /units/0 requires the member 'nested_in'.",
+            "pointer": "/units/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-055",
+      "description": "A membership without nested_in.",
+      "path": "structure/membership_without_nesting.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1419",
+            "message": "The member 'membership' in the object at /units/0 requires the member 'nested_in'.",
+            "pointer": "/units/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-056",
+      "description": "categoriesOrdered without categories.",
+      "path": "structure/ordered_without_categories.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1419",
+            "message": "The member 'categoriesOrdered' in the object at /table/fields/0 requires the member 'categories'.",
+            "pointer": "/table/fields/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-057",
+      "description": "Categories on a field without a type.",
+      "path": "structure/categories_without_type.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1419",
+            "message": "The member 'categories' in the object at /table/fields/0 requires the member 'type'.",
+            "pointer": "/table/fields/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-058",
+      "description": "A category that is a decimal number.",
+      "path": "structure/category_decimal.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected string, integer or object at /table/fields/0/categories/1, found number.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-structure-059",
+      "description": "A missing value written as a number.",
+      "path": "structure/missing_value_number.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected string or object at /table/fields/0/missingValues/0, found number.",
+            "pointer": "/table/fields/0/missingValues/0"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z02 Pupil mobility between waves",
+  "features": [
+    "longitudinal"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "pupil",
+        "type": "string"
+      },
+      {
+        "name": "school",
+        "type": "string"
+      },
+      {
+        "name": "wave",
+        "type": "integer"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "school",
+      "columns": [
+        "school"
+      ],
+      "role": "cluster"
+    },
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "nested_in": "school",
+      "id_scope": "global",
+      "membership": "may_change_over_time",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "pupil",
+      "wave"
+    ],
+    "time": {
+      "column": "wave",
+      "kind": "occasion",
+      "within": "pupil"
+    }
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "wave": {
+      "role": "time"
+    }
+  }
+}

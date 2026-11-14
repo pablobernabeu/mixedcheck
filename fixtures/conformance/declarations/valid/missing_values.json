@@ -1,0 +1,18 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {"name": "id", "type": "string"},
+      {"name": "wave", "type": "integer"},
+      {"name": "code", "type": "string", "missingValues": []},
+      {
+        "name": "mood",
+        "type": "string",
+        "categories": ["low", "mid", "high"],
+        "categoriesOrdered": false
+      }
+    ],
+    "missingValues": [{"value": "-99", "label": "refused"}, {"value": "-98", "label": "don't know"}],
+    "uniqueKeys": [["id", "wave"], ["code"]]
+  }
+}

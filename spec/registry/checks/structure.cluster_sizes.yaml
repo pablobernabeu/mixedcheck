@@ -1,0 +1,186 @@
+id: structure.cluster_sizes
+version: 1
+title: Level sizes of a grouping factor
+tier: T0
+summary: >-
+  Reports the distribution of the rows of the design sample over the levels
+  of a grouping factor, with the singletons, which are kept, and the effective
+  level size of an unbalanced one-way layout. Only levels with two or more rows
+  separate the variance of the factor from the residual variance. A random
+  intercept of a factor with one row per level duplicates the residual in a
+  Gaussian model, whereas for counts and binomial outcomes with trials it is an
+  observation-level random effect, a standard term for overdispersion
+  (Harrison, 2014, 2015).
+reads: [formula, grouping_factors]
+fitted_model: false
+sample: design
+scope: grouping_factor
+availability: []
+statistics:
+  levels:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: factor}]
+    measures: levels
+    definition: The number of levels of the factor in the design sample, J.
+  rows:
+    kind: count
+    count_class: person
+    measures: design_rows
+    definition: The number of rows of the design sample, N.
+  smallest:
+    kind: count
+    count_class: person
+    quantile: {p: '0', n: levels}
+    definition: The smallest number of rows in a level, the quantile 0 of the J level sizes.
+  lower_quartile:
+    kind: count
+    count_class: person
+    quantile: {p: '0.25', n: levels}
+    definition: >-
+      The level size at position ceil(J/4) when the level sizes are sorted in
+      increasing order and counted from 1, which is the quantile 0.25 of the J
+      level sizes by the inverse of their empirical distribution function.
+  median:
+    kind: count
+    count_class: person
+    quantile: {p: '0.5', n: levels}
+    definition: The level size at position ceil(J/2) in the same order, the quantile 0.5.
+  upper_quartile:
+    kind: count
+    count_class: person
+    quantile: {p: '0.75', n: levels}
+    definition: The level size at position ceil(3J/4) in the same order, the quantile 0.75.
+  largest:
+    kind: count
+    count_class: person
+    quantile: {p: '1', n: levels}
+    definition: The largest number of rows in a level, the quantile 1.
+  singletons:
+    kind: count
+    count_class: person
+    measures: levels_with_one_row
+    definition: >-
+      The number of levels with one row. Each holds one row, so the count is
+      also a count of rows, and its class is person whatever the factor.
+  effective_size:
+    kind: real
+    definition: >-
+      The effective level size n0 = (N - S/N)/(J - 1), where S is the sum of
+      the squared level sizes, for which the expected between-level mean square
+      of a one-way layout is the residual variance plus n0 times the variance
+      of the factor. S is summed in integer arithmetic, and S/N, the
+      difference and the quotient are each computed in double arithmetic, so
+      that it is 'NaN' when J is 1, the quotient being 0/0. With N and J, it
+      gives back S, the sum of the squared level sizes, so a shareable
+      document writes it only where the privacy filter does not hide the rows
+      or levels of the design sample beside the analysis sample
+      (docs/spec/privacy.md, Across findings, rule 5).
+  intercept:
+    kind: boolean
+    definition: Whether a random term of the factor has an intercept.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: >-
+        levels equals rows, intercept is true and the family class is gaussian
+        or other.
+      statistics: [levels, rows, intercept]
+      thresholds: []
+      message: one_row_per_level
+    - finding: consequential
+      condition: levels equals rows, intercept is true and the family class is bernoulli.
+      statistics: [levels, rows, intercept]
+      thresholds: []
+      message: one_row_bernoulli
+    - finding: consistent
+      condition: >-
+        levels equals rows, intercept is true and the family class is binomial
+        or poisson.
+      statistics: [levels, rows, intercept]
+      thresholds: []
+      message: observation_level
+  otherwise:
+    finding: consistent
+    message: sizes
+assessability: []
+messages:
+  one_row_per_level:
+    template: >-
+      Every level of '{factor}' has one row, so its random intercept duplicates
+      the residual and the two variances are not separately identified.
+    args:
+      factor: {source: scope, name: factor}
+  one_row_bernoulli:
+    template: >-
+      Every level of '{factor}' has one row, so its random intercept is an
+      observation-level effect, whose variance ungrouped binary data do not
+      identify.
+    args:
+      factor: {source: scope, name: factor}
+  observation_level:
+    template: >-
+      Every level of '{factor}' has one row, so its random intercept is an
+      observation-level effect, which models overdispersion in this family.
+    args:
+      factor: {source: scope, name: factor}
+  sizes:
+    template: >-
+      '{factor}' has {levels} with {rows}. Level sizes range from
+      {smallest} to {largest}, with quartiles {lower} and {upper} and median
+      {median}. Levels with one row, which are kept: {singletons}.
+    fallback: >-
+      The privacy rules do not allow the level sizes of '{factor}' to be shown
+      in full.
+    args:
+      factor: {source: scope, name: factor}
+      levels: {source: statistic, name: levels, noun: [level, levels]}
+      rows: {source: statistic, name: rows, noun: [row, rows]}
+      smallest: {source: statistic, name: smallest}
+      largest: {source: statistic, name: largest}
+      lower: {source: statistic, name: lower_quartile}
+      upper: {source: statistic, name: upper_quartile}
+      median: {source: statistic, name: median}
+      singletons: {source: statistic, name: singletons}
+remedies:
+  - id: remove_random_term
+    description: >-
+      Remove the random terms of the factor, whose variance the residual already
+      carries in this family.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [keys.duplicates, sample.raw_vs_analysis]
+references:
+  - kind: derivation
+    citation: >-
+      Review catalogue (docs/design/evidence/review-catalogue.md), L1-02, L1-09
+      and L1-19.
+  - kind: literature
+    citation: >-
+      Harrison, X. A. (2014). Using observation-level random effects to model
+      overdispersion in count data in ecology and evolution. PeerJ, 2, e616.
+    doi: 10.7717/peerj.616
+    full_text_read: false
+  - kind: literature
+    citation: >-
+      Harrison, X. A. (2015). A comparison of observation-level random effect
+      and Beta-Binomial models for modelling overdispersion in Binomial data in
+      ecology & evolution. PeerJ, 3, e1114.
+    doi: 10.7717/peerj.1114
+    full_text_read: false
+  - kind: derivation
+    citation: >-
+      The R-sig-mixed-models thread 'reference on unidentifiability of
+      observation-level variance in Bernoulli variables?' (2011) states that
+      the observation-level variance of ungrouped Bernoulli data is not
+      identifiable and refers to McCullagh and Nelder, Generalized linear
+      models, 2nd edition, section 4.5, which this project has not read. The
+      message states no more than the thread. A Bernoulli variable's variance
+      is fixed by its mean, so the data carry no replication from which such a
+      variance could be estimated, which is this project's reading.
+catalogue: [L1-02, L1-09, L1-19, L7-06]

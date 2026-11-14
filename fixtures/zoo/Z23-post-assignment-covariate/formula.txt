@@ -1,0 +1,1 @@
+y ~ arm + pre + attendance + (1 | school)

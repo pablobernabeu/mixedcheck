@@ -1,0 +1,165 @@
+id: outcome.boundary_shares
+version: 1
+title: Outcome values at the declared bounds
+tier: T1
+summary: >-
+  For a score with declared bounds, reports the share of rows of the analysis
+  sample at the lowest and at the highest possible value. A mass at a bound
+  compresses variance, makes residuals heteroscedastic and turns additive
+  effects on a latent scale into interactions on the observed scale. The 15%
+  cut-off is a psychometric reporting convention for floor and ceiling
+  effects, and the check reports it without choosing a model. Shares within
+  design cells relate the outcome to predictors and belong to T2.
+reads: [declaration, formula, outcome]
+fitted_model: false
+sample: analysis
+scope: model
+applies_when: >-
+  The declared measurement of the outcome is bounded_score, and the outcome
+  is a numeric column.
+availability:
+  - reason: declaration_missing
+    condition: The declaration gives no measurement level for the outcome.
+    pointer: /variables/{outcome}/measurement
+  - reason: declaration_missing
+    condition: >-
+      The declared measurement of the outcome is bounded_score, and the
+      declaration gives no bounds for it, as when they are inferred.
+    pointer: /variables/{outcome}/bounds
+statistics:
+  rows:
+    kind: count
+    count_class: person
+    measures: analysis_rows
+    definition: The number of rows of the analysis sample.
+  at_floor:
+    kind: count
+    count_class: person
+    part_of: rows
+    definition: >-
+      The number of rows whose value of the outcome column, as the table
+      reader returns it and before any transform of the formula, equals the
+      double nearest to the lower declared bound. Values outside the bounds
+      count at neither bound.
+  at_ceiling:
+    kind: count
+    count_class: person
+    part_of: rows
+    definition: >-
+      The number of rows whose value of the outcome column equals the double
+      nearest to the upper declared bound.
+  floor_share:
+    kind: ratio
+    count_class: person
+    numerator: at_floor
+    denominator: rows
+    definition: at_floor divided by rows.
+  ceiling_share:
+    kind: ratio
+    count_class: person
+    numerator: at_ceiling
+    denominator: rows
+    definition: at_ceiling divided by rows.
+thresholds:
+  floor:
+    statistic: floor_share
+    comparator: '>'
+    value: 0.15
+    validation: {value: descriptive}
+    rationale: >-
+      More than 15% of respondents at the lowest possible score is a common
+      criterion for a floor effect in the validation of health status
+      questionnaires, where each respondent gives one score. Applying it to
+      the rows of an analysis sample, which can hold several rows of one
+      person, is this project's extension.
+    sources:
+      - kind: literature
+        citation: >-
+          Terwee, C. B., Bot, S. D. M., de Boer, M. R., van der Windt, D. A. W.
+          M., Knol, D. L., Dekker, J., Bouter, L. M., & de Vet, H. C. W.
+          (2007). Quality criteria were proposed for measurement properties of
+          health status questionnaires. Journal of Clinical Epidemiology,
+          60(1), 34-42.
+        doi: 10.1016/j.jclinepi.2006.03.012
+        full_text_read: false
+  ceiling:
+    statistic: ceiling_share
+    comparator: '>'
+    value: 0.15
+    validation: {value: descriptive}
+    rationale: >-
+      More than 15% of respondents at the highest possible score is a common
+      criterion for a ceiling effect in the validation of health status
+      questionnaires, where each respondent gives one score. Applying it to
+      the rows of an analysis sample, which can hold several rows of one
+      person, is this project's extension.
+    sources:
+      - kind: literature
+        citation: >-
+          Terwee, C. B., Bot, S. D. M., de Boer, M. R., van der Windt, D. A. W.
+          M., Knol, D. L., Dekker, J., Bouter, L. M., & de Vet, H. C. W.
+          (2007). Quality criteria were proposed for measurement properties of
+          health status questionnaires. Journal of Clinical Epidemiology,
+          60(1), 34-42.
+        doi: 10.1016/j.jclinepi.2006.03.012
+        full_text_read: false
+parameters: {}
+decision:
+  rules:
+    - finding: detectable_inconsequential
+      condition: floor_share exceeds floor or ceiling_share exceeds ceiling.
+      statistics: [floor_share, ceiling_share]
+      thresholds: [floor, ceiling]
+      message: at_bounds
+  otherwise:
+    finding: consistent
+    message: within_bounds
+assessability: []
+messages:
+  at_bounds:
+    template: >-
+      Of the rows, {floor_share} are at the lowest possible score and
+      {ceiling_share} at the highest, more than {threshold} at a bound.
+      Consider a binomial or beta-binomial model when the maximum is a number
+      of items, or an item-level model when item responses exist, and report
+      any interaction on both scales.
+    fallback: >-
+      More than {threshold} of the rows are at a bound of the score. Consider a
+      binomial or beta-binomial model when the maximum is a number of items, or
+      an item-level model when item responses exist, and report any
+      interaction on both scales.
+    args:
+      floor_share: {source: statistic, name: floor_share, digits: 1}
+      ceiling_share: {source: statistic, name: ceiling_share, digits: 1}
+      threshold: {source: threshold, name: ceiling}
+  within_bounds:
+    template: >-
+      Of the rows, {floor_share} are at the lowest possible score and
+      {ceiling_share} at the highest, no more than {threshold} at either bound.
+    fallback: No more than {threshold} of the rows are at either bound of the score.
+    args:
+      floor_share: {source: statistic, name: floor_share, digits: 1}
+      ceiling_share: {source: statistic, name: ceiling_share, digits: 1}
+      threshold: {source: threshold, name: ceiling}
+remedies:
+  - id: bounded_family
+    description: >-
+      Model a sum of item scores as binomial or beta-binomial with the maximum
+      as trials, or fit an item-level model when item responses exist.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+  - id: both_scales
+    description: >-
+      Report an interaction on both the observed and a latent scale, with a
+      note that it may depend on the scale.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L3-12 and L7-20.
+catalogue: [L3-12, L7-20]

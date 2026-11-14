@@ -1,0 +1,63 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z25 Irregular timestamps across midnight and a clock change",
+  "features": [
+    "intensive_longitudinal"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "person",
+        "type": "string"
+      },
+      {
+        "name": "beep",
+        "type": "integer"
+      },
+      {
+        "name": "ts",
+        "type": "datetime"
+      },
+      {
+        "name": "day",
+        "type": "date"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "person",
+      "columns": [
+        "person"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "person",
+      "ts"
+    ],
+    "time": {
+      "column": "ts",
+      "kind": "timestamp",
+      "within": "person"
+    }
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "beep": {
+      "role": "auxiliary"
+    },
+    "day": {
+      "role": "auxiliary"
+    }
+  }
+}

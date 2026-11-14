@@ -1,0 +1,49 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z27N Uninformative cluster size",
+  "features": [
+    "intensive_longitudinal"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "person",
+        "type": "string"
+      },
+      {
+        "name": "session",
+        "type": "integer"
+      },
+      {
+        "name": "y",
+        "type": "integer"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "person",
+      "columns": [
+        "person"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "person",
+      "session"
+    ],
+    "time": {
+      "column": "session",
+      "kind": "occasion",
+      "within": "person"
+    }
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "count"
+    }
+  }
+}

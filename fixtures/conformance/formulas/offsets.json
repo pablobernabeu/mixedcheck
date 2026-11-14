@@ -1,0 +1,649 @@
+{
+  "description": "Offsets in the formula, declared exposures, their order, weights and the places where offset() and log() are rejected.",
+  "cases": [
+    {
+      "id": "offsets-01",
+      "description": "An offset added as it is.",
+      "formula": "y ~ x + offset(z)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "z", "transform": "identity"}],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:129f52eb05cb3e4d061f9f2121be176ae53a8e2711cda24d102f54578048874f"
+      }
+    },
+    {
+      "id": "offsets-02",
+      "description": "An offset added as its logarithm.",
+      "formula": "count ~ x + offset(log(e))",
+      "data": {"count": [1, 0, 3], "x": [1, 2, 3], "e": [2, 1, 4]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "count", "transform": "identity"}
+        },
+        "ir_hash": "sha256:724d6cb2e050c37684900a6a8b81e2ac8c56628179b47ba900cae4760bf71ed3"
+      }
+    },
+    {
+      "id": "offsets-03",
+      "description": "The position of an offset does not matter: same IR as offsets-02.",
+      "formula": "count ~ offset(log(e)) + x",
+      "data": {"count": [1, 0, 3], "x": [1, 2, 3], "e": [2, 1, 4]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "count", "transform": "identity"}
+        },
+        "ir_hash": "sha256:724d6cb2e050c37684900a6a8b81e2ac8c56628179b47ba900cae4760bf71ed3"
+      }
+    },
+    {
+      "id": "offsets-04",
+      "description": "A declared raw exposure enters the IR as the offset of its logarithm.",
+      "formula": "count ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "count", "type": "integer"},
+            {"name": "x", "type": "number"},
+            {"name": "e", "type": "number"}
+          ]
+        },
+        "variables": {
+          "count": {"role": "outcome", "measurement": "count", "exposure": {"column": "e", "scale": "raw"}}
+        }
+      },
+      "data": {"count": [1, 0, 3], "x": [1, 2, 3], "e": [2, 1, 4]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "count", "transform": "identity"}
+        },
+        "ir_hash": "sha256:724d6cb2e050c37684900a6a8b81e2ac8c56628179b47ba900cae4760bf71ed3"
+      }
+    },
+    {
+      "id": "offsets-05",
+      "description": "Writing the declared exposure's offset gives the same IR as offsets-04.",
+      "formula": "count ~ x + offset(log(e))",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "count", "type": "integer"},
+            {"name": "x", "type": "number"},
+            {"name": "e", "type": "number"}
+          ]
+        },
+        "variables": {
+          "count": {"role": "outcome", "measurement": "count", "exposure": {"column": "e", "scale": "raw"}}
+        }
+      },
+      "data": {"count": [1, 0, 3], "x": [1, 2, 3], "e": [2, 1, 4]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "count", "transform": "identity"}
+        },
+        "ir_hash": "sha256:724d6cb2e050c37684900a6a8b81e2ac8c56628179b47ba900cae4760bf71ed3"
+      }
+    },
+    {
+      "id": "offsets-06",
+      "description": "A declared exposure on the log scale is the offset itself.",
+      "formula": "count ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "count", "type": "integer"},
+            {"name": "x", "type": "number"},
+            {"name": "loge", "type": "number"}
+          ]
+        },
+        "variables": {
+          "count": {
+            "role": "outcome",
+            "measurement": "count",
+            "exposure": {"column": "loge", "scale": "log"}
+          }
+        }
+      },
+      "data": {"count": [1, 0, 3], "x": [1, 2, 3], "loge": [0.5, 0, 1.5]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "loge", "transform": "identity"}],
+          "response": {"variable": "count", "transform": "identity"}
+        },
+        "ir_hash": "sha256:4fdfab389262816634afcb755669205c1911fbf76f96369f5ce801911b5c0b8f"
+      }
+    },
+    {
+      "id": "offsets-07",
+      "description": "An offset of the declared raw exposure without log() contradicts the declared scale.",
+      "formula": "count ~ x + offset(e)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "count", "type": "integer"},
+            {"name": "x", "type": "number"},
+            {"name": "e", "type": "number"}
+          ]
+        },
+        "variables": {
+          "count": {"role": "outcome", "measurement": "count", "exposure": {"column": "e", "scale": "raw"}}
+        }
+      },
+      "data": {"count": [1, 0, 3], "x": [1, 2, 3], "e": [2, 1, 4]},
+      "expected": {
+        "issue": {
+          "code": "E6057",
+          "message": "The offset at byte 12 uses the exposure column 'e' on a scale other than its declared scale.",
+          "offset": 12
+        }
+      }
+    },
+    {
+      "id": "offsets-08",
+      "description": "Offsets are listed in code-point order of their columns.",
+      "formula": "y ~ x + offset(z) + offset(log(e))",
+      "data": {"y": [1, 2], "x": [1, 2], "z": [0.5, 0.25], "e": [1, 2]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}, {"variable": "z", "transform": "identity"}],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:0095d073fc636f93d1f1f462ed372c5ab3e50a47487c1f6a3651303ffeaf84a0"
+      }
+    },
+    {
+      "id": "offsets-09",
+      "description": "The same offset twice.",
+      "formula": "y ~ x + offset(z) + offset(z)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6036",
+          "message": "The offset at byte 20 repeats an earlier offset.",
+          "offset": 20
+        }
+      }
+    },
+    {
+      "id": "offsets-10",
+      "description": "An offset cannot be subtracted.",
+      "formula": "y ~ x - offset(z)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6019",
+          "message": "The call offset() at byte 8 must be added with '+' as a summand of the fixed part and hold one column or log() of one column.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "offsets-11",
+      "description": "An offset cannot be part of a random term.",
+      "formula": "y ~ x + (1 + offset(z) | g)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3],
+        "g": ["g1", "g1", "g1", "g2", "g2", "g2", "g3", "g3", "g3", "g4", "g4", "g4"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6019",
+          "message": "The call offset() at byte 13 must be added with '+' as a summand of the fixed part and hold one column or log() of one column.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "offsets-12",
+      "description": "An offset cannot be part of an interaction.",
+      "formula": "y ~ x:offset(z)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6019",
+          "message": "The call offset() at byte 6 must be added with '+' as a summand of the fixed part and hold one column or log() of one column.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "offsets-13",
+      "description": "An offset holds one column, or log() of one column.",
+      "formula": "y ~ x + offset(z + x)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6019",
+          "message": "The call offset() at byte 8 must be added with '+' as a summand of the fixed part and hold one column or log() of one column.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "offsets-14",
+      "description": "An offset must be numeric.",
+      "formula": "y ~ x + offset(a)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6052",
+          "message": "The column 'a' at byte 15 has the kind 'categorical', which cannot be used as an offset.",
+          "offset": 15
+        }
+      }
+    },
+    {
+      "id": "offsets-15",
+      "description": "log() is allowed only around the response or the column of an offset.",
+      "formula": "y ~ log(x)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6020",
+          "message": "The call log() at byte 4 is allowed only around the response or around the column of an offset.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "offsets-16",
+      "description": "An offset and weights together, read by the design sample.",
+      "formula": "y ~ x + offset(z)",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 3], "z": [0.5, null, 1.5], "w": [1, 2, null]},
+      "weights": "w",
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "z", "transform": "identity"}],
+          "response": {"variable": "y", "transform": "identity"},
+          "weights": {"variable": "w"}
+        },
+        "ir_hash": "sha256:8b2f71ca5e2096fc1adb396cba272daccaec048add915e83c5ed0fe313139958",
+        "matrices": {"rows": [0], "x": [[1, 1]], "x_dropped": ["x"]}
+      }
+    },
+    {
+      "id": "offsets-17",
+      "description": "White space may separate a function name from its '(', giving the same IR as offsets-01.",
+      "formula": "y ~ x + offset (z)",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "z", "transform": "identity"}],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:129f52eb05cb3e4d061f9f2121be176ae53a8e2711cda24d102f54578048874f"
+      }
+    },
+    {
+      "id": "offsets-18",
+      "description": "The design sample leaves out a row with a missing weight and a row with a missing declared exposure, which the IR reads although the formula does not write them.",
+      "formula": "count ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "count", "type": "integer"},
+            {"name": "x", "type": "number"},
+            {"name": "e", "type": "number"},
+            {"name": "w", "type": "number"}
+          ]
+        },
+        "variables": {
+          "count": {"role": "outcome", "measurement": "count", "exposure": {"column": "e", "scale": "raw"}}
+        }
+      },
+      "data": {"count": [1, 0, 3, 2], "x": [1, 2, 3, 4], "e": [2, null, 4, 1], "w": [1, 2, null, 0.5]},
+      "weights": "w",
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "count", "transform": "identity"},
+          "weights": {"variable": "w"}
+        },
+        "ir_hash": "sha256:2f816e278b441c60ffcc110ae0a11903c56f3bc9dd64efd9edf6c5f6daa28f42",
+        "matrices": {"rows": [0, 3], "x": [[1, 1], [1, 4]], "x_dropped": []}
+      }
+    },
+    {
+      "id": "offsets-19",
+      "description": "The logarithm of an offset meets 0, which the design matrices report.",
+      "formula": "y ~ x + offset(log(e))",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 3], "e": [1, 0, 2]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:a6cd2861098e853c4d78ec738d29e42bd1e0bb512929e447d4ff7e0c33d0fedb",
+        "issue": {"code": "E6071", "message": "log() of the column 'e' meets a value that is not positive."}
+      }
+    },
+    {
+      "id": "offsets-20",
+      "description": "The logarithm of the response meets 0, which the design matrices report.",
+      "formula": "log(y) ~ x",
+      "data": {"y": [1, 0, 2], "x": [1, 2, 3]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "log"}
+        },
+        "ir_hash": "sha256:3de437ac4379f20d40651eb3c4dc2d766fcb40b81af3e30c411cbad3a51d690b",
+        "issue": {"code": "E6071", "message": "log() of the column 'y' meets a value that is not positive."}
+      }
+    },
+    {
+      "id": "offsets-21",
+      "description": "A weight of 0 is not positive, which the design matrices report.",
+      "formula": "y ~ x",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 3], "w": [1, 0, 2]},
+      "weights": "w",
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"},
+          "weights": {"variable": "w"}
+        },
+        "ir_hash": "sha256:d44a4d0d9ee274add02d2a19a18e62982f688c82b1654a049a6d6fbdcdee6344",
+        "issue": {"code": "E6072", "message": "The weights column 'w' has a value that is not positive."}
+      }
+    },
+    {
+      "id": "offsets-22",
+      "description": "E6071 for an offset is reported before E6072 for the weights.",
+      "formula": "y ~ x + offset(log(e))",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 3], "e": [1, 0, 2], "w": [1, 0, 2]},
+      "weights": "w",
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "y", "transform": "identity"},
+          "weights": {"variable": "w"}
+        },
+        "ir_hash": "sha256:b2a7d466ac96afbb40fa5f4020d6128104dba2a8ce32f227ffc57add88f23336",
+        "issue": {"code": "E6071", "message": "log() of the column 'e' meets a value that is not positive."}
+      }
+    },
+    {
+      "id": "offsets-23",
+      "description": "Same IR as offsets-19: the row with the offset 0 has no response but is in the design sample, to which E6071 for an offset applies.",
+      "formula": "y ~ x + offset(log(e))",
+      "data": {"y": [1, null, 3], "x": [1, 2, 3], "e": [1, 0, 2]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [{"variable": "e", "transform": "log"}],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:a6cd2861098e853c4d78ec738d29e42bd1e0bb512929e447d4ff7e0c33d0fedb",
+        "issue": {"code": "E6071", "message": "log() of the column 'e' meets a value that is not positive."}
+      }
+    },
+    {
+      "id": "offsets-24",
+      "description": "Same IR as offsets-21: the row with the weight 0 has no response but is in the design sample, to which E6072 applies.",
+      "formula": "y ~ x",
+      "data": {"y": [1, null, 3], "x": [1, 2, 3], "w": [1, 0, 2]},
+      "weights": "w",
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"},
+          "weights": {"variable": "w"}
+        },
+        "ir_hash": "sha256:d44a4d0d9ee274add02d2a19a18e62982f688c82b1654a049a6d6fbdcdee6344",
+        "issue": {"code": "E6072", "message": "The weights column 'w' has a value that is not positive."}
+      }
+    }
+  ]
+}

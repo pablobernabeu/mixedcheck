@@ -1,0 +1,4 @@
+vocabulary: 0.1.0
+table:
+  fields:
+    - {name: id, type: integer, categories: [1, 9007199254740993]}

@@ -1,0 +1,61 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z03 Teachers crossed with schools",
+  "table": {
+    "fields": [
+      {
+        "name": "school",
+        "type": "string"
+      },
+      {
+        "name": "teacher",
+        "type": "string"
+      },
+      {
+        "name": "pupil",
+        "type": "string"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "school",
+      "columns": [
+        "school"
+      ],
+      "role": "cluster"
+    },
+    {
+      "name": "teacher",
+      "columns": [
+        "teacher"
+      ],
+      "role": "other"
+    },
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "nested_in": "school",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "pupil",
+    "key": [
+      "pupil"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

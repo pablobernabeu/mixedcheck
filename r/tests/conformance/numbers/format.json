@@ -1,0 +1,2653 @@
+{
+  "description": "Doubles given by their IEEE 754 bits, with the string that ECMAScript's Number::toString gives for them and, in the hashable profile, the writer's issue for those it refuses.",
+  "cases": [
+    {
+      "id": "numbers-format-001",
+      "description": "One. Written 1.",
+      "double": "3ff0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+        },
+        "data": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+        },
+        "hashable": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-002",
+      "description": "Minus one. Written -1.",
+      "double": "bff0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "-1",
+          "sha256": "sha256:1bad6b8cf97131fceab8543e81f7757195fbb1d36b376ee994ad1cf17699c464"
+        },
+        "data": {
+          "canonical": "-1",
+          "sha256": "sha256:1bad6b8cf97131fceab8543e81f7757195fbb1d36b376ee994ad1cf17699c464"
+        },
+        "hashable": {
+          "canonical": "-1",
+          "sha256": "sha256:1bad6b8cf97131fceab8543e81f7757195fbb1d36b376ee994ad1cf17699c464"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-003",
+      "description": "One half: n = 0. Written 0.5.",
+      "double": "3fe0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "0.5",
+          "sha256": "sha256:d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84"
+        },
+        "data": {
+          "canonical": "0.5",
+          "sha256": "sha256:d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84"
+        },
+        "hashable": {
+          "canonical": "0.5",
+          "sha256": "sha256:d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-004",
+      "description": "n = -1. Written 0.05.",
+      "double": "3fa999999999999a",
+      "expected": {
+        "plain": {
+          "canonical": "0.05",
+          "sha256": "sha256:0602d7c813c1f6e7351a5832730f29daf739674976caba8d9dd955be838d46ea"
+        },
+        "data": {
+          "canonical": "0.05",
+          "sha256": "sha256:0602d7c813c1f6e7351a5832730f29daf739674976caba8d9dd955be838d46ea"
+        },
+        "hashable": {
+          "canonical": "0.05",
+          "sha256": "sha256:0602d7c813c1f6e7351a5832730f29daf739674976caba8d9dd955be838d46ea"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-005",
+      "description": "Five: k = n. Written 5.",
+      "double": "4014000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5",
+          "sha256": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+        },
+        "data": {
+          "canonical": "5",
+          "sha256": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+        },
+        "hashable": {
+          "canonical": "5",
+          "sha256": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-006",
+      "description": "Fifty: n > k. Written 50.",
+      "double": "4049000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "50",
+          "sha256": "sha256:1a6562590ef19d1045d06c4055742d38288e9e6dcd71ccde5cee80f1d5a774eb"
+        },
+        "data": {
+          "canonical": "50",
+          "sha256": "sha256:1a6562590ef19d1045d06c4055742d38288e9e6dcd71ccde5cee80f1d5a774eb"
+        },
+        "hashable": {
+          "canonical": "50",
+          "sha256": "sha256:1a6562590ef19d1045d06c4055742d38288e9e6dcd71ccde5cee80f1d5a774eb"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-007",
+      "description": "A fraction with 0 < n. Written 123.456.",
+      "double": "405edd2f1a9fbe77",
+      "expected": {
+        "plain": {
+          "canonical": "123.456",
+          "sha256": "sha256:52dad41684065ccf8dd86bc21e739e57c750e4e1305f759956b7373308023eae"
+        },
+        "data": {
+          "canonical": "123.456",
+          "sha256": "sha256:52dad41684065ccf8dd86bc21e739e57c750e4e1305f759956b7373308023eae"
+        },
+        "hashable": {
+          "canonical": "123.456",
+          "sha256": "sha256:52dad41684065ccf8dd86bc21e739e57c750e4e1305f759956b7373308023eae"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-008",
+      "description": "100 has no fraction. Written 100.",
+      "double": "4059000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+        },
+        "data": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+        },
+        "hashable": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-009",
+      "description": "10^15. Written 1000000000000000.",
+      "double": "430c6bf526340000",
+      "expected": {
+        "plain": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1"
+        },
+        "data": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1"
+        },
+        "hashable": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-010",
+      "description": "10^16, which Python writes with an exponent. Written 10000000000000000.",
+      "double": "4341c37937e08000",
+      "expected": {
+        "plain": {
+          "canonical": "10000000000000000",
+          "sha256": "sha256:139eb393675707818651f879828a526159209ca3ad3b2f94f9f8ec8c4fb5e610"
+        },
+        "data": {
+          "canonical": "10000000000000000",
+          "sha256": "sha256:139eb393675707818651f879828a526159209ca3ad3b2f94f9f8ec8c4fb5e610"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 10000000000000000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-011",
+      "description": "10^17. Written 100000000000000000.",
+      "double": "4376345785d8a000",
+      "expected": {
+        "plain": {
+          "canonical": "100000000000000000",
+          "sha256": "sha256:31b33fffe351c9c8d742bcadf10e94f196e1f0622b6fb4e894c70df848d4d835"
+        },
+        "data": {
+          "canonical": "100000000000000000",
+          "sha256": "sha256:31b33fffe351c9c8d742bcadf10e94f196e1f0622b6fb4e894c70df848d4d835"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 100000000000000000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-012",
+      "description": "10^20: n = 21, the last plain integer. Written 100000000000000000000.",
+      "double": "4415af1d78b58c40",
+      "expected": {
+        "plain": {
+          "canonical": "100000000000000000000",
+          "sha256": "sha256:c344e9487bfbd5c4e03c9fb90d62a5dde5e00b54d55c46e9f4a803aea162b80c"
+        },
+        "data": {
+          "canonical": "100000000000000000000",
+          "sha256": "sha256:c344e9487bfbd5c4e03c9fb90d62a5dde5e00b54d55c46e9f4a803aea162b80c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 100000000000000000000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-013",
+      "description": "A 21-digit integer. Written 123456789012345680000.",
+      "double": "441ac53a7e04bcda",
+      "expected": {
+        "plain": {
+          "canonical": "123456789012345680000",
+          "sha256": "sha256:725abf175290195635e55a971cf88e02a46d6d56e964ec2d8bc47614b9559062"
+        },
+        "data": {
+          "canonical": "123456789012345680000",
+          "sha256": "sha256:725abf175290195635e55a971cf88e02a46d6d56e964ec2d8bc47614b9559062"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 123456789012345680000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-014",
+      "description": "1.2345678901234568 \u00d7 10^21: n = 22. Written 1.2345678901234568e+21.",
+      "double": "4450bb448ec2f608",
+      "expected": {
+        "plain": {
+          "canonical": "1.2345678901234568e+21",
+          "sha256": "sha256:79cb074f3927257d64db72b09bc66f1326f2d5e28c5120c9e31cbb9181730def"
+        },
+        "data": {
+          "canonical": "1.2345678901234568e+21",
+          "sha256": "sha256:79cb074f3927257d64db72b09bc66f1326f2d5e28c5120c9e31cbb9181730def"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.2345678901234568e+21 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-015",
+      "description": "1.5 \u00d7 10^21. Written 1.5e+21.",
+      "double": "4454542ba12a337c",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e+21",
+          "sha256": "sha256:2ce57edafd4986d7ab7ed401a2f64d50eb4482ba01766409ffb78316323910b8"
+        },
+        "data": {
+          "canonical": "1.5e+21",
+          "sha256": "sha256:2ce57edafd4986d7ab7ed401a2f64d50eb4482ba01766409ffb78316323910b8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.5e+21 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-016",
+      "description": "10^22. Written 1e+22.",
+      "double": "4480f0cf064dd592",
+      "expected": {
+        "plain": {
+          "canonical": "1e+22",
+          "sha256": "sha256:814a97daeb45416e24befc0ae9a6414ac2f41f269a9f2f019fc65a0d03725f34"
+        },
+        "data": {
+          "canonical": "1e+22",
+          "sha256": "sha256:814a97daeb45416e24befc0ae9a6414ac2f41f269a9f2f019fc65a0d03725f34"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e+22 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-017",
+      "description": "10^100. Written 1e+100.",
+      "double": "54b249ad2594c37d",
+      "expected": {
+        "plain": {
+          "canonical": "1e+100",
+          "sha256": "sha256:33d5997bb6b66e3ae3b8e79fff5fe0954bc7b2a38a9d95d83f437d0e57b68f82"
+        },
+        "data": {
+          "canonical": "1e+100",
+          "sha256": "sha256:33d5997bb6b66e3ae3b8e79fff5fe0954bc7b2a38a9d95d83f437d0e57b68f82"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e+100 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-018",
+      "description": "10^-5. Written 0.00001.",
+      "double": "3ee4f8b588e368f1",
+      "expected": {
+        "plain": {
+          "canonical": "0.00001",
+          "sha256": "sha256:661710915adfa7c40b5dbd6b2122dfa65b1accb57a8b7cdee05423ecfe14b0c7"
+        },
+        "data": {
+          "canonical": "0.00001",
+          "sha256": "sha256:661710915adfa7c40b5dbd6b2122dfa65b1accb57a8b7cdee05423ecfe14b0c7"
+        },
+        "hashable": {
+          "canonical": "0.00001",
+          "sha256": "sha256:661710915adfa7c40b5dbd6b2122dfa65b1accb57a8b7cdee05423ecfe14b0c7"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-019",
+      "description": "1.5 \u00d7 10^-6: n = -5, the last plain form. Written 0.0000015.",
+      "double": "3eb92a737110e454",
+      "expected": {
+        "plain": {
+          "canonical": "0.0000015",
+          "sha256": "sha256:e276a63d180ce3292d79bf20689bf5d95090687252246135ade995a97ec0de08"
+        },
+        "data": {
+          "canonical": "0.0000015",
+          "sha256": "sha256:e276a63d180ce3292d79bf20689bf5d95090687252246135ade995a97ec0de08"
+        },
+        "hashable": {
+          "canonical": "0.0000015",
+          "sha256": "sha256:e276a63d180ce3292d79bf20689bf5d95090687252246135ade995a97ec0de08"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-020",
+      "description": "1.2345 \u00d7 10^-6. Written 0.0000012345.",
+      "double": "3eb4b6231abfd271",
+      "expected": {
+        "plain": {
+          "canonical": "0.0000012345",
+          "sha256": "sha256:30602aa80d023eb60b729958aa517f09cdf4e64ce0a8104376bf82267a5d4556"
+        },
+        "data": {
+          "canonical": "0.0000012345",
+          "sha256": "sha256:30602aa80d023eb60b729958aa517f09cdf4e64ce0a8104376bf82267a5d4556"
+        },
+        "hashable": {
+          "canonical": "0.0000012345",
+          "sha256": "sha256:30602aa80d023eb60b729958aa517f09cdf4e64ce0a8104376bf82267a5d4556"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-021",
+      "description": "1.5 \u00d7 10^-7: n = -6, the first exponent form. Written 1.5e-7.",
+      "double": "3e8421f5f40d8376",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e-7",
+          "sha256": "sha256:bbe54b73760f9025086de0202c3caa81352dc0260869890c9dca3cda39ba767f"
+        },
+        "data": {
+          "canonical": "1.5e-7",
+          "sha256": "sha256:bbe54b73760f9025086de0202c3caa81352dc0260869890c9dca3cda39ba767f"
+        },
+        "hashable": {
+          "canonical": "1.5e-7",
+          "sha256": "sha256:bbe54b73760f9025086de0202c3caa81352dc0260869890c9dca3cda39ba767f"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-022",
+      "description": "10^-7. Written 1e-7.",
+      "double": "3e7ad7f29abcaf48",
+      "expected": {
+        "plain": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22"
+        },
+        "data": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22"
+        },
+        "hashable": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-023",
+      "description": "The double after 10^-7. Written 1.0000000000000001e-7.",
+      "double": "3e7ad7f29abcaf49",
+      "expected": {
+        "plain": {
+          "canonical": "1.0000000000000001e-7",
+          "sha256": "sha256:2e4d40490d2f4134ef7cfc8f9e3402214c61a42d199294668d80b19d0931376d"
+        },
+        "data": {
+          "canonical": "1.0000000000000001e-7",
+          "sha256": "sha256:2e4d40490d2f4134ef7cfc8f9e3402214c61a42d199294668d80b19d0931376d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.0000000000000001e-7 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-024",
+      "description": "0.00001234. Written 0.00001234.",
+      "double": "3ee9e0fcaf9380fc",
+      "expected": {
+        "plain": {
+          "canonical": "0.00001234",
+          "sha256": "sha256:269e79850f6588ee09f1e30596f7edc6878d37bbe367fba58d1837c27578020d"
+        },
+        "data": {
+          "canonical": "0.00001234",
+          "sha256": "sha256:269e79850f6588ee09f1e30596f7edc6878d37bbe367fba58d1837c27578020d"
+        },
+        "hashable": {
+          "canonical": "0.00001234",
+          "sha256": "sha256:269e79850f6588ee09f1e30596f7edc6878d37bbe367fba58d1837c27578020d"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-025",
+      "description": "10^-100. Written 1e-100.",
+      "double": "2b2bff2ee48e0530",
+      "expected": {
+        "plain": {
+          "canonical": "1e-100",
+          "sha256": "sha256:b8b3215845a6813c22e2875e1d0b002c947e17cca7391d6bd4d677c116f20aee"
+        },
+        "data": {
+          "canonical": "1e-100",
+          "sha256": "sha256:b8b3215845a6813c22e2875e1d0b002c947e17cca7391d6bd4d677c116f20aee"
+        },
+        "hashable": {
+          "canonical": "1e-100",
+          "sha256": "sha256:b8b3215845a6813c22e2875e1d0b002c947e17cca7391d6bd4d677c116f20aee"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-026",
+      "description": "1.5 \u00d7 10^-10. Written 1.5e-10.",
+      "double": "3de49da7e361ce4c",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e-10",
+          "sha256": "sha256:34a63020a470f9ae5ef4d8a545d3bca2b7f364e6452cc5c9396afb7896654c0e"
+        },
+        "data": {
+          "canonical": "1.5e-10",
+          "sha256": "sha256:34a63020a470f9ae5ef4d8a545d3bca2b7f364e6452cc5c9396afb7896654c0e"
+        },
+        "hashable": {
+          "canonical": "1.5e-10",
+          "sha256": "sha256:34a63020a470f9ae5ef4d8a545d3bca2b7f364e6452cc5c9396afb7896654c0e"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-027",
+      "description": "0.1. Written 0.1.",
+      "double": "3fb999999999999a",
+      "expected": {
+        "plain": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310"
+        },
+        "data": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310"
+        },
+        "hashable": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-028",
+      "description": "0.2. Written 0.2.",
+      "double": "3fc999999999999a",
+      "expected": {
+        "plain": {
+          "canonical": "0.2",
+          "sha256": "sha256:44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+        },
+        "data": {
+          "canonical": "0.2",
+          "sha256": "sha256:44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+        },
+        "hashable": {
+          "canonical": "0.2",
+          "sha256": "sha256:44896b09365746b5f7167ee4d64988a38f7f4628803cbf86224e74eeb7c69e9d"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-029",
+      "description": "0.3. Written 0.3.",
+      "double": "3fd3333333333333",
+      "expected": {
+        "plain": {
+          "canonical": "0.3",
+          "sha256": "sha256:221764976efe04132774d96b0253cc31434c5261737469324f222621baf34b20"
+        },
+        "data": {
+          "canonical": "0.3",
+          "sha256": "sha256:221764976efe04132774d96b0253cc31434c5261737469324f222621baf34b20"
+        },
+        "hashable": {
+          "canonical": "0.3",
+          "sha256": "sha256:221764976efe04132774d96b0253cc31434c5261737469324f222621baf34b20"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-030",
+      "description": "0.1 + 0.2. Written 0.30000000000000004.",
+      "double": "3fd3333333333334",
+      "expected": {
+        "plain": {
+          "canonical": "0.30000000000000004",
+          "sha256": "sha256:06bad31060c1212ae832de4c031f7b31e3b48aed57858294478cb19450cf34ca"
+        },
+        "data": {
+          "canonical": "0.30000000000000004",
+          "sha256": "sha256:06bad31060c1212ae832de4c031f7b31e3b48aed57858294478cb19450cf34ca"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.30000000000000004 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-031",
+      "description": "1/3. Written 0.3333333333333333.",
+      "double": "3fd5555555555555",
+      "expected": {
+        "plain": {
+          "canonical": "0.3333333333333333",
+          "sha256": "sha256:e965f1b975608cb0d1dad8c30d17e0fe1bdea42df938c0bdc29d75c97b45c44b"
+        },
+        "data": {
+          "canonical": "0.3333333333333333",
+          "sha256": "sha256:e965f1b975608cb0d1dad8c30d17e0fe1bdea42df938c0bdc29d75c97b45c44b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.3333333333333333 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-032",
+      "description": "2/3. Written 0.6666666666666666.",
+      "double": "3fe5555555555555",
+      "expected": {
+        "plain": {
+          "canonical": "0.6666666666666666",
+          "sha256": "sha256:7b4391e97f7baf4edf9f0815ce8cfae721e245946239e1db53479ee70d5b6cd5"
+        },
+        "data": {
+          "canonical": "0.6666666666666666",
+          "sha256": "sha256:7b4391e97f7baf4edf9f0815ce8cfae721e245946239e1db53479ee70d5b6cd5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.6666666666666666 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-033",
+      "description": "0.7. Written 0.7.",
+      "double": "3fe6666666666666",
+      "expected": {
+        "plain": {
+          "canonical": "0.7",
+          "sha256": "sha256:973b372a514f91db8219fef585cdf81b09196afd7948f5fb1e29c2016dd995a0"
+        },
+        "data": {
+          "canonical": "0.7",
+          "sha256": "sha256:973b372a514f91db8219fef585cdf81b09196afd7948f5fb1e29c2016dd995a0"
+        },
+        "hashable": {
+          "canonical": "0.7",
+          "sha256": "sha256:973b372a514f91db8219fef585cdf81b09196afd7948f5fb1e29c2016dd995a0"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-034",
+      "description": "1.1. Written 1.1.",
+      "double": "3ff199999999999a",
+      "expected": {
+        "plain": {
+          "canonical": "1.1",
+          "sha256": "sha256:b05e244762b1e472be89a93800cc3ee326743cecb55984bf12813addb8de66d0"
+        },
+        "data": {
+          "canonical": "1.1",
+          "sha256": "sha256:b05e244762b1e472be89a93800cc3ee326743cecb55984bf12813addb8de66d0"
+        },
+        "hashable": {
+          "canonical": "1.1",
+          "sha256": "sha256:b05e244762b1e472be89a93800cc3ee326743cecb55984bf12813addb8de66d0"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-035",
+      "description": "2.675. Written 2.675.",
+      "double": "4005666666666666",
+      "expected": {
+        "plain": {
+          "canonical": "2.675",
+          "sha256": "sha256:406bc730b0eed3bd87c1e1f6bb1c0a60d5b524c2151f28b4d7112fa1be9e8dcb"
+        },
+        "data": {
+          "canonical": "2.675",
+          "sha256": "sha256:406bc730b0eed3bd87c1e1f6bb1c0a60d5b524c2151f28b4d7112fa1be9e8dcb"
+        },
+        "hashable": {
+          "canonical": "2.675",
+          "sha256": "sha256:406bc730b0eed3bd87c1e1f6bb1c0a60d5b524c2151f28b4d7112fa1be9e8dcb"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-036",
+      "description": "4.35. Written 4.35.",
+      "double": "4011666666666666",
+      "expected": {
+        "plain": {
+          "canonical": "4.35",
+          "sha256": "sha256:6d98ea24827f5a019110f671bdab1596d35800c5ee5557d5af709ed3eab75aea"
+        },
+        "data": {
+          "canonical": "4.35",
+          "sha256": "sha256:6d98ea24827f5a019110f671bdab1596d35800c5ee5557d5af709ed3eab75aea"
+        },
+        "hashable": {
+          "canonical": "4.35",
+          "sha256": "sha256:6d98ea24827f5a019110f671bdab1596d35800c5ee5557d5af709ed3eab75aea"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-037",
+      "description": "The double after 1. Written 1.0000000000000002.",
+      "double": "3ff0000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "1.0000000000000002",
+          "sha256": "sha256:19119a03721db7fc2a2f06afad179bdd384cc44b54e1d4f4f57e374c5b44fbd0"
+        },
+        "data": {
+          "canonical": "1.0000000000000002",
+          "sha256": "sha256:19119a03721db7fc2a2f06afad179bdd384cc44b54e1d4f4f57e374c5b44fbd0"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.0000000000000002 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-038",
+      "description": "The double before 1. Written 0.9999999999999999.",
+      "double": "3fefffffffffffff",
+      "expected": {
+        "plain": {
+          "canonical": "0.9999999999999999",
+          "sha256": "sha256:12d5191c859deac9fee6fecae738d2458bd085951ec1486febd820c1f618f172"
+        },
+        "data": {
+          "canonical": "0.9999999999999999",
+          "sha256": "sha256:12d5191c859deac9fee6fecae738d2458bd085951ec1486febd820c1f618f172"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.9999999999999999 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-039",
+      "description": "The double after 0.1. Written 0.10000000000000002.",
+      "double": "3fb999999999999b",
+      "expected": {
+        "plain": {
+          "canonical": "0.10000000000000002",
+          "sha256": "sha256:83b2eb6b3590ccf4bc503c75aabc510850a73df5ee9837f60d2ce14ecdc78149"
+        },
+        "data": {
+          "canonical": "0.10000000000000002",
+          "sha256": "sha256:83b2eb6b3590ccf4bc503c75aabc510850a73df5ee9837f60d2ce14ecdc78149"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.10000000000000002 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-040",
+      "description": "The double before 0.1. Written 0.09999999999999999.",
+      "double": "3fb9999999999999",
+      "expected": {
+        "plain": {
+          "canonical": "0.09999999999999999",
+          "sha256": "sha256:8f1d1852fb713ff4968b09851001fcaa41e98055ee88337d52f9ef808ce6b0c2"
+        },
+        "data": {
+          "canonical": "0.09999999999999999",
+          "sha256": "sha256:8f1d1852fb713ff4968b09851001fcaa41e98055ee88337d52f9ef808ce6b0c2"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.09999999999999999 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-041",
+      "description": "123456789.123456789 rounded to a double. Written 123456789.12345679.",
+      "double": "419d6f34547e6b75",
+      "expected": {
+        "plain": {
+          "canonical": "123456789.12345679",
+          "sha256": "sha256:773807b45c9a120b28c7173e360024cce99d0608d4c5d8f25b9e954d9f1c7ba4"
+        },
+        "data": {
+          "canonical": "123456789.12345679",
+          "sha256": "sha256:773807b45c9a120b28c7173e360024cce99d0608d4c5d8f25b9e954d9f1c7ba4"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 123456789.12345679 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-042",
+      "description": "A 15-digit fraction, which the hashable profile accepts. Written 0.123456789012345.",
+      "double": "3fbf9add3746f62e",
+      "expected": {
+        "plain": {
+          "canonical": "0.123456789012345",
+          "sha256": "sha256:7e8aa736aca8a5fcf39c69c04b164dc1425444f3a45588622cac14b9555086bd"
+        },
+        "data": {
+          "canonical": "0.123456789012345",
+          "sha256": "sha256:7e8aa736aca8a5fcf39c69c04b164dc1425444f3a45588622cac14b9555086bd"
+        },
+        "hashable": {
+          "canonical": "0.123456789012345",
+          "sha256": "sha256:7e8aa736aca8a5fcf39c69c04b164dc1425444f3a45588622cac14b9555086bd"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-043",
+      "description": "A 16-digit fraction. Written 0.1234567890123456.",
+      "double": "3fbf9add3746f659",
+      "expected": {
+        "plain": {
+          "canonical": "0.1234567890123456",
+          "sha256": "sha256:ae55140540438e1353918a627e1e8d9f74c931e07b20ce6349a23a3d95be523d"
+        },
+        "data": {
+          "canonical": "0.1234567890123456",
+          "sha256": "sha256:ae55140540438e1353918a627e1e8d9f74c931e07b20ce6349a23a3d95be523d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.1234567890123456 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-044",
+      "description": "99999999999999.9 has 15 digits. Written 99999999999999.9.",
+      "double": "42d6bcc41e8ffffa",
+      "expected": {
+        "plain": {
+          "canonical": "99999999999999.9",
+          "sha256": "sha256:e98e99612f9d7d96e417d1d193edd69fd1159e5e22d55eb51deb760bfc07b1cc"
+        },
+        "data": {
+          "canonical": "99999999999999.9",
+          "sha256": "sha256:e98e99612f9d7d96e417d1d193edd69fd1159e5e22d55eb51deb760bfc07b1cc"
+        },
+        "hashable": {
+          "canonical": "99999999999999.9",
+          "sha256": "sha256:e98e99612f9d7d96e417d1d193edd69fd1159e5e22d55eb51deb760bfc07b1cc"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-045",
+      "description": "123456789012345.6 has 16 digits. Written 123456789012345.6.",
+      "double": "42dc12218377de66",
+      "expected": {
+        "plain": {
+          "canonical": "123456789012345.6",
+          "sha256": "sha256:2d5a9447ccbcaedbf9b2ffcac61854723ce022866b97576924dfa4e54c456fd4"
+        },
+        "data": {
+          "canonical": "123456789012345.6",
+          "sha256": "sha256:2d5a9447ccbcaedbf9b2ffcac61854723ce022866b97576924dfa4e54c456fd4"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 123456789012345.6 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-046",
+      "description": "2^51 + 0.5. Written 2251799813685248.5.",
+      "double": "4320000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "2251799813685248.5",
+          "sha256": "sha256:d86cce97d31e53be24480b3aa22c99241c7733798b89761098be7b45d16b7668"
+        },
+        "data": {
+          "canonical": "2251799813685248.5",
+          "sha256": "sha256:d86cce97d31e53be24480b3aa22c99241c7733798b89761098be7b45d16b7668"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2251799813685248.5 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-047",
+      "description": "2^52 - 0.5. Written 4503599627370495.5.",
+      "double": "432fffffffffffff",
+      "expected": {
+        "plain": {
+          "canonical": "4503599627370495.5",
+          "sha256": "sha256:edb1ed9702eb0dadda431795de438e650871bb5f83aa1b7d52ae825ec4f26c5d"
+        },
+        "data": {
+          "canonical": "4503599627370495.5",
+          "sha256": "sha256:edb1ed9702eb0dadda431795de438e650871bb5f83aa1b7d52ae825ec4f26c5d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 4503599627370495.5 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-048",
+      "description": "2^53 - 2. Written 9007199254740990.",
+      "double": "433ffffffffffffe",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740990",
+          "sha256": "sha256:bd94269df4e35f2cddd901138a53f0983c638c770381e04dbfa3606ebdfc2278"
+        },
+        "data": {
+          "canonical": "9007199254740990",
+          "sha256": "sha256:bd94269df4e35f2cddd901138a53f0983c638c770381e04dbfa3606ebdfc2278"
+        },
+        "hashable": {
+          "canonical": "9007199254740990",
+          "sha256": "sha256:bd94269df4e35f2cddd901138a53f0983c638c770381e04dbfa3606ebdfc2278"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-049",
+      "description": "2^53 - 1, the largest integer of the hashable profile. Written 9007199254740991.",
+      "double": "433fffffffffffff",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26"
+        },
+        "data": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26"
+        },
+        "hashable": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-050",
+      "description": "-(2^53 - 1). Written -9007199254740991.",
+      "double": "c33fffffffffffff",
+      "expected": {
+        "plain": {
+          "canonical": "-9007199254740991",
+          "sha256": "sha256:4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815"
+        },
+        "data": {
+          "canonical": "-9007199254740991",
+          "sha256": "sha256:4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815"
+        },
+        "hashable": {
+          "canonical": "-9007199254740991",
+          "sha256": "sha256:4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-051",
+      "description": "2^53 + 2. Written 9007199254740994.",
+      "double": "4340000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740994",
+          "sha256": "sha256:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768"
+        },
+        "data": {
+          "canonical": "9007199254740994",
+          "sha256": "sha256:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740994 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-052",
+      "description": "2^53 + 4. Written 9007199254740996.",
+      "double": "4340000000000002",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740996",
+          "sha256": "sha256:0237fbe64f6079a91f31d83895c4c17bd35048f038d3f9681b0d5671d7d64ee8"
+        },
+        "data": {
+          "canonical": "9007199254740996",
+          "sha256": "sha256:0237fbe64f6079a91f31d83895c4c17bd35048f038d3f9681b0d5671d7d64ee8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740996 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-053",
+      "description": "2^54. Written 18014398509481984.",
+      "double": "4350000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "18014398509481984",
+          "sha256": "sha256:f461866ab34644574b28a09ac2cf29f04acacca9ee9c7212662c93da5b25d290"
+        },
+        "data": {
+          "canonical": "18014398509481984",
+          "sha256": "sha256:f461866ab34644574b28a09ac2cf29f04acacca9ee9c7212662c93da5b25d290"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 18014398509481984 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-054",
+      "description": "2^54 + 4. Written 18014398509481988.",
+      "double": "4350000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "18014398509481988",
+          "sha256": "sha256:bd8eaed710b74afc84606658108c381c179c3e306b98156dd3403008401ed35b"
+        },
+        "data": {
+          "canonical": "18014398509481988",
+          "sha256": "sha256:bd8eaed710b74afc84606658108c381c179c3e306b98156dd3403008401ed35b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 18014398509481988 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-055",
+      "description": "10^16 + 2. Written 10000000000000002.",
+      "double": "4341c37937e08001",
+      "expected": {
+        "plain": {
+          "canonical": "10000000000000002",
+          "sha256": "sha256:14427ac161fcd6dbf87bcb7f030cef29a5f3a7199bb491bab6cbfdf6ff9e37c6"
+        },
+        "data": {
+          "canonical": "10000000000000002",
+          "sha256": "sha256:14427ac161fcd6dbf87bcb7f030cef29a5f3a7199bb491bab6cbfdf6ff9e37c6"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 10000000000000002 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-056",
+      "description": "2^60. Written 1152921504606847000.",
+      "double": "43b0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "1152921504606847000",
+          "sha256": "sha256:fb2c76e2bae2715eba806c59577ddd5c0845a17edb83d31b0420ab960918fe1e"
+        },
+        "data": {
+          "canonical": "1152921504606847000",
+          "sha256": "sha256:fb2c76e2bae2715eba806c59577ddd5c0845a17edb83d31b0420ab960918fe1e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1152921504606847000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-057",
+      "description": "2^63. Written 9223372036854776000.",
+      "double": "43e0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "9223372036854776000",
+          "sha256": "sha256:81f4af99eb4386a96b14a16ab44fbb5d4fdbea1a9f78154307ba83b6b6139a35"
+        },
+        "data": {
+          "canonical": "9223372036854776000",
+          "sha256": "sha256:81f4af99eb4386a96b14a16ab44fbb5d4fdbea1a9f78154307ba83b6b6139a35"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9223372036854776000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-058",
+      "description": "2^64. Written 18446744073709552000.",
+      "double": "43f0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "18446744073709552000",
+          "sha256": "sha256:edacbbb2252b28815fa8983aad4682ab7718badd58a7e92c6b65b4292f308225"
+        },
+        "data": {
+          "canonical": "18446744073709552000",
+          "sha256": "sha256:edacbbb2252b28815fa8983aad4682ab7718badd58a7e92c6b65b4292f308225"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 18446744073709552000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-059",
+      "description": "12345678901234567890 rounded to a double. Written 12345678901234567000.",
+      "double": "43e56a95319d63e1",
+      "expected": {
+        "plain": {
+          "canonical": "12345678901234567000",
+          "sha256": "sha256:afdcd3321a2fcdb3414cb69a0c92c6bb8d74c06066d721083cc01fec664ab97f"
+        },
+        "data": {
+          "canonical": "12345678901234567000",
+          "sha256": "sha256:afdcd3321a2fcdb3414cb69a0c92c6bb8d74c06066d721083cc01fec664ab97f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 12345678901234567000 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-060",
+      "description": "The smallest positive normal double. Written 2.2250738585072014e-308.",
+      "double": "0010000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "2.2250738585072014e-308",
+          "sha256": "sha256:8d51a73768cb59d15302f6b0a4c7147a04b0cce9df743b5bf50e31ab87b2d807"
+        },
+        "data": {
+          "canonical": "2.2250738585072014e-308",
+          "sha256": "sha256:8d51a73768cb59d15302f6b0a4c7147a04b0cce9df743b5bf50e31ab87b2d807"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.2250738585072014e-308 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-061",
+      "description": "The double after the smallest normal double. Written 2.225073858507202e-308.",
+      "double": "0010000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "2.225073858507202e-308",
+          "sha256": "sha256:d196cad015c972ce5617be1118002306e2d8c617f6b6b25629df8a3d0e4fddb7"
+        },
+        "data": {
+          "canonical": "2.225073858507202e-308",
+          "sha256": "sha256:d196cad015c972ce5617be1118002306e2d8c617f6b6b25629df8a3d0e4fddb7"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.225073858507202e-308 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-062",
+      "description": "Twice the smallest subnormal double. Written 1e-323.",
+      "double": "0000000000000002",
+      "expected": {
+        "plain": {
+          "canonical": "1e-323",
+          "sha256": "sha256:5aab72c34bfe5b10611193bfa45a17e1d1e2c3a3666f5958649bbadd03bd227b"
+        },
+        "data": {
+          "canonical": "1e-323",
+          "sha256": "sha256:5aab72c34bfe5b10611193bfa45a17e1d1e2c3a3666f5958649bbadd03bd227b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-323 at (root) is smaller in magnitude than 1e-307.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-063",
+      "description": "Three times the smallest subnormal double. Written 1.5e-323.",
+      "double": "0000000000000003",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e-323",
+          "sha256": "sha256:320069e8601d1f93daae00b9be6bc5b9e8885e47dfb1fffa78ab99f93a4f13c9"
+        },
+        "data": {
+          "canonical": "1.5e-323",
+          "sha256": "sha256:320069e8601d1f93daae00b9be6bc5b9e8885e47dfb1fffa78ab99f93a4f13c9"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1.5e-323 at (root) is smaller in magnitude than 1e-307.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-064",
+      "description": "A subnormal double: 2^-1064. Written 5.06e-321.",
+      "double": "0000000000000400",
+      "expected": {
+        "plain": {
+          "canonical": "5.06e-321",
+          "sha256": "sha256:4bd65346c3725255675c333ac885c136d8dcac2938ef3558322196397bb5c6a5"
+        },
+        "data": {
+          "canonical": "5.06e-321",
+          "sha256": "sha256:4bd65346c3725255675c333ac885c136d8dcac2938ef3558322196397bb5c6a5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 5.06e-321 at (root) is smaller in magnitude than 1e-307.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-065",
+      "description": "A subnormal double: 2^-1023. Written 1.1125369292536007e-308.",
+      "double": "0008000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "1.1125369292536007e-308",
+          "sha256": "sha256:01d25a72f0faa0232d3cdde8fe7e27747e1db6cab7440acfde85ba2ddb3dbe27"
+        },
+        "data": {
+          "canonical": "1.1125369292536007e-308",
+          "sha256": "sha256:01d25a72f0faa0232d3cdde8fe7e27747e1db6cab7440acfde85ba2ddb3dbe27"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.1125369292536007e-308 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-066",
+      "description": "The largest subnormal double. Written 2.225073858507201e-308.",
+      "double": "000fffffffffffff",
+      "expected": {
+        "plain": {
+          "canonical": "2.225073858507201e-308",
+          "sha256": "sha256:e702bc3dff32cd2ddd22840752621268554b94aecfdb6f6234a0138bb59447d4"
+        },
+        "data": {
+          "canonical": "2.225073858507201e-308",
+          "sha256": "sha256:e702bc3dff32cd2ddd22840752621268554b94aecfdb6f6234a0138bb59447d4"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.225073858507201e-308 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-067",
+      "description": "The largest negative subnormal double. Written -2.225073858507201e-308.",
+      "double": "800fffffffffffff",
+      "expected": {
+        "plain": {
+          "canonical": "-2.225073858507201e-308",
+          "sha256": "sha256:7b314e522716e75f3041fda713ae25cb8e83215710db9bec9224050fa4ab8ee3"
+        },
+        "data": {
+          "canonical": "-2.225073858507201e-308",
+          "sha256": "sha256:7b314e522716e75f3041fda713ae25cb8e83215710db9bec9224050fa4ab8ee3"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number -2.225073858507201e-308 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-068",
+      "description": "A subnormal double with many digits. Written 1.58227474382734e-309.",
+      "double": "000123456789abcd",
+      "expected": {
+        "plain": {
+          "canonical": "1.58227474382734e-309",
+          "sha256": "sha256:f3928ba6ae5590e5f8a90b1b35fdbbdbd1872ddb98b77b674b679383ac31b480"
+        },
+        "data": {
+          "canonical": "1.58227474382734e-309",
+          "sha256": "sha256:f3928ba6ae5590e5f8a90b1b35fdbbdbd1872ddb98b77b674b679383ac31b480"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1.58227474382734e-309 at (root) is smaller in magnitude than 1e-307.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-069",
+      "description": "10^-307. Written 1e-307.",
+      "double": "0031fa182c40c60d",
+      "expected": {
+        "plain": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08"
+        },
+        "data": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08"
+        },
+        "hashable": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08"
+        }
+      }
+    },
+    {
+      "id": "numbers-format-070",
+      "description": "The double before 10^-307. Written 9.999999999999997e-308.",
+      "double": "0031fa182c40c60c",
+      "expected": {
+        "plain": {
+          "canonical": "9.999999999999997e-308",
+          "sha256": "sha256:a1fd5dc6b69f16cb2b9216118dfbe3194e4445cbdf0f425bd9728283d7359123"
+        },
+        "data": {
+          "canonical": "9.999999999999997e-308",
+          "sha256": "sha256:a1fd5dc6b69f16cb2b9216118dfbe3194e4445cbdf0f425bd9728283d7359123"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 9.999999999999997e-308 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-071",
+      "description": "10^-308, a subnormal double. Written 1e-308.",
+      "double": "000730d67819e8d2",
+      "expected": {
+        "plain": {
+          "canonical": "1e-308",
+          "sha256": "sha256:b77bea380df569401be33b47bf3a5868d224bf2ab22e3cda531409a63edc9683"
+        },
+        "data": {
+          "canonical": "1e-308",
+          "sha256": "sha256:b77bea380df569401be33b47bf3a5868d224bf2ab22e3cda531409a63edc9683"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-308 at (root) is smaller in magnitude than 1e-307.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-072",
+      "description": "-1.5 \u00d7 10^-308. Written -1.5e-308.",
+      "double": "800ac941b426dd3b",
+      "expected": {
+        "plain": {
+          "canonical": "-1.5e-308",
+          "sha256": "sha256:4b72dcfa98a58bf74067679713ca00ee452763d94d85dbd20a98696c83dc69a6"
+        },
+        "data": {
+          "canonical": "-1.5e-308",
+          "sha256": "sha256:4b72dcfa98a58bf74067679713ca00ee452763d94d85dbd20a98696c83dc69a6"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number -1.5e-308 at (root) is smaller in magnitude than 1e-307.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-073",
+      "description": "The largest double before the largest. Written 1.7976931348623155e+308.",
+      "double": "7feffffffffffffe",
+      "expected": {
+        "plain": {
+          "canonical": "1.7976931348623155e+308",
+          "sha256": "sha256:70474d0e034719bc274abfd387fc02ff75942248536e657f314773c9808311cc"
+        },
+        "data": {
+          "canonical": "1.7976931348623155e+308",
+          "sha256": "sha256:70474d0e034719bc274abfd387fc02ff75942248536e657f314773c9808311cc"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.7976931348623155e+308 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-074",
+      "description": "10^308. Written 1e+308.",
+      "double": "7fe1ccf385ebc8a0",
+      "expected": {
+        "plain": {
+          "canonical": "1e+308",
+          "sha256": "sha256:9869389b0c911bb056c02f74e64294f5f7517ca1878542e42b3adbe34e582609"
+        },
+        "data": {
+          "canonical": "1e+308",
+          "sha256": "sha256:9869389b0c911bb056c02f74e64294f5f7517ca1878542e42b3adbe34e582609"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e+308 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-075",
+      "description": "1.5 \u00d7 10^300. Written 1.5e+300.",
+      "double": "7e41eb2d66005835",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e+300",
+          "sha256": "sha256:ba5b9d007ed3bac3aed4e53fff4395ec6e034ab008e90969287e3b8860c31b12"
+        },
+        "data": {
+          "canonical": "1.5e+300",
+          "sha256": "sha256:ba5b9d007ed3bac3aed4e53fff4395ec6e034ab008e90969287e3b8860c31b12"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.5e+300 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-076",
+      "description": "2^1023. Written 8.98846567431158e+307.",
+      "double": "7fe0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "8.98846567431158e+307",
+          "sha256": "sha256:b9cdac360a10f25497ab01c7d4a81e579687ed56cd0d44143b06d43a0dab6c42"
+        },
+        "data": {
+          "canonical": "8.98846567431158e+307",
+          "sha256": "sha256:b9cdac360a10f25497ab01c7d4a81e579687ed56cd0d44143b06d43a0dab6c42"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 8.98846567431158e+307 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-077",
+      "description": "A quiet NaN.",
+      "double": "7ff8000000000000",
+      "expected": {
+        "data": {
+          "canonical": "\"NaN\"",
+          "sha256": "sha256:8832c23fc14920027a721e7d09588179b6e4e010531653677eb5717873a17988"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1107",
+            "message": "A non-finite number at (root) is not allowed in the hashable profile.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-078",
+      "description": "A quiet NaN with the sign bit set.",
+      "double": "fff8000000000000",
+      "expected": {
+        "data": {
+          "canonical": "\"NaN\"",
+          "sha256": "sha256:8832c23fc14920027a721e7d09588179b6e4e010531653677eb5717873a17988"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1107",
+            "message": "A non-finite number at (root) is not allowed in the hashable profile.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-079",
+      "description": "Negative infinity.",
+      "double": "fff0000000000000",
+      "expected": {
+        "data": {
+          "canonical": "\"-Infinity\"",
+          "sha256": "sha256:e6232ef32ea8c063bf8865b4e46d00ae9a67f84661f2d28f7c6a1798edac6128"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1107",
+            "message": "A non-finite number at (root) is not allowed in the hashable profile.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-080",
+      "description": "2^-1017, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 7.120236347223045e-307.",
+      "double": "0060000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "7.120236347223045e-307",
+          "sha256": "sha256:08d2cf77c8a0ba8952e2569844f17b132f47c9dc293bfa2e41e25a8fcc141472"
+        },
+        "data": {
+          "canonical": "7.120236347223045e-307",
+          "sha256": "sha256:08d2cf77c8a0ba8952e2569844f17b132f47c9dc293bfa2e41e25a8fcc141472"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 7.120236347223045e-307 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-081",
+      "description": "2^-1007, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 7.291122019556398e-304.",
+      "double": "0100000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "7.291122019556398e-304",
+          "sha256": "sha256:8daab189037e2374bbff8043cceff588ed9ebdff20636ef4553be2795ce782a5"
+        },
+        "data": {
+          "canonical": "7.291122019556398e-304",
+          "sha256": "sha256:8daab189037e2374bbff8043cceff588ed9ebdff20636ef4553be2795ce782a5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 7.291122019556398e-304 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-082",
+      "description": "2^-957, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 8.209073602596753e-289.",
+      "double": "0420000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "8.209073602596753e-289",
+          "sha256": "sha256:c621089caa972101161b8b04ee7b755792b5d722ad12c74226cab8808b467314"
+        },
+        "data": {
+          "canonical": "8.209073602596753e-289",
+          "sha256": "sha256:c621089caa972101161b8b04ee7b755792b5d722ad12c74226cab8808b467314"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 8.209073602596753e-289 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-083",
+      "description": "2^-921, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.641232424577593e-278.",
+      "double": "0660000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.641232424577593e-278",
+          "sha256": "sha256:339ce47bf3700f1ebf7175febeb53a779793dfc9cbd2a5adb6f05e7e4658a98f"
+        },
+        "data": {
+          "canonical": "5.641232424577593e-278",
+          "sha256": "sha256:339ce47bf3700f1ebf7175febeb53a779793dfc9cbd2a5adb6f05e7e4658a98f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.641232424577593e-278 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-084",
+      "description": "2^-808, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.858190679279809e-244.",
+      "double": "0d70000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.858190679279809e-244",
+          "sha256": "sha256:99ccd6bd9bb38c7b969291bd2f5c61cefb1e3354d52b52cd060a723920afe49f"
+        },
+        "data": {
+          "canonical": "5.858190679279809e-244",
+          "sha256": "sha256:99ccd6bd9bb38c7b969291bd2f5c61cefb1e3354d52b52cd060a723920afe49f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.858190679279809e-244 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-085",
+      "description": "2^-791, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 7.678447687145631e-239.",
+      "double": "0e80000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "7.678447687145631e-239",
+          "sha256": "sha256:2692f812521ec83ff9f9379b1dfa4b5237b53fc460176057212afa5961fbb8a0"
+        },
+        "data": {
+          "canonical": "7.678447687145631e-239",
+          "sha256": "sha256:2692f812521ec83ff9f9379b1dfa4b5237b53fc460176057212afa5961fbb8a0"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 7.678447687145631e-239 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-086",
+      "description": "2^-788, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.142758149716505e-238.",
+      "double": "0eb0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.142758149716505e-238",
+          "sha256": "sha256:5f51cbd6223b5eda6abd3e54c6033dca576f303a83b56c2aaff39ab14b503452"
+        },
+        "data": {
+          "canonical": "6.142758149716505e-238",
+          "sha256": "sha256:5f51cbd6223b5eda6abd3e54c6033dca576f303a83b56c2aaff39ab14b503452"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.142758149716505e-238 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-087",
+      "description": "2^-778, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.290184345309701e-235.",
+      "double": "0f50000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.290184345309701e-235",
+          "sha256": "sha256:ac38a55f423832f77b925933a638a6ce623d33214851e3d6d5b52b285cf379d8"
+        },
+        "data": {
+          "canonical": "6.290184345309701e-235",
+          "sha256": "sha256:ac38a55f423832f77b925933a638a6ce623d33214851e3d6d5b52b285cf379d8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.290184345309701e-235 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-088",
+      "description": "2^-705, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.940911144672375e-213.",
+      "double": "13e0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.940911144672375e-213",
+          "sha256": "sha256:a5455299b673168916f1f7c82b886b3817ea57e055b36e35340e13ff1f860423"
+        },
+        "data": {
+          "canonical": "5.940911144672375e-213",
+          "sha256": "sha256:a5455299b673168916f1f7c82b886b3817ea57e055b36e35340e13ff1f860423"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.940911144672375e-213 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-089",
+      "description": "2^-695, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.083493012144512e-210.",
+      "double": "1480000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.083493012144512e-210",
+          "sha256": "sha256:59bd43e9b12044cc7fe7a2d30bedd4c607f0d3d7e4858c24ca6aedffc149dc88"
+        },
+        "data": {
+          "canonical": "6.083493012144512e-210",
+          "sha256": "sha256:59bd43e9b12044cc7fe7a2d30bedd4c607f0d3d7e4858c24ca6aedffc149dc88"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.083493012144512e-210 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-090",
+      "description": "2^-662, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.225680706521042e-200.",
+      "double": "1690000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.225680706521042e-200",
+          "sha256": "sha256:0908b54367cbfd6bd2093f154ac26e4f786f6c7d602982d49031f6922e4eac33"
+        },
+        "data": {
+          "canonical": "5.225680706521042e-200",
+          "sha256": "sha256:0908b54367cbfd6bd2093f154ac26e4f786f6c7d602982d49031f6922e4eac33"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.225680706521042e-200 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-091",
+      "description": "2^-652, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.351097043477547e-197.",
+      "double": "1730000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.351097043477547e-197",
+          "sha256": "sha256:3676c3fa823aa89a8303750642d184bb1cc6c6162089f9dcbd8273a7295697c9"
+        },
+        "data": {
+          "canonical": "5.351097043477547e-197",
+          "sha256": "sha256:3676c3fa823aa89a8303750642d184bb1cc6c6162089f9dcbd8273a7295697c9"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.351097043477547e-197 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-092",
+      "description": "2^-549, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.426657103235053e-166.",
+      "double": "1da0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.426657103235053e-166",
+          "sha256": "sha256:d422723dd2b4d7cb077c1090a61a1ad1ac3630918fdbb19b35d17167c6a1bef2"
+        },
+        "data": {
+          "canonical": "5.426657103235053e-166",
+          "sha256": "sha256:d422723dd2b4d7cb077c1090a61a1ad1ac3630918fdbb19b35d17167c6a1bef2"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.426657103235053e-166 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-093",
+      "description": "2^-509, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.966672584960166e-154.",
+      "double": "2020000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.966672584960166e-154",
+          "sha256": "sha256:f583866df10e62c57d6c0923178c9cd148fc6806b35656458a220cc9fa3b8451"
+        },
+        "data": {
+          "canonical": "5.966672584960166e-154",
+          "sha256": "sha256:f583866df10e62c57d6c0923178c9cd148fc6806b35656458a220cc9fa3b8451"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.966672584960166e-154 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-094",
+      "description": "2^-496, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 4.887898181599368e-150.",
+      "double": "20f0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "4.887898181599368e-150",
+          "sha256": "sha256:791e9e5a68f5cbefcdd255262edbd441248078691f5fd55887b692658f5a8fa0"
+        },
+        "data": {
+          "canonical": "4.887898181599368e-150",
+          "sha256": "sha256:791e9e5a68f5cbefcdd255262edbd441248078691f5fd55887b692658f5a8fa0"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 4.887898181599368e-150 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-095",
+      "description": "2^-489, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.256509672447191e-148.",
+      "double": "2160000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.256509672447191e-148",
+          "sha256": "sha256:625aba8ac8a23af7409978df6c24e211b01c763913324c9b1e253a472cc051d0"
+        },
+        "data": {
+          "canonical": "6.256509672447191e-148",
+          "sha256": "sha256:625aba8ac8a23af7409978df6c24e211b01c763913324c9b1e253a472cc051d0"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.256509672447191e-148 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-096",
+      "description": "2^-383, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.075883674631299e-116.",
+      "double": "2800000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.075883674631299e-116",
+          "sha256": "sha256:e6943526db980ccd1b0f5675fc1096541438182b5b42a2d74a98113637b1d338"
+        },
+        "data": {
+          "canonical": "5.075883674631299e-116",
+          "sha256": "sha256:e6943526db980ccd1b0f5675fc1096541438182b5b42a2d74a98113637b1d338"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.075883674631299e-116 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-097",
+      "description": "2^-366, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.653062250012736e-111.",
+      "double": "2910000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.653062250012736e-111",
+          "sha256": "sha256:9baaadbce001930a705a2ab966c8c8a9ec47bb30963d31746636928a46b086b0"
+        },
+        "data": {
+          "canonical": "6.653062250012736e-111",
+          "sha256": "sha256:9baaadbce001930a705a2ab966c8c8a9ec47bb30963d31746636928a46b086b0"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.653062250012736e-111 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-098",
+      "description": "2^-296, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 7.854549544476363e-90.",
+      "double": "2d70000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "7.854549544476363e-90",
+          "sha256": "sha256:ee51b1d8919c75727bd151e5a7028568a9a9be537155e4bfff9b4f169029f39b"
+        },
+        "data": {
+          "canonical": "7.854549544476363e-90",
+          "sha256": "sha256:ee51b1d8919c75727bd151e5a7028568a9a9be537155e4bfff9b4f169029f39b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 7.854549544476363e-90 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-099",
+      "description": "2^-140, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 7.174648137343064e-43.",
+      "double": "3730000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "7.174648137343064e-43",
+          "sha256": "sha256:1aecf18f3bb1b84a5b8196b9f42b76ed0a8802977cb1d5ee5373e4e1dff757c5"
+        },
+        "data": {
+          "canonical": "7.174648137343064e-43",
+          "sha256": "sha256:1aecf18f3bb1b84a5b8196b9f42b76ed0a8802977cb1d5ee5373e4e1dff757c5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 7.174648137343064e-43 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-100",
+      "description": "2^-97, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.310887241768095e-30.",
+      "double": "39e0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.310887241768095e-30",
+          "sha256": "sha256:4ec3d2f344e50b8171a97230dfbfa69e179acdc476f4e562b457ae9800dfb820"
+        },
+        "data": {
+          "canonical": "6.310887241768095e-30",
+          "sha256": "sha256:4ec3d2f344e50b8171a97230dfbfa69e179acdc476f4e562b457ae9800dfb820"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.310887241768095e-30 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-101",
+      "description": "2^-77, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.617444900424222e-24.",
+      "double": "3b20000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.617444900424222e-24",
+          "sha256": "sha256:ab73be10db4e88b6ea4362b216d72e1064f68d1ae26ca2388c791b1c4cb3420e"
+        },
+        "data": {
+          "canonical": "6.617444900424222e-24",
+          "sha256": "sha256:ab73be10db4e88b6ea4362b216d72e1064f68d1ae26ca2388c791b1c4cb3420e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 6.617444900424222e-24 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-102",
+      "description": "2^-44, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.684341886080802e-14.",
+      "double": "3d30000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.684341886080802e-14",
+          "sha256": "sha256:9677eaad30d13e811931f83ee8d3f8bc3a6c878393c5c1e70c2f97da06ea64d1"
+        },
+        "data": {
+          "canonical": "5.684341886080802e-14",
+          "sha256": "sha256:9677eaad30d13e811931f83ee8d3f8bc3a6c878393c5c1e70c2f97da06ea64d1"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.684341886080802e-14 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-103",
+      "description": "2^-24, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.960464477539063e-8.",
+      "double": "3e70000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.960464477539063e-8",
+          "sha256": "sha256:0dd6cc68908a1263037ea151d636d0a9aeab35f40ef0fed47165ca79b520eee9"
+        },
+        "data": {
+          "canonical": "5.960464477539063e-8",
+          "sha256": "sha256:0dd6cc68908a1263037ea151d636d0a9aeab35f40ef0fed47165ca79b520eee9"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 5.960464477539063e-8 at (root) has more than 15 significant digits.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-104",
+      "description": "2^89, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.189700196426902e+26.",
+      "double": "4580000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.189700196426902e+26",
+          "sha256": "sha256:cbca1aeba994afc0237a8eeac2e924b71493636d5f570a1866ec3b9c7570d06d"
+        },
+        "data": {
+          "canonical": "6.189700196426902e+26",
+          "sha256": "sha256:cbca1aeba994afc0237a8eeac2e924b71493636d5f570a1866ec3b9c7570d06d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.189700196426902e+26 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-105",
+      "description": "2^122, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.316911983139664e+36.",
+      "double": "4790000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.316911983139664e+36",
+          "sha256": "sha256:527c2b96207a409ac7ce421462d917169475d6d89779f1f77fcc8944a9bfcd35"
+        },
+        "data": {
+          "canonical": "5.316911983139664e+36",
+          "sha256": "sha256:527c2b96207a409ac7ce421462d917169475d6d89779f1f77fcc8944a9bfcd35"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.316911983139664e+36 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-106",
+      "description": "2^132, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.444517870735016e+39.",
+      "double": "4830000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.444517870735016e+39",
+          "sha256": "sha256:be1515a133762b023640a80b0727a6e6967869d079befe2c5571efc6dd600216"
+        },
+        "data": {
+          "canonical": "5.444517870735016e+39",
+          "sha256": "sha256:be1515a133762b023640a80b0727a6e6967869d079befe2c5571efc6dd600216"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.444517870735016e+39 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-107",
+      "description": "2^172, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.986310706507379e+51.",
+      "double": "4ab0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.986310706507379e+51",
+          "sha256": "sha256:22b078d89759e55f0e8bd9a9ea2b821bfcf0c743ebaec3ee2e00c5d0c76b9f0b"
+        },
+        "data": {
+          "canonical": "5.986310706507379e+51",
+          "sha256": "sha256:22b078d89759e55f0e8bd9a9ea2b821bfcf0c743ebaec3ee2e00c5d0c76b9f0b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.986310706507379e+51 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-108",
+      "description": "2^182, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.129982163463556e+54.",
+      "double": "4b50000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.129982163463556e+54",
+          "sha256": "sha256:6f6ae5ab41723fddd281733dad21810c26a40d107b58b49fd66b6390fe5e9e70"
+        },
+        "data": {
+          "canonical": "6.129982163463556e+54",
+          "sha256": "sha256:6f6ae5ab41723fddd281733dad21810c26a40d107b58b49fd66b6390fe5e9e70"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.129982163463556e+54 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-109",
+      "description": "2^275, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.070840288205404e+82.",
+      "double": "5120000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.070840288205404e+82",
+          "sha256": "sha256:a2c66cf39655d34f4ffc87b252b2e0aa172ca76612c51e21e7dd4257d5f25f7b"
+        },
+        "data": {
+          "canonical": "6.070840288205404e+82",
+          "sha256": "sha256:a2c66cf39655d34f4ffc87b252b2e0aa172ca76612c51e21e7dd4257d5f25f7b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.070840288205404e+82 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-110",
+      "description": "2^305, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.518515124270356e+91.",
+      "double": "5300000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.518515124270356e+91",
+          "sha256": "sha256:9b50a6caa815c1068ec74926b936d7f242ea58ad8a2f1b5b43fed6c327c5ccd4"
+        },
+        "data": {
+          "canonical": "6.518515124270356e+91",
+          "sha256": "sha256:9b50a6caa815c1068ec74926b936d7f242ea58ad8a2f1b5b43fed6c327c5ccd4"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.518515124270356e+91 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-111",
+      "description": "2^345, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 7.167183174968974e+103.",
+      "double": "5580000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "7.167183174968974e+103",
+          "sha256": "sha256:5edb6d7168593bd6ccfed13f7f763cb7753524e2e6f0a2f3197a6a39adf8cdb5"
+        },
+        "data": {
+          "canonical": "7.167183174968974e+103",
+          "sha256": "sha256:5edb6d7168593bd6ccfed13f7f763cb7753524e2e6f0a2f3197a6a39adf8cdb5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 7.167183174968974e+103 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-112",
+      "description": "2^378, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.156563468186638e+113.",
+      "double": "5790000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.156563468186638e+113",
+          "sha256": "sha256:7dfbf606679d5f13065080e02f559a901fe8f66bfda807b1c20e96582125d247"
+        },
+        "data": {
+          "canonical": "6.156563468186638e+113",
+          "sha256": "sha256:7dfbf606679d5f13065080e02f559a901fe8f66bfda807b1c20e96582125d247"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.156563468186638e+113 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-113",
+      "description": "2^398, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.455624695217272e+119.",
+      "double": "58d0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.455624695217272e+119",
+          "sha256": "sha256:eb8a17a6f7cab847c88a02664dbfb4c32790bc0226bce29f90f91a64594b762a"
+        },
+        "data": {
+          "canonical": "6.455624695217272e+119",
+          "sha256": "sha256:eb8a17a6f7cab847c88a02664dbfb4c32790bc0226bce29f90f91a64594b762a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.455624695217272e+119 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-114",
+      "description": "2^405, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 8.263199609878108e+121.",
+      "double": "5940000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "8.263199609878108e+121",
+          "sha256": "sha256:0d77cd11a3e75bff78880f3f41adccb470a5674091ddb1c53eeb93fee9b9fb4a"
+        },
+        "data": {
+          "canonical": "8.263199609878108e+121",
+          "sha256": "sha256:0d77cd11a3e75bff78880f3f41adccb470a5674091ddb1c53eeb93fee9b9fb4a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 8.263199609878108e+121 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-115",
+      "description": "2^481, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.243497100631985e+144.",
+      "double": "5e00000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.243497100631985e+144",
+          "sha256": "sha256:1370cf9a41341075a0481dafb49d932e68f531a37f0d26d3bf3d959e822a71b8"
+        },
+        "data": {
+          "canonical": "6.243497100631985e+144",
+          "sha256": "sha256:1370cf9a41341075a0481dafb49d932e68f531a37f0d26d3bf3d959e822a71b8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.243497100631985e+144 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-116",
+      "description": "2^534, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.623642243178996e+160.",
+      "double": "6150000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.623642243178996e+160",
+          "sha256": "sha256:dafe1981f64dfbacebe36569bb648435e55ce78d4f284aa22f266dc8f05fab53"
+        },
+        "data": {
+          "canonical": "5.623642243178996e+160",
+          "sha256": "sha256:dafe1981f64dfbacebe36569bb648435e55ce78d4f284aa22f266dc8f05fab53"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.623642243178996e+160 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-117",
+      "description": "2^544, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.758609657015292e+163.",
+      "double": "61f0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.758609657015292e+163",
+          "sha256": "sha256:ade51b43b7de432d5633a628f3e3b069153dfdd530d10b967fc490f73d45943b"
+        },
+        "data": {
+          "canonical": "5.758609657015292e+163",
+          "sha256": "sha256:ade51b43b7de432d5633a628f3e3b069153dfdd530d10b967fc490f73d45943b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.758609657015292e+163 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-118",
+      "description": "2^554, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.896816288783659e+166.",
+      "double": "6290000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.896816288783659e+166",
+          "sha256": "sha256:6f0344a6372b74640d62abafeb61a1cc80298da34edb366c170a0801b6ec7702"
+        },
+        "data": {
+          "canonical": "5.896816288783659e+166",
+          "sha256": "sha256:6f0344a6372b74640d62abafeb61a1cc80298da34edb366c170a0801b6ec7702"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.896816288783659e+166 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-119",
+      "description": "2^574, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.183260036827614e+172.",
+      "double": "63d0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.183260036827614e+172",
+          "sha256": "sha256:183ae87e249dfd24f750783c7ceab369523bc5f118b99f020e79c76f0971d119"
+        },
+        "data": {
+          "canonical": "6.183260036827614e+172",
+          "sha256": "sha256:183ae87e249dfd24f750783c7ceab369523bc5f118b99f020e79c76f0971d119"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.183260036827614e+172 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-120",
+      "description": "2^594, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.483618076376552e+178.",
+      "double": "6510000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.483618076376552e+178",
+          "sha256": "sha256:be51b4a8a0bafa93889ebcb4b4e445c229a7cf38ca8deb6b68501de1276f5e3c"
+        },
+        "data": {
+          "canonical": "6.483618076376552e+178",
+          "sha256": "sha256:be51b4a8a0bafa93889ebcb4b4e445c229a7cf38ca8deb6b68501de1276f5e3c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.483618076376552e+178 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-121",
+      "description": "2^710, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.386379163185535e+213.",
+      "double": "6c50000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.386379163185535e+213",
+          "sha256": "sha256:95389d1735df655dd9c6c9b446178ea8957a9fa903ca3cf7a42288a50e1d0670"
+        },
+        "data": {
+          "canonical": "5.386379163185535e+213",
+          "sha256": "sha256:95389d1735df655dd9c6c9b446178ea8957a9fa903ca3cf7a42288a50e1d0670"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.386379163185535e+213 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-122",
+      "description": "2^803, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.334411546303884e+241.",
+      "double": "7220000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.334411546303884e+241",
+          "sha256": "sha256:fa018c623d729c6a02e92c20294d8b1f68df3698068d374fa60a4bedbd8baac8"
+        },
+        "data": {
+          "canonical": "5.334411546303884e+241",
+          "sha256": "sha256:fa018c623d729c6a02e92c20294d8b1f68df3698068d374fa60a4bedbd8baac8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.334411546303884e+241 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-123",
+      "description": "2^863, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.150157786156811e+259.",
+      "double": "75e0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.150157786156811e+259",
+          "sha256": "sha256:0dd1e385341fbabc836c9c9d16d951fa3339054f076bafd8fbfa442e18a1aa63"
+        },
+        "data": {
+          "canonical": "6.150157786156811e+259",
+          "sha256": "sha256:0dd1e385341fbabc836c9c9d16d951fa3339054f076bafd8fbfa442e18a1aa63"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.150157786156811e+259 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-124",
+      "description": "2^896, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 5.282945311356653e+269.",
+      "double": "77f0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "5.282945311356653e+269",
+          "sha256": "sha256:c79a3c69da8ee637cc93fc2104d9f7fc819879510f8f2dffb6a8846db87b4b16"
+        },
+        "data": {
+          "canonical": "5.282945311356653e+269",
+          "sha256": "sha256:c79a3c69da8ee637cc93fc2104d9f7fc819879510f8f2dffb6a8846db87b4b16"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 5.282945311356653e+269 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-format-125",
+      "description": "2^976, where formatting with increasing precision and stopping at the first round trip gives one digit too many. Written 6.386688990511104e+293.",
+      "double": "7cf0000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "6.386688990511104e+293",
+          "sha256": "sha256:f1de92839e6b03f14f1ee729fe4a25b9ed623125aff808af2ddd26d1ccec1421"
+        },
+        "data": {
+          "canonical": "6.386688990511104e+293",
+          "sha256": "sha256:f1de92839e6b03f14f1ee729fe4a25b9ed623125aff808af2ddd26d1ccec1421"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.386688990511104e+293 at (root) lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": ""
+          }
+        }
+      }
+    }
+  ]
+}

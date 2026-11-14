@@ -1,0 +1,8 @@
+{
+  "vocabulary": "0.1.0",
+  "variables": {
+    "x": {"role": "auxiliary", "derived_from": ["y"]},
+    "y": {"role": "auxiliary", "derived_from": ["x", "raw"]},
+    "z": {"role": "auxiliary", "derived_from": ["x"]}
+  }
+}

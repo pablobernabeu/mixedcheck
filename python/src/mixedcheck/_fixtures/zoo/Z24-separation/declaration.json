@@ -1,0 +1,69 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z24 Separation in binary accuracy",
+  "features": [
+    "crossed_experiment",
+    "trial_level"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "item",
+        "type": "string"
+      },
+      {
+        "name": "cond",
+        "type": "string",
+        "categories": [
+          "A",
+          "B",
+          "C"
+        ]
+      },
+      {
+        "name": "acc",
+        "type": "integer"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    },
+    {
+      "name": "item",
+      "columns": [
+        "item"
+      ],
+      "role": "item"
+    }
+  ],
+  "crossings": [
+    {
+      "units": [
+        "subject",
+        "item"
+      ]
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "item"
+    ]
+  },
+  "variables": {
+    "acc": {
+      "role": "outcome",
+      "measurement": "binary"
+    }
+  }
+}

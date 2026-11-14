@@ -1,0 +1,1666 @@
+{
+  "description": "Strings and keys that are or are not normalisable and in NFC, read in each mode. Only the hashable profile checks NFC, and no mode normalises what it reads.",
+  "cases": [
+    {
+      "id": "unicode-hashable-001",
+      "description": "ASCII text, as a string.",
+      "input": "\"Zurich\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"Zurich\"",
+          "sha256": "sha256:abefda32719cebbb720a2901f5ca90b24ad53bba7a637d0fea298ee54d914331"
+        },
+        "data": {
+          "canonical": "\"Zurich\"",
+          "sha256": "sha256:abefda32719cebbb720a2901f5ca90b24ad53bba7a637d0fea298ee54d914331"
+        },
+        "hashable": {
+          "canonical": "\"Zurich\"",
+          "sha256": "sha256:abefda32719cebbb720a2901f5ca90b24ad53bba7a637d0fea298ee54d914331"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-002",
+      "description": "'caf\u00e9' in NFC, as a string.",
+      "input": "\"caf\u00e9\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"caf\u00e9\"",
+          "sha256": "sha256:28380feb8724d669bc8d4cf5b5a5bb1adbdc61b81ebd06f3fabc567b4f3b0fc5"
+        },
+        "data": {
+          "canonical": "\"caf\u00e9\"",
+          "sha256": "sha256:28380feb8724d669bc8d4cf5b5a5bb1adbdc61b81ebd06f3fabc567b4f3b0fc5"
+        },
+        "hashable": {
+          "canonical": "\"caf\u00e9\"",
+          "sha256": "sha256:28380feb8724d669bc8d4cf5b5a5bb1adbdc61b81ebd06f3fabc567b4f3b0fc5"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-003",
+      "description": "'caf\u00e9' in NFD, as a string.",
+      "input": "\"cafe\u0301\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"cafe\u0301\"",
+          "sha256": "sha256:c7d7e72b8ad0dd91beb4044a4bb17c6c8a9672cc620c4c76e6584f3525d400d1"
+        },
+        "data": {
+          "canonical": "\"cafe\u0301\"",
+          "sha256": "sha256:c7d7e72b8ad0dd91beb4044a4bb17c6c8a9672cc620c4c76e6584f3525d400d1"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-004",
+      "description": "'caf\u00e9' in NFD, as a key, written with escapes.",
+      "input": "{\"cafe\\u0301\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"cafe\u0301\":1}",
+          "sha256": "sha256:26a86d452316c9c5fbd357205471fe96854efae9c460b0497c3b512f66172d60"
+        },
+        "data": {
+          "canonical": "{\"cafe\u0301\":1}",
+          "sha256": "sha256:26a86d452316c9c5fbd357205471fe96854efae9c460b0497c3b512f66172d60"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-005",
+      "description": "'Z\u00fcrich' in NFC, as a string.",
+      "input": "\"Z\u00fcrich\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"Z\u00fcrich\"",
+          "sha256": "sha256:b8d7e68c275b0b0b000b5bb001a8218baf459ab64f2d9a5fc03bb08b540f5a2a"
+        },
+        "data": {
+          "canonical": "\"Z\u00fcrich\"",
+          "sha256": "sha256:b8d7e68c275b0b0b000b5bb001a8218baf459ab64f2d9a5fc03bb08b540f5a2a"
+        },
+        "hashable": {
+          "canonical": "\"Z\u00fcrich\"",
+          "sha256": "sha256:b8d7e68c275b0b0b000b5bb001a8218baf459ab64f2d9a5fc03bb08b540f5a2a"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-006",
+      "description": "'Z\u00fcrich' in NFD, as a string.",
+      "input": "\"Zu\u0308rich\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"Zu\u0308rich\"",
+          "sha256": "sha256:3dacf7773cd2697505293cbf8fd6a8da48c7e6e2bb5fb09f4a22171244c8d45e"
+        },
+        "data": {
+          "canonical": "\"Zu\u0308rich\"",
+          "sha256": "sha256:3dacf7773cd2697505293cbf8fd6a8da48c7e6e2bb5fb09f4a22171244c8d45e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-007",
+      "description": "'Z\u00fcrich' in NFD, as a key, written with escapes.",
+      "input": "{\"Zu\\u0308rich\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"Zu\u0308rich\":1}",
+          "sha256": "sha256:fdad112c008147c52a2cd5d0446ccc9f1ddac0cf65ea06756937a54212d69805"
+        },
+        "data": {
+          "canonical": "{\"Zu\u0308rich\":1}",
+          "sha256": "sha256:fdad112c008147c52a2cd5d0446ccc9f1ddac0cf65ea06756937a54212d69805"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-008",
+      "description": "'\u00c7' in NFC, as a string.",
+      "input": "\"\u00c7\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u00c7\"",
+          "sha256": "sha256:f1a404776f05d2477dbaa4a86bed6fb26c61f89ad5383bdfe4b3550bde85eb51"
+        },
+        "data": {
+          "canonical": "\"\u00c7\"",
+          "sha256": "sha256:f1a404776f05d2477dbaa4a86bed6fb26c61f89ad5383bdfe4b3550bde85eb51"
+        },
+        "hashable": {
+          "canonical": "\"\u00c7\"",
+          "sha256": "sha256:f1a404776f05d2477dbaa4a86bed6fb26c61f89ad5383bdfe4b3550bde85eb51"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-009",
+      "description": "'\u00c7' in NFD, as a string.",
+      "input": "\"C\u0327\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"C\u0327\"",
+          "sha256": "sha256:2f3c5e4a60602b92b8f3e4f57d9a1ca34151e32b03fd178d5f727a51e6369708"
+        },
+        "data": {
+          "canonical": "\"C\u0327\"",
+          "sha256": "sha256:2f3c5e4a60602b92b8f3e4f57d9a1ca34151e32b03fd178d5f727a51e6369708"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-010",
+      "description": "'\u00c7' in NFD, as a key, written with escapes.",
+      "input": "{\"C\\u0327\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"C\u0327\":1}",
+          "sha256": "sha256:bb5e73089c35cc61ab359c2faccaadf8e453b8e662011c6265bcd6bdccee50cf"
+        },
+        "data": {
+          "canonical": "{\"C\u0327\":1}",
+          "sha256": "sha256:bb5e73089c35cc61ab359c2faccaadf8e453b8e662011c6265bcd6bdccee50cf"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-011",
+      "description": "'\u00c5' in NFC, as a string.",
+      "input": "\"\u00c5\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u00c5\"",
+          "sha256": "sha256:20d8dab8ec900ac4fb89517b03abf6cf0c88fb9488ad3530519d98e9b6a6046c"
+        },
+        "data": {
+          "canonical": "\"\u00c5\"",
+          "sha256": "sha256:20d8dab8ec900ac4fb89517b03abf6cf0c88fb9488ad3530519d98e9b6a6046c"
+        },
+        "hashable": {
+          "canonical": "\"\u00c5\"",
+          "sha256": "sha256:20d8dab8ec900ac4fb89517b03abf6cf0c88fb9488ad3530519d98e9b6a6046c"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-012",
+      "description": "'\u00c5' in NFD, as a string.",
+      "input": "\"A\u030a\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"A\u030a\"",
+          "sha256": "sha256:5e08c805d43712243359f6af174695dc0bd71b8371e859ec5d74d65fca0c431d"
+        },
+        "data": {
+          "canonical": "\"A\u030a\"",
+          "sha256": "sha256:5e08c805d43712243359f6af174695dc0bd71b8371e859ec5d74d65fca0c431d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-013",
+      "description": "'\u00c5' in NFD, as a key, written with escapes.",
+      "input": "{\"A\\u030a\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"A\u030a\":1}",
+          "sha256": "sha256:8b0987f6bc81739366b09e793b090119ea755820dc5eed0bb6709659dbde606a"
+        },
+        "data": {
+          "canonical": "{\"A\u030a\":1}",
+          "sha256": "sha256:8b0987f6bc81739366b09e793b090119ea755820dc5eed0bb6709659dbde606a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-014",
+      "description": "U+212B ANGSTROM SIGN, a singleton that NFC replaces by U+00C5, as a string.",
+      "input": "\"\u212b\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u212b\"",
+          "sha256": "sha256:95a36f1c98e9242500cd22576796c2b993e8c62d8a44c1a77638036c144ed643"
+        },
+        "data": {
+          "canonical": "\"\u212b\"",
+          "sha256": "sha256:95a36f1c98e9242500cd22576796c2b993e8c62d8a44c1a77638036c144ed643"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-015",
+      "description": "U+212B ANGSTROM SIGN, a singleton that NFC replaces by U+00C5, as a key, written with escapes.",
+      "input": "{\"\\u212b\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u212b\":1}",
+          "sha256": "sha256:7d32e2d6d0a51f7ed91e64d54f3dd98745784113b4dc59dac919767eed6c30be"
+        },
+        "data": {
+          "canonical": "{\"\u212b\":1}",
+          "sha256": "sha256:7d32e2d6d0a51f7ed91e64d54f3dd98745784113b4dc59dac919767eed6c30be"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-016",
+      "description": "U+2126 OHM SIGN, a singleton that NFC replaces by U+03A9, as a string.",
+      "input": "\"\u2126\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u2126\"",
+          "sha256": "sha256:af57589018eea2d89c575f37a543652cd7ed4852ddb4c9051a3f904dca29f854"
+        },
+        "data": {
+          "canonical": "\"\u2126\"",
+          "sha256": "sha256:af57589018eea2d89c575f37a543652cd7ed4852ddb4c9051a3f904dca29f854"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-017",
+      "description": "U+2126 OHM SIGN, a singleton that NFC replaces by U+03A9, as a key, written with escapes.",
+      "input": "{\"\\u2126\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u2126\":1}",
+          "sha256": "sha256:2cd15a633889bf106101bf1e9f9d5eb78c5b42d08ce23c314b88a003b30062c1"
+        },
+        "data": {
+          "canonical": "{\"\u2126\":1}",
+          "sha256": "sha256:2cd15a633889bf106101bf1e9f9d5eb78c5b42d08ce23c314b88a003b30062c1"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-018",
+      "description": "U+212A KELVIN SIGN, a singleton that NFC replaces by the ASCII 'K', as a string.",
+      "input": "\"\u212a\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u212a\"",
+          "sha256": "sha256:bb55db79d4aac5d6445eb2f1bc5d37213a846bed80592d1a59844b5c7c3bde03"
+        },
+        "data": {
+          "canonical": "\"\u212a\"",
+          "sha256": "sha256:bb55db79d4aac5d6445eb2f1bc5d37213a846bed80592d1a59844b5c7c3bde03"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-019",
+      "description": "U+212A KELVIN SIGN, a singleton that NFC replaces by the ASCII 'K', as a key, written with escapes.",
+      "input": "{\"\\u212a\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u212a\":1}",
+          "sha256": "sha256:c2a0dc08a4c401675d50dcb08ce8c83fac3b3b581e11ea408513918de42af67d"
+        },
+        "data": {
+          "canonical": "{\"\u212a\":1}",
+          "sha256": "sha256:c2a0dc08a4c401675d50dcb08ce8c83fac3b3b581e11ea408513918de42af67d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-020",
+      "description": "U+2000 EN QUAD, a singleton that NFC replaces by U+2002, as a string.",
+      "input": "\"\u2000\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u2000\"",
+          "sha256": "sha256:721894cb965bf7a03678fb54a42976495250d1b68e83d1989135d692e9aa4d46"
+        },
+        "data": {
+          "canonical": "\"\u2000\"",
+          "sha256": "sha256:721894cb965bf7a03678fb54a42976495250d1b68e83d1989135d692e9aa4d46"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-021",
+      "description": "U+2000 EN QUAD, a singleton that NFC replaces by U+2002, as a key, written with escapes.",
+      "input": "{\"\\u2000\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u2000\":1}",
+          "sha256": "sha256:49c79d7e6cd435dd15ed10851dcdcb93545303eeb9f45311a3c09df70d9db199"
+        },
+        "data": {
+          "canonical": "{\"\u2000\":1}",
+          "sha256": "sha256:49c79d7e6cd435dd15ed10851dcdcb93545303eeb9f45311a3c09df70d9db199"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-022",
+      "description": "'\u1ec7' in NFC, as a string.",
+      "input": "\"\u1ec7\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u1ec7\"",
+          "sha256": "sha256:e22fe4d47105c482143835dde6ce8b96202b729d421ca1551639a7f105436aac"
+        },
+        "data": {
+          "canonical": "\"\u1ec7\"",
+          "sha256": "sha256:e22fe4d47105c482143835dde6ce8b96202b729d421ca1551639a7f105436aac"
+        },
+        "hashable": {
+          "canonical": "\"\u1ec7\"",
+          "sha256": "sha256:e22fe4d47105c482143835dde6ce8b96202b729d421ca1551639a7f105436aac"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-023",
+      "description": "'\u1ec7' in NFD, as a string.",
+      "input": "\"e\u0323\u0302\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"e\u0323\u0302\"",
+          "sha256": "sha256:79dd3f9688eb38378163352af1fea3b0576a9790df7939da7e2f49616590e226"
+        },
+        "data": {
+          "canonical": "\"e\u0323\u0302\"",
+          "sha256": "sha256:79dd3f9688eb38378163352af1fea3b0576a9790df7939da7e2f49616590e226"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-024",
+      "description": "'\u1ec7' in NFD, as a key, written with escapes.",
+      "input": "{\"e\\u0323\\u0302\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"e\u0323\u0302\":1}",
+          "sha256": "sha256:c15f4c27bd738a563f213dccf1a95e58ef6ad8e5156341a1c45d40cb4a28ba69"
+        },
+        "data": {
+          "canonical": "{\"e\u0323\u0302\":1}",
+          "sha256": "sha256:c15f4c27bd738a563f213dccf1a95e58ef6ad8e5156341a1c45d40cb4a28ba69"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-025",
+      "description": "'\u1ec7' as 'e', U+0302 and U+0323, which canonical ordering reorders, as a string.",
+      "input": "\"e\u0302\u0323\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"e\u0302\u0323\"",
+          "sha256": "sha256:5958ce97723d67410d80a3e2ce6016d9ce7e2e3694d57e360327e650953b0acc"
+        },
+        "data": {
+          "canonical": "\"e\u0302\u0323\"",
+          "sha256": "sha256:5958ce97723d67410d80a3e2ce6016d9ce7e2e3694d57e360327e650953b0acc"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-026",
+      "description": "'\u1ec7' as 'e', U+0302 and U+0323, which canonical ordering reorders, as a key, written with escapes.",
+      "input": "{\"e\\u0302\\u0323\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"e\u0302\u0323\":1}",
+          "sha256": "sha256:c0495a9f7f66b21e3a5da6dd69409da955e0d9f748957eb30dc5d39902725cc1"
+        },
+        "data": {
+          "canonical": "{\"e\u0302\u0323\":1}",
+          "sha256": "sha256:c0495a9f7f66b21e3a5da6dd69409da955e0d9f748957eb30dc5d39902725cc1"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-027",
+      "description": "'\u00e1' with U+0316, in NFC, as a string.",
+      "input": "\"\u00e1\u0316\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u00e1\u0316\"",
+          "sha256": "sha256:0fd435b4c2cd97876fd0388b50aa7951ea817d867ee114ea77572fb1a84bd9af"
+        },
+        "data": {
+          "canonical": "\"\u00e1\u0316\"",
+          "sha256": "sha256:0fd435b4c2cd97876fd0388b50aa7951ea817d867ee114ea77572fb1a84bd9af"
+        },
+        "hashable": {
+          "canonical": "\"\u00e1\u0316\"",
+          "sha256": "sha256:0fd435b4c2cd97876fd0388b50aa7951ea817d867ee114ea77572fb1a84bd9af"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-028",
+      "description": "'a' with U+0301 and U+0316, out of canonical order, as a string.",
+      "input": "\"a\u0301\u0316\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"a\u0301\u0316\"",
+          "sha256": "sha256:505490f5321e36cfd22a23f4a1802cd63eebcae2bf59f02a94f332224629c651"
+        },
+        "data": {
+          "canonical": "\"a\u0301\u0316\"",
+          "sha256": "sha256:505490f5321e36cfd22a23f4a1802cd63eebcae2bf59f02a94f332224629c651"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-029",
+      "description": "'a' with U+0301 and U+0316, out of canonical order, as a key, written with escapes.",
+      "input": "{\"a\\u0301\\u0316\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\u0301\u0316\":1}",
+          "sha256": "sha256:b78fed59a4daaa20927116f488247f96ee182d2ec766dd15decfa0ba5aa0fa0f"
+        },
+        "data": {
+          "canonical": "{\"a\u0301\u0316\":1}",
+          "sha256": "sha256:b78fed59a4daaa20927116f488247f96ee182d2ec766dd15decfa0ba5aa0fa0f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-030",
+      "description": "'a' with U+0316 and U+0301, as a string.",
+      "input": "\"a\u0316\u0301\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"a\u0316\u0301\"",
+          "sha256": "sha256:61f45f587571629028ee95359f370c8c9229992914c9a540209c755dcce376e7"
+        },
+        "data": {
+          "canonical": "\"a\u0316\u0301\"",
+          "sha256": "sha256:61f45f587571629028ee95359f370c8c9229992914c9a540209c755dcce376e7"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-031",
+      "description": "'a' with U+0316 and U+0301, as a key, written with escapes.",
+      "input": "{\"a\\u0316\\u0301\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\u0316\u0301\":1}",
+          "sha256": "sha256:968fef6948f0d5ae57bf6caf0dda5d886ce16fe58ccfcc78a1d8d3aa76522672"
+        },
+        "data": {
+          "canonical": "{\"a\u0316\u0301\":1}",
+          "sha256": "sha256:968fef6948f0d5ae57bf6caf0dda5d886ce16fe58ccfcc78a1d8d3aa76522672"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-032",
+      "description": "U+1E0B U+0323, which NFC turns into U+1E0D U+0307, as a string.",
+      "input": "\"\u1e0b\u0323\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u1e0b\u0323\"",
+          "sha256": "sha256:8383cabeff2add36d5c4bdc0f732c1e7f10073eff0c8311aa1103c3d832fce7b"
+        },
+        "data": {
+          "canonical": "\"\u1e0b\u0323\"",
+          "sha256": "sha256:8383cabeff2add36d5c4bdc0f732c1e7f10073eff0c8311aa1103c3d832fce7b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-033",
+      "description": "U+1E0B U+0323, which NFC turns into U+1E0D U+0307, as a key, written with escapes.",
+      "input": "{\"\\u1e0b\\u0323\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u1e0b\u0323\":1}",
+          "sha256": "sha256:38714b876348b2acbc0642de0ee043b0d3b6b0104c74e7901aa10465b83c0aa0"
+        },
+        "data": {
+          "canonical": "{\"\u1e0b\u0323\":1}",
+          "sha256": "sha256:38714b876348b2acbc0642de0ee043b0d3b6b0104c74e7901aa10465b83c0aa0"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-034",
+      "description": "U+1E9B U+0323, which is in NFC, as a string.",
+      "input": "\"\u1e9b\u0323\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u1e9b\u0323\"",
+          "sha256": "sha256:a145b0077778fc9b3c2c761b392101a86fa515ec7cc6bb21cf860e4c14652e4a"
+        },
+        "data": {
+          "canonical": "\"\u1e9b\u0323\"",
+          "sha256": "sha256:a145b0077778fc9b3c2c761b392101a86fa515ec7cc6bb21cf860e4c14652e4a"
+        },
+        "hashable": {
+          "canonical": "\"\u1e9b\u0323\"",
+          "sha256": "sha256:a145b0077778fc9b3c2c761b392101a86fa515ec7cc6bb21cf860e4c14652e4a"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-035",
+      "description": "'\u00e9' followed by U+0301, which is in NFC, as a string.",
+      "input": "\"\u00e9\u0301\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u00e9\u0301\"",
+          "sha256": "sha256:920e46432c83afddcd1edf729a552db44a59876f90102251795961bd0e077818"
+        },
+        "data": {
+          "canonical": "\"\u00e9\u0301\"",
+          "sha256": "sha256:920e46432c83afddcd1edf729a552db44a59876f90102251795961bd0e077818"
+        },
+        "hashable": {
+          "canonical": "\"\u00e9\u0301\"",
+          "sha256": "sha256:920e46432c83afddcd1edf729a552db44a59876f90102251795961bd0e077818"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-036",
+      "description": "The Hangul syllable U+AC00 in NFC, as a string.",
+      "input": "\"\uac00\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\uac00\"",
+          "sha256": "sha256:c04fdbc8c7a508c92af13e168e01bcdb441dd488a6e3aabe2aa9a4df5546ce50"
+        },
+        "data": {
+          "canonical": "\"\uac00\"",
+          "sha256": "sha256:c04fdbc8c7a508c92af13e168e01bcdb441dd488a6e3aabe2aa9a4df5546ce50"
+        },
+        "hashable": {
+          "canonical": "\"\uac00\"",
+          "sha256": "sha256:c04fdbc8c7a508c92af13e168e01bcdb441dd488a6e3aabe2aa9a4df5546ce50"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-037",
+      "description": "The Hangul syllable U+AC00 as two jamo, as a string.",
+      "input": "\"\u1100\u1161\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u1100\u1161\"",
+          "sha256": "sha256:637897087882e6695a28805f393e45120981e6f4e5bda1b655f9b09e539e96d9"
+        },
+        "data": {
+          "canonical": "\"\u1100\u1161\"",
+          "sha256": "sha256:637897087882e6695a28805f393e45120981e6f4e5bda1b655f9b09e539e96d9"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-038",
+      "description": "The Hangul syllable U+AC00 as two jamo, as a key, written with escapes.",
+      "input": "{\"\\u1100\\u1161\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u1100\u1161\":1}",
+          "sha256": "sha256:dad1bf409885f6bc65983f3608aba7f5954f59b56e85a58bc984ee56a5ea353c"
+        },
+        "data": {
+          "canonical": "{\"\u1100\u1161\":1}",
+          "sha256": "sha256:dad1bf409885f6bc65983f3608aba7f5954f59b56e85a58bc984ee56a5ea353c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-039",
+      "description": "The Hangul syllable U+AC01 as three jamo, as a string.",
+      "input": "\"\u1100\u1161\u11a8\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u1100\u1161\u11a8\"",
+          "sha256": "sha256:c2ff53cfbecd2b76cf50de02b954b0aa971de4a5ff9b2bfff234347c19a3555b"
+        },
+        "data": {
+          "canonical": "\"\u1100\u1161\u11a8\"",
+          "sha256": "sha256:c2ff53cfbecd2b76cf50de02b954b0aa971de4a5ff9b2bfff234347c19a3555b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-040",
+      "description": "The Hangul syllable U+AC01 as three jamo, as a key, written with escapes.",
+      "input": "{\"\\u1100\\u1161\\u11a8\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u1100\u1161\u11a8\":1}",
+          "sha256": "sha256:a602ed9a0d10101c750b3202e1207cfb8ac23d182eb8ec35a55bcd4b1418f11e"
+        },
+        "data": {
+          "canonical": "{\"\u1100\u1161\u11a8\":1}",
+          "sha256": "sha256:a602ed9a0d10101c750b3202e1207cfb8ac23d182eb8ec35a55bcd4b1418f11e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-041",
+      "description": "The Hangul syllable U+AC00 followed by a final jamo, as a string.",
+      "input": "\"\uac00\u11a8\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\uac00\u11a8\"",
+          "sha256": "sha256:a04ac5af67513ac059b84478aafeabbb3523a37a0d146c7213fe2d197e22cbe6"
+        },
+        "data": {
+          "canonical": "\"\uac00\u11a8\"",
+          "sha256": "sha256:a04ac5af67513ac059b84478aafeabbb3523a37a0d146c7213fe2d197e22cbe6"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-042",
+      "description": "The Hangul syllable U+AC00 followed by a final jamo, as a key, written with escapes.",
+      "input": "{\"\\uac00\\u11a8\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\uac00\u11a8\":1}",
+          "sha256": "sha256:f60de9b3abfc76ef955fa8d8740526e7c012aabaade0fa5a428ea17ccf974872"
+        },
+        "data": {
+          "canonical": "{\"\uac00\u11a8\":1}",
+          "sha256": "sha256:f60de9b3abfc76ef955fa8d8740526e7c012aabaade0fa5a428ea17ccf974872"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-043",
+      "description": "U+0958 DEVANAGARI LETTER QA, excluded from composition, as a string.",
+      "input": "\"\u0958\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0958\"",
+          "sha256": "sha256:88a9aff6e37b3f10d05cc65094736016dc36f474033f73ee4d4a8d6ada16770e"
+        },
+        "data": {
+          "canonical": "\"\u0958\"",
+          "sha256": "sha256:88a9aff6e37b3f10d05cc65094736016dc36f474033f73ee4d4a8d6ada16770e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-044",
+      "description": "U+0958 DEVANAGARI LETTER QA, excluded from composition, as a key, written with escapes.",
+      "input": "{\"\\u0958\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u0958\":1}",
+          "sha256": "sha256:244fed7fdbe501eb5302a7b3a28164304db1f4b2a068f3c81801d6f1aef03620"
+        },
+        "data": {
+          "canonical": "{\"\u0958\":1}",
+          "sha256": "sha256:244fed7fdbe501eb5302a7b3a28164304db1f4b2a068f3c81801d6f1aef03620"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-045",
+      "description": "U+0915 U+093C, the NFC form of U+0958, as a string.",
+      "input": "\"\u0915\u093c\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0915\u093c\"",
+          "sha256": "sha256:78145f6598cf1f189764b42fba59e914451386b8bb36f56c8c6ab271789fcb62"
+        },
+        "data": {
+          "canonical": "\"\u0915\u093c\"",
+          "sha256": "sha256:78145f6598cf1f189764b42fba59e914451386b8bb36f56c8c6ab271789fcb62"
+        },
+        "hashable": {
+          "canonical": "\"\u0915\u093c\"",
+          "sha256": "sha256:78145f6598cf1f189764b42fba59e914451386b8bb36f56c8c6ab271789fcb62"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-046",
+      "description": "U+FB33 HEBREW LETTER DALET WITH DAGESH, excluded from composition, as a string.",
+      "input": "\"\ufb33\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ufb33\"",
+          "sha256": "sha256:820d2614ddce290183640b78fb1e79e06610bdb0b993acf3887f109a5aeb04ec"
+        },
+        "data": {
+          "canonical": "\"\ufb33\"",
+          "sha256": "sha256:820d2614ddce290183640b78fb1e79e06610bdb0b993acf3887f109a5aeb04ec"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-047",
+      "description": "U+FB33 HEBREW LETTER DALET WITH DAGESH, excluded from composition, as a key, written with escapes.",
+      "input": "{\"\\ufb33\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ufb33\":1}",
+          "sha256": "sha256:f96bc33e2ae01174116be8aac52adf939c8d49817a89b34792c247353fe163cc"
+        },
+        "data": {
+          "canonical": "{\"\ufb33\":1}",
+          "sha256": "sha256:f96bc33e2ae01174116be8aac52adf939c8d49817a89b34792c247353fe163cc"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-048",
+      "description": "U+0344, whose NFC form is U+0308 U+0301, as a string.",
+      "input": "\"\u0344\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0344\"",
+          "sha256": "sha256:5b44bb4bb60e7119c772db7b8a36715dcdc29f263daace1729cb27920e8fbe69"
+        },
+        "data": {
+          "canonical": "\"\u0344\"",
+          "sha256": "sha256:5b44bb4bb60e7119c772db7b8a36715dcdc29f263daace1729cb27920e8fbe69"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-049",
+      "description": "U+0344, whose NFC form is U+0308 U+0301, as a key, written with escapes.",
+      "input": "{\"\\u0344\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u0344\":1}",
+          "sha256": "sha256:cedf01da675082c9ac37f54172c9ce79f627f5bf256f1d3102e412dbb5a1a482"
+        },
+        "data": {
+          "canonical": "{\"\u0344\":1}",
+          "sha256": "sha256:cedf01da675082c9ac37f54172c9ce79f627f5bf256f1d3102e412dbb5a1a482"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-050",
+      "description": "U+0F73, whose NFC form is U+0F71 U+0F72, as a string.",
+      "input": "\"\u0f73\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0f73\"",
+          "sha256": "sha256:a37df0b502e8c22a45ce814146de183841d3dad66d663508a17333dc057fff47"
+        },
+        "data": {
+          "canonical": "\"\u0f73\"",
+          "sha256": "sha256:a37df0b502e8c22a45ce814146de183841d3dad66d663508a17333dc057fff47"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-051",
+      "description": "U+0F73, whose NFC form is U+0F71 U+0F72, as a key, written with escapes.",
+      "input": "{\"\\u0f73\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u0f73\":1}",
+          "sha256": "sha256:aa409d84317b9d3b23b7323ae4a09e166df864515ec80b6e8b04b23fc660786c"
+        },
+        "data": {
+          "canonical": "{\"\u0f73\":1}",
+          "sha256": "sha256:aa409d84317b9d3b23b7323ae4a09e166df864515ec80b6e8b04b23fc660786c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-052",
+      "description": "The ligature U+FB01, which NFC keeps, as a string.",
+      "input": "\"\ufb01\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ufb01\"",
+          "sha256": "sha256:717e2b24b2b18af8fb12ae78f7342e823547ef3ed99b0ac32ecd63c1047ff488"
+        },
+        "data": {
+          "canonical": "\"\ufb01\"",
+          "sha256": "sha256:717e2b24b2b18af8fb12ae78f7342e823547ef3ed99b0ac32ecd63c1047ff488"
+        },
+        "hashable": {
+          "canonical": "\"\ufb01\"",
+          "sha256": "sha256:717e2b24b2b18af8fb12ae78f7342e823547ef3ed99b0ac32ecd63c1047ff488"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-053",
+      "description": "The fullwidth letter U+FF21, which NFC keeps, as a string.",
+      "input": "\"\uff21\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\uff21\"",
+          "sha256": "sha256:013be7016577a53e357a2c95bc97891a66f7787aae4e8e7222e0727748cd2549"
+        },
+        "data": {
+          "canonical": "\"\uff21\"",
+          "sha256": "sha256:013be7016577a53e357a2c95bc97891a66f7787aae4e8e7222e0727748cd2549"
+        },
+        "hashable": {
+          "canonical": "\"\uff21\"",
+          "sha256": "sha256:013be7016577a53e357a2c95bc97891a66f7787aae4e8e7222e0727748cd2549"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-054",
+      "description": "The dotless and dotted letters i of Turkish, as a string.",
+      "input": "\"\u0131\u0130\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0131\u0130\"",
+          "sha256": "sha256:e82c28602f1031813edc38948851bc04c1584a8d92e257fce9a0c15c1ae352d1"
+        },
+        "data": {
+          "canonical": "\"\u0131\u0130\"",
+          "sha256": "sha256:e82c28602f1031813edc38948851bc04c1584a8d92e257fce9a0c15c1ae352d1"
+        },
+        "hashable": {
+          "canonical": "\"\u0131\u0130\"",
+          "sha256": "sha256:e82c28602f1031813edc38948851bc04c1584a8d92e257fce9a0c15c1ae352d1"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-055",
+      "description": "Greek alpha with psili and oxia in NFD, as a string.",
+      "input": "\"\u03b1\u0313\u0301\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u03b1\u0313\u0301\"",
+          "sha256": "sha256:4544b5fb92dc84db885650c5f751562878aea51eb6a410c0f30550b68c31138c"
+        },
+        "data": {
+          "canonical": "\"\u03b1\u0313\u0301\"",
+          "sha256": "sha256:4544b5fb92dc84db885650c5f751562878aea51eb6a410c0f30550b68c31138c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-056",
+      "description": "Greek alpha with psili and oxia in NFD, as a key, written with escapes.",
+      "input": "{\"\\u03b1\\u0313\\u0301\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u03b1\u0313\u0301\":1}",
+          "sha256": "sha256:7002717eb48aec7d92aaf640a914c86079b3c7cc826e5e235d7dd971fcdb5a91"
+        },
+        "data": {
+          "canonical": "{\"\u03b1\u0313\u0301\":1}",
+          "sha256": "sha256:7002717eb48aec7d92aaf640a914c86079b3c7cc826e5e235d7dd971fcdb5a91"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 1 is not in Unicode normalisation form C (NFC).",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-057",
+      "description": "'x', U+1E2AE and U+0316: U+1E2AE was assigned in Unicode 14.0, as a string.",
+      "input": "\"x\ud838\udeae\u0316\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"x\ud838\udeae\u0316\"",
+          "sha256": "sha256:51bb29d385ebb67fb8235f266a0c356052e52bff199db9b07a990211c98e141a"
+        },
+        "data": {
+          "canonical": "\"x\ud838\udeae\u0316\"",
+          "sha256": "sha256:51bb29d385ebb67fb8235f266a0c356052e52bff199db9b07a990211c98e141a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at byte 0 is not in Unicode normalisation form C (NFC).",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-058",
+      "description": "'x', U+1E2AE and U+0316: U+1E2AE was assigned in Unicode 14.0, as a key.",
+      "input": "{\"x\ud838\udeae\u0316\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"x\ud838\udeae\u0316\":1}",
+          "sha256": "sha256:67bc955fbea7534c37766deacee00711d459d810cadac812497b431406f372d9"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-059",
+      "description": "'x', U+0316 and U+1E2AE, as a string.",
+      "input": "\"x\u0316\ud838\udeae\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"x\u0316\ud838\udeae\"",
+          "sha256": "sha256:d4496bb5381d58b234d9996c6ffb853a6e01220339dae034e7429108bf12b4de"
+        },
+        "data": {
+          "canonical": "\"x\u0316\ud838\udeae\"",
+          "sha256": "sha256:d4496bb5381d58b234d9996c6ffb853a6e01220339dae034e7429108bf12b4de"
+        },
+        "hashable": {
+          "canonical": "\"x\u0316\ud838\udeae\"",
+          "sha256": "sha256:d4496bb5381d58b234d9996c6ffb853a6e01220339dae034e7429108bf12b4de"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-060",
+      "description": "'x', U+0316 and U+1E2AE, as a key.",
+      "input": "{\"x\u0316\ud838\udeae\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"x\u0316\ud838\udeae\":1}",
+          "sha256": "sha256:21e2c77cec6b98f4935cb3f9649be478c8a263d1ede6925535f47930602d404b"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-061",
+      "description": "'x', U+1E4EC and U+0316: U+1E4EC was assigned in Unicode 15.0, as a string.",
+      "input": "\"x\ud839\udcec\u0316\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"x\ud839\udcec\u0316\"",
+          "sha256": "sha256:f0e04161d28fd69689ce48cdc15f355c3bbf3442f80dbd7e39d16ca7723183fe"
+        },
+        "data": {
+          "canonical": "\"x\ud839\udcec\u0316\"",
+          "sha256": "sha256:f0e04161d28fd69689ce48cdc15f355c3bbf3442f80dbd7e39d16ca7723183fe"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-062",
+      "description": "'x', U+1E4EC and U+0316: U+1E4EC was assigned in Unicode 15.0, as a key.",
+      "input": "{\"x\ud839\udcec\u0316\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"x\ud839\udcec\u0316\":1}",
+          "sha256": "sha256:2655cd3944335269237dfdf945c1e2db667d73bbfec6e2379ded97a8805cf4a1"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-063",
+      "description": "'x', U+0316 and U+1E4EC, as a string.",
+      "input": "\"x\u0316\ud839\udcec\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"x\u0316\ud839\udcec\"",
+          "sha256": "sha256:a7a5af44f94320eb03c752158eac28dbf97cf684d8a4b4dd0455de42325e8cee"
+        },
+        "data": {
+          "canonical": "\"x\u0316\ud839\udcec\"",
+          "sha256": "sha256:a7a5af44f94320eb03c752158eac28dbf97cf684d8a4b4dd0455de42325e8cee"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-064",
+      "description": "'x', U+0316 and U+1E4EC, as a key.",
+      "input": "{\"x\u0316\ud839\udcec\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"x\u0316\ud839\udcec\":1}",
+          "sha256": "sha256:0ee482aa839b618866c712df5ef94db385b18a8ca9f826a713db19810e4f6719"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-065",
+      "description": "U+0378, unassigned, as a string.",
+      "input": "\"\u0378\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0378\"",
+          "sha256": "sha256:c579a23395d2402541e350e6d86e00de81910673271ec5d7b9aa1ca1108a8adb"
+        },
+        "data": {
+          "canonical": "\"\u0378\"",
+          "sha256": "sha256:c579a23395d2402541e350e6d86e00de81910673271ec5d7b9aa1ca1108a8adb"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-066",
+      "description": "U+0378, unassigned, as a key, written with escapes.",
+      "input": "{\"\\u0378\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\u0378\":1}",
+          "sha256": "sha256:369fcac1c7eea9e57f11c21370c6afe385e7d1571b439c4e0b5d9b33cdb8f035"
+        },
+        "data": {
+          "canonical": "{\"\u0378\":1}",
+          "sha256": "sha256:369fcac1c7eea9e57f11c21370c6afe385e7d1571b439c4e0b5d9b33cdb8f035"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 1 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-067",
+      "description": "The noncharacter U+FFFE, as a string.",
+      "input": "\"\ufffe\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ufffe\"",
+          "sha256": "sha256:a967623f44b2e95aef4cc06b2e60b07738e8e582181199a497e2b4e2cecf54ca"
+        },
+        "data": {
+          "canonical": "\"\ufffe\"",
+          "sha256": "sha256:a967623f44b2e95aef4cc06b2e60b07738e8e582181199a497e2b4e2cecf54ca"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-068",
+      "description": "The noncharacter U+FFFE, as a key, written with escapes.",
+      "input": "{\"\\ufffe\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ufffe\":1}",
+          "sha256": "sha256:8a1e927ebf1056796735e5438d07272510ad00af6cd67f0376188de46759b80c"
+        },
+        "data": {
+          "canonical": "{\"\ufffe\":1}",
+          "sha256": "sha256:8a1e927ebf1056796735e5438d07272510ad00af6cd67f0376188de46759b80c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 1 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-069",
+      "description": "The noncharacter U+FDD0, as a string.",
+      "input": "\"\ufdd0\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ufdd0\"",
+          "sha256": "sha256:f6e6f275c4eb06885c78152147d2eafe8e0802bfa40cb78efa67dc2967bd7a47"
+        },
+        "data": {
+          "canonical": "\"\ufdd0\"",
+          "sha256": "sha256:f6e6f275c4eb06885c78152147d2eafe8e0802bfa40cb78efa67dc2967bd7a47"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-070",
+      "description": "The noncharacter U+FDD0, as a key, written with escapes.",
+      "input": "{\"\\ufdd0\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ufdd0\":1}",
+          "sha256": "sha256:6cbbc1225641b7f60e74b68aaa072fe51d9baedc9c24f26961f937b2ad62ce81"
+        },
+        "data": {
+          "canonical": "{\"\ufdd0\":1}",
+          "sha256": "sha256:6cbbc1225641b7f60e74b68aaa072fe51d9baedc9c24f26961f937b2ad62ce81"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 1 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-071",
+      "description": "U+E000, a private-use character, as a string.",
+      "input": "\"\ue000\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        },
+        "data": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        },
+        "hashable": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-072",
+      "description": "U+1F600, assigned in Unicode 6.1, as a string.",
+      "input": "\"\ud83d\ude00\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ud83d\ude00\"",
+          "sha256": "sha256:7a0c50b92434b015545fe93ab723db2d4b2cdd14a441405624a9ce8be29f1d5a"
+        },
+        "data": {
+          "canonical": "\"\ud83d\ude00\"",
+          "sha256": "sha256:7a0c50b92434b015545fe93ab723db2d4b2cdd14a441405624a9ce8be29f1d5a"
+        },
+        "hashable": {
+          "canonical": "\"\ud83d\ude00\"",
+          "sha256": "sha256:7a0c50b92434b015545fe93ab723db2d4b2cdd14a441405624a9ce8be29f1d5a"
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-073",
+      "description": "U+1F600, assigned in Unicode 6.1, as a key.",
+      "input": "{\"\ud83d\ude00\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00\":1}",
+          "sha256": "sha256:763606c9e0046348cc185a6e829e12ae6c0f3565b940f8184901a4d83dda6c33"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-074",
+      "description": "U+1FAE8, assigned in Unicode 15.0, as a string.",
+      "input": "\"\ud83e\udee8\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ud83e\udee8\"",
+          "sha256": "sha256:20f5280cf48d06a34b93466b538f60fd8552b3e7f778309fb3b46ab2a1b075ca"
+        },
+        "data": {
+          "canonical": "\"\ud83e\udee8\"",
+          "sha256": "sha256:20f5280cf48d06a34b93466b538f60fd8552b3e7f778309fb3b46ab2a1b075ca"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-075",
+      "description": "U+1FAE8, assigned in Unicode 15.0, as a key.",
+      "input": "{\"\ud83e\udee8\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83e\udee8\":1}",
+          "sha256": "sha256:a7a7a3f6aa68847e4b8d156e064549d3124ab443ea6bbff4195564f6fb1dd612"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at byte 1 contains a character outside the Basic Multilingual Plane.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-076",
+      "description": "'\u00e9' in NFD followed by U+0378, as a string.",
+      "input": "\"e\u0301\u0378\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"e\u0301\u0378\"",
+          "sha256": "sha256:091451ecfa9064a5b54888039d50030beea6bf186a5b22fa3a32c1bde222fb5a"
+        },
+        "data": {
+          "canonical": "\"e\u0301\u0378\"",
+          "sha256": "sha256:091451ecfa9064a5b54888039d50030beea6bf186a5b22fa3a32c1bde222fb5a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-hashable-077",
+      "description": "'\u00e9' in NFD followed by U+0378, as a key, written with escapes.",
+      "input": "{\"e\\u0301\\u0378\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"e\u0301\u0378\":1}",
+          "sha256": "sha256:3d75a747200b58b466a80968111f60567614479b724702b33eab368dc476c273"
+        },
+        "data": {
+          "canonical": "{\"e\u0301\u0378\":1}",
+          "sha256": "sha256:3d75a747200b58b466a80968111f60567614479b724702b33eab368dc476c273"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 1 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 1
+          }
+        }
+      }
+    }
+  ]
+}

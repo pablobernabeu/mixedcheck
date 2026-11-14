@@ -1,0 +1,19 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Word durations in a conversational corpus",
+  "goal": "confirmatory",
+  "features": ["corpus", "observational"],
+  "units": [
+    {"name": "speaker", "columns": ["speaker"], "role": "participant"},
+    {"name": "word", "columns": ["word"], "role": "item"}
+  ],
+  "crossings": [{"units": ["word", "speaker"]}],
+  "observation": {"key": ["speaker", "word", "token"]},
+  "variables": {
+    "duration": {"role": "outcome", "measurement": "positive_duration"},
+    "frequency": {"role": "baseline_covariate", "measurement": "continuous"},
+    "token": {"role": "id"}
+  },
+  "estimands": [{"id": "frequency", "term": "frequency", "kind": "association"}],
+  "provenance": {"outcome_seen": true, "author": "Secondary analysis team"}
+}

@@ -1,0 +1,244 @@
+{
+  "description": "Commitment keys, each with its identifier or the issue that refuses it, and keyed commitments to messages.",
+  "cases": [
+    {
+      "id": "hmac-commitments-001",
+      "description": "The key 00 01 02 \u2026 1F of conventions.md.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "expected": {
+        "key_id": "630dcd2966c43366"
+      }
+    },
+    {
+      "id": "hmac-commitments-002",
+      "description": "A key of 32 bytes 00.",
+      "key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expected": {
+        "key_id": "66687aadf862bd77"
+      }
+    },
+    {
+      "id": "hmac-commitments-003",
+      "description": "A key of 32 bytes FF.",
+      "key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "expected": {
+        "key_id": "af9613760f72635f"
+      }
+    },
+    {
+      "id": "hmac-commitments-004",
+      "description": "The SHA-256 of 'mixedcheck' as a key.",
+      "key": "e35aa07dc7e9c161dab277ed5e609aaedc708da76723fad896d13498612a48d7",
+      "expected": {
+        "key_id": "26e4e8e338c402af"
+      }
+    },
+    {
+      "id": "hmac-commitments-005",
+      "description": "Upper-case hexadecimal digits. The key is refused.",
+      "key": "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-006",
+      "description": "62 digits. The key is refused.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-007",
+      "description": "63 digits. The key is refused.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-008",
+      "description": "65 digits. The key is refused.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-009",
+      "description": "66 digits. The key is refused.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-010",
+      "description": "A character that is not a hexadecimal digit. The key is refused.",
+      "key": "g00102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-011",
+      "description": "The prefix '0x'. The key is refused.",
+      "key": "0x0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-012",
+      "description": "A leading space. The key is refused.",
+      "key": " 00102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-013",
+      "description": "A line feed in place of the last digit. The key is refused.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1\n",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-014",
+      "description": "A final line feed. The key is refused.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f\n",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-015",
+      "description": "An empty string. The key is refused.",
+      "key": "",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-016",
+      "description": "A fullwidth digit zero. The key is refused.",
+      "key": "\uff1000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "expected": {
+        "issue": {
+          "code": "E1311",
+          "message": "The commitment key must be 32 bytes written as 64 lower-case hexadecimal digits."
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-017",
+      "description": "The worked example of conventions.md (Keyed commitments, Example).",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "message": "{\"a\":{\"b\":false,\"z\":true,\"\u00e9\":\"\u00e9\"},\"n\":[1,100,0.000001,1e-7,4.5,0,2.5],\"tab\":\"a\\tb\\u001f\",\"title\":\"caf\u00e9 \\\"study\\\"\"}",
+      "covers": "data_file",
+      "expected": {
+        "commitment": {
+          "algorithm": "hmac-sha256",
+          "covers": "data_file",
+          "digest": "dd8943be1fcb832169c6f874652f017415a37dddc77d6e9407ac0d910f67227a",
+          "key_id": "630dcd2966c43366"
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-018",
+      "description": "The outcome column example of documents.md, 98 bytes.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "message": "{\"column\":\"post\",\"key\":[\"pupil\",\"wave\"],\"rows\":[[\"p1\",0,12],[\"p1\",1,15],[\"p2\",0,null],[\"p2\",1,9]]}",
+      "covers": "outcome_column",
+      "expected": {
+        "commitment": {
+          "algorithm": "hmac-sha256",
+          "covers": "outcome_column",
+          "digest": "75cc1f029d23f7ee37f8b3e0f1dc93e2d78b113b88d69f62a617346a6edafe7f",
+          "key_id": "630dcd2966c43366"
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-019",
+      "description": "An empty data file.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "message": "",
+      "covers": "data_file",
+      "expected": {
+        "commitment": {
+          "algorithm": "hmac-sha256",
+          "covers": "data_file",
+          "digest": "d38b42096d80f45f826b44a9d5607de72496a415d3f4a1a8c88e3bb9da8dc1cb",
+          "key_id": "630dcd2966c43366"
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-020",
+      "description": "A data file with a byte-order mark and CRLF line endings, committed as stored.",
+      "key": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+      "message_hex": "efbbbf707570696c2c73636f72650d0a70312c31320d0a",
+      "covers": "data_file",
+      "expected": {
+        "commitment": {
+          "algorithm": "hmac-sha256",
+          "covers": "data_file",
+          "digest": "473ebd807bb28b27a46c8acbaf847a73f882157925c4b0c55507809c8c3b0342",
+          "key_id": "630dcd2966c43366"
+        }
+      }
+    },
+    {
+      "id": "hmac-commitments-021",
+      "description": "A commitment of the kind analysis_table under another key.",
+      "key": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "message": "pupil,score\np1,12\n",
+      "covers": "analysis_table",
+      "expected": {
+        "commitment": {
+          "algorithm": "hmac-sha256",
+          "covers": "analysis_table",
+          "digest": "a8689c505ad6948329f5afe55a968f42adcd4e99dc423138b40e6ec65c8a48e4",
+          "key_id": "af9613760f72635f"
+        }
+      }
+    }
+  ]
+}

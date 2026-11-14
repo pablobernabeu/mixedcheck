@@ -1,26 +1,49 @@
 # Checks that the shared artefacts vendored into both packages match their
-# sources byte for byte (02-decisions.md, Q7), and tests the vendoring script.
+# sources byte for byte (02-decisions.md, Q7) and that the compiled registry
+# matches its YAML sources, and tests the scripts in spec/tools/. Their test
+# of the pathology zoo also reads the unit tests of the checks in both
+# packages, which assert the findings that only unit tests reach.
 name: vendoring
 
 on:
   push:
     branches: [main]
     paths:
+      - 'docs/spec/errors.md'
+      - 'docs/spec/registry.md'
+      - 'docs/spec/declarations.md'
+      - 'docs/spec/documents.md'
       - 'spec/**'
       - 'fixtures/**'
       - 'r/inst/spec/**'
       - 'r/inst/fixtures/**'
       - 'python/src/mixedcheck/_spec/**'
       - 'python/src/mixedcheck/_fixtures/**'
+      - 'r/tests/conformance/**'
+      - 'python/tests/conformance/**'
+      - 'r/tests/testthat/test-checks-*.R'
+      - 'python/tests/test_checks_*.py'
+      - 'parity/corpora.json'
+      - 'docs/design/evidence/decisions/E-verify/edgezoo/**'
       - '.github/workflows/vendoring.yaml'
   pull_request:
     paths:
+      - 'docs/spec/errors.md'
+      - 'docs/spec/registry.md'
+      - 'docs/spec/declarations.md'
+      - 'docs/spec/documents.md'
       - 'spec/**'
       - 'fixtures/**'
       - 'r/inst/spec/**'
       - 'r/inst/fixtures/**'
       - 'python/src/mixedcheck/_spec/**'
       - 'python/src/mixedcheck/_fixtures/**'
+      - 'r/tests/conformance/**'
+      - 'python/tests/conformance/**'
+      - 'r/tests/testthat/test-checks-*.R'
+      - 'python/tests/test_checks_*.py'
+      - 'parity/corpora.json'
+      - 'docs/design/evidence/decisions/E-verify/edgezoo/**'
       - '.github/workflows/vendoring.yaml'
   workflow_dispatch:
 
@@ -40,9 +63,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      # The script and its tests use the standard library only, so the
-      # runner's own Python is enough.
+      # vendor.py uses the standard library only. The registry compiler needs
+      # PyYAML, and its tests use jsonschema as an oracle, so both go into a
+      # virtual environment on the runner's own Python.
+      - name: Install PyYAML and the jsonschema oracle
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install pyyaml==6.0.3 jsonschema==4.26.0
       - name: Check the vendored copies against their sources
         run: python3 spec/tools/vendor.py check
-      - name: Test the vendoring script
-        run: python3 -m unittest discover -s spec/tools -v
+      - name: Check that the compiled registry matches its sources
+        run: '"$RUNNER_TEMP/venv/bin/python" spec/tools/compile_registry.py --check'
+      - name: Test the vendoring script, the error catalogue and the registry compiler
+        run: '"$RUNNER_TEMP/venv/bin/python" -m unittest discover -s spec/tools -v'

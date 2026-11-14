@@ -1,0 +1,342 @@
+{
+  "description": "Cases of labels.unicode_forms: the columns that hold labels and the spellings that NFC merges.",
+  "cases": [
+    {
+      "id": "audits-labels-001",
+      "description": "A precomposed and a decomposed spelling of one label in a grouping column: 2 distinct spellings treated as 1 label, merged.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "subject": ["Jos\u00e9", "Jos\u00e9", "Jose\u0301", "Ana", "Ana", "Bo"]
+      },
+      "formula": "y ~ 1 + (1 | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged", "text": "In 'subject', 2 distinct spellings that differ only in their Unicode form are treated as 1 label."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 1, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-002",
+      "description": "A categorical predictor and a grouping column without such spellings: distinct for each, in code-point order of the columns. The numeric predictor 'x' holds no labels and yields no finding.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "x": [1, 2, 3, 4, 5, 6],
+        "cond": ["A", "B", "A", "B", "A", "B"],
+        "subject": ["s1", "s1", "s2", "s2", "s3", "s3"]
+      },
+      "formula": "y ~ x + cond + (1 | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "cond"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'cond' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'subject' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-003",
+      "description": "Three spellings of one label, including U+212B ANGSTROM SIGN, and two of another: 5 distinct spellings treated as 2 labels.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "item": ["\u00c5", "A\u030a", "\u212b", "e\u0301", "\u00e9", "b"]
+      },
+      "formula": "y ~ 1 + (1 | item)",
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "item"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged", "text": "In 'item', 5 distinct spellings that differ only in their Unicode form are treated as 2 labels."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 2, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 5, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-004",
+      "description": "Columns that hold labels through the declaration: the observation key, an assigned column of the assignment block and a column with the role assigned, beside the grouping column. 'arm' has two spellings of one label. The response, whose spellings also differ, is not read.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "resp": ["caf\u00e9", "cafe\u0301", "tea", "tea", "caf\u00e9", "tea"],
+        "site": ["A", "A", "A", "B", "B", "B"],
+        "pid": ["p1", "p1", "p2", "p2", "p3", "p3"],
+        "trial": ["t1", "t2", "t1", "t2", "t1", "t2"],
+        "arm": ["ctrl", "ctrl", "na\u00efve", "na\u00efve", "nai\u0308ve", "nai\u0308ve"],
+        "grp": ["g1", "g1", "g2", "g2", "g1", "g1"]
+      },
+      "formula": "resp ~ 1 + (1 | site)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "person", "columns": ["pid"]}],
+        "observation": {"key": ["pid", "trial"]},
+        "assignment": [{"column": "arm", "unit": "person", "randomised": true}],
+        "variables": {"grp": {"role": "assigned"}, "resp": {"role": "outcome", "measurement": "binary"}}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "arm"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged", "text": "In 'arm', 2 distinct spellings that differ only in their Unicode form are treated as 1 label."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 1, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "grp"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'grp' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "pid"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'pid' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "site"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'site' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "trial"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'trial' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-005",
+      "description": "The check reads the table: the only row with the decomposed spelling has a missing 'x' and is outside the design sample, but the spellings are still merged.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [1, 2, 3, 4, 5],
+        "x": [1, 2, 3, 4, null],
+        "subject": ["Jos\u00e9", "Jos\u00e9", "Ana", "Ana", "Jose\u0301"]
+      },
+      "formula": "y ~ x + (1 | subject)",
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "subject"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged", "text": "In 'subject', 2 distinct spellings that differ only in their Unicode form are treated as 1 label."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 1, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 2}, "dominated": true}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-006",
+      "description": "A categorical predictor whose levels merge after NFC keeps two levels in the IR, and the check reports the merge in 'cond'.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "cond": ["na\u00efve", "nai\u0308ve", "expert", "expert", "na\u00efve", "expert"],
+        "g": ["a", "a", "b", "b", "c", "c"]
+      },
+      "formula": "y ~ cond + (1 | g)",
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "cond"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged", "text": "In 'cond', 2 distinct spellings that differ only in their Unicode form are treated as 1 label."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 1, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 2, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "g"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'g' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "grouping_factors", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-007",
+      "description": "With pupils as the disclosure unit, the counts of spellings and labels of 'school', whose labels hold several pupils, resolve as non-person counts, and those of 'pupil' as person counts.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "school": ["S\u00e9", "S\u00e9", "Se\u0301", "T", "T", "T"],
+        "pupil": ["p1", "p2", "p3", "p4", "p5", "p6"]
+      },
+      "formula": "y ~ 1 + (1 | school) + (1 | pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "school", "id_scope": "global", "role": "participant"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "pupil"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'pupil' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 6}, "dominated": false}}
+          },
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "school"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "merged", "text": "In 'school', 2 distinct spellings that differ only in their Unicode form are treated as 1 label."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "spellings": {"kind": "count", "value": 2, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-labels-008",
+      "description": "The data and declaration of audits-assignment-025: the entry of the assignment block counts as absent, since its unit class does, so its column arm holds no labels, and the only column that does is the grouping column class, whose levels each hold three pupils of the disclosure unit, so its counts resolve as non-person counts.",
+      "checks": ["labels.unicode_forms"],
+      "data": {
+        "y": [3.1, 4.2, 3.8, 2.9, 3.5, 2.6, 4.4, 3.9, 4.1, 2.7, 3.3, 3],
+        "x": [1, 2, 3, 2, 4, 3, 5, 1, 2, 4, 6, 1],
+        "arm": ["T", "T", "T", "C", "C", "C", "T", "T", "T", "C", "C", "C"],
+        "school": ["S1", "S1", "S1", "S1", "S1", "S1", "S2", "S2", "S2", "S2", "S2", "S2"],
+        "class": ["c1", "c1", "c1", "c2", "c2", "c2", "c3", "c3", "c3", "c4", "c4", "c4"],
+        "pupil": ["p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p12"]
+      },
+      "formula": "y ~ x + (1 | class)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "units": [{"name": "school", "columns": ["school"], "role": "cluster"}, {"name": "class", "columns": ["class"], "nested_in": "school", "id_scope": "global", "role": "cluster"}, {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global", "role": "participant"}],
+        "assignment": [{"column": "arm", "unit": "class", "randomised": true, "level": "between_unit"}],
+        "provenance": {"inferred": ["/units/1"]}
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "labels.unicode_forms",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"column": "class"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "distinct", "text": "No two labels in 'class' differ only in their Unicode form."},
+            "statistics": {
+              "labels": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "spellings": {"kind": "count", "value": 0, "count_class": "non_person"}
+            },
+            "support": {"rows": {"value": 12}, "contributors": {"basis": "disclosure_unit", "distinct": {"value": 12}, "dominated": false}}
+          }
+        ]
+      }
+    }
+  ]
+}

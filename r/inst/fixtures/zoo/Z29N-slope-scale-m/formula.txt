@@ -1,0 +1,1 @@
+rt ~ dist + (1 + dist | subject)

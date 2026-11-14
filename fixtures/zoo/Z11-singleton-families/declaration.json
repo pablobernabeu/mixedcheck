@@ -1,0 +1,60 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z11 Families with singletons",
+  "features": [
+    "family"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "family",
+        "type": "string"
+      },
+      {
+        "name": "child",
+        "type": "string"
+      },
+      {
+        "name": "x",
+        "type": "number"
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "family",
+      "columns": [
+        "family"
+      ],
+      "role": "family"
+    },
+    {
+      "name": "child",
+      "columns": [
+        "child"
+      ],
+      "nested_in": "family",
+      "id_scope": "global",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "unit": "child",
+    "key": [
+      "child"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    },
+    "x": {
+      "role": "baseline_covariate"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+y ~ dose + adherence + (1 | clinic)

@@ -1,0 +1,40 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Priming experiment, Latin-square lists",
+  "features": ["crossed_experiment", "counterbalanced", "trial_level"],
+  "units": [
+    {"name": "subject", "columns": ["subject"], "role": "participant"},
+    {"name": "item", "columns": ["item"], "role": "item"}
+  ],
+  "crossings": [{"units": ["subject", "item"], "list": "list"}],
+  "observation": {
+    "key": ["subject", "item"],
+    "time": {"column": "trial", "kind": "trial_index", "within": "subject"}
+  },
+  "assignment": [{"column": "prime", "unit": "subject", "randomised": true, "level": "within_unit"}],
+  "variables": {
+    "rt": {"role": "outcome", "measurement": "positive_duration"},
+    "acc": {"role": "outcome", "measurement": "binary", "event_level": "correct"},
+    "prime": {"role": "assigned"},
+    "trial": {"role": "time"},
+    "log_freq": {"role": "baseline_covariate", "measurement": "continuous"},
+    "excluded": {"role": "exclusion_flag"}
+  },
+  "estimands": [
+    {
+      "id": "priming",
+      "term": "prime",
+      "kind": "total_effect",
+      "focal": true,
+      "outcome": "rt"
+    },
+    {
+      "id": "freq_x_prime",
+      "term": "prime:log_freq",
+      "kind": "association",
+      "focal": false,
+      "outcome": "rt"
+    },
+    {"id": "priming_acc", "term": "prime", "kind": "total_effect", "outcome": "acc"}
+  ]
+}

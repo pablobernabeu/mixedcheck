@@ -1,0 +1,354 @@
+{
+  "description": "Stage 5 of validation, against the compiled registry vendored with the package: W7090 for another registry, the parameters of the privacy filter, unknown checks, check versions, tiers, kinds and count classes, unknown statistics, messages and scope parts, missing scope parts, the optimisation status, the n of quantiles and the quantiles that the entries give, with their p.",
+  "cases": [
+    {
+      "id": "results-registry-001",
+      "description": "A valid document whose registry hash differs from that of the registry of this release: W7090 alone, at /inputs/registry_hash.",
+      "document": "registry/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "W7090",
+            "message": "The registry hash at /inputs/registry_hash differs from the hash of the registry of this release, so the findings were not checked against registry entries.",
+            "pointer": "/inputs/registry_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-002",
+      "description": "Another registry hash with findings that the registry of this release would reject: W7090 alone, since the findings are not checked against registry entries.",
+      "document": "registry/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "W7090",
+            "message": "The registry hash at /inputs/registry_hash differs from the hash of the registry of this release, so the findings were not checked against registry entries.",
+            "pointer": "/inputs/registry_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-003",
+      "description": "A finding of the check 'structure.level_sizes', which the registry does not have: E7040 alone for that finding, whose version and statistics are not checked.",
+      "document": "registry/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7040",
+            "message": "The check 'structure.level_sizes' at /findings/2/check is not in the registry.",
+            "pointer": "/findings/2/check"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-004",
+      "description": "keys.duplicates with the check version 2 and the tier T1: E7041 at each, with the value of the entry.",
+      "document": "registry/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/check_version must be 1, as the registry entry of the check states.",
+            "pointer": "/findings/0/check_version"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/tier must be 'T0', as the registry entry of the check states.",
+            "pointer": "/findings/0/tier"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-005",
+      "description": "The statistic rows of keys.duplicates with the kind ratio and duplicate_rows with the class non_person: E7041 at each. levels of structure.cluster_sizes, whose class is by_unit, is a person count in a document without a disclosure unit (registry.md, Statistics and counts), so its class non_person gets E7041 too.",
+      "document": "registry/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/statistics/duplicate_rows/count_class must be 'person', as the registry entry of the check states.",
+            "pointer": "/findings/0/statistics/duplicate_rows/count_class"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/statistics/rows/kind must be 'count', as the registry entry of the check states.",
+            "pointer": "/findings/0/statistics/rows/kind"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/2/statistics/levels/count_class must be 'person', as the registry entry of the check states.",
+            "pointer": "/findings/2/statistics/levels/count_class"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-006",
+      "description": "A scope part 'factor' on keys.duplicates, whose scope is model, a message 'all_rows' and a statistic 'rows_total' that sample.raw_vs_analysis does not define: E7042 for each, naming its kind.",
+      "document": "registry/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7042",
+            "message": "The scope part 'factor' at /findings/0/scope/factor is not defined by the registry entry of the check.",
+            "pointer": "/findings/0/scope/factor"
+          },
+          {
+            "code": "E7042",
+            "message": "The message 'all_rows' at /findings/1/message/id is not defined by the registry entry of the check.",
+            "pointer": "/findings/1/message/id"
+          },
+          {
+            "code": "E7042",
+            "message": "The statistic 'rows_total' at /findings/1/statistics/rows_total is not defined by the registry entry of the check.",
+            "pointer": "/findings/1/statistics/rows_total"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-007",
+      "description": "An available finding of structure.cluster_sizes with an empty scope and a finding of structure.label_incidence that is not available with the part 'first' alone: E7043 for each missing part. A finding that is not available with an empty scope, for the whole check, has no issue.",
+      "document": "registry/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7043",
+            "message": "The scope at /findings/2/scope lacks the part 'factor'.",
+            "pointer": "/findings/2/scope"
+          },
+          {
+            "code": "E7043",
+            "message": "The scope at /findings/4/scope lacks the part 'second'.",
+            "pointer": "/findings/4/scope"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-008",
+      "description": "A model without grouping factors: outcome.minority_events, whose scope is grouping_factor_or_model, yields its finding for the model with an empty scope, which has no issue, whereas an available finding of outcome.constant_clusters with an empty scope lacks the part 'factor': E7043.",
+      "document": "registry/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7043",
+            "message": "The scope at /findings/0/scope lacks the part 'factor'.",
+            "pointer": "/findings/0/scope"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-009",
+      "description": "An optimisation status on a finding of keys.duplicates, which evaluates no fitted model: E7044.",
+      "document": "registry/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7044",
+            "message": "The status at /findings/0/status must include optimisation exactly when the check evaluates a fitted model.",
+            "pointer": "/findings/0/status"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-010",
+      "description": "Several issues of stage 5 in three findings, sorted by pointer: E7041 and E7044 in the first, E7041 in the second and E7041 and E7042 in the third.",
+      "document": "registry/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/0/check_version must be 1, as the registry entry of the check states.",
+            "pointer": "/findings/0/check_version"
+          },
+          {
+            "code": "E7044",
+            "message": "The status at /findings/0/status must include optimisation exactly when the check evaluates a fitted model.",
+            "pointer": "/findings/0/status"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/1/statistics/rows_kept/count_class must be 'person', as the registry entry of the check states.",
+            "pointer": "/findings/1/statistics/rows_kept/count_class"
+          },
+          {
+            "code": "E7042",
+            "message": "The scope part 'unit' at /findings/2/scope/unit is not defined by the registry entry of the check.",
+            "pointer": "/findings/2/scope/unit"
+          },
+          {
+            "code": "E7041",
+            "message": "The value at /findings/2/statistics/median/kind must be 'count', as the registry entry of the check states.",
+            "pointer": "/findings/2/statistics/median/kind"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-011",
+      "description": "An internal document whose quantile lower_quartile of structure.cluster_sizes writes n 5 beside the count levels of 4 that gives it: E7025 at the n, since the rule holds in every document.",
+      "document": "registry/011.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7025",
+            "message": "The n at /findings/2/statistics/lower_quartile/quantile/n must be left out unless the count 'levels' of its finding is written, and must then equal that count.",
+            "pointer": "/findings/2/statistics/lower_quartile/quantile/n"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-012",
+      "description": "A shareable document whose count levels of structure.cluster_sizes is suppressed and whose suppressed median keeps n 2, which shows the suppressed count: E7025 at the n. The other quantiles leave n out, as step 11 of privacy.md writes them.",
+      "document": "registry/012.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7025",
+            "message": "The n at /findings/1/statistics/median/quantile/n must be left out unless the count 'levels' of its finding is written, and must then equal that count.",
+            "pointer": "/findings/1/statistics/median/quantile/n"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-013",
+      "description": "A shareable document whose count levels of structure.cluster_sizes is written as 20 and whose quantiles write n 20 beside it, the median of 20 values with its value and the others suppressed by the quantile rule: no issue.",
+      "document": "registry/013.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-registry-014",
+      "description": "An internal document whose minimum smallest of structure.cluster_sizes has no quantile, which its entry gives it with p 0: E7045 at the statistic, since the rule holds in every document.",
+      "document": "registry/014.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7045",
+            "message": "The statistic at /findings/2/statistics/smallest must have a quantile exactly when the registry entry of the check gives it one.",
+            "pointer": "/findings/2/statistics/smallest"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-015",
+      "description": "An internal document whose upper_quartile of structure.cluster_sizes has a quantile with p 0.25, where its entry gives p 0.75: E7041 at the p, with the number nearest to the decimal string of the entry.",
+      "document": "registry/015.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/2/statistics/upper_quartile/quantile/p must be 0.75, as the registry entry of the check states.",
+            "pointer": "/findings/2/statistics/upper_quartile/quantile/p"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-016",
+      "description": "An internal document whose effective_size of structure.cluster_sizes, a real that its entry gives no quantile, has the quantile 0.5 of 4 values: E7045 at the statistic.",
+      "document": "registry/016.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7045",
+            "message": "The statistic at /findings/2/statistics/effective_size must have a quantile exactly when the registry entry of the check gives it one.",
+            "pointer": "/findings/2/statistics/effective_size"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-017",
+      "description": "A shareable document whose minimum smallest of structure.cluster_sizes is written as 12 without its quantile, which the quantile rule of stage 4 would suppress, and whose suppressed maximum largest also has no quantile: E7045 at both statistics, sorted by pointer, since p is written whether the value is written or not.",
+      "document": "registry/017.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7045",
+            "message": "The statistic at /findings/1/statistics/largest must have a quantile exactly when the registry entry of the check gives it one.",
+            "pointer": "/findings/1/statistics/largest"
+          },
+          {
+            "code": "E7045",
+            "message": "The statistic at /findings/1/statistics/smallest must have a quantile exactly when the registry entry of the check gives it one.",
+            "pointer": "/findings/1/statistics/smallest"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-018",
+      "description": "A shareable document whose minimum smallest of structure.cluster_sizes is written as 12 with the quantile 0.5 of 20 values, which the quantile rule of stage 4 lets through: E7041 at the p, which its entry gives as 0.",
+      "document": "registry/018.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7041",
+            "message": "The value at /findings/1/statistics/smallest/quantile/p must be 0, as the registry entry of the check states.",
+            "pointer": "/findings/1/statistics/smallest/quantile/p"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-019",
+      "description": "A shareable document whose count rows of structure.cluster_sizes, which its entry gives no quantile, has the quantile 0.5 of 20 values, which the quantile rule of stage 4 lets through: E7045 at the statistic.",
+      "document": "registry/019.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7045",
+            "message": "The statistic at /findings/1/statistics/rows must have a quantile exactly when the registry entry of the check gives it one.",
+            "pointer": "/findings/1/statistics/rows"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-registry-020",
+      "description": "The shareable document of results-valid-003 with the parameters of the filter changed, min_count lowered to 1, and the 4 levels of structure.cluster_sizes, a person count, written with its 4 distinct contributors: stage 4 reads k from the document and finds no issue, and stage 5 reports E7046 at each parameter that differs from the privacy block of the registry, with the value of the registry.",
+      "document": "registry/020.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/dominance/contributors must be 2, as the privacy block of the registry states.",
+            "pointer": "/privacy/dominance/contributors"
+          },
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/dominance/share must be '0.9', as the privacy block of the registry states.",
+            "pointer": "/privacy/dominance/share"
+          },
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/min_count must be 10, as the privacy block of the registry states.",
+            "pointer": "/privacy/min_count"
+          },
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/rounding_base must be 5, as the privacy block of the registry states.",
+            "pointer": "/privacy/rounding_base"
+          },
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/zeros_disclosive must be true, as the privacy block of the registry states.",
+            "pointer": "/privacy/zeros_disclosive"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {"name": "school", "columns": ["school"]},
+    {
+      "name": "class",
+      "columns": ["class"],
+      "nested_in": "school",
+      "id_scope": "within_parent"
+    },
+    {"name": "pupil", "columns": ["pupil"], "nested_in": "class", "id_scope": "global"}
+  ],
+  "crossings": [{"units": ["school", "pupil"]}]
+}

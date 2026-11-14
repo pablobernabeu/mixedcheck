@@ -1,0 +1,49 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Vocabulary training at four sites",
+  "goal": "confirmatory",
+  "features": ["multisite"],
+  "disclosure_unit": "participant",
+  "table": {
+    "fields": [
+      {"name": "site", "type": "string"},
+      {"name": "participant", "type": "string"},
+      {
+        "name": "arm",
+        "type": "string",
+        "categories": [{"value": "control", "label": "Waiting list"}, {"value": "training"}]
+      },
+      {"name": "age", "type": "integer"},
+      {"name": "correct_k", "type": "integer"},
+      {"name": "n_items", "type": "integer"}
+    ],
+    "primaryKey": ["site", "participant"]
+  },
+  "units": [
+    {"name": "site", "columns": ["site"], "role": "site"},
+    {
+      "name": "participant",
+      "columns": ["participant"],
+      "nested_in": "site",
+      "id_scope": "within_parent",
+      "role": "participant"
+    }
+  ],
+  "observation": {"unit": "participant", "key": ["site", "participant"]},
+  "assignment": [
+    {
+      "column": "arm",
+      "unit": "participant",
+      "randomised": true,
+      "level": "between_unit",
+      "blocks": ["site"]
+    }
+  ],
+  "variables": {
+    "correct_k": {"role": "outcome", "measurement": "binomial", "trials": "n_items"},
+    "n_items": {"role": "auxiliary"},
+    "arm": {"role": "assigned"},
+    "age": {"role": "baseline_covariate", "measurement": "count"}
+  },
+  "estimands": [{"id": "training", "term": "arm", "kind": "total_effect", "outcome": "correct_k"}]
+}

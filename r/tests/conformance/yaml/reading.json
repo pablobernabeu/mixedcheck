@@ -1,0 +1,432 @@
+{
+  "description": "Declarations written in YAML that the bytes check, the pre-scan, the parser or the check of keys refuses, each with the one issue reported.",
+  "cases": [
+    {
+      "id": "yaml-reading-001",
+      "description": "A YAML text that starts with a byte-order mark.",
+      "path": "reading/bom.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1003",
+            "message": "The input starts with a UTF-8 byte-order mark."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-002",
+      "description": "A title with the byte FF, which is not UTF-8.",
+      "path": "reading/invalid_utf8.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 28.",
+            "offset": 28
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-003",
+      "description": "A raw U+0000 in a plain scalar.",
+      "path": "reading/raw_nul.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1202",
+            "message": "The string at byte 26 contains the character U+0000.",
+            "offset": 26
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-004",
+      "description": "The escape '\\0' in a double-quoted scalar, reported at its backslash.",
+      "path": "reading/nul_escape.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1202",
+            "message": "The string at byte 27 contains the character U+0000.",
+            "offset": 27
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-005",
+      "description": "A YAML directive.",
+      "path": "reading/directive.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3005",
+            "message": "The YAML text has an explicit tag or a directive at byte 0. Tags and directives are not accepted.",
+            "offset": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-006",
+      "description": "An explicit tag.",
+      "path": "reading/tag.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3005",
+            "message": "The YAML text has an explicit tag or a directive at byte 12. Tags and directives are not accepted.",
+            "offset": 12
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-007",
+      "description": "An anchor and an alias.",
+      "path": "reading/anchor.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3004",
+            "message": "The YAML text has an anchor or an alias at byte 53. Anchors and aliases are not accepted.",
+            "offset": 53
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-008",
+      "description": "A merge key.",
+      "path": "reading/merge_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 75 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 75
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-009",
+      "description": "Two documents.",
+      "path": "reading/two_documents.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3003",
+            "message": "A second YAML document starts at byte 18. The text must hold exactly one document.",
+            "offset": 18
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-010",
+      "description": "A text with a comment and no document.",
+      "path": "reading/empty.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3010",
+            "message": "The YAML text holds no document."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-011",
+      "description": "Content after the document end marker.",
+      "path": "reading/after_end.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3003",
+            "message": "A second YAML document starts at byte 22. The text must hold exactly one document.",
+            "offset": 22
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-012",
+      "description": "A flow sequence that is not closed.",
+      "path": "reading/unclosed.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3002",
+            "message": "The YAML text cannot be parsed."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-013",
+      "description": "A tab used for indentation, which libyaml refuses.",
+      "path": "reading/tab_indent.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3002",
+            "message": "The YAML text cannot be parsed."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-014",
+      "description": "A key that repeats an earlier key of the same mapping.",
+      "path": "reading/duplicate_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3007",
+            "message": "A YAML mapping holds a key twice."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-015",
+      "description": "A key written plain and quoted, which are equal because their text is.",
+      "path": "reading/duplicate_quoted_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3007",
+            "message": "A YAML mapping holds a key twice."
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-016",
+      "description": "A mapping key that is a sequence.",
+      "path": "reading/complex_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3006",
+            "message": "The mapping at (root) has a key that is not a scalar.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-017",
+      "description": "An empty key in the variables block.",
+      "path": "reading/empty_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1109",
+            "message": "Empty key at /variables/.",
+            "pointer": "/variables/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-018",
+      "description": "A YAML text in a file whose name does not end in '.yaml' or '.yml', which is read as JSON.",
+      "path": "reading/yaml_text.txt",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1022",
+            "message": "Unexpected character 'v' at byte 0.",
+            "offset": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-019",
+      "description": "A plain '<<' that is not a key, which R's yaml package reads as a merge key.",
+      "path": "reading/merge_value.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 25 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 25
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-020",
+      "description": "A plain scalar that starts with '<<' and a character outside ASCII, which R's yaml package reads as a merge key and turns into '<<'.",
+      "path": "reading/merge_non_ascii_value.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 25 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 25
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-021",
+      "description": "A key that starts with '<<' and a character outside ASCII, which R's yaml package reads as a merge key and merges.",
+      "path": "reading/merge_non_ascii_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 31 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 31
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-022",
+      "description": "A merge key written as an explicit key with '?'.",
+      "path": "reading/merge_explicit_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 20 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 20
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-023",
+      "description": "A merge key written as an explicit key on the line after the '?', with a CRLF line ending.",
+      "path": "reading/merge_explicit_key_next_line.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 24 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 24
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-024",
+      "description": "A merge key after a '?' that is followed by no space inside braces, where libyaml reads the '?' as an indicator.",
+      "path": "reading/merge_flow_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 31 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 31
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-025",
+      "description": "An anchor after a '?' that is followed by no space inside braces.",
+      "path": "reading/anchor_flow_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3004",
+            "message": "The YAML text has an anchor or an alias at byte 31. Anchors and aliases are not accepted.",
+            "offset": 31
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-026",
+      "description": "An anchor at the start of a line that U+0085 begins, which libyaml reads as a line break.",
+      "path": "reading/next_line_anchor.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3004",
+            "message": "The YAML text has an anchor or an alias at byte 28. Anchors and aliases are not accepted.",
+            "offset": 28
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-027",
+      "description": "A tag at the start of a line that U+0085 begins.",
+      "path": "reading/next_line_tag.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3005",
+            "message": "The YAML text has an explicit tag or a directive at byte 20. Tags and directives are not accepted.",
+            "offset": 20
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-028",
+      "description": "A merge key at the start of a line that U+0085 begins.",
+      "path": "reading/next_line_merge_key.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3009",
+            "message": "The plain scalar at byte 32 starts with '<<', which can be read as a merge key. Quote the scalar.",
+            "offset": 32
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-029",
+      "description": "A comment that U+2029 ends, followed by an anchor.",
+      "path": "reading/paragraph_separator_anchor.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3004",
+            "message": "The YAML text has an anchor or an alias at byte 24. Anchors and aliases are not accepted.",
+            "offset": 24
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-030",
+      "description": "A second document after a line that U+2028 ends.",
+      "path": "reading/line_separator_document.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3003",
+            "message": "A second YAML document starts at byte 29. The text must hold exactly one document.",
+            "offset": 29
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-reading-031",
+      "description": "A text that holds only U+0085, a line break, and so no document.",
+      "path": "reading/next_line_only.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E3010",
+            "message": "The YAML text holds no document."
+          }
+        ]
+      }
+    }
+  ]
+}

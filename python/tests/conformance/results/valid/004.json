@@ -1,0 +1,321 @@
+{
+  "results_version": "0.1.0",
+  "created": "2026-11-09T10:00:00Z",
+  "stream": "B",
+  "versions": {
+    "package": "0.1.0",
+    "registry": "0.1.0",
+    "schemas": "0.1.0",
+    "canonicaliser": "0.1.0"
+  },
+  "software": {
+    "language": "R",
+    "runtime": "4.3.3",
+    "unicode": {
+      "library": "utf8",
+      "version": "1.2.4"
+    }
+  },
+  "privacy": {
+    "mode": "internal",
+    "min_count": 10,
+    "dominance": {
+      "contributors": 2,
+      "share": "0.9"
+    },
+    "rounding_base": 5,
+    "zeros_disclosive": true
+  },
+  "inputs": {
+    "registry_hash": "sha256:339d98c4bd05e2f54dc14978be3b7ea111e6cf6f49d3450dc56dd522c42d6730",
+    "model": {
+      "formula": "y ~ x + (1 | subject)",
+      "family_class": "gaussian",
+      "ir_hash": "sha256:3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c"
+    },
+    "data": {
+      "analysis_table": {
+        "algorithm": "hmac-sha256",
+        "covers": "analysis_table",
+        "digest": "a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7",
+        "key_id": "630dcd2966c43366"
+      }
+    }
+  },
+  "access_log": {
+    "entries": [
+      {
+        "tier": "T0",
+        "time": "2026-11-09T10:00:00Z",
+        "mode": "outcome_blind"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "check": "keys.duplicates",
+      "check_version": 1,
+      "tier": "T0",
+      "scope": {},
+      "status": {
+        "availability": {
+          "value": "available"
+        },
+        "assessability": {
+          "value": "adequate"
+        },
+        "finding": {
+          "value": "consistent"
+        },
+        "threshold_proximity": {
+          "value": "clear"
+        },
+        "validation": {
+          "value": "descriptive"
+        }
+      },
+      "message": {
+        "id": "unique",
+        "text": "Every row has its own value of the observation key 'subject' and 'trial'."
+      },
+      "statistics": {
+        "conflicting_keys": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "duplicate_rows": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "duplicated_keys": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "identical_keys": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "key_columns": {
+          "kind": "names",
+          "value": [
+            "subject",
+            "trial"
+          ]
+        },
+        "missing_key_rows": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "rows": {
+          "kind": "count",
+          "value": 12,
+          "count_class": "person"
+        }
+      },
+      "support": {
+        "rows": {
+          "value": 12
+        },
+        "contributors": {
+          "basis": "grouping_factors",
+          "distinct": {
+            "value": 4
+          },
+          "dominated":false
+        }
+      }
+    },
+    {
+      "check": "sample.raw_vs_analysis",
+      "check_version": 1,
+      "tier": "T0",
+      "scope": {},
+      "status": {
+        "availability": {
+          "value": "available"
+        },
+        "assessability": {
+          "value": "adequate"
+        },
+        "finding": {
+          "value": "consistent"
+        },
+        "threshold_proximity": {
+          "value": "clear"
+        },
+        "validation": {
+          "value": "descriptive"
+        }
+      },
+      "message": {
+        "id": "complete",
+        "text": "Every row of the table is complete in the columns that the model reads (12 in all)."
+      },
+      "statistics": {
+        "emptied_factors": {
+          "kind": "names",
+          "value": []
+        },
+        "factors_losing_levels": {
+          "kind": "names",
+          "value": []
+        },
+        "incomplete_columns": {
+          "kind": "names",
+          "value": []
+        },
+        "new_singletons": {
+          "kind": "names",
+          "value": []
+        },
+        "reference_emptied": {
+          "kind": "names",
+          "value": []
+        },
+        "rows_dropped": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "rows_kept": {
+          "kind": "count",
+          "value": 12,
+          "count_class": "person"
+        },
+        "rows_raw": {
+          "kind": "count",
+          "value": 12,
+          "count_class": "person"
+        }
+      },
+      "support": {
+        "rows": {
+          "value": 12
+        },
+        "contributors": {
+          "basis": "grouping_factors",
+          "distinct": {
+            "value": 4
+          },
+          "dominated":false
+        }
+      }
+    },
+    {
+      "check": "structure.cluster_sizes",
+      "check_version": 1,
+      "tier": "T0",
+      "scope": {
+        "factor": "subject"
+      },
+      "status": {
+        "availability": {
+          "value": "available"
+        },
+        "assessability": {
+          "value": "adequate"
+        },
+        "finding": {
+          "value": "consistent"
+        },
+        "threshold_proximity": {
+          "value": "clear"
+        },
+        "validation": {
+          "value": "descriptive"
+        }
+      },
+      "message": {
+        "id": "sizes",
+        "text": "'subject' has 4 levels with 12 rows. Level sizes range from 3 to 3, with quartiles 3 and 3 and median 3. Levels with one row, which are kept: 0."
+      },
+      "statistics": {
+        "effective_size": {
+          "kind": "real",
+          "value": 3
+        },
+        "intercept": {
+          "kind": "boolean",
+          "value": true
+        },
+        "largest": {
+          "kind": "count",
+          "value": 3,
+          "count_class": "person",
+          "quantile": {
+            "p": 1,
+            "n": 4
+          }
+        },
+        "levels": {
+          "kind": "count",
+          "value": 4,
+          "count_class": "person"
+        },
+        "lower_quartile": {
+          "kind": "count",
+          "value": 3,
+          "count_class": "person",
+          "quantile": {
+            "p": 0.25,
+            "n": 4
+          }
+        },
+        "median": {
+          "kind": "count",
+          "value": 3,
+          "count_class": "person",
+          "quantile": {
+            "p": 0.5,
+            "n": 4
+          }
+        },
+        "rows": {
+          "kind": "count",
+          "value": 12,
+          "count_class": "person"
+        },
+        "singletons": {
+          "kind": "count",
+          "value": 0,
+          "count_class": "person"
+        },
+        "smallest": {
+          "kind": "count",
+          "value": 3,
+          "count_class": "person",
+          "quantile": {
+            "p": 0,
+            "n": 4
+          }
+        },
+        "upper_quartile": {
+          "kind": "count",
+          "value": 3,
+          "count_class": "person",
+          "quantile": {
+            "p": 0.75,
+            "n": 4
+          }
+        }
+      },
+      "support": {
+        "rows": {
+          "value": 12
+        },
+        "contributors": {
+          "basis": "grouping_factors",
+          "distinct": {
+            "value": 4
+          },
+          "dominated":false
+        }
+      }
+    }
+  ]
+}

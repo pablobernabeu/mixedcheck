@@ -1,0 +1,374 @@
+{
+  "description": "Doubles rounded to a number of significant digits, half to even on their exact binary value, and written as decimal strings (conventions.md, Decimal strings and centring constants).",
+  "cases": [
+    {
+      "id": "numbers-decimal-constants-001",
+      "description": "The double 3.215 to 3 significant digits. Its exact value is 3.21499999999999985789145284797996282577..., not a tie, since the double lies below 3.215.",
+      "double": "4009b851eb851eb8",
+      "digits": 3,
+      "expected": {
+        "decimal": "3.21"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-002",
+      "description": "The double 0.125 to 2 significant digits. Its exact value is 0.125, an exact tie, rounded to the even digit.",
+      "double": "3fc0000000000000",
+      "digits": 2,
+      "expected": {
+        "decimal": "0.12"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-003",
+      "description": "The double 0.375 to 2 significant digits. Its exact value is 0.375, an exact tie, rounded to the even digit.",
+      "double": "3fd8000000000000",
+      "digits": 2,
+      "expected": {
+        "decimal": "0.38"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-004",
+      "description": "The double 2.5 to 1 significant digit. Its exact value is 2.5, an exact tie, rounded to the even digit.",
+      "double": "4004000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "2"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-005",
+      "description": "The double 34.56789 to 6 significant digits. Its exact value is 34.5678899999999984515852702315896749496....",
+      "double": "404148b09e98dcdb",
+      "digits": 6,
+      "expected": {
+        "decimal": "34.5679"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-006",
+      "description": "The double 52345.678 to 6 significant digits. Its exact value is 52345.677999999999883584678173065185546875.",
+      "double": "40e98f35b22d0e56",
+      "digits": 6,
+      "expected": {
+        "decimal": "52345.7"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-007",
+      "description": "The double 1234567 to 3 significant digits. Its exact value is 1234567, an integer.",
+      "double": "4132d68700000000",
+      "digits": 3,
+      "expected": {
+        "decimal": "1230000"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-008",
+      "description": "The double -0.000123456 to 2 significant digits. Its exact value is -0.0001234560000000000051876419826513142..., a negative value.",
+      "double": "bf202e7ef70994dd",
+      "digits": 2,
+      "expected": {
+        "decimal": "-0.00012"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-009",
+      "description": "The double 0.3333333333333333 to 10 significant digits. Its exact value is 0.33333333333333331482961625624739099293....",
+      "double": "3fd5555555555555",
+      "digits": 10,
+      "expected": {
+        "decimal": "0.3333333333"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-010",
+      "description": "The double 0.5 to 1 significant digit. Its exact value is 0.5, no rounding.",
+      "double": "3fe0000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "0.5"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-011",
+      "description": "The double 1.5 to 1 significant digit. Its exact value is 1.5, a tie, rounded up to the even digit.",
+      "double": "3ff8000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "2"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-012",
+      "description": "The double 3.5 to 1 significant digit. Its exact value is 3.5, a tie, rounded up to the even digit.",
+      "double": "400c000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "4"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-013",
+      "description": "The double 4.5 to 1 significant digit. Its exact value is 4.5, a tie, rounded down to the even digit.",
+      "double": "4012000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "4"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-014",
+      "description": "The double -2.5 to 1 significant digit. Its exact value is -2.5, a negative tie.",
+      "double": "c004000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "-2"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-015",
+      "description": "The double 9.5 to 1 significant digit. Its exact value is 9.5, a tie that carries into a new digit.",
+      "double": "4023000000000000",
+      "digits": 1,
+      "expected": {
+        "decimal": "10"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-016",
+      "description": "The double 0.0625 to 2 significant digits. Its exact value is 0.0625, an exact tie.",
+      "double": "3fb0000000000000",
+      "digits": 2,
+      "expected": {
+        "decimal": "0.062"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-017",
+      "description": "The double 0.1875 to 3 significant digits. Its exact value is 0.1875, an exact tie.",
+      "double": "3fc8000000000000",
+      "digits": 3,
+      "expected": {
+        "decimal": "0.188"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-018",
+      "description": "The double 1.25 to 2 significant digits. Its exact value is 1.25, an exact tie.",
+      "double": "3ff4000000000000",
+      "digits": 2,
+      "expected": {
+        "decimal": "1.2"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-019",
+      "description": "The double 1.35 to 2 significant digits. Its exact value is 1.35000000000000008881784197001252323389..., not a tie, since the double lies above 1.35.",
+      "double": "3ff599999999999a",
+      "digits": 2,
+      "expected": {
+        "decimal": "1.4"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-020",
+      "description": "The double 2.675 to 3 significant digits. Its exact value is 2.67499999999999982236431605997495353221..., not a tie, since the double lies below 2.675.",
+      "double": "4005666666666666",
+      "digits": 3,
+      "expected": {
+        "decimal": "2.67"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-021",
+      "description": "The double 1234.5 to 4 significant digits. Its exact value is 1234.5, a tie in the units.",
+      "double": "40934a0000000000",
+      "digits": 4,
+      "expected": {
+        "decimal": "1234"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-022",
+      "description": "The double 1235.5 to 4 significant digits. Its exact value is 1235.5, a tie in the units.",
+      "double": "40934e0000000000",
+      "digits": 4,
+      "expected": {
+        "decimal": "1236"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-023",
+      "description": "The double 9.9999 to 3 significant digits. Its exact value is 9.99990000000000023305801732931286096572..., a carry into a new digit.",
+      "double": "4023fff2e48e8a72",
+      "digits": 3,
+      "expected": {
+        "decimal": "10"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-024",
+      "description": "The double 0.9996 to 3 significant digits. Its exact value is 0.99960000000000004405364961712621152400..., a carry to 1.",
+      "double": "3feffcb923a29c78",
+      "digits": 3,
+      "expected": {
+        "decimal": "1"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-025",
+      "description": "The double 99.95 to 3 significant digits. Its exact value is 99.9500000000000028421709430404007434844..., not a tie, since the double lies above 99.95.",
+      "double": "4058fccccccccccd",
+      "digits": 3,
+      "expected": {
+        "decimal": "100"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-026",
+      "description": "The double 0 to 6 significant digits. Its exact value is 0, zero.",
+      "double": "0000000000000000",
+      "digits": 6,
+      "expected": {
+        "decimal": "0"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-027",
+      "description": "The double 0 to 6 significant digits. Its exact value is -0, negative zero.",
+      "double": "8000000000000000",
+      "digits": 6,
+      "expected": {
+        "decimal": "0"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-028",
+      "description": "The double 0.1 to 15 significant digits. Its exact value is 0.10000000000000000555111512312578270211..., 15 digits of 0.1.",
+      "double": "3fb999999999999a",
+      "digits": 15,
+      "expected": {
+        "decimal": "0.1"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-029",
+      "description": "The double 0.30000000000000004 to 15 significant digits. Its exact value is 0.30000000000000004440892098500626161694..., 15 digits of 0.1 + 0.2.",
+      "double": "3fd3333333333334",
+      "digits": 15,
+      "expected": {
+        "decimal": "0.3"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-030",
+      "description": "The double 0.3333333333333333 to 15 significant digits. Its exact value is 0.33333333333333331482961625624739099293..., 15 digits.",
+      "double": "3fd5555555555555",
+      "digits": 15,
+      "expected": {
+        "decimal": "0.333333333333333"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-031",
+      "description": "The double 0.6666666666666666 to 15 significant digits. Its exact value is 0.66666666666666662965923251249478198587..., 15 digits.",
+      "double": "3fe5555555555555",
+      "digits": 15,
+      "expected": {
+        "decimal": "0.666666666666667"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-032",
+      "description": "The double 123456789012345680000 to 15 significant digits. Its exact value is 123456789012345683968, a large integer.",
+      "double": "441ac53a7e04bcda",
+      "digits": 15,
+      "expected": {
+        "decimal": "123456789012346000000"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-033",
+      "description": "The double 9007199254740992 to 15 significant digits. Its exact value is 9007199254740992, 2^53.",
+      "double": "4340000000000000",
+      "digits": 15,
+      "expected": {
+        "decimal": "9007199254740990"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-034",
+      "description": "The double 1e+22 to 1 significant digit. Its exact value is 10000000000000000000000, 10^22.",
+      "double": "4480f0cf064dd592",
+      "digits": 1,
+      "expected": {
+        "decimal": "10000000000000000000000"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-035",
+      "description": "The double -34.56789 to 6 significant digits. Its exact value is -34.567889999999998451585270231589674949....",
+      "double": "c04148b09e98dcdb",
+      "digits": 6,
+      "expected": {
+        "decimal": "-34.5679"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-036",
+      "description": "The double 1e-7 to 3 significant digits. Its exact value is 0.00000009999999999999999547481118258862..., a small value in plain notation.",
+      "double": "3e7ad7f29abcaf48",
+      "digits": 3,
+      "expected": {
+        "decimal": "0.0000001"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-037",
+      "description": "The double 1.5e-10 to 2 significant digits. Its exact value is 0.00000000014999999999999999900248106175....",
+      "double": "3de49da7e361ce4c",
+      "digits": 2,
+      "expected": {
+        "decimal": "0.00000000015"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-038",
+      "description": "The double 12345 to 2 significant digits. Its exact value is 12345.",
+      "double": "40c81c8000000000",
+      "digits": 2,
+      "expected": {
+        "decimal": "12000"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-039",
+      "description": "The double 0.00099999 to 2 significant digits. Its exact value is 0.00099999000000000008020473174497055879..., a carry in a small value.",
+      "double": "3f506243162a38e4",
+      "digits": 2,
+      "expected": {
+        "decimal": "0.001"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-040",
+      "description": "The double 5e-324 to 1 significant digit. Its exact value is 0.00000000000000000000000000000000000000..., the smallest subnormal double.",
+      "double": "0000000000000001",
+      "digits": 1,
+      "expected": {
+        "decimal": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005"
+      }
+    },
+    {
+      "id": "numbers-decimal-constants-041",
+      "description": "The double 1.7976931348623157e+308 to 3 significant digits. Its exact value is 1797693134862315708145274237317043567980..., the largest double.",
+      "double": "7fefffffffffffff",
+      "digits": 3,
+      "expected": {
+        "decimal": "180000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  ]
+}

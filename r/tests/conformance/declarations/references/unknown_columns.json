@@ -1,0 +1,30 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {"name": "school"},
+      {"name": "y", "type": "number"},
+      {"name": "n", "type": "integer"}
+    ],
+    "primaryKey": ["school", "row"],
+    "uniqueKeys": [["school", "wave"]]
+  },
+  "units": [{"name": "school", "columns": ["school"]}, {"name": "item", "columns": ["item"]}],
+  "crossings": [{"units": ["school", "item"], "list": "list"}],
+  "observation": {"key": ["school", "row"], "time": {"column": "wave", "kind": "occasion"}},
+  "assignment": [{"column": "arm", "unit": "school", "randomised": true}],
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "binomial",
+      "trials": "trials",
+      "derived_from": ["raw_y"]
+    },
+    "count": {
+      "role": "outcome",
+      "measurement": "count",
+      "exposure": {"column": "days", "scale": "raw"}
+    }
+  },
+  "estimands": [{"id": "e", "term": "arm:pre:school", "outcome": "post"}]
+}

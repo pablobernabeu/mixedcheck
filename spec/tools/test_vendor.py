@@ -23,6 +23,8 @@ R_SPEC = "r/inst/spec"
 PY_SPEC = "python/src/mixedcheck/_spec"
 R_FIXTURES = "r/inst/fixtures"
 PY_FIXTURES = "python/src/mixedcheck/_fixtures"
+R_CONFORMANCE = "r/tests/conformance"
+PY_CONFORMANCE = "python/tests/conformance"
 # A fixture with CRLF line endings and a byte-order mark, which must be copied
 # unchanged and must not trip the CR check, which covers spec/ only.
 CRLF_BOM = b"\xef\xbb\xbfid,y\r\n1,2\r\n"
@@ -223,6 +225,160 @@ class Mismatches(VendorTestCase):
         (self.root / R_FIXTURES / "MANIFEST.json").unlink()
         stderr = self.assert_check_fails("3 problem(s)")
         self.assertEqual(len(stderr.strip().splitlines()), 4)
+
+
+class ConformanceCorpora(VendorTestCase):
+    """The conformance corpora go into the test directories, not the installed ones."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.write("fixtures/conformance/json/cases.json", b'{"cases": []}\n')
+        self.set_list(
+            [
+                "spec/versions.json",
+                "fixtures/zoo/Z00/data.csv",
+                "fixtures/conformance/json/cases.json",
+            ]
+        )
+        self.sync()
+
+    def test_corpora_are_copied_into_the_test_directories(self) -> None:
+        source = (self.root / "fixtures/conformance/json/cases.json").read_bytes()
+        for target in (R_CONFORMANCE, PY_CONFORMANCE):
+            with self.subTest(target=target):
+                self.assertEqual((self.root / target / "json/cases.json").read_bytes(), source)
+                manifest = json.loads((self.root / target / "MANIFEST.json").read_text("utf-8"))
+                self.assertEqual(manifest["source"], "fixtures/conformance")
+                self.assertEqual(list(manifest["files"]), ["json/cases.json"])
+        for target in (R_FIXTURES, PY_FIXTURES):
+            with self.subTest(target=target):
+                self.assertFalse((self.root / target / "conformance").exists())
+                manifest = json.loads((self.root / target / "MANIFEST.json").read_text("utf-8"))
+                self.assertEqual(list(manifest["files"]), ["zoo/Z00/data.csv"])
+        self.assertEqual(run(self.root, "check").returncode, 0)
+
+    def test_a_copy_left_in_the_installed_directory(self) -> None:
+        for target in (R_FIXTURES, PY_FIXTURES):
+            self.write(f"{target}/conformance/json/cases.json", b'{"cases": []}\n')
+        for target in (R_FIXTURES, PY_FIXTURES):
+            self.assert_check_fails(
+                f"{target}/conformance/json/cases.json: an old copy of "
+                "fixtures/conformance/json/cases.json, which is now vendored into "
+                f"{R_CONFORMANCE} and {PY_CONFORMANCE}"
+            )
+        self.sync()
+        for target in (R_FIXTURES, PY_FIXTURES):
+            self.assertFalse((self.root / target / "conformance").exists())
+        self.assertEqual(run(self.root, "check").returncode, 0)
+
+    def test_an_unlisted_file_in_the_installed_directory_is_not_an_old_copy(self) -> None:
+        self.write(f"{R_FIXTURES}/conformance/json/other.json", b"{}\n")
+        self.assert_check_fails(
+            f"{R_FIXTURES}/conformance/json/other.json: not listed in spec/vendoring.json"
+        )
+
+    def test_the_r_path_is_measured_in_the_test_directory(self) -> None:
+        # mixedcheck/tests/conformance/ takes 29 bytes of the 100.
+        fits = "fixtures/conformance/" + "a" * 66 + ".json"
+        too_long = "fixtures/conformance/" + "a" * 67 + ".json"
+        self.write(fits, b"{}\n")
+        self.set_list(["spec/versions.json", fits])
+        self.sync()
+        self.assertEqual(run(self.root, "check").returncode, 0)
+        self.set_list(["spec/versions.json", too_long])
+        self.assert_check_fails(
+            f"entry {too_long!r} is longer than 100 bytes as a path in the R package's tarball"
+        )
+
+    def test_manifests_of_the_fixtures_cannot_be_listed(self) -> None:
+        for entry in ("fixtures/MANIFEST.json", "fixtures/conformance/MANIFEST.json"):
+            with self.subTest(entry=entry):
+                self.set_list(["spec/versions.json", entry])
+                self.assert_check_fails(
+                    f"entry {entry!r} would overwrite the vendored MANIFEST.json"
+                )
+
+
+class DirectoryEntries(VendorTestCase):
+    """An entry that ends in '/' vendors every file of a directory of fixtures."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.write("fixtures/zoo/README.md", b"The zoo.\n")
+        self.write("fixtures/zoo/Z00/expected.json", b"{}\n")
+        self.set_list(["spec/versions.json", "fixtures/zoo/"])
+
+    def test_every_file_of_the_directory_is_vendored_and_listed_in_the_manifests(self) -> None:
+        self.sync()
+        names = ["zoo/README.md", "zoo/Z00/data.csv", "zoo/Z00/expected.json"]
+        for target in (R_FIXTURES, PY_FIXTURES):
+            with self.subTest(target=target):
+                manifest = json.loads((self.root / target / "MANIFEST.json").read_text("utf-8"))
+                self.assertEqual(list(manifest["files"]), names)
+                for name in names:
+                    source = (self.root / "fixtures" / name).read_bytes()
+                    self.assertEqual((self.root / target / name).read_bytes(), source)
+        result = run(self.root, "check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("passed for 4 artefact(s)", result.stdout)
+
+    def test_a_file_added_to_the_directory_is_vendored_by_the_next_sync(self) -> None:
+        self.sync()
+        self.write("fixtures/zoo/Z01/data.csv", b"y\n1\n")
+        self.assert_check_fails(
+            f"{R_FIXTURES}/zoo/Z01/data.csv: missing copy of fixtures/zoo/Z01/data.csv",
+            f"{PY_FIXTURES}/MANIFEST.json: stale",
+        )
+        self.sync()
+        self.assertEqual(run(self.root, "check").returncode, 0)
+        (self.root / "fixtures/zoo/Z01/data.csv").unlink()
+        self.sync()
+        self.assertFalse((self.root / R_FIXTURES / "zoo/Z01").exists())
+        self.assertEqual(run(self.root, "check").returncode, 0)
+
+    def test_files_that_tools_and_operating_systems_write_are_left_out(self) -> None:
+        self.write("fixtures/zoo/.DS_Store", b"\x00")
+        self.write("fixtures/zoo/__pycache__/x.pyc", b"\x00")
+        self.sync()
+        self.assertFalse((self.root / R_FIXTURES / "zoo/.DS_Store").exists())
+        self.assertFalse((self.root / PY_FIXTURES / "zoo/__pycache__").exists())
+        self.assertEqual(run(self.root, "check").returncode, 0)
+
+    def test_the_rules_on_names_apply_to_each_file(self) -> None:
+        self.write("fixtures/zoo/Z00/a b.csv", b"\n")
+        self.assert_check_fails(
+            "entry 'fixtures/zoo/Z00/a b.csv' has the component 'a b.csv', which is not a "
+            "portable file name (through the entry 'fixtures/zoo/')"
+        )
+
+    def test_a_file_listed_on_its_own_and_through_its_directory(self) -> None:
+        self.set_list(["spec/versions.json", "fixtures/zoo/Z00/data.csv", "fixtures/zoo/"])
+        self.assert_check_fails("entry 'fixtures/zoo/Z00/data.csv' is listed twice")
+        self.set_list(["spec/versions.json", "fixtures/zoo/", "fixtures/zoo/"])
+        self.assert_check_fails("entry 'fixtures/zoo/' is listed twice")
+
+    def test_a_directory_that_is_missing_or_empty(self) -> None:
+        self.set_list(["spec/versions.json", "fixtures/golden/"])
+        self.assert_check_fails("entry 'fixtures/golden/' names a directory that does not exist")
+        (self.root / "fixtures/golden/empty").mkdir(parents=True)
+        self.assert_check_fails("entry 'fixtures/golden/' names a directory that holds no file")
+
+    def test_invalid_directory_entries(self) -> None:
+        cases = {
+            "fixtures/": "is not a directory under fixtures/ outside fixtures/conformance/",
+            "spec/schemas/": "is not a directory under fixtures/ outside fixtures/conformance/",
+            "fixtures/conformance/": "is not a directory under fixtures/ outside",
+            "fixtures/conformance/json/": "is not a directory under fixtures/ outside",
+            "/": "is not a normalised relative POSIX path",
+            "fixtures//zoo/": "is not a normalised relative POSIX path",
+            "/fixtures/zoo/": "is not a normalised relative POSIX path",
+            "fixtures/zoo//": "is not a normalised relative POSIX path",
+            "fixtures/../zoo/": "contains '.' or '..'",
+        }
+        for entry, message in cases.items():
+            with self.subTest(entry=entry):
+                self.set_list(["spec/versions.json", entry])
+                self.assert_check_fails(f"spec/vendoring.json: entry {entry!r} {message}")
 
 
 class InvalidList(VendorTestCase):

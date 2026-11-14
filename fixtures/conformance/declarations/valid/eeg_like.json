@@ -1,0 +1,23 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "N400 single-trial mean amplitudes",
+  "features": ["trial_level", "crossed_experiment"],
+  "units": [
+    {"name": "subject", "columns": ["subject"], "role": "participant"},
+    {"name": "item", "columns": ["item"], "role": "item"},
+    {
+      "name": "trial",
+      "columns": ["trial"],
+      "nested_in": "subject",
+      "id_scope": "within_parent",
+      "role": "trial"
+    },
+    {"name": "channel", "columns": ["chan"], "role": "channel"}
+  ],
+  "crossings": [{"units": ["subject", "item"]}, {"units": ["trial", "channel"]}],
+  "observation": {"key": ["subject", "trial", "chan"]},
+  "variables": {
+    "amp": {"role": "outcome", "measurement": "continuous"},
+    "baseline_amp": {"role": "baseline_covariate", "measurement": "continuous"}
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Bounds written in several number forms",
+  "table": {
+    "fields": [
+      {"name": "level", "type": "integer", "categories": [0, 1.0e0, 2E0]},
+      {"name": "v1", "type": "number"}, {"name": "v2", "type": "number"},
+      {"name": "v3", "type": "number"}, {"name": "v4", "type": "number"},
+      {"name": "v5", "type": "integer"}, {"name": "v6", "type": "number"},
+      {"name": "v7", "type": "number"}, {"name": "v8", "type": "number"}
+    ]
+  },
+  "variables": {
+    "v1": {"role": "outcome", "measurement": "bounded_score", "bounds": [-0, 1E2]},
+    "v2": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [25e-1, 4.50e1]},
+    "v3": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [1e-7, 1.5e-7]},
+    "v4": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [0.000001, 0.0000033]},
+    "v5": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [-9007199254740991, 9007199254740991]},
+    "v6": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [1e-307, 1.0]},
+    "v7": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [123.456, 2026.10]},
+    "v8": {"role": "auxiliary", "measurement": "bounded_score", "bounds": [-1.5e2, 1e15]}
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [{"name": "a", "columns": "a", "nestedin": "b"}, "b"],
+  "table": {"fields": {"name": "x"}, "primarykey": ["x"]}
+}

@@ -1,0 +1,3278 @@
+{
+  "description": "Number tokens read in each mode: the value as a double, its canonical form and the rules of the hashable profile and of correctly rounded conversion.",
+  "cases": [
+    {
+      "id": "numbers-read-001",
+      "description": "The token 0.",
+      "input": "0",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-002",
+      "description": "The token -0.",
+      "input": "-0",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-003",
+      "description": "The token 0.0.",
+      "input": "0.0",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-004",
+      "description": "The token -0.0.",
+      "input": "-0.0",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-005",
+      "description": "The token 0e0.",
+      "input": "0e0",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-006",
+      "description": "The token 0E+5.",
+      "input": "0E+5",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-007",
+      "description": "The token -0e-5.",
+      "input": "-0e-5",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-008",
+      "description": "The token 1.",
+      "input": "1",
+      "expected": {
+        "plain": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "data": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "hashable": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-009",
+      "description": "The token -1.",
+      "input": "-1",
+      "expected": {
+        "plain": {
+          "canonical": "-1",
+          "sha256": "sha256:1bad6b8cf97131fceab8543e81f7757195fbb1d36b376ee994ad1cf17699c464",
+          "bits": "bff0000000000000"
+        },
+        "data": {
+          "canonical": "-1",
+          "sha256": "sha256:1bad6b8cf97131fceab8543e81f7757195fbb1d36b376ee994ad1cf17699c464",
+          "bits": "bff0000000000000"
+        },
+        "hashable": {
+          "canonical": "-1",
+          "sha256": "sha256:1bad6b8cf97131fceab8543e81f7757195fbb1d36b376ee994ad1cf17699c464",
+          "bits": "bff0000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-010",
+      "description": "The token 1.0.",
+      "input": "1.0",
+      "expected": {
+        "plain": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "data": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "hashable": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-011",
+      "description": "The token 1e0.",
+      "input": "1e0",
+      "expected": {
+        "plain": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "data": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "hashable": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-012",
+      "description": "The token 1E2.",
+      "input": "1E2",
+      "expected": {
+        "plain": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        },
+        "data": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        },
+        "hashable": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-013",
+      "description": "The token 1e+2.",
+      "input": "1e+2",
+      "expected": {
+        "plain": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        },
+        "data": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        },
+        "hashable": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-014",
+      "description": "The token 1e-2.",
+      "input": "1e-2",
+      "expected": {
+        "plain": {
+          "canonical": "0.01",
+          "sha256": "sha256:312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f",
+          "bits": "3f847ae147ae147b"
+        },
+        "data": {
+          "canonical": "0.01",
+          "sha256": "sha256:312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f",
+          "bits": "3f847ae147ae147b"
+        },
+        "hashable": {
+          "canonical": "0.01",
+          "sha256": "sha256:312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f",
+          "bits": "3f847ae147ae147b"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-015",
+      "description": "The token 4.50.",
+      "input": "4.50",
+      "expected": {
+        "plain": {
+          "canonical": "4.5",
+          "sha256": "sha256:32209ccbf8a8e509b9027698cc173343a2695e8ecdbe899bf5335a3100c956fc",
+          "bits": "4012000000000000"
+        },
+        "data": {
+          "canonical": "4.5",
+          "sha256": "sha256:32209ccbf8a8e509b9027698cc173343a2695e8ecdbe899bf5335a3100c956fc",
+          "bits": "4012000000000000"
+        },
+        "hashable": {
+          "canonical": "4.5",
+          "sha256": "sha256:32209ccbf8a8e509b9027698cc173343a2695e8ecdbe899bf5335a3100c956fc",
+          "bits": "4012000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-016",
+      "description": "The token 25e-1.",
+      "input": "25e-1",
+      "expected": {
+        "plain": {
+          "canonical": "2.5",
+          "sha256": "sha256:b8736b999909049671d0ea075a42b308a5fbe2df1854899123fe09eb0ee9de61",
+          "bits": "4004000000000000"
+        },
+        "data": {
+          "canonical": "2.5",
+          "sha256": "sha256:b8736b999909049671d0ea075a42b308a5fbe2df1854899123fe09eb0ee9de61",
+          "bits": "4004000000000000"
+        },
+        "hashable": {
+          "canonical": "2.5",
+          "sha256": "sha256:b8736b999909049671d0ea075a42b308a5fbe2df1854899123fe09eb0ee9de61",
+          "bits": "4004000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-017",
+      "description": "The token 0.000001.",
+      "input": "0.000001",
+      "expected": {
+        "plain": {
+          "canonical": "0.000001",
+          "sha256": "sha256:159fb29a827ad04b260aa6c8ab6d8637f8f2b38af5c4f3cb49d6a21205e040f8",
+          "bits": "3eb0c6f7a0b5ed8d"
+        },
+        "data": {
+          "canonical": "0.000001",
+          "sha256": "sha256:159fb29a827ad04b260aa6c8ab6d8637f8f2b38af5c4f3cb49d6a21205e040f8",
+          "bits": "3eb0c6f7a0b5ed8d"
+        },
+        "hashable": {
+          "canonical": "0.000001",
+          "sha256": "sha256:159fb29a827ad04b260aa6c8ab6d8637f8f2b38af5c4f3cb49d6a21205e040f8",
+          "bits": "3eb0c6f7a0b5ed8d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-018",
+      "description": "The token 1E-7.",
+      "input": "1E-7",
+      "expected": {
+        "plain": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+          "bits": "3e7ad7f29abcaf48"
+        },
+        "data": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+          "bits": "3e7ad7f29abcaf48"
+        },
+        "hashable": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+          "bits": "3e7ad7f29abcaf48"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-019",
+      "description": "The token 100.000.",
+      "input": "100.000",
+      "expected": {
+        "plain": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        },
+        "data": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        },
+        "hashable": {
+          "canonical": "100",
+          "sha256": "sha256:ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306",
+          "bits": "4059000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-020",
+      "description": "The token 1e007.",
+      "input": "1e007",
+      "expected": {
+        "plain": {
+          "canonical": "10000000",
+          "sha256": "sha256:fa95b43be4cf8bb030d85e663324ecc5247c2af6272672bfd4bbc1020b40582b",
+          "bits": "416312d000000000"
+        },
+        "data": {
+          "canonical": "10000000",
+          "sha256": "sha256:fa95b43be4cf8bb030d85e663324ecc5247c2af6272672bfd4bbc1020b40582b",
+          "bits": "416312d000000000"
+        },
+        "hashable": {
+          "canonical": "10000000",
+          "sha256": "sha256:fa95b43be4cf8bb030d85e663324ecc5247c2af6272672bfd4bbc1020b40582b",
+          "bits": "416312d000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-021",
+      "description": "The token 1e-007.",
+      "input": "1e-007",
+      "expected": {
+        "plain": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+          "bits": "3e7ad7f29abcaf48"
+        },
+        "data": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+          "bits": "3e7ad7f29abcaf48"
+        },
+        "hashable": {
+          "canonical": "1e-7",
+          "sha256": "sha256:5b33e02f2c5103a05d32f6ba9cb058294452bfbf393967f68bb30c1bdcbbab22",
+          "bits": "3e7ad7f29abcaf48"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-022",
+      "description": "The token 123.456e1.",
+      "input": "123.456e1",
+      "expected": {
+        "plain": {
+          "canonical": "1234.56",
+          "sha256": "sha256:32dc6ed4a1f67bfaa50f4dc3f2f0e72992ba9e0a231a69b083ec6fcbdb656291",
+          "bits": "40934a3d70a3d70a"
+        },
+        "data": {
+          "canonical": "1234.56",
+          "sha256": "sha256:32dc6ed4a1f67bfaa50f4dc3f2f0e72992ba9e0a231a69b083ec6fcbdb656291",
+          "bits": "40934a3d70a3d70a"
+        },
+        "hashable": {
+          "canonical": "1234.56",
+          "sha256": "sha256:32dc6ed4a1f67bfaa50f4dc3f2f0e72992ba9e0a231a69b083ec6fcbdb656291",
+          "bits": "40934a3d70a3d70a"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-023",
+      "description": "The token 0.5e1.",
+      "input": "0.5e1",
+      "expected": {
+        "plain": {
+          "canonical": "5",
+          "sha256": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+          "bits": "4014000000000000"
+        },
+        "data": {
+          "canonical": "5",
+          "sha256": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+          "bits": "4014000000000000"
+        },
+        "hashable": {
+          "canonical": "5",
+          "sha256": "sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+          "bits": "4014000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-024",
+      "description": "The token 99999999999999: an integer with p = 13.",
+      "input": "99999999999999",
+      "expected": {
+        "plain": {
+          "canonical": "99999999999999",
+          "sha256": "sha256:78f23bccd07f997c6e733136f69e6c1147cde76aeb0500ff513924e9b846a11c",
+          "bits": "42d6bcc41e8fffc0"
+        },
+        "data": {
+          "canonical": "99999999999999",
+          "sha256": "sha256:78f23bccd07f997c6e733136f69e6c1147cde76aeb0500ff513924e9b846a11c",
+          "bits": "42d6bcc41e8fffc0"
+        },
+        "hashable": {
+          "canonical": "99999999999999",
+          "sha256": "sha256:78f23bccd07f997c6e733136f69e6c1147cde76aeb0500ff513924e9b846a11c",
+          "bits": "42d6bcc41e8fffc0"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-025",
+      "description": "The token 999999999999999: an integer with p = 14.",
+      "input": "999999999999999",
+      "expected": {
+        "plain": {
+          "canonical": "999999999999999",
+          "sha256": "sha256:bd8de9eb0a19ec800f09ee15733f8b9d31ffdb41dd93f93b2c1373033a11b6ad",
+          "bits": "430c6bf52633fff8"
+        },
+        "data": {
+          "canonical": "999999999999999",
+          "sha256": "sha256:bd8de9eb0a19ec800f09ee15733f8b9d31ffdb41dd93f93b2c1373033a11b6ad",
+          "bits": "430c6bf52633fff8"
+        },
+        "hashable": {
+          "canonical": "999999999999999",
+          "sha256": "sha256:bd8de9eb0a19ec800f09ee15733f8b9d31ffdb41dd93f93b2c1373033a11b6ad",
+          "bits": "430c6bf52633fff8"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-026",
+      "description": "The token 9007199254740991: 2^53 - 1.",
+      "input": "9007199254740991",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        },
+        "data": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        },
+        "hashable": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-027",
+      "description": "The token -9007199254740991: -(2^53 - 1).",
+      "input": "-9007199254740991",
+      "expected": {
+        "plain": {
+          "canonical": "-9007199254740991",
+          "sha256": "sha256:4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815",
+          "bits": "c33fffffffffffff"
+        },
+        "data": {
+          "canonical": "-9007199254740991",
+          "sha256": "sha256:4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815",
+          "bits": "c33fffffffffffff"
+        },
+        "hashable": {
+          "canonical": "-9007199254740991",
+          "sha256": "sha256:4c933a456bb8f2e9894b2d0b26480439cd72d52fb8a27cbf8fd7f323f22c7815",
+          "bits": "c33fffffffffffff"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-028",
+      "description": "The token 1e15: 10^15, an integer with p = 15 within the range.",
+      "input": "1e15",
+      "expected": {
+        "plain": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1",
+          "bits": "430c6bf526340000"
+        },
+        "data": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1",
+          "bits": "430c6bf526340000"
+        },
+        "hashable": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1",
+          "bits": "430c6bf526340000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-029",
+      "description": "The token 9.007199254740991e15: 2^53 - 1 with an exponent.",
+      "input": "9.007199254740991e15",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        },
+        "data": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        },
+        "hashable": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-030",
+      "description": "The token 9007199254740991.0: 2^53 - 1 with a zero fraction.",
+      "input": "9007199254740991.0",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        },
+        "data": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        },
+        "hashable": {
+          "canonical": "9007199254740991",
+          "sha256": "sha256:f40b423c2dd95ff2b2f027e22208f438cf7242862e5e746860e697308c9add26",
+          "bits": "433fffffffffffff"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-031",
+      "description": "The token 0.1e1: the integer 1 written with a fraction and an exponent.",
+      "input": "0.1e1",
+      "expected": {
+        "plain": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "data": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "hashable": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-032",
+      "description": "The token 10000000000000000000000e-10: 10^12 written with 23 digits.",
+      "input": "10000000000000000000000e-10",
+      "expected": {
+        "plain": {
+          "canonical": "1000000000000",
+          "sha256": "sha256:0eb509a4ea38d87607fc4760dd5a3ba9b11c04daca3de72f7fd62bc28e42b8f8",
+          "bits": "426d1a94a2000000"
+        },
+        "data": {
+          "canonical": "1000000000000",
+          "sha256": "sha256:0eb509a4ea38d87607fc4760dd5a3ba9b11c04daca3de72f7fd62bc28e42b8f8",
+          "bits": "426d1a94a2000000"
+        },
+        "hashable": {
+          "canonical": "1000000000000",
+          "sha256": "sha256:0eb509a4ea38d87607fc4760dd5a3ba9b11c04daca3de72f7fd62bc28e42b8f8",
+          "bits": "426d1a94a2000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-033",
+      "description": "The token 100000000000000000000000000000e-14: 10^15 written with 30 digits.",
+      "input": "100000000000000000000000000000e-14",
+      "expected": {
+        "plain": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1",
+          "bits": "430c6bf526340000"
+        },
+        "data": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1",
+          "bits": "430c6bf526340000"
+        },
+        "hashable": {
+          "canonical": "1000000000000000",
+          "sha256": "sha256:6a4ef24cb01aa0e97da4186c067128b828532db703db8872fa736a0cc0b363b1",
+          "bits": "430c6bf526340000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-034",
+      "description": "The token 9007199254740992: 2^53.",
+      "input": "9007199254740992",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "data": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740992 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-035",
+      "description": "The token -9007199254740992: -2^53.",
+      "input": "-9007199254740992",
+      "expected": {
+        "plain": {
+          "canonical": "-9007199254740992",
+          "sha256": "sha256:83e109bfd7fb4984b47a46f363627c18dbbd7e57e36b05a04cd162d304df72e9",
+          "bits": "c340000000000000"
+        },
+        "data": {
+          "canonical": "-9007199254740992",
+          "sha256": "sha256:83e109bfd7fb4984b47a46f363627c18dbbd7e57e36b05a04cd162d304df72e9",
+          "bits": "c340000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -9007199254740992 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-036",
+      "description": "The token 9.007199254740992e15: 2^53 with an exponent.",
+      "input": "9.007199254740992e15",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "data": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9.007199254740992e15 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-037",
+      "description": "The token 1e16: 10^16.",
+      "input": "1e16",
+      "expected": {
+        "plain": {
+          "canonical": "10000000000000000",
+          "sha256": "sha256:139eb393675707818651f879828a526159209ca3ad3b2f94f9f8ec8c4fb5e610",
+          "bits": "4341c37937e08000"
+        },
+        "data": {
+          "canonical": "10000000000000000",
+          "sha256": "sha256:139eb393675707818651f879828a526159209ca3ad3b2f94f9f8ec8c4fb5e610",
+          "bits": "4341c37937e08000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e16 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-038",
+      "description": "The token 1e21: 10^21, an integer of one significant digit.",
+      "input": "1e21",
+      "expected": {
+        "plain": {
+          "canonical": "1e+21",
+          "sha256": "sha256:241c4643fa70b1dcde1205b71be4e3bebb17e9f880c8e1a33d0ead6c27271d3c",
+          "bits": "444b1ae4d6e2ef50"
+        },
+        "data": {
+          "canonical": "1e+21",
+          "sha256": "sha256:241c4643fa70b1dcde1205b71be4e3bebb17e9f880c8e1a33d0ead6c27271d3c",
+          "bits": "444b1ae4d6e2ef50"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e21 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-039",
+      "description": "The token 1.5e300: an integer of two significant digits.",
+      "input": "1.5e300",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e+300",
+          "sha256": "sha256:ba5b9d007ed3bac3aed4e53fff4395ec6e034ab008e90969287e3b8860c31b12",
+          "bits": "7e41eb2d66005835"
+        },
+        "data": {
+          "canonical": "1.5e+300",
+          "sha256": "sha256:ba5b9d007ed3bac3aed4e53fff4395ec6e034ab008e90969287e3b8860c31b12",
+          "bits": "7e41eb2d66005835"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.5e300 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-040",
+      "description": "The token 12345678901234567890: a 20-digit integer.",
+      "input": "12345678901234567890",
+      "expected": {
+        "plain": {
+          "canonical": "12345678901234567000",
+          "sha256": "sha256:afdcd3321a2fcdb3414cb69a0c92c6bb8d74c06066d721083cc01fec664ab97f",
+          "bits": "43e56a95319d63e1"
+        },
+        "data": {
+          "canonical": "12345678901234567000",
+          "sha256": "sha256:afdcd3321a2fcdb3414cb69a0c92c6bb8d74c06066d721083cc01fec664ab97f",
+          "bits": "43e56a95319d63e1"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 12345678901234567890 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-041",
+      "description": "The token 9007199254740991.5: a non-integer of 17 significant digits.",
+      "input": "9007199254740991.5",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "data": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 9007199254740991.5 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-042",
+      "description": "The token 1.23456789012345: 15 significant digits.",
+      "input": "1.23456789012345",
+      "expected": {
+        "plain": {
+          "canonical": "1.23456789012345",
+          "sha256": "sha256:be866d13448d9124268c71fc3f8c078fc464e53ae3af872555047054795527b5",
+          "bits": "3ff3c0ca428c59dd"
+        },
+        "data": {
+          "canonical": "1.23456789012345",
+          "sha256": "sha256:be866d13448d9124268c71fc3f8c078fc464e53ae3af872555047054795527b5",
+          "bits": "3ff3c0ca428c59dd"
+        },
+        "hashable": {
+          "canonical": "1.23456789012345",
+          "sha256": "sha256:be866d13448d9124268c71fc3f8c078fc464e53ae3af872555047054795527b5",
+          "bits": "3ff3c0ca428c59dd"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-043",
+      "description": "The token 1.23456789012345000000: 15 significant digits and trailing zeros.",
+      "input": "1.23456789012345000000",
+      "expected": {
+        "plain": {
+          "canonical": "1.23456789012345",
+          "sha256": "sha256:be866d13448d9124268c71fc3f8c078fc464e53ae3af872555047054795527b5",
+          "bits": "3ff3c0ca428c59dd"
+        },
+        "data": {
+          "canonical": "1.23456789012345",
+          "sha256": "sha256:be866d13448d9124268c71fc3f8c078fc464e53ae3af872555047054795527b5",
+          "bits": "3ff3c0ca428c59dd"
+        },
+        "hashable": {
+          "canonical": "1.23456789012345",
+          "sha256": "sha256:be866d13448d9124268c71fc3f8c078fc464e53ae3af872555047054795527b5",
+          "bits": "3ff3c0ca428c59dd"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-044",
+      "description": "The token 1.234567890123456: 16 significant digits.",
+      "input": "1.234567890123456",
+      "expected": {
+        "plain": {
+          "canonical": "1.234567890123456",
+          "sha256": "sha256:7a961d75a26144c4103f128026ba72f0c94957b355ef739081c66dcd539fa3f2",
+          "bits": "3ff3c0ca428c59f8"
+        },
+        "data": {
+          "canonical": "1.234567890123456",
+          "sha256": "sha256:7a961d75a26144c4103f128026ba72f0c94957b355ef739081c66dcd539fa3f2",
+          "bits": "3ff3c0ca428c59f8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.234567890123456 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-045",
+      "description": "The token 1.2345678901234560: 16 significant digits and a trailing zero.",
+      "input": "1.2345678901234560",
+      "expected": {
+        "plain": {
+          "canonical": "1.234567890123456",
+          "sha256": "sha256:7a961d75a26144c4103f128026ba72f0c94957b355ef739081c66dcd539fa3f2",
+          "bits": "3ff3c0ca428c59f8"
+        },
+        "data": {
+          "canonical": "1.234567890123456",
+          "sha256": "sha256:7a961d75a26144c4103f128026ba72f0c94957b355ef739081c66dcd539fa3f2",
+          "bits": "3ff3c0ca428c59f8"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.2345678901234560 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-046",
+      "description": "The token 123456789012345.6: 16 significant digits.",
+      "input": "123456789012345.6",
+      "expected": {
+        "plain": {
+          "canonical": "123456789012345.6",
+          "sha256": "sha256:2d5a9447ccbcaedbf9b2ffcac61854723ce022866b97576924dfa4e54c456fd4",
+          "bits": "42dc12218377de66"
+        },
+        "data": {
+          "canonical": "123456789012345.6",
+          "sha256": "sha256:2d5a9447ccbcaedbf9b2ffcac61854723ce022866b97576924dfa4e54c456fd4",
+          "bits": "42dc12218377de66"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 123456789012345.6 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-047",
+      "description": "The token 0.1000000000000000000001: 22 significant digits.",
+      "input": "0.1000000000000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310",
+          "bits": "3fb999999999999a"
+        },
+        "data": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310",
+          "bits": "3fb999999999999a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.1000000000000000000001 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-048",
+      "description": "The token 0.30000000000000004: 0.1 + 0.2.",
+      "input": "0.30000000000000004",
+      "expected": {
+        "plain": {
+          "canonical": "0.30000000000000004",
+          "sha256": "sha256:06bad31060c1212ae832de4c031f7b31e3b48aed57858294478cb19450cf34ca",
+          "bits": "3fd3333333333334"
+        },
+        "data": {
+          "canonical": "0.30000000000000004",
+          "sha256": "sha256:06bad31060c1212ae832de4c031f7b31e3b48aed57858294478cb19450cf34ca",
+          "bits": "3fd3333333333334"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.30000000000000004 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-049",
+      "description": "The token 333333333.33333329: the first number of RFC 8785, section 3.2.2.",
+      "input": "333333333.33333329",
+      "expected": {
+        "plain": {
+          "canonical": "333333333.3333333",
+          "sha256": "sha256:6bd9be1c141028789cc35db62f1b43e80d5d4ee24d6d542e775deb16799ff4c7",
+          "bits": "41b3de4355555555"
+        },
+        "data": {
+          "canonical": "333333333.3333333",
+          "sha256": "sha256:6bd9be1c141028789cc35db62f1b43e80d5d4ee24d6d542e775deb16799ff4c7",
+          "bits": "41b3de4355555555"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 333333333.33333329 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-050",
+      "description": "The token 0.000000000000000000000000001: 10^-27.",
+      "input": "0.000000000000000000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "1e-27",
+          "sha256": "sha256:26baf4828d488c0744642cf36f23d01ce4b66afd61a9a689d96e1c3f9015a3d9",
+          "bits": "3a53ce9a36f23c10"
+        },
+        "data": {
+          "canonical": "1e-27",
+          "sha256": "sha256:26baf4828d488c0744642cf36f23d01ce4b66afd61a9a689d96e1c3f9015a3d9",
+          "bits": "3a53ce9a36f23c10"
+        },
+        "hashable": {
+          "canonical": "1e-27",
+          "sha256": "sha256:26baf4828d488c0744642cf36f23d01ce4b66afd61a9a689d96e1c3f9015a3d9",
+          "bits": "3a53ce9a36f23c10"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-051",
+      "description": "The token 1e-307: the smallest magnitude allowed.",
+      "input": "1e-307",
+      "expected": {
+        "plain": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08",
+          "bits": "0031fa182c40c60d"
+        },
+        "data": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08",
+          "bits": "0031fa182c40c60d"
+        },
+        "hashable": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08",
+          "bits": "0031fa182c40c60d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-052",
+      "description": "The token 1.0e-307: 10^-307 with a fraction.",
+      "input": "1.0e-307",
+      "expected": {
+        "plain": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08",
+          "bits": "0031fa182c40c60d"
+        },
+        "data": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08",
+          "bits": "0031fa182c40c60d"
+        },
+        "hashable": {
+          "canonical": "1e-307",
+          "sha256": "sha256:744c3e30058f06a77975cb465f2c4afdc90814be13f517afb3743e808fbd1f08",
+          "bits": "0031fa182c40c60d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-053",
+      "description": "The token -1e-307: -10^-307.",
+      "input": "-1e-307",
+      "expected": {
+        "plain": {
+          "canonical": "-1e-307",
+          "sha256": "sha256:4289c7de6632ca56cd6338005f9f2e7593bb2cfef081dbb198a0c8a82170cddc",
+          "bits": "8031fa182c40c60d"
+        },
+        "data": {
+          "canonical": "-1e-307",
+          "sha256": "sha256:4289c7de6632ca56cd6338005f9f2e7593bb2cfef081dbb198a0c8a82170cddc",
+          "bits": "8031fa182c40c60d"
+        },
+        "hashable": {
+          "canonical": "-1e-307",
+          "sha256": "sha256:4289c7de6632ca56cd6338005f9f2e7593bb2cfef081dbb198a0c8a82170cddc",
+          "bits": "8031fa182c40c60d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-054",
+      "description": "The token 1e-308: 10^-308.",
+      "input": "1e-308",
+      "expected": {
+        "plain": {
+          "canonical": "1e-308",
+          "sha256": "sha256:b77bea380df569401be33b47bf3a5868d224bf2ab22e3cda531409a63edc9683",
+          "bits": "000730d67819e8d2"
+        },
+        "data": {
+          "canonical": "1e-308",
+          "sha256": "sha256:b77bea380df569401be33b47bf3a5868d224bf2ab22e3cda531409a63edc9683",
+          "bits": "000730d67819e8d2"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-308 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-055",
+      "description": "The token -1e-308: -10^-308.",
+      "input": "-1e-308",
+      "expected": {
+        "plain": {
+          "canonical": "-1e-308",
+          "sha256": "sha256:b85a35ccc5188932bfeec1bf4b617d4062bed060c5513d648da328b154a6c684",
+          "bits": "800730d67819e8d2"
+        },
+        "data": {
+          "canonical": "-1e-308",
+          "sha256": "sha256:b85a35ccc5188932bfeec1bf4b617d4062bed060c5513d648da328b154a6c684",
+          "bits": "800730d67819e8d2"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number -1e-308 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-056",
+      "description": "The token 1.5e-308: p = -308.",
+      "input": "1.5e-308",
+      "expected": {
+        "plain": {
+          "canonical": "1.5e-308",
+          "sha256": "sha256:67c433a8f2b5fda6570e0d04d502f5d91d7648df08499c52032ce19409b5cbe0",
+          "bits": "000ac941b426dd3b"
+        },
+        "data": {
+          "canonical": "1.5e-308",
+          "sha256": "sha256:67c433a8f2b5fda6570e0d04d502f5d91d7648df08499c52032ce19409b5cbe0",
+          "bits": "000ac941b426dd3b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1.5e-308 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-057",
+      "description": "The token 9.99e-308: just below 10^-307.",
+      "input": "9.99e-308",
+      "expected": {
+        "plain": {
+          "canonical": "9.99e-308",
+          "sha256": "sha256:bf120c9b9400cd698e085a9a4b618942545ed4e24b4b4254c498fe544c82666b",
+          "bits": "0031f57e09648c83"
+        },
+        "data": {
+          "canonical": "9.99e-308",
+          "sha256": "sha256:bf120c9b9400cd698e085a9a4b618942545ed4e24b4b4254c498fe544c82666b",
+          "bits": "0031f57e09648c83"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 9.99e-308 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-058",
+      "description": "The token 5e-324: the smallest subnormal double.",
+      "input": "5e-324",
+      "expected": {
+        "plain": {
+          "canonical": "5e-324",
+          "sha256": "sha256:c46e7ca1be4c8734f373a56530787288fa2058d73d07855e9247e949f811a42a",
+          "bits": "0000000000000001"
+        },
+        "data": {
+          "canonical": "5e-324",
+          "sha256": "sha256:c46e7ca1be4c8734f373a56530787288fa2058d73d07855e9247e949f811a42a",
+          "bits": "0000000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 5e-324 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-059",
+      "description": "The token 2.2250738585072014e-308: the smallest normal double, with 17 digits.",
+      "input": "2.2250738585072014e-308",
+      "expected": {
+        "plain": {
+          "canonical": "2.2250738585072014e-308",
+          "sha256": "sha256:8d51a73768cb59d15302f6b0a4c7147a04b0cce9df743b5bf50e31ab87b2d807",
+          "bits": "0010000000000000"
+        },
+        "data": {
+          "canonical": "2.2250738585072014e-308",
+          "sha256": "sha256:8d51a73768cb59d15302f6b0a4c7147a04b0cce9df743b5bf50e31ab87b2d807",
+          "bits": "0010000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.2250738585072014e-308 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-060",
+      "description": "The token 1.234567890123456e-310: 16 digits, which are reported before the magnitude.",
+      "input": "1.234567890123456e-310",
+      "expected": {
+        "plain": {
+          "canonical": "1.23456789012346e-310",
+          "sha256": "sha256:63290ac15464ec2c05ffef8f42635d8a3f515600030752fdaed11b62bb2de29e",
+          "bits": "000016b9f4d3cd48"
+        },
+        "data": {
+          "canonical": "1.23456789012346e-310",
+          "sha256": "sha256:63290ac15464ec2c05ffef8f42635d8a3f515600030752fdaed11b62bb2de29e",
+          "bits": "000016b9f4d3cd48"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.234567890123456e-310 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-061",
+      "description": "A token of 805 characters just above 0.1. Its message is truncated.",
+      "input": "0.1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310",
+          "bits": "3fb999999999999a"
+        },
+        "data": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310",
+          "bits": "3fb999999999999a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.1000000000000000000000000000000000000000000000000000000... at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-062",
+      "description": "10^1000000000000 overflows.",
+      "input": "1e1000000000000",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1e1000000000000 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1e1000000000000 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e1000000000000 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-063",
+      "description": "-10^1000000000000 overflows.",
+      "input": "-1e1000000000000",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number -1e1000000000000 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number -1e1000000000000 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -1e1000000000000 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-064",
+      "description": "10^-1000000000000 underflows.",
+      "input": "1e-1000000000000",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 1e-1000000000000 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 1e-1000000000000 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-1000000000000 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-065",
+      "description": "Zero with a huge exponent is zero.",
+      "input": "0e1000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-066",
+      "description": "Zero with a huge negative exponent is zero.",
+      "input": "0.0e-1000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "data": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        },
+        "hashable": {
+          "canonical": "0",
+          "sha256": "sha256:5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-067",
+      "description": "An exponent of 401 digits whose value is 1.",
+      "input": "1e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "expected": {
+        "plain": {
+          "canonical": "10",
+          "sha256": "sha256:4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+          "bits": "4024000000000000"
+        },
+        "data": {
+          "canonical": "10",
+          "sha256": "sha256:4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+          "bits": "4024000000000000"
+        },
+        "hashable": {
+          "canonical": "10",
+          "sha256": "sha256:4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5",
+          "bits": "4024000000000000"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-068",
+      "description": "1e400 overflows.",
+      "input": "1e400",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1e400 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1e400 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e400 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-069",
+      "description": "1e-400 underflows.",
+      "input": "1e-400",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 1e-400 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 1e-400 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-400 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-070",
+      "description": "1e-324 underflows.",
+      "input": "1e-324",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 1e-324 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 1e-324 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-324 at byte 0 is smaller in magnitude than 1e-307.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-071",
+      "description": "The largest double.",
+      "input": "1.7976931348623157e308",
+      "expected": {
+        "plain": {
+          "canonical": "1.7976931348623157e+308",
+          "sha256": "sha256:c2784e1abd6317452708f3fbf9641c16b959561bc621a1d408c23a20aa2cb585",
+          "bits": "7fefffffffffffff"
+        },
+        "data": {
+          "canonical": "1.7976931348623157e+308",
+          "sha256": "sha256:c2784e1abd6317452708f3fbf9641c16b959561bc621a1d408c23a20aa2cb585",
+          "bits": "7fefffffffffffff"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.7976931348623157e308 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-072",
+      "description": "A decimal that rounds down to the largest double.",
+      "input": "1.7976931348623158e308",
+      "expected": {
+        "plain": {
+          "canonical": "1.7976931348623157e+308",
+          "sha256": "sha256:c2784e1abd6317452708f3fbf9641c16b959561bc621a1d408c23a20aa2cb585",
+          "bits": "7fefffffffffffff"
+        },
+        "data": {
+          "canonical": "1.7976931348623157e+308",
+          "sha256": "sha256:c2784e1abd6317452708f3fbf9641c16b959561bc621a1d408c23a20aa2cb585",
+          "bits": "7fefffffffffffff"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.7976931348623158e308 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-073",
+      "description": "A decimal that rounds up to infinity.",
+      "input": "1.7976931348623159e308",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1.7976931348623159e308 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 1.7976931348623159e308 at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1.7976931348623159e308 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-074",
+      "description": "The exact midpoint between the largest double and 2^1024 rounds to even, which is infinity.",
+      "input": "179769313486231580793728971405303415079934132710037826936173778980444968292764750946649017977587207096330286416692887910946555547851940402630657488671505820681908902000708383676273854845817711531764475730270069855571366959622842914819860834936475292719074168444365510704342711559699508093042880177904174497792",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 179769313486231580793728971405303415079934132710037826936... at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1105",
+            "message": "The number 179769313486231580793728971405303415079934132710037826936... at byte 0 is too large to be held as a double.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 179769313486231580793728971405303415079934132710037826936... at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-075",
+      "description": "One less than that midpoint rounds to the largest double.",
+      "input": "179769313486231580793728971405303415079934132710037826936173778980444968292764750946649017977587207096330286416692887910946555547851940402630657488671505820681908902000708383676273854845817711531764475730270069855571366959622842914819860834936475292719074168444365510704342711559699508093042880177904174497791",
+      "expected": {
+        "plain": {
+          "canonical": "1.7976931348623157e+308",
+          "sha256": "sha256:c2784e1abd6317452708f3fbf9641c16b959561bc621a1d408c23a20aa2cb585",
+          "bits": "7fefffffffffffff"
+        },
+        "data": {
+          "canonical": "1.7976931348623157e+308",
+          "sha256": "sha256:c2784e1abd6317452708f3fbf9641c16b959561bc621a1d408c23a20aa2cb585",
+          "bits": "7fefffffffffffff"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 179769313486231580793728971405303415079934132710037826936... at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-076",
+      "description": "A decimal that rounds up to the smallest subnormal double.",
+      "input": "2.4703282292062328e-324",
+      "expected": {
+        "plain": {
+          "canonical": "5e-324",
+          "sha256": "sha256:c46e7ca1be4c8734f373a56530787288fa2058d73d07855e9247e949f811a42a",
+          "bits": "0000000000000001"
+        },
+        "data": {
+          "canonical": "5e-324",
+          "sha256": "sha256:c46e7ca1be4c8734f373a56530787288fa2058d73d07855e9247e949f811a42a",
+          "bits": "0000000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.4703282292062328e-324 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-077",
+      "description": "A decimal that rounds down to zero.",
+      "input": "2.4703282292062327e-324",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 2.4703282292062327e-324 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 2.4703282292062327e-324 at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.4703282292062327e-324 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-078",
+      "description": "The exact value of 2^-1075, the midpoint between zero and the smallest subnormal double, rounds to even, which is zero.",
+      "input": "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024703282292062327208828439643411068618252990130716238221279284125033775363510437593264991818081799618989828234772285886546332835517796989819938739800539093906315035659515570226392290858392449105184435931802849936536152500319370457678249219365623669863658480757001585769269903706311928279558551332927834338409351978015531246597263579574622766465272827220056374006485499977096599470454020828166226237857393450736339007967761930577506740176324673600968951340535537458516661134223766678604162159680461914467291840300530057530849048765391711386591646239524912623653881879636239373280423891018672348497668235089863388587925628302755995657524455507255189313690836254779186948667994968324049705821028513185451396213837722826145437693412532098591327667236328125",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 0.0000000000000000000000000000000000000000000000000000000... at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1106",
+            "message": "The number 0.0000000000000000000000000000000000000000000000000000000... at byte 0 is too small to be held as a double and would become zero.",
+            "offset": 0
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.0000000000000000000000000000000000000000000000000000000... at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-079",
+      "description": "The exact value of 2^-1075 followed by the digit 1 rounds up.",
+      "input": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000247032822920623272088284396434110686182529901307162382212792841250337753635104375932649918180817996189898282347722858865463328355177969898199387398005390939063150356595155702263922908583924491051844359318028499365361525003193704576782492193656236698636584807570015857692699037063119282795585513329278343384093519780155312465972635795746227664652728272200563740064854999770965994704540208281662262378573934507363390079677619305775067401763246736009689513405355374585166611342237666786041621596804619144672918403005300575308490487653917113865916462395249126236538818796362393732804238910186723484976682350898633885879256283027559956575244555072551893136908362547791869486679949683240497058210285131854513962138377228261454376934125320985913276672363281251",
+      "expected": {
+        "plain": {
+          "canonical": "5e-324",
+          "sha256": "sha256:c46e7ca1be4c8734f373a56530787288fa2058d73d07855e9247e949f811a42a",
+          "bits": "0000000000000001"
+        },
+        "data": {
+          "canonical": "5e-324",
+          "sha256": "sha256:c46e7ca1be4c8734f373a56530787288fa2058d73d07855e9247e949f811a42a",
+          "bits": "0000000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.0000000000000000000000000000000000000000000000000000000... at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-080",
+      "description": "A decimal that rounds down to the largest subnormal double.",
+      "input": "2.2250738585072011e-308",
+      "expected": {
+        "plain": {
+          "canonical": "2.225073858507201e-308",
+          "sha256": "sha256:e702bc3dff32cd2ddd22840752621268554b94aecfdb6f6234a0138bb59447d4",
+          "bits": "000fffffffffffff"
+        },
+        "data": {
+          "canonical": "2.225073858507201e-308",
+          "sha256": "sha256:e702bc3dff32cd2ddd22840752621268554b94aecfdb6f6234a0138bb59447d4",
+          "bits": "000fffffffffffff"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.2250738585072011e-308 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-081",
+      "description": "A decimal that rounds up to the smallest normal double.",
+      "input": "2.2250738585072012e-308",
+      "expected": {
+        "plain": {
+          "canonical": "2.2250738585072014e-308",
+          "sha256": "sha256:8d51a73768cb59d15302f6b0a4c7147a04b0cce9df743b5bf50e31ab87b2d807",
+          "bits": "0010000000000000"
+        },
+        "data": {
+          "canonical": "2.2250738585072014e-308",
+          "sha256": "sha256:8d51a73768cb59d15302f6b0a4c7147a04b0cce9df743b5bf50e31ab87b2d807",
+          "bits": "0010000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.2250738585072012e-308 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-082",
+      "description": "2^53 + 1 rounds to even, 2^53.",
+      "input": "9007199254740993",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "data": {
+          "canonical": "9007199254740992",
+          "sha256": "sha256:c681da39d7273a6a24c15c9cac3a75526ff2ecf8ba4ee60346a0c70c8163bdb2",
+          "bits": "4340000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740993 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-083",
+      "description": "2^53 + 3 rounds to even, 2^53 + 4.",
+      "input": "9007199254740995",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740996",
+          "sha256": "sha256:0237fbe64f6079a91f31d83895c4c17bd35048f038d3f9681b0d5671d7d64ee8",
+          "bits": "4340000000000002"
+        },
+        "data": {
+          "canonical": "9007199254740996",
+          "sha256": "sha256:0237fbe64f6079a91f31d83895c4c17bd35048f038d3f9681b0d5671d7d64ee8",
+          "bits": "4340000000000002"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740995 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-084",
+      "description": "Just above 2^53 + 1 rounds up.",
+      "input": "9007199254740993.0000000001",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740994",
+          "sha256": "sha256:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768",
+          "bits": "4340000000000001"
+        },
+        "data": {
+          "canonical": "9007199254740994",
+          "sha256": "sha256:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768",
+          "bits": "4340000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 9007199254740993.0000000001 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-085",
+      "description": "Just below 2^53 + 3 rounds down.",
+      "input": "9007199254740994.9999999999",
+      "expected": {
+        "plain": {
+          "canonical": "9007199254740994",
+          "sha256": "sha256:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768",
+          "bits": "4340000000000001"
+        },
+        "data": {
+          "canonical": "9007199254740994",
+          "sha256": "sha256:25aa68783313802627958889943e895749ac4c0c7469b2a305cd450a12120768",
+          "bits": "4340000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 9007199254740994.9999999999 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-086",
+      "description": "The exact midpoint above 1 rounds to the even neighbour.",
+      "input": "1.00000000000000011102230246251565404236316680908203125",
+      "expected": {
+        "plain": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "data": {
+          "canonical": "1",
+          "sha256": "sha256:6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "bits": "3ff0000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.00000000000000011102230246251565404236316680908203125 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-087",
+      "description": "The exact midpoint above 1 followed by the digit 1 rounds up.",
+      "input": "1.000000000000000111022302462515654042363166809082031251",
+      "expected": {
+        "plain": {
+          "canonical": "1.0000000000000002",
+          "sha256": "sha256:19119a03721db7fc2a2f06afad179bdd384cc44b54e1d4f4f57e374c5b44fbd0",
+          "bits": "3ff0000000000001"
+        },
+        "data": {
+          "canonical": "1.0000000000000002",
+          "sha256": "sha256:19119a03721db7fc2a2f06afad179bdd384cc44b54e1d4f4f57e374c5b44fbd0",
+          "bits": "3ff0000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 1.000000000000000111022302462515654042363166809082031251 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-088",
+      "description": "The exact midpoint above 0.1 rounds to the even neighbour.",
+      "input": "0.100000000000000012490009027033011079765856266021728515625",
+      "expected": {
+        "plain": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310",
+          "bits": "3fb999999999999a"
+        },
+        "data": {
+          "canonical": "0.1",
+          "sha256": "sha256:14be4b45f18e0d8c67b4f719b5144eee88497e413709d11d85b096d8e2346310",
+          "bits": "3fb999999999999a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.100000000000000012490009027033011079765856266021728515625 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-089",
+      "description": "The exact midpoint above 0.1 followed by the digit 1 rounds up.",
+      "input": "0.1000000000000000124900090270330110797658562660217285156251",
+      "expected": {
+        "plain": {
+          "canonical": "0.10000000000000002",
+          "sha256": "sha256:83b2eb6b3590ccf4bc503c75aabc510850a73df5ee9837f60d2ce14ecdc78149",
+          "bits": "3fb999999999999b"
+        },
+        "data": {
+          "canonical": "0.10000000000000002",
+          "sha256": "sha256:83b2eb6b3590ccf4bc503c75aabc510850a73df5ee9837f60d2ce14ecdc78149",
+          "bits": "3fb999999999999b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.1000000000000000124900090270330110797658562660217285156251 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-090",
+      "description": "The exact midpoint above 123.456 rounds to the even neighbour.",
+      "input": "123.45600000000001017497197608463466167449951171875",
+      "expected": {
+        "plain": {
+          "canonical": "123.45600000000002",
+          "sha256": "sha256:64e4f895d5b78d8f5a184cdfa29f0e8a40612d9152cd7f863116546dc92a710e",
+          "bits": "405edd2f1a9fbe78"
+        },
+        "data": {
+          "canonical": "123.45600000000002",
+          "sha256": "sha256:64e4f895d5b78d8f5a184cdfa29f0e8a40612d9152cd7f863116546dc92a710e",
+          "bits": "405edd2f1a9fbe78"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 123.45600000000001017497197608463466167449951171875 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-091",
+      "description": "The exact midpoint above 123.456 followed by the digit 1 rounds up.",
+      "input": "123.456000000000010174971976084634661674499511718751",
+      "expected": {
+        "plain": {
+          "canonical": "123.45600000000002",
+          "sha256": "sha256:64e4f895d5b78d8f5a184cdfa29f0e8a40612d9152cd7f863116546dc92a710e",
+          "bits": "405edd2f1a9fbe78"
+        },
+        "data": {
+          "canonical": "123.45600000000002",
+          "sha256": "sha256:64e4f895d5b78d8f5a184cdfa29f0e8a40612d9152cd7f863116546dc92a710e",
+          "bits": "405edd2f1a9fbe78"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 123.456000000000010174971976084634661674499511718751 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-092",
+      "description": "The exact midpoint above 10^23 rounds to the even neighbour.",
+      "input": "100000000000000000000000",
+      "expected": {
+        "plain": {
+          "canonical": "1e+23",
+          "sha256": "sha256:0b1af6b73e932475817f8eb620deecf21ad7570df3400a23db5c79a9001597f7",
+          "bits": "44b52d02c7e14af6"
+        },
+        "data": {
+          "canonical": "1e+23",
+          "sha256": "sha256:0b1af6b73e932475817f8eb620deecf21ad7570df3400a23db5c79a9001597f7",
+          "bits": "44b52d02c7e14af6"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 100000000000000000000000 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-093",
+      "description": "The exact midpoint above 10^23 followed by the digit 1 rounds up.",
+      "input": "100000000000000000000000.1",
+      "expected": {
+        "plain": {
+          "canonical": "1.0000000000000001e+23",
+          "sha256": "sha256:de7cb5db5ee06bf7ef5b74ebcf94cd9d7efda28125905f7ff590724953173c7b",
+          "bits": "44b52d02c7e14af7"
+        },
+        "data": {
+          "canonical": "1.0000000000000001e+23",
+          "sha256": "sha256:de7cb5db5ee06bf7ef5b74ebcf94cd9d7efda28125905f7ff590724953173c7b",
+          "bits": "44b52d02c7e14af7"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 100000000000000000000000.1 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-094",
+      "description": "The exact midpoint above 2^-1000 rounds to the even neighbour.",
+      "input": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000093326361850321898260316527545000443091505115648932677443470385701960774744036215722010446937116354154132323247808871175172801193969181547967151816084191634596274676649864887790677440283469609434919160731514796478974087901921663400413575497066220322552211216096724748494169028724344015761385185790938882912171953879169474345570496716690741715715085072632377066955496979399844757156182723700161535085389951198151521917625873409844287610508523866347344025273389245159972127636560173127088351984619752255621769938544186759364215330495246797849873290680290415275474298580585546344568626096756424816296711706062093000187584278505612007051750524005944614614138320813630354021765714132396818924240761801205997732396317696779153294528441620059311389923095703125",
+      "expected": {
+        "plain": {
+          "canonical": "9.332636185032189e-302",
+          "sha256": "sha256:4ed461b6e6850c994f5e1a06068738875642c14e6afe0077cd9688c0b1cb3ce0",
+          "bits": "0170000000000000"
+        },
+        "data": {
+          "canonical": "9.332636185032189e-302",
+          "sha256": "sha256:4ed461b6e6850c994f5e1a06068738875642c14e6afe0077cd9688c0b1cb3ce0",
+          "bits": "0170000000000000"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.0000000000000000000000000000000000000000000000000000000... at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-095",
+      "description": "The exact midpoint above 2^-1000 followed by the digit 1 rounds up.",
+      "input": "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000933263618503218982603165275450004430915051156489326774434703857019607747440362157220104469371163541541323232478088711751728011939691815479671518160841916345962746766498648877906774402834696094349191607315147964789740879019216634004135754970662203225522112160967247484941690287243440157613851857909388829121719538791694743455704967166907417157150850726323770669554969793998447571561827237001615350853899511981515219176258734098442876105085238663473440252733892451599721276365601731270883519846197522556217699385441867593642153304952467978498732906802904152754742985805855463445686260967564248162967117060620930001875842785056120070517505240059446146141383208136303540217657141323968189242407618012059977323963176967791532945284416200593113899230957031251",
+      "expected": {
+        "plain": {
+          "canonical": "9.33263618503219e-302",
+          "sha256": "sha256:566808168032ceab2fc921880167659b6f6f5c7076a83512d7c28b13453dcd0a",
+          "bits": "0170000000000001"
+        },
+        "data": {
+          "canonical": "9.33263618503219e-302",
+          "sha256": "sha256:566808168032ceab2fc921880167659b6f6f5c7076a83512d7c28b13453dcd0a",
+          "bits": "0170000000000001"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.0000000000000000000000000000000000000000000000000000000... at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-096",
+      "description": "The exact midpoint above 10^300 rounds to the even neighbour.",
+      "input": "1000000000000000126855605679093573388607593488603187161478864198481525410777501161583404233100666541302120168640701407666878712745009083098374054462031992372389916256046307092886372256167781787193689444949857643457040908156539501183462088086674146902434205806252960993440370942179392028053726841274368",
+      "expected": {
+        "plain": {
+          "canonical": "1e+300",
+          "sha256": "sha256:2b0de494c41db4c1bf0b41b0a3483db71f2b53a5e37caf5a61abee2d4169a935",
+          "bits": "7e37e43c8800759c"
+        },
+        "data": {
+          "canonical": "1e+300",
+          "sha256": "sha256:2b0de494c41db4c1bf0b41b0a3483db71f2b53a5e37caf5a61abee2d4169a935",
+          "bits": "7e37e43c8800759c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 100000000000000012685560567909357338860759348860318716147... at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-097",
+      "description": "The exact midpoint above 10^300 followed by the digit 1 rounds up.",
+      "input": "1000000000000000126855605679093573388607593488603187161478864198481525410777501161583404233100666541302120168640701407666878712745009083098374054462031992372389916256046307092886372256167781787193689444949857643457040908156539501183462088086674146902434205806252960993440370942179392028053726841274368.1",
+      "expected": {
+        "plain": {
+          "canonical": "1.0000000000000002e+300",
+          "sha256": "sha256:04a3f25b01656b16aba6466b3464e166abfe125a669894f8485709db8af458d5",
+          "bits": "7e37e43c8800759d"
+        },
+        "data": {
+          "canonical": "1.0000000000000002e+300",
+          "sha256": "sha256:04a3f25b01656b16aba6466b3464e166abfe125a669894f8485709db8af458d5",
+          "bits": "7e37e43c8800759d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 100000000000000012685560567909357338860759348860318716147... at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-098",
+      "description": "R 4.3.3's as.numeric() converts -76944133.284736 to a neighbour of the nearest double.",
+      "input": "-76944133.284736",
+      "expected": {
+        "plain": {
+          "canonical": "-76944133.284736",
+          "sha256": "sha256:53e7b29646a5cd87d277d21c8d270acd2da0c0f223c8d4c6d35023a4211d0bba",
+          "bits": "c192584c152391d5"
+        },
+        "data": {
+          "canonical": "-76944133.284736",
+          "sha256": "sha256:53e7b29646a5cd87d277d21c8d270acd2da0c0f223c8d4c6d35023a4211d0bba",
+          "bits": "c192584c152391d5"
+        },
+        "hashable": {
+          "canonical": "-76944133.284736",
+          "sha256": "sha256:53e7b29646a5cd87d277d21c8d270acd2da0c0f223c8d4c6d35023a4211d0bba",
+          "bits": "c192584c152391d5"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-099",
+      "description": "R 4.3.3's as.numeric() converts 7.32e-97 to a neighbour of the nearest double.",
+      "input": "7.32e-97",
+      "expected": {
+        "plain": {
+          "canonical": "7.32e-97",
+          "sha256": "sha256:e134804ee488787d3158db892265ff7b9435cfb7b3638604ab9ce9958dc67427",
+          "bits": "2bf9044526b9e722"
+        },
+        "data": {
+          "canonical": "7.32e-97",
+          "sha256": "sha256:e134804ee488787d3158db892265ff7b9435cfb7b3638604ab9ce9958dc67427",
+          "bits": "2bf9044526b9e722"
+        },
+        "hashable": {
+          "canonical": "7.32e-97",
+          "sha256": "sha256:e134804ee488787d3158db892265ff7b9435cfb7b3638604ab9ce9958dc67427",
+          "bits": "2bf9044526b9e722"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-100",
+      "description": "R 4.3.3's as.numeric() converts -6.1892785e-12 to a neighbour of the nearest double.",
+      "input": "-6.1892785e-12",
+      "expected": {
+        "plain": {
+          "canonical": "-6.1892785e-12",
+          "sha256": "sha256:fdac10a494346744d8b2a9780362074f696b18703a975ea350497d1cf00f53f4",
+          "bits": "bd9b388211f62ecf"
+        },
+        "data": {
+          "canonical": "-6.1892785e-12",
+          "sha256": "sha256:fdac10a494346744d8b2a9780362074f696b18703a975ea350497d1cf00f53f4",
+          "bits": "bd9b388211f62ecf"
+        },
+        "hashable": {
+          "canonical": "-6.1892785e-12",
+          "sha256": "sha256:fdac10a494346744d8b2a9780362074f696b18703a975ea350497d1cf00f53f4",
+          "bits": "bd9b388211f62ecf"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-101",
+      "description": "R 4.3.3's as.numeric() converts 18363346.2855308 to a neighbour of the nearest double.",
+      "input": "18363346.2855308",
+      "expected": {
+        "plain": {
+          "canonical": "18363346.2855308",
+          "sha256": "sha256:549b646fa438404076f50be03f4ddd0e9efdccd0773371c56098e73ce488ce2e",
+          "bits": "4171833d249188bf"
+        },
+        "data": {
+          "canonical": "18363346.2855308",
+          "sha256": "sha256:549b646fa438404076f50be03f4ddd0e9efdccd0773371c56098e73ce488ce2e",
+          "bits": "4171833d249188bf"
+        },
+        "hashable": {
+          "canonical": "18363346.2855308",
+          "sha256": "sha256:549b646fa438404076f50be03f4ddd0e9efdccd0773371c56098e73ce488ce2e",
+          "bits": "4171833d249188bf"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-102",
+      "description": "R 4.3.3's as.numeric() converts 2524183.197988 to a neighbour of the nearest double.",
+      "input": "2524183.197988",
+      "expected": {
+        "plain": {
+          "canonical": "2524183.197988",
+          "sha256": "sha256:919a2f68329c838e179b4f28f8e16b0aad38d5551d0094729b9a86d19d267f61",
+          "bits": "4143420b9957abb9"
+        },
+        "data": {
+          "canonical": "2524183.197988",
+          "sha256": "sha256:919a2f68329c838e179b4f28f8e16b0aad38d5551d0094729b9a86d19d267f61",
+          "bits": "4143420b9957abb9"
+        },
+        "hashable": {
+          "canonical": "2524183.197988",
+          "sha256": "sha256:919a2f68329c838e179b4f28f8e16b0aad38d5551d0094729b9a86d19d267f61",
+          "bits": "4143420b9957abb9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-103",
+      "description": "R 4.3.3's as.numeric() converts -734498.79320267 to a neighbour of the nearest double.",
+      "input": "-734498.79320267",
+      "expected": {
+        "plain": {
+          "canonical": "-734498.79320267",
+          "sha256": "sha256:87f65d80460f90acd04de225e516f99d5039928cab77de9325c05dbba6b93295",
+          "bits": "c1266a45961ea90d"
+        },
+        "data": {
+          "canonical": "-734498.79320267",
+          "sha256": "sha256:87f65d80460f90acd04de225e516f99d5039928cab77de9325c05dbba6b93295",
+          "bits": "c1266a45961ea90d"
+        },
+        "hashable": {
+          "canonical": "-734498.79320267",
+          "sha256": "sha256:87f65d80460f90acd04de225e516f99d5039928cab77de9325c05dbba6b93295",
+          "bits": "c1266a45961ea90d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-104",
+      "description": "R 4.3.3's as.numeric() converts -567787.541287 to a neighbour of the nearest double.",
+      "input": "-567787.541287",
+      "expected": {
+        "plain": {
+          "canonical": "-567787.541287",
+          "sha256": "sha256:33122b806b68290b16b0e8e3132977903aada6693249b6e020c8e96136634bd0",
+          "bits": "c12153d7152391d5"
+        },
+        "data": {
+          "canonical": "-567787.541287",
+          "sha256": "sha256:33122b806b68290b16b0e8e3132977903aada6693249b6e020c8e96136634bd0",
+          "bits": "c12153d7152391d5"
+        },
+        "hashable": {
+          "canonical": "-567787.541287",
+          "sha256": "sha256:33122b806b68290b16b0e8e3132977903aada6693249b6e020c8e96136634bd0",
+          "bits": "c12153d7152391d5"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-105",
+      "description": "R 4.3.3's as.numeric() converts 105508.170112410 to a neighbour of the nearest double.",
+      "input": "105508.170112410",
+      "expected": {
+        "plain": {
+          "canonical": "105508.17011241",
+          "sha256": "sha256:5d20f7f2dc9101cb358fed4fbf76f05fdf29e28220856e4bd7514711a8425246",
+          "bits": "40f9c242b8c7ca59"
+        },
+        "data": {
+          "canonical": "105508.17011241",
+          "sha256": "sha256:5d20f7f2dc9101cb358fed4fbf76f05fdf29e28220856e4bd7514711a8425246",
+          "bits": "40f9c242b8c7ca59"
+        },
+        "hashable": {
+          "canonical": "105508.17011241",
+          "sha256": "sha256:5d20f7f2dc9101cb358fed4fbf76f05fdf29e28220856e4bd7514711a8425246",
+          "bits": "40f9c242b8c7ca59"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-106",
+      "description": "R 4.3.3's as.numeric() converts -9.9538354 to a neighbour of the nearest double.",
+      "input": "-9.9538354",
+      "expected": {
+        "plain": {
+          "canonical": "-9.9538354",
+          "sha256": "sha256:bd5002a06bf143f7fe333fbabcd44e68bea2f527597f77b89f025e2db17b7145",
+          "bits": "c023e85d1d1188bf"
+        },
+        "data": {
+          "canonical": "-9.9538354",
+          "sha256": "sha256:bd5002a06bf143f7fe333fbabcd44e68bea2f527597f77b89f025e2db17b7145",
+          "bits": "c023e85d1d1188bf"
+        },
+        "hashable": {
+          "canonical": "-9.9538354",
+          "sha256": "sha256:bd5002a06bf143f7fe333fbabcd44e68bea2f527597f77b89f025e2db17b7145",
+          "bits": "c023e85d1d1188bf"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-107",
+      "description": "R 4.3.3's as.numeric() converts -23.0696040 to a neighbour of the nearest double.",
+      "input": "-23.0696040",
+      "expected": {
+        "plain": {
+          "canonical": "-23.069604",
+          "sha256": "sha256:a0f61d21014b48b76ad04787253e2998e8861658c81e0dd25afd0df76453d5a9",
+          "bits": "c03711d19157abb9"
+        },
+        "data": {
+          "canonical": "-23.069604",
+          "sha256": "sha256:a0f61d21014b48b76ad04787253e2998e8861658c81e0dd25afd0df76453d5a9",
+          "bits": "c03711d19157abb9"
+        },
+        "hashable": {
+          "canonical": "-23.069604",
+          "sha256": "sha256:a0f61d21014b48b76ad04787253e2998e8861658c81e0dd25afd0df76453d5a9",
+          "bits": "c03711d19157abb9"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-108",
+      "description": "R 4.3.3's as.numeric() converts 9.04554531e-198 to a neighbour of the nearest double.",
+      "input": "9.04554531e-198",
+      "expected": {
+        "plain": {
+          "canonical": "9.04554531e-198",
+          "sha256": "sha256:8c4d75539b1a0079146d463d9c26c505c322fe8cba3eb33b4208ce795a254775",
+          "bits": "1705a322454352c1"
+        },
+        "data": {
+          "canonical": "9.04554531e-198",
+          "sha256": "sha256:8c4d75539b1a0079146d463d9c26c505c322fe8cba3eb33b4208ce795a254775",
+          "bits": "1705a322454352c1"
+        },
+        "hashable": {
+          "canonical": "9.04554531e-198",
+          "sha256": "sha256:8c4d75539b1a0079146d463d9c26c505c322fe8cba3eb33b4208ce795a254775",
+          "bits": "1705a322454352c1"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-109",
+      "description": "R 4.3.3's as.numeric() converts -5.6674e-247 to a neighbour of the nearest double.",
+      "input": "-5.6674e-247",
+      "expected": {
+        "plain": {
+          "canonical": "-5.6674e-247",
+          "sha256": "sha256:2d6f88c8734c4d063dd900b7d5acff7c0a60a95a89ea47721be8c207dd39088f",
+          "bits": "8ccfb367fcf1d11b"
+        },
+        "data": {
+          "canonical": "-5.6674e-247",
+          "sha256": "sha256:2d6f88c8734c4d063dd900b7d5acff7c0a60a95a89ea47721be8c207dd39088f",
+          "bits": "8ccfb367fcf1d11b"
+        },
+        "hashable": {
+          "canonical": "-5.6674e-247",
+          "sha256": "sha256:2d6f88c8734c4d063dd900b7d5acff7c0a60a95a89ea47721be8c207dd39088f",
+          "bits": "8ccfb367fcf1d11b"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-110",
+      "description": "R 4.3.3's as.numeric() converts 4.82374355e-153 to a neighbour of the nearest double.",
+      "input": "4.82374355e-153",
+      "expected": {
+        "plain": {
+          "canonical": "4.82374355e-153",
+          "sha256": "sha256:9e3d47923f407715714193ba392612d3c4cfb922ae4507d974fbaee181a1cd8d",
+          "bits": "20502b40bffafcf1"
+        },
+        "data": {
+          "canonical": "4.82374355e-153",
+          "sha256": "sha256:9e3d47923f407715714193ba392612d3c4cfb922ae4507d974fbaee181a1cd8d",
+          "bits": "20502b40bffafcf1"
+        },
+        "hashable": {
+          "canonical": "4.82374355e-153",
+          "sha256": "sha256:9e3d47923f407715714193ba392612d3c4cfb922ae4507d974fbaee181a1cd8d",
+          "bits": "20502b40bffafcf1"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-111",
+      "description": "R 4.3.3's as.numeric() converts -8.1963553721e-150 to a neighbour of the nearest double.",
+      "input": "-8.1963553721e-150",
+      "expected": {
+        "plain": {
+          "canonical": "-8.1963553721e-150",
+          "sha256": "sha256:60af0ae1cf60a72fbf8eac5c24b6290066f6822ef005b50da150582f492911e2",
+          "bits": "a0fad47289709f23"
+        },
+        "data": {
+          "canonical": "-8.1963553721e-150",
+          "sha256": "sha256:60af0ae1cf60a72fbf8eac5c24b6290066f6822ef005b50da150582f492911e2",
+          "bits": "a0fad47289709f23"
+        },
+        "hashable": {
+          "canonical": "-8.1963553721e-150",
+          "sha256": "sha256:60af0ae1cf60a72fbf8eac5c24b6290066f6822ef005b50da150582f492911e2",
+          "bits": "a0fad47289709f23"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-112",
+      "description": "R 4.3.3's as.numeric() converts -1.489051704e-37 to a neighbour of the nearest double.",
+      "input": "-1.489051704e-37",
+      "expected": {
+        "plain": {
+          "canonical": "-1.489051704e-37",
+          "sha256": "sha256:c4ff11ba725d3077dbbc877aed15b8bac34230580a552855509c0973126e17d7",
+          "bits": "b84955bc21c5518d"
+        },
+        "data": {
+          "canonical": "-1.489051704e-37",
+          "sha256": "sha256:c4ff11ba725d3077dbbc877aed15b8bac34230580a552855509c0973126e17d7",
+          "bits": "b84955bc21c5518d"
+        },
+        "hashable": {
+          "canonical": "-1.489051704e-37",
+          "sha256": "sha256:c4ff11ba725d3077dbbc877aed15b8bac34230580a552855509c0973126e17d7",
+          "bits": "b84955bc21c5518d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-113",
+      "description": "R 4.3.3's as.numeric() converts 3.38451386850241e-25 to a neighbour of the nearest double.",
+      "input": "3.38451386850241e-25",
+      "expected": {
+        "plain": {
+          "canonical": "3.38451386850241e-25",
+          "sha256": "sha256:0e432b2a0b2c04eee4a3cc5c018c7deb437fe42a21d935f8d88cec7be883f4e2",
+          "bits": "3ada2fb86a2d648d"
+        },
+        "data": {
+          "canonical": "3.38451386850241e-25",
+          "sha256": "sha256:0e432b2a0b2c04eee4a3cc5c018c7deb437fe42a21d935f8d88cec7be883f4e2",
+          "bits": "3ada2fb86a2d648d"
+        },
+        "hashable": {
+          "canonical": "3.38451386850241e-25",
+          "sha256": "sha256:0e432b2a0b2c04eee4a3cc5c018c7deb437fe42a21d935f8d88cec7be883f4e2",
+          "bits": "3ada2fb86a2d648d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-114",
+      "description": "R 4.3.3's as.numeric() converts -1.4e-260 to a neighbour of the nearest double.",
+      "input": "-1.4e-260",
+      "expected": {
+        "plain": {
+          "canonical": "-1.4e-260",
+          "sha256": "sha256:fcfe97015fdbb62b2c04be6ab36802b48d32ba325bb4a7c63265a8da3aaef759",
+          "bits": "89fb8d7e32be6396"
+        },
+        "data": {
+          "canonical": "-1.4e-260",
+          "sha256": "sha256:fcfe97015fdbb62b2c04be6ab36802b48d32ba325bb4a7c63265a8da3aaef759",
+          "bits": "89fb8d7e32be6396"
+        },
+        "hashable": {
+          "canonical": "-1.4e-260",
+          "sha256": "sha256:fcfe97015fdbb62b2c04be6ab36802b48d32ba325bb4a7c63265a8da3aaef759",
+          "bits": "89fb8d7e32be6396"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-115",
+      "description": "R 4.3.3's as.numeric() converts 6.31418e-299 to a neighbour of the nearest double.",
+      "input": "6.31418e-299",
+      "expected": {
+        "plain": {
+          "canonical": "6.31418e-299",
+          "sha256": "sha256:ec33b0ca37ce9ed338390047de1692f7f64d4b6948fb31e1963243acd288c507",
+          "bits": "0205248efeb2478d"
+        },
+        "data": {
+          "canonical": "6.31418e-299",
+          "sha256": "sha256:ec33b0ca37ce9ed338390047de1692f7f64d4b6948fb31e1963243acd288c507",
+          "bits": "0205248efeb2478d"
+        },
+        "hashable": {
+          "canonical": "6.31418e-299",
+          "sha256": "sha256:ec33b0ca37ce9ed338390047de1692f7f64d4b6948fb31e1963243acd288c507",
+          "bits": "0205248efeb2478d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-116",
+      "description": "R 4.3.3's as.numeric() converts -5.6503630680e-154 to a neighbour of the nearest double.",
+      "input": "-5.6503630680e-154",
+      "expected": {
+        "plain": {
+          "canonical": "-5.650363068e-154",
+          "sha256": "sha256:9ef3aa610c5c4cea27b1b2d40b8cdc14b3b64c418de3969c167222e2ae11ae6c",
+          "bits": "a01e4db847041c01"
+        },
+        "data": {
+          "canonical": "-5.650363068e-154",
+          "sha256": "sha256:9ef3aa610c5c4cea27b1b2d40b8cdc14b3b64c418de3969c167222e2ae11ae6c",
+          "bits": "a01e4db847041c01"
+        },
+        "hashable": {
+          "canonical": "-5.650363068e-154",
+          "sha256": "sha256:9ef3aa610c5c4cea27b1b2d40b8cdc14b3b64c418de3969c167222e2ae11ae6c",
+          "bits": "a01e4db847041c01"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-117",
+      "description": "R 4.3.3's as.numeric() converts -1.7591166e-214 to a neighbour of the nearest double.",
+      "input": "-1.7591166e-214",
+      "expected": {
+        "plain": {
+          "canonical": "-1.7591166e-214",
+          "sha256": "sha256:1c419d60a1a96c183b6d544b446ae3c8a660cb5a05fdd795b25d9b9be1c9e884",
+          "bits": "938e5223eef08f0d"
+        },
+        "data": {
+          "canonical": "-1.7591166e-214",
+          "sha256": "sha256:1c419d60a1a96c183b6d544b446ae3c8a660cb5a05fdd795b25d9b9be1c9e884",
+          "bits": "938e5223eef08f0d"
+        },
+        "hashable": {
+          "canonical": "-1.7591166e-214",
+          "sha256": "sha256:1c419d60a1a96c183b6d544b446ae3c8a660cb5a05fdd795b25d9b9be1c9e884",
+          "bits": "938e5223eef08f0d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-118",
+      "description": "R 4.3.3's as.numeric() converts -8.5e-276 to a neighbour of the nearest double.",
+      "input": "-8.5e-276",
+      "expected": {
+        "plain": {
+          "canonical": "-8.5e-276",
+          "sha256": "sha256:95ad516b18c6e6bf261b55a2a3dab713aee1eea4ec6c5f51652ae21fb2027292",
+          "bits": "86d2d5a4350d30ff"
+        },
+        "data": {
+          "canonical": "-8.5e-276",
+          "sha256": "sha256:95ad516b18c6e6bf261b55a2a3dab713aee1eea4ec6c5f51652ae21fb2027292",
+          "bits": "86d2d5a4350d30ff"
+        },
+        "hashable": {
+          "canonical": "-8.5e-276",
+          "sha256": "sha256:95ad516b18c6e6bf261b55a2a3dab713aee1eea4ec6c5f51652ae21fb2027292",
+          "bits": "86d2d5a4350d30ff"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-119",
+      "description": "R 4.3.3's as.numeric() converts -9.7e-200 to a neighbour of the nearest double.",
+      "input": "-9.7e-200",
+      "expected": {
+        "plain": {
+          "canonical": "-9.7e-200",
+          "sha256": "sha256:d4673ad825dc59c03b00034d8a85c998a5581b8c33f042f993497c0b67b06a96",
+          "bits": "969db311203c8c4d"
+        },
+        "data": {
+          "canonical": "-9.7e-200",
+          "sha256": "sha256:d4673ad825dc59c03b00034d8a85c998a5581b8c33f042f993497c0b67b06a96",
+          "bits": "969db311203c8c4d"
+        },
+        "hashable": {
+          "canonical": "-9.7e-200",
+          "sha256": "sha256:d4673ad825dc59c03b00034d8a85c998a5581b8c33f042f993497c0b67b06a96",
+          "bits": "969db311203c8c4d"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-120",
+      "description": "R 4.3.3's as.numeric() converts -5.6e-260 to a neighbour of the nearest double.",
+      "input": "-5.6e-260",
+      "expected": {
+        "plain": {
+          "canonical": "-5.6e-260",
+          "sha256": "sha256:ababef3cf0b992f99e47a67d1b9a35d20e0d63638fcabf686103b1cc25ef2721",
+          "bits": "8a1b8d7e32be6396"
+        },
+        "data": {
+          "canonical": "-5.6e-260",
+          "sha256": "sha256:ababef3cf0b992f99e47a67d1b9a35d20e0d63638fcabf686103b1cc25ef2721",
+          "bits": "8a1b8d7e32be6396"
+        },
+        "hashable": {
+          "canonical": "-5.6e-260",
+          "sha256": "sha256:ababef3cf0b992f99e47a67d1b9a35d20e0d63638fcabf686103b1cc25ef2721",
+          "bits": "8a1b8d7e32be6396"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-121",
+      "description": "R 4.3.3's as.numeric() converts -7e-261 to a neighbour of the nearest double.",
+      "input": "-7e-261",
+      "expected": {
+        "plain": {
+          "canonical": "-7e-261",
+          "sha256": "sha256:5f3d247e1beae3072b605d0a540d1035d50243723a03492161dac2e9bafde246",
+          "bits": "89eb8d7e32be6396"
+        },
+        "data": {
+          "canonical": "-7e-261",
+          "sha256": "sha256:5f3d247e1beae3072b605d0a540d1035d50243723a03492161dac2e9bafde246",
+          "bits": "89eb8d7e32be6396"
+        },
+        "hashable": {
+          "canonical": "-7e-261",
+          "sha256": "sha256:5f3d247e1beae3072b605d0a540d1035d50243723a03492161dac2e9bafde246",
+          "bits": "89eb8d7e32be6396"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-122",
+      "description": "R 4.3.3's as.numeric() converts 9.433e-178 to a neighbour of the nearest double.",
+      "input": "9.433e-178",
+      "expected": {
+        "plain": {
+          "canonical": "9.433e-178",
+          "sha256": "sha256:bbb0f8df9b072eb013dfd68a4684f8cbf1a4b6521a313ad5ac81addec2d4286a",
+          "bits": "1b2e9479dfdefc11"
+        },
+        "data": {
+          "canonical": "9.433e-178",
+          "sha256": "sha256:bbb0f8df9b072eb013dfd68a4684f8cbf1a4b6521a313ad5ac81addec2d4286a",
+          "bits": "1b2e9479dfdefc11"
+        },
+        "hashable": {
+          "canonical": "9.433e-178",
+          "sha256": "sha256:bbb0f8df9b072eb013dfd68a4684f8cbf1a4b6521a313ad5ac81addec2d4286a",
+          "bits": "1b2e9479dfdefc11"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-123",
+      "description": "R 4.3.3's as.numeric() converts -4.1604293523e-303 to a neighbour of the nearest double.",
+      "input": "-4.1604293523e-303",
+      "expected": {
+        "plain": {
+          "canonical": "-4.1604293523e-303",
+          "sha256": "sha256:b8e977b45bfbdbbde8564b0e3148b511ac46ac56c56444a35846473d000e8667",
+          "bits": "8126d31b0e93be28"
+        },
+        "data": {
+          "canonical": "-4.1604293523e-303",
+          "sha256": "sha256:b8e977b45bfbdbbde8564b0e3148b511ac46ac56c56444a35846473d000e8667",
+          "bits": "8126d31b0e93be28"
+        },
+        "hashable": {
+          "canonical": "-4.1604293523e-303",
+          "sha256": "sha256:b8e977b45bfbdbbde8564b0e3148b511ac46ac56c56444a35846473d000e8667",
+          "bits": "8126d31b0e93be28"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-124",
+      "description": "R 4.3.3's as.numeric() converts 1.644e-117 to a neighbour of the nearest double.",
+      "input": "1.644e-117",
+      "expected": {
+        "plain": {
+          "canonical": "1.644e-117",
+          "sha256": "sha256:66f0373e7aebc099d50ef1af3a479c8d6f35f6837f9623c2205a0eddadffe1e0",
+          "bits": "27b09538033fba7b"
+        },
+        "data": {
+          "canonical": "1.644e-117",
+          "sha256": "sha256:66f0373e7aebc099d50ef1af3a479c8d6f35f6837f9623c2205a0eddadffe1e0",
+          "bits": "27b09538033fba7b"
+        },
+        "hashable": {
+          "canonical": "1.644e-117",
+          "sha256": "sha256:66f0373e7aebc099d50ef1af3a479c8d6f35f6837f9623c2205a0eddadffe1e0",
+          "bits": "27b09538033fba7b"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-125",
+      "description": "R 4.3.3's as.numeric() converts -2.7976304e-97 to a neighbour of the nearest double.",
+      "input": "-2.7976304e-97",
+      "expected": {
+        "plain": {
+          "canonical": "-2.7976304e-97",
+          "sha256": "sha256:f283b8fad738be28df7685c2bb67e632c9aef2489f395a7588ea91f03b716362",
+          "bits": "abe31f4b9885c84b"
+        },
+        "data": {
+          "canonical": "-2.7976304e-97",
+          "sha256": "sha256:f283b8fad738be28df7685c2bb67e632c9aef2489f395a7588ea91f03b716362",
+          "bits": "abe31f4b9885c84b"
+        },
+        "hashable": {
+          "canonical": "-2.7976304e-97",
+          "sha256": "sha256:f283b8fad738be28df7685c2bb67e632c9aef2489f395a7588ea91f03b716362",
+          "bits": "abe31f4b9885c84b"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-126",
+      "description": "R 4.3.3's as.numeric() converts -6.84e-86 to a neighbour of the nearest double.",
+      "input": "-6.84e-86",
+      "expected": {
+        "plain": {
+          "canonical": "-6.84e-86",
+          "sha256": "sha256:6267cbb7b92d4359c60b8ba16c7a8bc06495bcc03c046c9045952ebbe13d00e0",
+          "bits": "ae41022a16147ec1"
+        },
+        "data": {
+          "canonical": "-6.84e-86",
+          "sha256": "sha256:6267cbb7b92d4359c60b8ba16c7a8bc06495bcc03c046c9045952ebbe13d00e0",
+          "bits": "ae41022a16147ec1"
+        },
+        "hashable": {
+          "canonical": "-6.84e-86",
+          "sha256": "sha256:6267cbb7b92d4359c60b8ba16c7a8bc06495bcc03c046c9045952ebbe13d00e0",
+          "bits": "ae41022a16147ec1"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-127",
+      "description": "R 4.3.3's as.numeric() converts -5.49056905057172e-244 to a neighbour of the nearest double.",
+      "input": "-5.49056905057172e-244",
+      "expected": {
+        "plain": {
+          "canonical": "-5.49056905057172e-244",
+          "sha256": "sha256:eba106618275819c05e0d70788c83ee86fab55ed60dfe36fe0c12a5a7de125af",
+          "bits": "8d6dfdec7e640125"
+        },
+        "data": {
+          "canonical": "-5.49056905057172e-244",
+          "sha256": "sha256:eba106618275819c05e0d70788c83ee86fab55ed60dfe36fe0c12a5a7de125af",
+          "bits": "8d6dfdec7e640125"
+        },
+        "hashable": {
+          "canonical": "-5.49056905057172e-244",
+          "sha256": "sha256:eba106618275819c05e0d70788c83ee86fab55ed60dfe36fe0c12a5a7de125af",
+          "bits": "8d6dfdec7e640125"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-128",
+      "description": "R 4.3.3's as.numeric() converts 2.76854318123760e-243 to a neighbour of the nearest double.",
+      "input": "2.76854318123760e-243",
+      "expected": {
+        "plain": {
+          "canonical": "2.7685431812376e-243",
+          "sha256": "sha256:01a068b273413a8306b4fa7fc272a54a6dc723f25fcd3490a26b97dc74fc2357",
+          "bits": "0d92e75ba8a57dc8"
+        },
+        "data": {
+          "canonical": "2.7685431812376e-243",
+          "sha256": "sha256:01a068b273413a8306b4fa7fc272a54a6dc723f25fcd3490a26b97dc74fc2357",
+          "bits": "0d92e75ba8a57dc8"
+        },
+        "hashable": {
+          "canonical": "2.7685431812376e-243",
+          "sha256": "sha256:01a068b273413a8306b4fa7fc272a54a6dc723f25fcd3490a26b97dc74fc2357",
+          "bits": "0d92e75ba8a57dc8"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-129",
+      "description": "R 4.3.3's as.numeric() converts -8e126 to a neighbour of the nearest double.",
+      "input": "-8e126",
+      "expected": {
+        "plain": {
+          "canonical": "-8e+126",
+          "sha256": "sha256:bd7098108ee2eae26cede6d71c1bde7afdcff2af731055d07ee3014944965c13",
+          "bits": "da47a2ecc414a03f"
+        },
+        "data": {
+          "canonical": "-8e+126",
+          "sha256": "sha256:bd7098108ee2eae26cede6d71c1bde7afdcff2af731055d07ee3014944965c13",
+          "bits": "da47a2ecc414a03f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -8e126 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-130",
+      "description": "R 4.3.3's as.numeric() converts 7.29375148e291 to a neighbour of the nearest double.",
+      "input": "7.29375148e291",
+      "expected": {
+        "plain": {
+          "canonical": "7.29375148e+291",
+          "sha256": "sha256:a00821683bbd402e337dd5ccfc4ee3b0d6a2f19bfcb592340285230195fd7b06",
+          "bits": "7c87637e88baecc1"
+        },
+        "data": {
+          "canonical": "7.29375148e+291",
+          "sha256": "sha256:a00821683bbd402e337dd5ccfc4ee3b0d6a2f19bfcb592340285230195fd7b06",
+          "bits": "7c87637e88baecc1"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 7.29375148e291 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-131",
+      "description": "R 4.3.3's as.numeric() converts -3.6498925210481e267 to a neighbour of the nearest double.",
+      "input": "-3.6498925210481e267",
+      "expected": {
+        "plain": {
+          "canonical": "-3.6498925210481e+267",
+          "sha256": "sha256:e960592cc5a1464cea085aef1009b9525049b19b00b72274c17686050460414b",
+          "bits": "f77c4c6c9a1da6c7"
+        },
+        "data": {
+          "canonical": "-3.6498925210481e+267",
+          "sha256": "sha256:e960592cc5a1464cea085aef1009b9525049b19b00b72274c17686050460414b",
+          "bits": "f77c4c6c9a1da6c7"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -3.6498925210481e267 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-132",
+      "description": "R 4.3.3's as.numeric() converts 6.214174e173 to a neighbour of the nearest double.",
+      "input": "6.214174e173",
+      "expected": {
+        "plain": {
+          "canonical": "6.214174e+173",
+          "sha256": "sha256:56f464a4a1d3e8fe65a888379e87ccc32246a8062deba6cce0b4cb1d20de6ad9",
+          "bits": "640419991ac7444b"
+        },
+        "data": {
+          "canonical": "6.214174e+173",
+          "sha256": "sha256:56f464a4a1d3e8fe65a888379e87ccc32246a8062deba6cce0b4cb1d20de6ad9",
+          "bits": "640419991ac7444b"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 6.214174e173 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-133",
+      "description": "R 4.3.3's as.numeric() converts 9.60022e201 to a neighbour of the nearest double.",
+      "input": "9.60022e201",
+      "expected": {
+        "plain": {
+          "canonical": "9.60022e+201",
+          "sha256": "sha256:9024d2b3b3045c288c6aede36194590c8180279fe459a0285d1231108d35cdec",
+          "bits": "69df5ad45ab6a3c3"
+        },
+        "data": {
+          "canonical": "9.60022e+201",
+          "sha256": "sha256:9024d2b3b3045c288c6aede36194590c8180279fe459a0285d1231108d35cdec",
+          "bits": "69df5ad45ab6a3c3"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9.60022e201 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-134",
+      "description": "R 4.3.3's as.numeric() converts 3.115712e144 to a neighbour of the nearest double.",
+      "input": "3.115712e144",
+      "expected": {
+        "plain": {
+          "canonical": "3.115712e+144",
+          "sha256": "sha256:50a5dd870c0c18c0785882c40faab41424a2bbfe1e12bb90ec040a1eb78192a9",
+          "bits": "5deff028b864a9ec"
+        },
+        "data": {
+          "canonical": "3.115712e+144",
+          "sha256": "sha256:50a5dd870c0c18c0785882c40faab41424a2bbfe1e12bb90ec040a1eb78192a9",
+          "bits": "5deff028b864a9ec"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 3.115712e144 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-135",
+      "description": "R 4.3.3's as.numeric() converts 3.704514100740427e-152 to a neighbour of the nearest double.",
+      "input": "3.704514100740427e-152",
+      "expected": {
+        "plain": {
+          "canonical": "3.704514100740427e-152",
+          "sha256": "sha256:b996f7d4620ab4093216b5c77ca23c6f441902f3ad2fc43764787b3a941618e4",
+          "bits": "207f0b1b2daf3506"
+        },
+        "data": {
+          "canonical": "3.704514100740427e-152",
+          "sha256": "sha256:b996f7d4620ab4093216b5c77ca23c6f441902f3ad2fc43764787b3a941618e4",
+          "bits": "207f0b1b2daf3506"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 3.704514100740427e-152 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-136",
+      "description": "R 4.3.3's as.numeric() converts -7.049819869642031e+230 to a neighbour of the nearest double.",
+      "input": "-7.049819869642031e+230",
+      "expected": {
+        "plain": {
+          "canonical": "-7.049819869642031e+230",
+          "sha256": "sha256:231779e50c5181ee85cf79986fe97b859613ea82c7341a5f04cc9c0a0f216411",
+          "bits": "efdd0fcced5c1041"
+        },
+        "data": {
+          "canonical": "-7.049819869642031e+230",
+          "sha256": "sha256:231779e50c5181ee85cf79986fe97b859613ea82c7341a5f04cc9c0a0f216411",
+          "bits": "efdd0fcced5c1041"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -7.049819869642031e+230 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-137",
+      "description": "R 4.3.3's as.numeric() converts -5.86824538131268e+268 to a neighbour of the nearest double.",
+      "input": "-5.86824538131268e+268",
+      "expected": {
+        "plain": {
+          "canonical": "-5.86824538131268e+268",
+          "sha256": "sha256:a4ccbc2262c3dfe706d8483a02895c1972af63917bc0eb49012abaf63da9aa1f",
+          "bits": "f7bc6fad304efee7"
+        },
+        "data": {
+          "canonical": "-5.86824538131268e+268",
+          "sha256": "sha256:a4ccbc2262c3dfe706d8483a02895c1972af63917bc0eb49012abaf63da9aa1f",
+          "bits": "f7bc6fad304efee7"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -5.86824538131268e+268 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-138",
+      "description": "R 4.3.3's as.numeric() converts 2.104380188383035e-306 to a neighbour of the nearest double.",
+      "input": "2.104380188383035e-306",
+      "expected": {
+        "plain": {
+          "canonical": "2.104380188383035e-306",
+          "sha256": "sha256:f7aa877a35ebde6eb368cd33cc75cba32c0fd75a0c06a13dd353127701e68b92",
+          "bits": "0077a4d9036c2dbd"
+        },
+        "data": {
+          "canonical": "2.104380188383035e-306",
+          "sha256": "sha256:f7aa877a35ebde6eb368cd33cc75cba32c0fd75a0c06a13dd353127701e68b92",
+          "bits": "0077a4d9036c2dbd"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.104380188383035e-306 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-139",
+      "description": "R 4.3.3's as.numeric() converts -3.856096668441545e-241 to a neighbour of the nearest double.",
+      "input": "-3.856096668441545e-241",
+      "expected": {
+        "plain": {
+          "canonical": "-3.856096668441545e-241",
+          "sha256": "sha256:1c0d48b8d1213a5126aaebdfb957f9278455a8be8ca62830f1345d545cfa30bc",
+          "bits": "8e0491ebf3b6476f"
+        },
+        "data": {
+          "canonical": "-3.856096668441545e-241",
+          "sha256": "sha256:1c0d48b8d1213a5126aaebdfb957f9278455a8be8ca62830f1345d545cfa30bc",
+          "bits": "8e0491ebf3b6476f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number -3.856096668441545e-241 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-140",
+      "description": "R 4.3.3's as.numeric() converts 2.744653427217277e-258 to a neighbour of the nearest double.",
+      "input": "2.744653427217277e-258",
+      "expected": {
+        "plain": {
+          "canonical": "2.744653427217277e-258",
+          "sha256": "sha256:641fc8123a4b766e0de32a090d002b1152d65a8a2bd963913bd89a4fd560b38d",
+          "bits": "0a75199dd4b05a5e"
+        },
+        "data": {
+          "canonical": "2.744653427217277e-258",
+          "sha256": "sha256:641fc8123a4b766e0de32a090d002b1152d65a8a2bd963913bd89a4fd560b38d",
+          "bits": "0a75199dd4b05a5e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.744653427217277e-258 at byte 0 has more than 15 significant digits.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "numbers-read-141",
+      "description": "R 4.3.3's as.numeric() converts -9.81910588847971e-276 to a neighbour of the nearest double.",
+      "input": "-9.81910588847971e-276",
+      "expected": {
+        "plain": {
+          "canonical": "-9.81910588847971e-276",
+          "sha256": "sha256:72fc9c03aca5aba90096cd1d441a453a3ff89cde1479317c644411693b11d78f",
+          "bits": "86d5c1e8240ebd63"
+        },
+        "data": {
+          "canonical": "-9.81910588847971e-276",
+          "sha256": "sha256:72fc9c03aca5aba90096cd1d441a453a3ff89cde1479317c644411693b11d78f",
+          "bits": "86d5c1e8240ebd63"
+        },
+        "hashable": {
+          "canonical": "-9.81910588847971e-276",
+          "sha256": "sha256:72fc9c03aca5aba90096cd1d441a453a3ff89cde1479317c644411693b11d78f",
+          "bits": "86d5c1e8240ebd63"
+        }
+      }
+    },
+    {
+      "id": "numbers-read-142",
+      "description": "R 4.3.3's as.numeric() converts -6.870709112140226e+295 to a neighbour of the nearest double.",
+      "input": "-6.870709112140226e+295",
+      "expected": {
+        "plain": {
+          "canonical": "-6.870709112140226e+295",
+          "sha256": "sha256:01d3b65957335118ea6e5a9355e91736b74d3054eedc00c01c0b1a5fdfeb4463",
+          "bits": "fd5ae507666dc147"
+        },
+        "data": {
+          "canonical": "-6.870709112140226e+295",
+          "sha256": "sha256:01d3b65957335118ea6e5a9355e91736b74d3054eedc00c01c0b1a5fdfeb4463",
+          "bits": "fd5ae507666dc147"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -6.870709112140226e+295 at byte 0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "offset": 0
+          }
+        }
+      }
+    }
+  ]
+}

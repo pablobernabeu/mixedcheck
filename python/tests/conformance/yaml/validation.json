@@ -1,0 +1,123 @@
+{
+  "description": "Declarations written in YAML that convert to JSON and then fail validation, with the issues of the stage that reports them.",
+  "cases": [
+    {
+      "id": "yaml-validation-001",
+      "description": "A version of another MINOR line.",
+      "path": "validation/version_0_2.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-validation-002",
+      "description": "The version '0.1', which stays a string and is not supported.",
+      "path": "validation/version_float.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-validation-003",
+      "description": "A units block written as the scalar 'none', which stays a string and fails the type of the block.",
+      "path": "validation/units_none.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected array at /units, found string.",
+            "pointer": "/units"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-validation-004",
+      "description": "An observation block written as the scalar '5', which is a string where an object is required.",
+      "path": "validation/observation_number.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected object at /observation, found string.",
+            "pointer": "/observation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-validation-005",
+      "description": "A creation time written as a date, which stays a string and fails the pattern of a UTC timestamp.",
+      "path": "validation/created_date.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /provenance/created is not a valid UTC timestamp.",
+            "pointer": "/provenance/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-validation-006",
+      "description": "The unknown keys 'yes' and 'outcome_blind'. Their values stay strings, so there is no E3008.",
+      "path": "validation/unknown_keys.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'outcome_blind' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'yes' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "yaml-validation-007",
+      "description": "The faulty declaration of the Reporting section of declarations.md in YAML, with its four issues from stage 5.",
+      "path": "validation/faulty_example.yaml",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2031",
+            "message": "The estimands at /estimands include no focal estimand, which a minimal declaration requires.",
+            "pointer": "/estimands"
+          },
+          {
+            "code": "E2025",
+            "message": "The feature 'longitudinal' at /features/1 requires '/observation/time' to be declared.",
+            "pointer": "/features/1"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'post' cannot be used at /observation/key/4.",
+            "pointer": "/observation/key/4"
+          },
+          {
+            "code": "E2018",
+            "message": "The column 'arm' is in the assignment block, so its role at /variables/arm/role must be 'assigned'.",
+            "pointer": "/variables/arm/role"
+          }
+        ]
+      }
+    }
+  ]
+}

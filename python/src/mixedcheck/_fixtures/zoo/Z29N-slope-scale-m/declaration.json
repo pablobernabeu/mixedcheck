@@ -1,0 +1,48 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z29N Slope of a covariate in metres",
+  "table": {
+    "fields": [
+      {
+        "name": "subject",
+        "type": "string"
+      },
+      {
+        "name": "trial",
+        "type": "integer"
+      },
+      {
+        "name": "dist",
+        "type": "integer"
+      },
+      {
+        "name": "rt",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "subject",
+      "columns": [
+        "subject"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "subject",
+      "trial"
+    ]
+  },
+  "variables": {
+    "rt": {
+      "role": "outcome",
+      "measurement": "positive_duration"
+    },
+    "dist": {
+      "role": "auxiliary"
+    }
+  }
+}

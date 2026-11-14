@@ -1,0 +1,19 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Parent-child dyads, one observation per member",
+  "units": [
+    {"name": "dyad", "columns": ["family_id"], "role": "dyad"},
+    {
+      "name": "member",
+      "columns": ["member_id"],
+      "nested_in": "dyad",
+      "id_scope": "within_parent",
+      "role": "participant"
+    }
+  ],
+  "observation": {"unit": "member", "key": ["family_id", "member_id"]},
+  "variables": {
+    "wellbeing": {"role": "outcome", "measurement": "continuous"},
+    "member_role": {"role": "auxiliary"}
+  }
+}

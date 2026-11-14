@@ -1,0 +1,965 @@
+{
+  "description": "Stage 3 of validation: the structure of the document against results.schema.json, with the rules that defs.schema.json states in descriptions, every issue of the stage sorted by pointer, code and message and capped at 100 with W1490.",
+  "cases": [
+    {
+      "id": "results-structure-001",
+      "description": "Two required members missing at the root: one E1402 for each, sorted by message.",
+      "document": "structure/001.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at (root) lacks the required member 'created'.",
+            "pointer": ""
+          },
+          {
+            "code": "E1402",
+            "message": "The object at (root) lacks the required member 'software'.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-002",
+      "description": "A member that the schema does not define at the root: E1403.",
+      "document": "structure/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'note' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-003",
+      "description": "The stream 'C': E1405 with the values of the enum in the schema's order.",
+      "document": "structure/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /stream must be 'A' or 'B'.",
+            "pointer": "/stream"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-004",
+      "description": "created on 29 February 2026, a day that does not exist: E1406 with the form 'UTC timestamp', a rule that defs.schema.json states in a description.",
+      "document": "structure/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /created is not a valid UTC timestamp.",
+            "pointer": "/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-005",
+      "description": "An access time on 29 February 2100, a year divisible by 100 and not by 400: E1406.",
+      "document": "structure/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /access_log/entries/0/time is not a valid UTC timestamp.",
+            "pointer": "/access_log/entries/0/time"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-006",
+      "description": "created without 'T' and 'Z': E1406.",
+      "document": "structure/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /created is not a valid UTC timestamp.",
+            "pointer": "/created"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-007",
+      "description": "A statistic that is written and has an availability member: E1404.",
+      "document": "structure/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'availability' is not allowed in the object at /findings/2/statistics/rows.",
+            "pointer": "/findings/2/statistics/rows"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-008",
+      "description": "A statistic whose value is null without an availability member: E1402.",
+      "document": "structure/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /findings/2/statistics/rows lacks the required member 'availability'.",
+            "pointer": "/findings/2/statistics/rows"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-009",
+      "description": "A null value whose availability is 'available': E1405, since a null value requires not_available.",
+      "document": "structure/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /findings/2/statistics/rows/availability/value must be 'not_available'.",
+            "pointer": "/findings/2/statistics/rows/availability/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-010",
+      "description": "A finding that is not available with a message and a support: E1404 for each.",
+      "document": "structure/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'message' is not allowed in the object at /findings/0.",
+            "pointer": "/findings/0"
+          },
+          {
+            "code": "E1404",
+            "message": "The member 'support' is not allowed in the object at /findings/0.",
+            "pointer": "/findings/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-011",
+      "description": "An available finding without message and support: E1402 for each.",
+      "document": "structure/011.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /findings/1 lacks the required member 'message'.",
+            "pointer": "/findings/1"
+          },
+          {
+            "code": "E1402",
+            "message": "The object at /findings/1 lacks the required member 'support'.",
+            "pointer": "/findings/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-012",
+      "description": "An available finding whose status lacks validation: E1402. Its optimisation status is allowed by the schema and left to stage 5.",
+      "document": "structure/012.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /findings/0/status lacks the required member 'validation'.",
+            "pointer": "/findings/0/status"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-013",
+      "description": "A T0 entry in the mode 'exploratory' with a reason: E1404 for the reason and E1405 for the mode, which must be 'outcome_blind'.",
+      "document": "structure/013.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'reason' is not allowed in the object at /access_log/entries/0.",
+            "pointer": "/access_log/entries/0"
+          },
+          {
+            "code": "E1405",
+            "message": "The value at /access_log/entries/0/mode must be 'outcome_blind'.",
+            "pointer": "/access_log/entries/0/mode"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-014",
+      "description": "A T1 entry without the outcome and the reason: E1402 for each.",
+      "document": "structure/014.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /access_log/entries/1 lacks the required member 'outcome'.",
+            "pointer": "/access_log/entries/1"
+          },
+          {
+            "code": "E1402",
+            "message": "The object at /access_log/entries/1 lacks the required member 'reason'.",
+            "pointer": "/access_log/entries/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-015",
+      "description": "An access log without entries: E1413.",
+      "document": "structure/015.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1413",
+            "message": "The array at /access_log/entries has fewer than 1 items.",
+            "pointer": "/access_log/entries"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-016",
+      "description": "A count without its count class (E1402) and a boolean with one (E1404).",
+      "document": "structure/016.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1404",
+            "message": "The member 'count_class' is not allowed in the object at /findings/2/statistics/intercept.",
+            "pointer": "/findings/2/statistics/intercept"
+          },
+          {
+            "code": "E1402",
+            "message": "The object at /findings/2/statistics/rows lacks the required member 'count_class'.",
+            "pointer": "/findings/2/statistics/rows"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-017",
+      "description": "A quantile on a statistic of kind real is allowed, and a quantile probability above 1 gives E1410.",
+      "document": "structure/017.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1410",
+            "message": "The number at /findings/2/statistics/median/quantile/p is greater than 1.",
+            "pointer": "/findings/2/statistics/median/quantile/p"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-018",
+      "description": "A number where the support's dominated must be a boolean (E1401) and a negative count (E1409).",
+      "document": "structure/018.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1409",
+            "message": "The number at /findings/0/statistics/rows/value is less than 0.",
+            "pointer": "/findings/0/statistics/rows/value"
+          },
+          {
+            "code": "E1401",
+            "message": "Expected boolean at /findings/0/support/contributors/dominated, found number.",
+            "pointer": "/findings/0/support/contributors/dominated"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-019",
+      "description": "A count written as a string: E1401 with the types that the kind count allows.",
+      "document": "structure/019.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected integer or null at /findings/2/statistics/rows/value, found string.",
+            "pointer": "/findings/2/statistics/rows/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-020",
+      "description": "A real written as the string 'Inf', which is not one of 'NaN', 'Infinity' and '-Infinity': E1405.",
+      "document": "structure/020.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /findings/2/statistics/effective_size/value must be 'NaN', 'Infinity' or '-Infinity'.",
+            "pointer": "/findings/2/statistics/effective_size/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-021",
+      "description": "findings written as an object: E1401, and nothing below it is checked.",
+      "document": "structure/021.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1401",
+            "message": "Expected array at /findings, found object.",
+            "pointer": "/findings"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-022",
+      "description": "A dominance share with a trailing zero: E1406 with the form 'non-negative decimal string'.",
+      "document": "structure/022.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /privacy/dominance/share is not a valid non-negative decimal string.",
+            "pointer": "/privacy/dominance/share"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-023",
+      "description": "The R package naming unicodedata as its NFC library: E1405, since R uses utf8.",
+      "document": "structure/023.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /software/unicode/library must be 'utf8'.",
+            "pointer": "/software/unicode/library"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-024",
+      "description": "A key identifier in upper-case hexadecimal: E1406 with the form 'key identifier'.",
+      "document": "structure/024.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /inputs/data/analysis_table/key_id is not a valid key identifier.",
+            "pointer": "/inputs/data/analysis_table/key_id"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-025",
+      "description": "An outcome column whose name has a character outside the Basic Multilingual Plane, as UTF-8 bytes: E1207, reported in code, and E1406 with the form 'column name', since the pattern is matched over code points.",
+      "document": "structure/025.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1207",
+            "message": "The identifier at /access_log/entries/1/outcome/column contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/access_log/entries/1/outcome/column"
+          },
+          {
+            "code": "E1406",
+            "message": "The string at /access_log/entries/1/outcome/column is not a valid column name.",
+            "pointer": "/access_log/entries/1/outcome/column"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-026",
+      "description": "An analysis table commitment that covers 'outcome_column': E1405 with the one value allowed.",
+      "document": "structure/026.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /inputs/data/analysis_table/covers must be 'analysis_table'.",
+            "pointer": "/inputs/data/analysis_table/covers"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-027",
+      "description": "Eleven findings, of which the tenth and the eleventh lack 'tier': the issue at /findings/10 comes before the one at /findings/9, since pointers are compared code point by code point.",
+      "document": "structure/027.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at /findings/10 lacks the required member 'tier'.",
+            "pointer": "/findings/10"
+          },
+          {
+            "code": "E1402",
+            "message": "The object at /findings/9 lacks the required member 'tier'.",
+            "pointer": "/findings/9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-028",
+      "description": "105 members that the schema does not define at the root: the first 100 issues in order, then W1490 for the 5 left out.",
+      "document": "structure/028.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x000' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x001' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x002' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x003' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x004' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x005' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x006' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x007' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x008' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x009' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x010' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x011' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x012' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x013' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x014' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x015' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x016' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x017' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x018' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x019' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x020' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x021' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x022' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x023' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x024' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x025' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x026' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x027' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x028' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x029' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x030' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x031' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x032' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x033' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x034' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x035' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x036' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x037' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x038' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x039' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x040' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x041' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x042' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x043' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x044' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x045' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x046' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x047' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x048' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x049' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x050' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x051' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x052' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x053' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x054' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x055' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x056' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x057' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x058' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x059' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x060' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x061' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x062' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x063' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x064' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x065' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x066' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x067' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x068' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x069' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x070' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x071' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x072' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x073' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x074' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x075' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x076' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x077' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x078' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x079' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x080' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x081' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x082' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x083' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x084' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x085' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x086' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x087' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x088' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x089' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x090' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x091' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x092' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x093' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x094' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x095' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x096' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x097' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x098' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'x099' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "W1490",
+            "message": "5 further problems were found but not listed."
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-structure-029",
+      "description": "A message identifier that is not a local name (E1406 with the form 'local name') and an empty scope part, which fails both the pattern of an identifier (E1406) and its minimum length (E1407).",
+      "document": "structure/029.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1406",
+            "message": "The string at /findings/2/message/id is not a valid local name.",
+            "pointer": "/findings/2/message/id"
+          },
+          {
+            "code": "E1406",
+            "message": "The string at /findings/2/scope/factor is not a valid identifier.",
+            "pointer": "/findings/2/scope/factor"
+          },
+          {
+            "code": "E1407",
+            "message": "The string at /findings/2/scope/factor has fewer than 1 characters.",
+            "pointer": "/findings/2/scope/factor"
+          }
+        ]
+      }
+    }
+  ]
+}

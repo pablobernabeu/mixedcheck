@@ -1,0 +1,6 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [{"name": "arm", "type": "string", "categories": ["control", {"value": "control"}]}]
+  }
+}

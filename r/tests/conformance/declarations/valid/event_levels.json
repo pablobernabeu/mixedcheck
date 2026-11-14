@@ -1,0 +1,23 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {
+    "fields": [
+      {"name": "acc", "type": "string", "categories": ["correct", "incorrect"]},
+      {"name": "hit", "type": "integer", "categories": [0, 1]},
+      {"name": "resp", "type": "number"},
+      {
+        "name": "ans",
+        "type": "string",
+        "categories": [{"value": "c", "label": "Correct"}, {"value": "w"}]
+      },
+      {"name": "flag"}
+    ]
+  },
+  "variables": {
+    "acc": {"role": "outcome", "measurement": "binary", "event_level": "correct"},
+    "hit": {"role": "outcome", "measurement": "binary", "event_level": 1},
+    "resp": {"role": "outcome", "measurement": "binary", "event_level": 2},
+    "ans": {"role": "outcome", "measurement": "binary", "event_level": "c"},
+    "flag": {"role": "outcome", "measurement": "binary", "event_level": "x"}
+  }
+}

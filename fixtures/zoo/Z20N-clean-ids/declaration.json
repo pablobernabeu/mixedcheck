@@ -1,0 +1,67 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Z20N Identifiers in one Unicode form",
+  "features": [
+    "crossed_experiment"
+  ],
+  "table": {
+    "fields": [
+      {
+        "name": "Subject",
+        "type": "string"
+      },
+      {
+        "name": "item",
+        "type": "string"
+      },
+      {
+        "name": "cond",
+        "type": "string",
+        "categories": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "name": "y",
+        "type": "number"
+      }
+    ]
+  },
+  "units": [
+    {
+      "name": "Subject",
+      "columns": [
+        "Subject"
+      ],
+      "role": "participant"
+    },
+    {
+      "name": "item",
+      "columns": [
+        "item"
+      ],
+      "role": "item"
+    }
+  ],
+  "crossings": [
+    {
+      "units": [
+        "Subject",
+        "item"
+      ]
+    }
+  ],
+  "observation": {
+    "key": [
+      "Subject",
+      "item"
+    ]
+  },
+  "variables": {
+    "y": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

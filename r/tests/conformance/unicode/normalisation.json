@@ -1,0 +1,428 @@
+{
+  "description": "Strings with whether every code point is assigned in Unicode 14.0 and the form that comparisons of identifiers and labels use: NFC when normalisable, the string itself otherwise.",
+  "cases": [
+    {
+      "id": "unicode-normalisation-001",
+      "description": "ASCII text. It is normalisable and in NFC.",
+      "string": "Zurich",
+      "expected": {
+        "normalisable": true,
+        "form": "Zurich"
+      }
+    },
+    {
+      "id": "unicode-normalisation-002",
+      "description": "The empty string. It is normalisable and in NFC.",
+      "string": "",
+      "expected": {
+        "normalisable": true,
+        "form": ""
+      }
+    },
+    {
+      "id": "unicode-normalisation-003",
+      "description": "'caf\u00e9' in NFC. It is normalisable and in NFC.",
+      "string": "caf\u00e9",
+      "expected": {
+        "normalisable": true,
+        "form": "caf\u00e9"
+      }
+    },
+    {
+      "id": "unicode-normalisation-004",
+      "description": "'caf\u00e9' in NFD. It is normalisable, and its NFC form differs.",
+      "string": "cafe\u0301",
+      "expected": {
+        "normalisable": true,
+        "form": "caf\u00e9"
+      }
+    },
+    {
+      "id": "unicode-normalisation-005",
+      "description": "'Z\u00fcrich' in NFC. It is normalisable and in NFC.",
+      "string": "Z\u00fcrich",
+      "expected": {
+        "normalisable": true,
+        "form": "Z\u00fcrich"
+      }
+    },
+    {
+      "id": "unicode-normalisation-006",
+      "description": "'Z\u00fcrich' in NFD. It is normalisable, and its NFC form differs.",
+      "string": "Zu\u0308rich",
+      "expected": {
+        "normalisable": true,
+        "form": "Z\u00fcrich"
+      }
+    },
+    {
+      "id": "unicode-normalisation-007",
+      "description": "'\u00c7' in NFC. It is normalisable and in NFC.",
+      "string": "\u00c7",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00c7"
+      }
+    },
+    {
+      "id": "unicode-normalisation-008",
+      "description": "'\u00c7' in NFD. It is normalisable, and its NFC form differs.",
+      "string": "C\u0327",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00c7"
+      }
+    },
+    {
+      "id": "unicode-normalisation-009",
+      "description": "'\u00c5' in NFC. It is normalisable and in NFC.",
+      "string": "\u00c5",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00c5"
+      }
+    },
+    {
+      "id": "unicode-normalisation-010",
+      "description": "'\u00c5' in NFD. It is normalisable, and its NFC form differs.",
+      "string": "A\u030a",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00c5"
+      }
+    },
+    {
+      "id": "unicode-normalisation-011",
+      "description": "U+212B ANGSTROM SIGN, a singleton that NFC replaces by U+00C5. It is normalisable, and its NFC form differs.",
+      "string": "\u212b",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00c5"
+      }
+    },
+    {
+      "id": "unicode-normalisation-012",
+      "description": "U+2126 OHM SIGN, a singleton that NFC replaces by U+03A9. It is normalisable, and its NFC form differs.",
+      "string": "\u2126",
+      "expected": {
+        "normalisable": true,
+        "form": "\u03a9"
+      }
+    },
+    {
+      "id": "unicode-normalisation-013",
+      "description": "U+212A KELVIN SIGN, a singleton that NFC replaces by the ASCII 'K'. It is normalisable, and its NFC form differs.",
+      "string": "\u212a",
+      "expected": {
+        "normalisable": true,
+        "form": "K"
+      }
+    },
+    {
+      "id": "unicode-normalisation-014",
+      "description": "U+2000 EN QUAD, a singleton that NFC replaces by U+2002. It is normalisable, and its NFC form differs.",
+      "string": "\u2000",
+      "expected": {
+        "normalisable": true,
+        "form": "\u2002"
+      }
+    },
+    {
+      "id": "unicode-normalisation-015",
+      "description": "'\u1ec7' in NFC. It is normalisable and in NFC.",
+      "string": "\u1ec7",
+      "expected": {
+        "normalisable": true,
+        "form": "\u1ec7"
+      }
+    },
+    {
+      "id": "unicode-normalisation-016",
+      "description": "'\u1ec7' in NFD. It is normalisable, and its NFC form differs.",
+      "string": "e\u0323\u0302",
+      "expected": {
+        "normalisable": true,
+        "form": "\u1ec7"
+      }
+    },
+    {
+      "id": "unicode-normalisation-017",
+      "description": "'\u1ec7' as 'e', U+0302 and U+0323, which canonical ordering reorders. It is normalisable, and its NFC form differs.",
+      "string": "e\u0302\u0323",
+      "expected": {
+        "normalisable": true,
+        "form": "\u1ec7"
+      }
+    },
+    {
+      "id": "unicode-normalisation-018",
+      "description": "'\u00e1' with U+0316, in NFC. It is normalisable and in NFC.",
+      "string": "\u00e1\u0316",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00e1\u0316"
+      }
+    },
+    {
+      "id": "unicode-normalisation-019",
+      "description": "'a' with U+0301 and U+0316, out of canonical order. It is normalisable, and its NFC form differs.",
+      "string": "a\u0301\u0316",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00e1\u0316"
+      }
+    },
+    {
+      "id": "unicode-normalisation-020",
+      "description": "'a' with U+0316 and U+0301. It is normalisable, and its NFC form differs.",
+      "string": "a\u0316\u0301",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00e1\u0316"
+      }
+    },
+    {
+      "id": "unicode-normalisation-021",
+      "description": "U+1E0B U+0323, which NFC turns into U+1E0D U+0307. It is normalisable, and its NFC form differs.",
+      "string": "\u1e0b\u0323",
+      "expected": {
+        "normalisable": true,
+        "form": "\u1e0d\u0307"
+      }
+    },
+    {
+      "id": "unicode-normalisation-022",
+      "description": "U+1E9B U+0323, which is in NFC. It is normalisable and in NFC.",
+      "string": "\u1e9b\u0323",
+      "expected": {
+        "normalisable": true,
+        "form": "\u1e9b\u0323"
+      }
+    },
+    {
+      "id": "unicode-normalisation-023",
+      "description": "'\u00e9' followed by U+0301, which is in NFC. It is normalisable and in NFC.",
+      "string": "\u00e9\u0301",
+      "expected": {
+        "normalisable": true,
+        "form": "\u00e9\u0301"
+      }
+    },
+    {
+      "id": "unicode-normalisation-024",
+      "description": "The Hangul syllable U+AC00 in NFC. It is normalisable and in NFC.",
+      "string": "\uac00",
+      "expected": {
+        "normalisable": true,
+        "form": "\uac00"
+      }
+    },
+    {
+      "id": "unicode-normalisation-025",
+      "description": "The Hangul syllable U+AC00 as two jamo. It is normalisable, and its NFC form differs.",
+      "string": "\u1100\u1161",
+      "expected": {
+        "normalisable": true,
+        "form": "\uac00"
+      }
+    },
+    {
+      "id": "unicode-normalisation-026",
+      "description": "The Hangul syllable U+AC01 as three jamo. It is normalisable, and its NFC form differs.",
+      "string": "\u1100\u1161\u11a8",
+      "expected": {
+        "normalisable": true,
+        "form": "\uac01"
+      }
+    },
+    {
+      "id": "unicode-normalisation-027",
+      "description": "The Hangul syllable U+AC00 followed by a final jamo. It is normalisable, and its NFC form differs.",
+      "string": "\uac00\u11a8",
+      "expected": {
+        "normalisable": true,
+        "form": "\uac01"
+      }
+    },
+    {
+      "id": "unicode-normalisation-028",
+      "description": "U+0958 DEVANAGARI LETTER QA, excluded from composition. It is normalisable, and its NFC form differs.",
+      "string": "\u0958",
+      "expected": {
+        "normalisable": true,
+        "form": "\u0915\u093c"
+      }
+    },
+    {
+      "id": "unicode-normalisation-029",
+      "description": "U+0915 U+093C, the NFC form of U+0958. It is normalisable and in NFC.",
+      "string": "\u0915\u093c",
+      "expected": {
+        "normalisable": true,
+        "form": "\u0915\u093c"
+      }
+    },
+    {
+      "id": "unicode-normalisation-030",
+      "description": "U+FB33 HEBREW LETTER DALET WITH DAGESH, excluded from composition. It is normalisable, and its NFC form differs.",
+      "string": "\ufb33",
+      "expected": {
+        "normalisable": true,
+        "form": "\u05d3\u05bc"
+      }
+    },
+    {
+      "id": "unicode-normalisation-031",
+      "description": "U+0344, whose NFC form is U+0308 U+0301. It is normalisable, and its NFC form differs.",
+      "string": "\u0344",
+      "expected": {
+        "normalisable": true,
+        "form": "\u0308\u0301"
+      }
+    },
+    {
+      "id": "unicode-normalisation-032",
+      "description": "U+0F73, whose NFC form is U+0F71 U+0F72. It is normalisable, and its NFC form differs.",
+      "string": "\u0f73",
+      "expected": {
+        "normalisable": true,
+        "form": "\u0f71\u0f72"
+      }
+    },
+    {
+      "id": "unicode-normalisation-033",
+      "description": "The ligature U+FB01, which NFC keeps. It is normalisable and in NFC.",
+      "string": "\ufb01",
+      "expected": {
+        "normalisable": true,
+        "form": "\ufb01"
+      }
+    },
+    {
+      "id": "unicode-normalisation-034",
+      "description": "The fullwidth letter U+FF21, which NFC keeps. It is normalisable and in NFC.",
+      "string": "\uff21",
+      "expected": {
+        "normalisable": true,
+        "form": "\uff21"
+      }
+    },
+    {
+      "id": "unicode-normalisation-035",
+      "description": "The dotless and dotted letters i of Turkish. It is normalisable and in NFC.",
+      "string": "\u0131\u0130",
+      "expected": {
+        "normalisable": true,
+        "form": "\u0131\u0130"
+      }
+    },
+    {
+      "id": "unicode-normalisation-036",
+      "description": "Greek alpha with psili and oxia in NFD. It is normalisable, and its NFC form differs.",
+      "string": "\u03b1\u0313\u0301",
+      "expected": {
+        "normalisable": true,
+        "form": "\u1f04"
+      }
+    },
+    {
+      "id": "unicode-normalisation-037",
+      "description": "'x', U+1E2AE and U+0316: U+1E2AE was assigned in Unicode 14.0. It is normalisable, and its NFC form differs.",
+      "string": "x\ud838\udeae\u0316",
+      "expected": {
+        "normalisable": true,
+        "form": "x\u0316\ud838\udeae"
+      }
+    },
+    {
+      "id": "unicode-normalisation-038",
+      "description": "'x', U+0316 and U+1E2AE. It is normalisable and in NFC.",
+      "string": "x\u0316\ud838\udeae",
+      "expected": {
+        "normalisable": true,
+        "form": "x\u0316\ud838\udeae"
+      }
+    },
+    {
+      "id": "unicode-normalisation-039",
+      "description": "'x', U+1E4EC and U+0316: U+1E4EC was assigned in Unicode 15.0. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "x\ud839\udcec\u0316",
+      "expected": {
+        "normalisable": false,
+        "form": "x\ud839\udcec\u0316"
+      }
+    },
+    {
+      "id": "unicode-normalisation-040",
+      "description": "'x', U+0316 and U+1E4EC. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "x\u0316\ud839\udcec",
+      "expected": {
+        "normalisable": false,
+        "form": "x\u0316\ud839\udcec"
+      }
+    },
+    {
+      "id": "unicode-normalisation-041",
+      "description": "U+0378, unassigned. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "\u0378",
+      "expected": {
+        "normalisable": false,
+        "form": "\u0378"
+      }
+    },
+    {
+      "id": "unicode-normalisation-042",
+      "description": "The noncharacter U+FFFE. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "\ufffe",
+      "expected": {
+        "normalisable": false,
+        "form": "\ufffe"
+      }
+    },
+    {
+      "id": "unicode-normalisation-043",
+      "description": "The noncharacter U+FDD0. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "\ufdd0",
+      "expected": {
+        "normalisable": false,
+        "form": "\ufdd0"
+      }
+    },
+    {
+      "id": "unicode-normalisation-044",
+      "description": "U+E000, a private-use character. It is normalisable and in NFC.",
+      "string": "\ue000",
+      "expected": {
+        "normalisable": true,
+        "form": "\ue000"
+      }
+    },
+    {
+      "id": "unicode-normalisation-045",
+      "description": "U+1F600, assigned in Unicode 6.1. It is normalisable and in NFC.",
+      "string": "\ud83d\ude00",
+      "expected": {
+        "normalisable": true,
+        "form": "\ud83d\ude00"
+      }
+    },
+    {
+      "id": "unicode-normalisation-046",
+      "description": "U+1FAE8, assigned in Unicode 15.0. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "\ud83e\udee8",
+      "expected": {
+        "normalisable": false,
+        "form": "\ud83e\udee8"
+      }
+    },
+    {
+      "id": "unicode-normalisation-047",
+      "description": "'\u00e9' in NFD followed by U+0378. It holds a code point that Unicode 14.0 does not assign, so it stands for itself.",
+      "string": "e\u0301\u0378",
+      "expected": {
+        "normalisable": false,
+        "form": "e\u0301\u0378"
+      }
+    }
+  ]
+}

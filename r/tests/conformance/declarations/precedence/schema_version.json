@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1.0",
+  "title": "lme4::sleepstudy",
+  "units": [{"name": "Subject", "columns": ["Subject"], "role": "participant"}],
+  "observation": {
+    "unit": "Subject",
+    "key": ["Subject", "Days"],
+    "time": {"column": "Days", "kind": "occasion", "within": "Subject"}
+  }
+}

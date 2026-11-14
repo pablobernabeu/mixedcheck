@@ -1,0 +1,616 @@
+{
+  "description": "Nested grouping factors written with '/' or ':', their names and order, and the design matrices of a nested design.",
+  "cases": [
+    {
+      "id": "nested-01",
+      "description": "'/' in a grouping factor gives a term for the outer factor and one for the interaction.",
+      "formula": "y ~ 1 + (1 | school/class)",
+      "data": {"y": [1, 2, 3, 4], "school": ["S1", "S1", "S2", "S2"], "class": ["1", "2", "1", "2"]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:54afc3debff83d194e2e589eb697c2894d5122523c7bbebc950b9cdf792a1e77"
+      }
+    },
+    {
+      "id": "nested-02",
+      "description": "The expanded form gives the same IR as nested-01.",
+      "formula": "y ~ 1 + (1 | school) + (1 | school:class)",
+      "data": {"y": [1, 2, 3, 4], "school": ["S1", "S1", "S2", "S2"], "class": ["1", "2", "1", "2"]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:54afc3debff83d194e2e589eb697c2894d5122523c7bbebc950b9cdf792a1e77"
+      }
+    },
+    {
+      "id": "nested-03",
+      "description": "Three nested levels.",
+      "formula": "y ~ arm + (1 | school/class/pupil)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "arm": ["control", "tutoring", "control", "tutoring"],
+        "school": ["S1", "S1", "S2", "S2"],
+        "class": ["1", "1", "1", "2"],
+        "pupil": ["p1", "p2", "p1", "p1"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "arm": {
+              "kind": "categorical",
+              "levels": ["control", "tutoring"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "control"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "arm", "variables": [{"variable": "arm", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "arm[tutoring]", "term": 1, "levels": {"arm": "tutoring"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:class:pupil",
+              "factor": "school:class:pupil",
+              "grouping": ["school", "class", "pupil"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:449e7a95c0ebf5473318875648a9fd1f52d1e8dd1059d22d01d3f0886d67b493"
+      }
+    },
+    {
+      "id": "nested-04",
+      "description": "A correlated slope at both nested levels.",
+      "formula": "y ~ x + (1 + x | school/class)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [0.5, 1.5, 2.5, 3.5],
+        "school": ["S1", "S1", "S2", "S2"],
+        "class": ["1", "2", "1", "2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + x | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "x", "variables": [{"variable": "x"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "x", "term": 1, "levels": {}}
+              ]
+            },
+            {
+              "name": "1 + x | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [
+                {"name": "(Intercept)", "variables": []},
+                {"name": "x", "variables": [{"variable": "x"}]}
+              ],
+              "columns": [
+                {"name": "(Intercept)", "term": 0, "levels": {}},
+                {"name": "x", "term": 1, "levels": {}}
+              ]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:f3ba0905b75199a042580a54232ea25ccd178637891a945edb1153a3d5cff057"
+      }
+    },
+    {
+      "id": "nested-05",
+      "description": "A grouping factor keeps the order of its variables as first written.",
+      "formula": "y ~ (1 | class:school)",
+      "data": {"y": [1, 2, 3, 4], "school": ["S1", "S1", "S2", "S2"], "class": ["1", "2", "1", "2"]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | class:school",
+              "factor": "class:school",
+              "grouping": ["class", "school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:0dd291ac42a1ccee0373187a26ab4ec67697b9e177540019d8e0e751c4f3b71a"
+      }
+    },
+    {
+      "id": "nested-06",
+      "description": "A later grouping factor with the same columns takes the name of the first, and terms are grouped by factor.",
+      "formula": "y ~ x + (1 | school/class) + (0 + x | class:school)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [0.5, 1.5, 2.5, 3.5],
+        "school": ["S1", "S1", "S2", "S2"],
+        "class": ["1", "2", "1", "2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "0 + x | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "x", "variables": [{"variable": "x"}]}],
+              "columns": [{"name": "x", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:6433f460cc97e8c3b0151a0f30f15a93c721219b0d9603a344ad450d3b7bfced"
+      }
+    },
+    {
+      "id": "nested-07",
+      "description": "Zoo fixture Z02: pupils who change school, with the nested formula that misspecifies movers.",
+      "formula": "y ~ wave + (1 | school/pupil)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "pupil", "type": "string"},
+            {"name": "school", "type": "string"},
+            {"name": "wave", "type": "integer"},
+            {"name": "y", "type": "number"}
+          ]
+        }
+      },
+      "data": {
+        "pupil": ["P01", "P01", "P02"],
+        "school": ["S01", "S02", "S01"],
+        "wave": [1, 2, 1],
+        "y": [-0.888364, -1.333849, 0.25]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"wave": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "wave", "variables": [{"variable": "wave"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "wave", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:pupil",
+              "factor": "school:pupil",
+              "grouping": ["school", "pupil"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:8a0767d01a9bf03e62272cb909dc41bc5b69a032896dc4f4be7f8a90b5cbe05d"
+      }
+    },
+    {
+      "id": "nested-08",
+      "description": "The design matrices of a nested design: the levels of 'school:class' are pairs of labels in order of their components, written with ':'.",
+      "formula": "y ~ arm + (1 | school/class)",
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6],
+        "arm": ["control", "control", "tutoring", "tutoring", "control", "tutoring"],
+        "school": ["S2", "S1", "S1", "S2", "S1", "S2"],
+        "class": ["2", "1", "2", "1", "1", "2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "arm": {
+              "kind": "categorical",
+              "levels": ["control", "tutoring"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "control"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "arm", "variables": [{"variable": "arm", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "arm[tutoring]", "term": 1, "levels": {"arm": "tutoring"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | school:class",
+              "factor": "school:class",
+              "grouping": ["school", "class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:432d1ff87128d3dcad74c308f20bdb723b89a7366afcd3b88aec756bc8fddf0b",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5],
+          "x": [[1, 0], [1, 0], [1, 1], [1, 1], [1, 0], [1, 1]],
+          "x_dropped": [],
+          "z_columns": [
+            {"term": 0, "level": "S1", "column": "(Intercept)"},
+            {"term": 0, "level": "S2", "column": "(Intercept)"},
+            {"term": 1, "level": "S1:1", "column": "(Intercept)"},
+            {"term": 1, "level": "S1:2", "column": "(Intercept)"},
+            {"term": 1, "level": "S2:1", "column": "(Intercept)"},
+            {"term": 1, "level": "S2:2", "column": "(Intercept)"}
+          ],
+          "z": [
+            [0, 1, 0, 0, 0, 1],
+            [1, 0, 1, 0, 0, 0],
+            [1, 0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 1, 0],
+            [1, 0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0, 1]
+          ]
+        }
+      }
+    },
+    {
+      "id": "nested-09",
+      "description": "Zoo fixtures Z01 and Z04: separate intercepts for school and class.",
+      "formula": "y ~ 1 + (1 | school) + (1 | class)",
+      "data": {
+        "y": [0.05601, -0.522869, 0.3, 0.1],
+        "school": ["S01", "S01", "S02", "S02"],
+        "class": ["1", "2", "1", "2"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {},
+          "fixed": {
+            "terms": [{"name": "(Intercept)", "variables": []}],
+            "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            },
+            {
+              "name": "1 | class",
+              "factor": "class",
+              "grouping": ["class"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:be38d9045826a42586e97a9e11177c35dce462048424cd1a2aa25a925c3321f7"
+      }
+    },
+    {
+      "id": "nested-10",
+      "description": "Zoo fixture Z08: a cluster-randomised trial whose formula omits the class level.",
+      "formula": "y ~ arm + (1 | school)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "school", "type": "string"},
+            {"name": "class", "type": "string"},
+            {"name": "pupil", "type": "string"},
+            {"name": "arm", "type": "string", "categories": ["control", "tutoring"]},
+            {"name": "y", "type": "number"}
+          ]
+        }
+      },
+      "data": {
+        "school": ["S01", "S01", "S02"],
+        "class": ["S01C1", "S01C2", "S02C1"],
+        "pupil": ["p1", "p2", "p3"],
+        "arm": ["control", "tutoring", "control"],
+        "y": [-0.311957, 0.045412, 0.5]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "arm": {
+              "kind": "categorical",
+              "levels": ["control", "tutoring"],
+              "levels_source": "declared",
+              "contrast": "treatment",
+              "reference": "control"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "arm", "variables": [{"variable": "arm", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "arm[tutoring]", "term": 1, "levels": {"arm": "tutoring"}}
+            ]
+          },
+          "random": [
+            {
+              "name": "1 | school",
+              "factor": "school",
+              "grouping": ["school"],
+              "covariance": "unstructured",
+              "terms": [{"name": "(Intercept)", "variables": []}],
+              "columns": [{"name": "(Intercept)", "term": 0, "levels": {}}]
+            }
+          ],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:cec9ecfdb2a775c8a2b157865fd3011afbc4a3075dffd7469f15cf90aa987b44"
+      }
+    },
+    {
+      "id": "nested-11",
+      "description": "A term that '/' repeats is a duplicate.",
+      "formula": "y ~ (1 | school) + (1 | school/class)",
+      "data": {"y": [1, 2], "school": ["S1", "S2"], "class": ["1", "2"]},
+      "expected": {
+        "issue": {
+          "code": "E6035",
+          "message": "The random term at byte 19 repeats the earlier random term '1 | school'.",
+          "offset": 19
+        }
+      }
+    },
+    {
+      "id": "nested-12",
+      "description": "A grouping factor cannot name a column twice.",
+      "formula": "y ~ (1 | school/class/school)",
+      "data": {"y": [1, 2], "school": ["S1", "S2"], "class": ["1", "2"]},
+      "expected": {
+        "issue": {
+          "code": "E6033",
+          "message": "The column 'school' at byte 22 appears twice in one grouping factor.",
+          "offset": 22
+        }
+      }
+    },
+    {
+      "id": "nested-13",
+      "description": "Fixed effects of classes nested in schools: the last class column depends on the earlier columns and is dropped.",
+      "formula": "y ~ school + class",
+      "data": {
+        "y": [1, 2, 3, 4, 5, 6, 7, 8],
+        "school": ["s1", "s1", "s1", "s1", "s2", "s2", "s2", "s2"],
+        "class": ["c1", "c1", "c2", "c2", "c3", "c3", "c4", "c4"]
+      },
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "class": {
+              "kind": "categorical",
+              "levels": ["c1", "c2", "c3", "c4"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "c1"
+            },
+            "school": {
+              "kind": "categorical",
+              "levels": ["s1", "s2"],
+              "levels_source": "table",
+              "contrast": "treatment",
+              "reference": "s1"
+            }
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "school", "variables": [{"variable": "school", "coding": "contrast"}]},
+              {"name": "class", "variables": [{"variable": "class", "coding": "contrast"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "school[s2]", "term": 1, "levels": {"school": "s2"}},
+              {"name": "class[c2]", "term": 2, "levels": {"class": "c2"}},
+              {"name": "class[c3]", "term": 2, "levels": {"class": "c3"}},
+              {"name": "class[c4]", "term": 2, "levels": {"class": "c4"}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:45d5f9d3ab0979eadfe3425fc3203ab614998318b0efc14bd6842e246c719e1b",
+        "matrices": {
+          "rows": [0, 1, 2, 3, 4, 5, 6, 7],
+          "x": [
+            [1, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0],
+            [1, 0, 1, 0, 0],
+            [1, 0, 1, 0, 0],
+            [1, 1, 0, 1, 0],
+            [1, 1, 0, 1, 0],
+            [1, 1, 0, 0, 1],
+            [1, 1, 0, 0, 1]
+          ],
+          "x_dropped": ["class[c4]"]
+        }
+      }
+    }
+  ]
+}

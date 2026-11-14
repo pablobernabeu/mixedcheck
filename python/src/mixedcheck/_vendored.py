@@ -1,7 +1,8 @@
 """Access to the shared artefacts vendored into the package.
 
-spec/tools/vendor.py copies them from spec/ and fixtures/ in the repository
-into _spec/ and _fixtures/, with a MANIFEST.json of SHA-256 digests in each.
+spec/tools/vendor.py copies them from spec/ in the repository into _spec/,
+and the fixtures that are installed from fixtures/ into _fixtures/, with a
+MANIFEST.json of SHA-256 digests in each.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ import hashlib
 import json
 from importlib.resources import files
 from importlib.resources.abc import Traversable
+from typing import cast
 
 
 def spec_versions() -> dict[str, str]:
@@ -50,7 +52,7 @@ def _read_versions(text: str, label: str) -> dict[str, str]:
         versions = None
     if not _is_object_of_strings(versions):
         raise ValueError(f"'{label}' must hold a JSON object whose values are strings.")
-    return versions
+    return cast(dict[str, str], versions)
 
 
 def _walk(directory: Traversable, prefix: str = "") -> list[str]:

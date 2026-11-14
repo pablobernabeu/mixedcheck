@@ -1,0 +1,463 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:defs",
+  "title": "mixedcheck shared definitions",
+  "description": "Definitions shared by every schema in the bundle, normative together with docs/spec/conventions.md. Other schemas refer to a definition as urn:mixedcheck:schema:defs#/$defs/<name>. The root schema accepts any value. Rules that JSON Schema cannot express are stated in descriptions, with the error code that the validators and readers report for them in code.",
+  "$defs": {
+    "name": {
+      "title": "name",
+      "description": "A name declared in a document, such as a unit name or an estimand ID: an ASCII letter followed by up to 63 ASCII letters, digits, '_' or '.'. Names are compared byte for byte.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.]{0,63}$"
+    },
+    "column_name": {
+      "title": "column name",
+      "description": "The name of a column of the data: 1 to 128 characters, none of them a control character (U+0000 to U+001F or U+007F to U+009F) or a character outside the Basic Multilingual Plane. Column names are compared with the data after NFC normalisation. Patterns are matched over code points, so a character outside the Basic Multilingual Plane fails the pattern (E1406), and validators also report it in code (E1207).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[\\u0020-\\u007E\\u00A0-\\uFFFF]*$"
+    },
+    "category_value": {
+      "title": "category value",
+      "description": "One value of a categorical column as a document lists it: a string, compared with the data after NFC normalisation, or an integer.",
+      "type": ["string", "integer"]
+    },
+    "check_id": {
+      "title": "check identifier",
+      "description": "The stable identifier of a registry entry: one to four segments separated by '.', each a lower-case ASCII letter followed by up to 47 lower-case letters, digits or '_'.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,47}(\\.[a-z][a-z0-9_]{0,47}){0,3}$"
+    },
+    "error_code": {
+      "title": "error code",
+      "description": "A code of spec/errors.json: 'E' for an error or 'W' for a warning, then four digits.",
+      "type": "string",
+      "pattern": "^[EW][1-9][0-9]{3}$"
+    },
+    "json_pointer": {
+      "title": "JSON Pointer",
+      "description": "A JSON Pointer (RFC 6901). The empty string points to the whole document.",
+      "type": "string",
+      "pattern": "^(/([^~/]|~[01])*)*$"
+    },
+    "tier": {
+      "title": "outcome-access tier",
+      "description": "T0 reads no outcome, T1 reads the outcome marginally or by cluster and T2 relates the outcome to predictors or to a fitted model (02-decisions.md, Q3).",
+      "enum": ["T0", "T1", "T2"]
+    },
+    "language": {
+      "title": "language",
+      "description": "The language of the package that produced a value.",
+      "enum": ["R", "Python"]
+    },
+    "count_class": {
+      "title": "count class",
+      "description": "The class of a count for the privacy filter: 'person' counts and cross-tabulations of person attributes are suppressed below k, whereas 'non_person' counts of units, parameters and df are shown exactly (02-decisions.md, Q5).",
+      "enum": ["person", "non_person"]
+    },
+    "utc_timestamp": {
+      "title": "UTC timestamp",
+      "description": "A time in UTC to the second, written YYYY-MM-DDTHH:MM:SSZ, with a year from 0001 to 9999. The day must exist in its month, which validators check in code (E1406): February has 29 days when the year is divisible by 4 and not by 100, or by 400.",
+      "type": "string",
+      "pattern": "^(000[1-9]|00[1-9][0-9]|0[1-9][0-9]{2}|[1-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "date": {
+      "title": "date",
+      "description": "A calendar date written YYYY-MM-DD, with a year from 0001 to 9999. The day must exist in its month, which validators check in code (E1406): February has 29 days when the year is divisible by 4 and not by 100, or by 400.",
+      "type": "string",
+      "pattern": "^(000[1-9]|00[1-9][0-9]|0[1-9][0-9]{2}|[1-9][0-9]{3})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "semver": {
+      "title": "version",
+      "description": "A version of a mixedcheck artefact (registry, schema, canonicaliser, vocabulary or document kind): MAJOR.MINOR.PATCH, each a non-negative integer without leading zeros. A reader accepts every PATCH of the MAJOR.MINOR lines it supports (E1441 otherwise).",
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "release": {
+      "title": "release",
+      "description": "A MAJOR.MINOR release of the packages, such as '1.1' in 'planned 1.1'.",
+      "type": "string",
+      "maxLength": 16,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "software_version": {
+      "title": "software version",
+      "description": "The version of a piece of software as that software reports it, such as '1.1-35.1' for an R package or '0.15.0' for a Python package.",
+      "type": "string",
+      "pattern": "^[0-9A-Za-z][0-9A-Za-z.+_~-]{0,63}$"
+    },
+    "version_range": {
+      "title": "version range",
+      "description": "One or more comparisons joined by ', ', each an operator (>=, <=, >, < or ==) followed by a version made of non-negative integers separated by '.' or '-'. Versions are compared component by component as integers after splitting on '.' and '-', with missing trailing components counted as 0. A version with any other character lies outside every range.",
+      "type": "string",
+      "pattern": "^(>=|<=|>|<|==)[0-9]+([.-][0-9]+)*(, (>=|<=|>|<|==)[0-9]+([.-][0-9]+)*)*$"
+    },
+    "versions": {
+      "title": "versions",
+      "description": "The versions of the package that wrote a document and of the shared specification it carries, as spec/versions.json records them: the registry, the schema bundle and the canonicaliser (03-execution-plan.md, Versions).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonicaliser", "package", "registry", "schemas"],
+      "properties": {
+        "package": {"$ref": "#/$defs/software_version"},
+        "registry": {"$ref": "#/$defs/semver"},
+        "schemas": {"$ref": "#/$defs/semver"},
+        "canonicaliser": {"$ref": "#/$defs/semver"}
+      }
+    },
+    "sha256_hash": {
+      "title": "SHA-256 hash",
+      "description": "A public hash: 'sha256:' followed by the 64 lower-case hexadecimal digits of the SHA-256 digest of the canonical bytes of a JSON value, or of the bytes of a file.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "key_id": {
+      "title": "key identifier",
+      "description": "The first 16 lower-case hexadecimal digits of the SHA-256 digest of the 32 bytes of a commitment key.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "keyed_commitment": {
+      "title": "keyed commitment",
+      "description": "A keyed commitment to person-level data: the HMAC-SHA-256 of the committed bytes under a 32-byte key held in an internal sidecar. Shareable files carry commitments in place of hashes of person-level data.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "covers", "digest", "key_id"],
+      "properties": {
+        "algorithm": {"const": "hmac-sha256"},
+        "covers": {
+          "description": "What the commitment covers: the canonical analysis table with its observation keys, the bytes of a raw data file or the outcome column recorded in the access log.",
+          "enum": ["analysis_table", "data_file", "outcome_column"]
+        },
+        "digest": {
+          "title": "HMAC-SHA-256 digest",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "key_id": {"$ref": "#/$defs/key_id"}
+      }
+    },
+    "commitment_key": {
+      "title": "commitment key",
+      "description": "A commitment key as an internal sidecar stores it. Writers refuse to place it in a shareable file (E1315).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created", "key", "key_id"],
+      "properties": {
+        "created": {"$ref": "#/$defs/utc_timestamp"},
+        "key": {
+          "title": "commitment key",
+          "description": "The 32 bytes of the key as 64 lower-case hexadecimal digits.",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "key_id": {"$ref": "#/$defs/key_id"}
+      }
+    },
+    "decimal_string": {
+      "title": "decimal string",
+      "description": "A decimal number in canonical plain notation: no exponent, no '+', no leading zeros in the integer part, no trailing zeros in the fraction, no trailing '.', '-' only before a non-zero value and '0' for zero.",
+      "type": "string",
+      "pattern": "^(0|-?[1-9][0-9]*(\\.[0-9]*[1-9])?|-?0\\.[0-9]*[1-9])$"
+    },
+    "decimal_constant": {
+      "title": "decimal constant",
+      "description": "A constant such as a centring constant, rounded from a double to 'significant_digits' significant digits, half to even on the exact binary value, and written as a decimal string. Computations use the double nearest to 'value'. 'value' has at most 'significant_digits' significant digits, which validators check in code (E1406).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["significant_digits", "value"],
+      "properties": {
+        "significant_digits": {"type": "integer", "minimum": 1, "maximum": 15},
+        "value": {"$ref": "#/$defs/decimal_string"}
+      }
+    },
+    "profile_key": {
+      "title": "key",
+      "description": "An object key allowed by both profiles: not empty (E1109), without U+0000 (E1202) and without characters outside the Basic Multilingual Plane (E1108), which the pattern rejects because patterns are matched over code points. In the hashable profile, keys also hold only code points that Unicode 14.0 assigns (E1208) and are in NFC (E1203).",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[\\u0001-\\uFFFF]+$"
+    },
+    "profile_string": {
+      "title": "text",
+      "description": "A string allowed by both profiles: any Unicode scalar values except U+0000 (E1202). In the hashable profile, strings also hold only code points that Unicode 14.0 assigns (E1208) and are in NFC (E1203), which JSON Schema cannot express.",
+      "type": "string",
+      "pattern": "^[^\\u0000]*$"
+    },
+    "hashable_value": {
+      "title": "hashable value",
+      "description": "A JSON value in the hashable profile, for declarations, plans, the IR and the registry: objects, arrays, strings, booleans and numbers, with no null (E1101). An integer lies within -9007199254740991 to 9007199254740991 (E1102). A non-integer has at most 15 significant digits as written (E1103), which JSON Schema cannot express, and a magnitude of at least 1e-307 (E1104). Strings and keys hold only code points that Unicode 14.0 assigns (E1208) and are in NFC (E1203). Readers and writers enforce the profile, so document validators do not check it again.",
+      "type": ["object", "array", "string", "number", "boolean"],
+      "propertyNames": {"$ref": "#/$defs/profile_key"},
+      "additionalProperties": {"$ref": "#/$defs/hashable_value"},
+      "items": {"$ref": "#/$defs/hashable_value"},
+      "allOf": [
+        {
+          "if": {"type": "integer"},
+          "then": {"minimum": -9007199254740991, "maximum": 9007199254740991}
+        },
+        {
+          "if": {"type": "number", "not": {"type": "integer"}},
+          "then": {"not": {"exclusiveMinimum": -1e-307, "exclusiveMaximum": 1e-307}}
+        },
+        {
+          "if": {"type": "string"},
+          "then": {"$ref": "#/$defs/profile_string"}
+        }
+      ]
+    },
+    "data_value": {
+      "title": "data value",
+      "description": "A JSON value in the data profile, for results documents, the access log and bring-your-own estimates: any JSON value, numbers being finite doubles after correctly rounded conversion (E1105, E1106). A null stands for a missing value and is allowed only where the document schema pairs it with a status object. Non-finite doubles are written as the strings in data_number.",
+      "propertyNames": {"$ref": "#/$defs/profile_key"},
+      "additionalProperties": {"$ref": "#/$defs/data_value"},
+      "items": {"$ref": "#/$defs/data_value"},
+      "if": {"type": "string"},
+      "then": {"$ref": "#/$defs/profile_string"}
+    },
+    "data_number": {
+      "title": "data number",
+      "description": "A double in the data profile: a JSON number for a finite value, or one of the strings 'NaN', 'Infinity' and '-Infinity' for a computed non-finite value. A missing value is written as null where the schema allows it, never as 'NaN'.",
+      "type": ["number", "string"],
+      "if": {"type": "string"},
+      "then": {"enum": ["NaN", "Infinity", "-Infinity"]}
+    },
+    "reported_number": {
+      "title": "reported number",
+      "description": "A number with its availability: 'value' is null exactly when 'availability' is not_available.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability", "value"],
+      "properties": {
+        "availability": {"$ref": "#/$defs/availability"},
+        "value": {
+          "type": ["number", "string", "null"],
+          "if": {"type": "string"},
+          "then": {"enum": ["NaN", "Infinity", "-Infinity"]}
+        }
+      },
+      "if": {"required": ["value"], "properties": {"value": {"type": "null"}}},
+      "then": {"properties": {"availability": {"properties": {"value": {"const": "not_available"}}}}},
+      "else": {"properties": {"availability": {"properties": {"value": {"const": "available"}}}}}
+    },
+    "availability": {
+      "title": "availability status",
+      "description": "Whether a check ran or a quantity was computed, with the reason when it was not (conventions.md, Status fields). 'detail' holds the engine or package name, the capability, the JSON Pointer of the missing declaration field, the engine that cannot express the model, the registry limit exceeded or the privacy rule applied. 'version' is the release in which a planned feature arrives.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"enum": ["available", "not_available"]},
+        "reason": {
+          "enum": [
+            "engine_missing",
+            "package_missing",
+            "capability_missing",
+            "declaration_missing",
+            "not_expressible",
+            "too_large",
+            "privacy_suppressed",
+            "planned"
+          ]
+        },
+        "detail": {"type": "string", "minLength": 1, "maxLength": 256},
+        "version": {"$ref": "#/$defs/release"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["value"], "properties": {"value": {"const": "available"}}},
+          "then": {"properties": {"reason": false, "detail": false, "version": false}},
+          "else": {"required": ["reason"]}
+        },
+        {
+          "if": {"required": ["reason"], "properties": {"reason": {"const": "planned"}}},
+          "then": {"required": ["version"], "properties": {"detail": false}},
+          "else": {"properties": {"version": false}}
+        },
+        {
+          "if": {
+            "required": ["reason"],
+            "properties": {
+              "reason": {
+                "enum": [
+                  "engine_missing",
+                  "package_missing",
+                  "capability_missing",
+                  "declaration_missing",
+                  "not_expressible"
+                ]
+              }
+            }
+          },
+          "then": {"required": ["detail"]}
+        }
+      ]
+    },
+    "assessability": {
+      "title": "assessability status",
+      "description": "Whether the check can detect what it looks for in this design, as the registry entry's assessability rule decides. 'reason' is required for not_assessable and allowed only then. 'detail' names the unmet prerequisite as the registry entry names it, and is required for prerequisite_unmet and allowed only then.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"enum": ["adequate", "weak", "not_assessable"]},
+        "reason": {"enum": ["prerequisite_unmet", "low_detection"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 256}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["value"], "properties": {"value": {"const": "not_assessable"}}},
+          "then": {"required": ["reason"]},
+          "else": {"properties": {"reason": false}}
+        },
+        {
+          "if": {"required": ["reason"], "properties": {"reason": {"const": "prerequisite_unmet"}}},
+          "then": {"required": ["detail"]},
+          "else": {"properties": {"detail": false}}
+        }
+      ]
+    },
+    "finding": {
+      "title": "finding status",
+      "description": "What the check found: no departure from the model, a departure that is detectable but below the registry's threshold of consequence, or a consequential departure.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"enum": ["consistent", "detectable_inconsequential", "consequential"]}
+      }
+    },
+    "optimisation": {
+      "title": "optimisation status",
+      "description": "The suite's own judgement of a fit, from the gap to the best objective found and the objective match (02-decisions.md, Q1 and Q3), never from engine flags.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {
+          "enum": [
+            "at_optimum",
+            "near_optimum",
+            "not_converged",
+            "not_certified",
+            "objective_unavailable",
+            "objective_offset_registered",
+            "contract_mismatch"
+          ]
+        }
+      }
+    },
+    "threshold_proximity": {
+      "title": "threshold proximity status",
+      "description": "near_threshold when a real statistic lies within the registry's proximity band of a threshold that a rule of the decision names, and clear otherwise (registry.md, Thresholds).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"enum": ["clear", "near_threshold"]}
+      }
+    },
+    "validation": {
+      "title": "validation status",
+      "description": "Whether the threshold or rule behind a finding was validated. validated requires the study, language, engine and version range of the validation. outside_validated_range may give them for the validation whose range the current use lies outside. descriptive allows none of them. 'engine' is 'none' for checks that use no engine, and 'version_range' then refers to mixedcheck.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": {"enum": ["validated", "descriptive", "outside_validated_range"]},
+        "study": {"$ref": "#/$defs/name"},
+        "language": {"$ref": "#/$defs/language"},
+        "engine": {"$ref": "#/$defs/name"},
+        "version_range": {"$ref": "#/$defs/version_range"}
+      },
+      "dependentRequired": {
+        "study": ["language", "engine", "version_range"],
+        "language": ["study"],
+        "engine": ["study"],
+        "version_range": ["study"]
+      },
+      "allOf": [
+        {
+          "if": {"required": ["value"], "properties": {"value": {"const": "validated"}}},
+          "then": {"required": ["study"]}
+        },
+        {
+          "if": {"required": ["value"], "properties": {"value": {"const": "descriptive"}}},
+          "then": {"properties": {"study": false, "language": false, "engine": false, "version_range": false}}
+        }
+      ]
+    },
+    "status": {
+      "title": "status fields",
+      "description": "The six status fields of a finding. availability is always present. When it is not_available, no other field is present. When it is available, assessability, finding, threshold_proximity and validation are present, and optimisation is present exactly when the check evaluates a fitted model, as its registry entry states (checked in code).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability"],
+      "properties": {
+        "availability": {"$ref": "#/$defs/availability"},
+        "assessability": {"$ref": "#/$defs/assessability"},
+        "finding": {"$ref": "#/$defs/finding"},
+        "optimisation": {"$ref": "#/$defs/optimisation"},
+        "threshold_proximity": {"$ref": "#/$defs/threshold_proximity"},
+        "validation": {"$ref": "#/$defs/validation"}
+      },
+      "if": {
+        "required": ["availability"],
+        "properties": {"availability": {"required": ["value"], "properties": {"value": {"const": "not_available"}}}}
+      },
+      "then": {
+        "properties": {
+          "assessability": false,
+          "finding": false,
+          "optimisation": false,
+          "threshold_proximity": false,
+          "validation": false
+        }
+      },
+      "else": {"required": ["assessability", "finding", "threshold_proximity", "validation"]}
+    },
+    "issue": {
+      "title": "issue",
+      "description": "One problem reported by a reader, writer or validator: its code, its rendered message and its location, a byte offset into the input or a JSON Pointer into the value, or neither when the code has no location (docs/spec/errors.md).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"$ref": "#/$defs/error_code"},
+        "message": {"type": "string", "minLength": 1},
+        "offset": {"type": "integer", "minimum": 0},
+        "pointer": {"$ref": "#/$defs/json_pointer"}
+      },
+      "if": {"required": ["offset"]},
+      "then": {"properties": {"pointer": false}}
+    },
+    "disclosure_unit": {
+      "title": "disclosure unit",
+      "description": "The name of the declared unit whose distinct members the privacy rules count. Without it, the default is the one declared unit whose role is 'participant'. With no such unit, or more than one, there is no disclosure unit, and every displayed cell must hold at least k distinct levels of every grouping factor (02-decisions.md, Q5).",
+      "$ref": "#/$defs/name"
+    },
+    "event_level": {
+      "title": "event level",
+      "description": "For a binary outcome, the category value that counts as the event and is coded 1, compared with the data after NFC normalisation. Without it, the suite accepts only outcomes coded 0 and 1.",
+      "$ref": "#/$defs/category_value"
+    },
+    "trials_column": {
+      "title": "trials column",
+      "description": "For a binomial outcome with trials, the column that holds the number of trials n of each row, with the outcome column holding the number of events k, 0 <= k <= n. Rows with n = 0 leave the analysis sample and are reported.",
+      "$ref": "#/$defs/column_name"
+    },
+    "exposure": {
+      "title": "exposure",
+      "description": "For a count outcome, the column that holds the exposure of each row. 'raw' means the column holds the exposure itself, which must be positive, and the model uses its logarithm as an offset. 'log' means the column already holds the logarithm and is used as the offset unchanged.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["column", "scale"],
+      "properties": {
+        "column": {"$ref": "#/$defs/column_name"},
+        "scale": {"enum": ["raw", "log"]}
+      }
+    }
+  }
+}

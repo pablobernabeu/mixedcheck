@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mixedcheck:schema:estimates",
+  "title": "mixedcheck bring-your-own estimates, contract version 0.1 (draft)",
+  "description": "Estimates from any engine, written to the fitted-model contract in the data profile, normative together with docs/spec/documents.md (02-decisions.md, Q1). Version 0.1 is a draft that M5 refines. The file holds the fields that every adapter supplies: the engine, adapter and contract versions, the IR hash and the observation keys of the analysis sample, the coefficient map with aliasing flags and the fixed effects, the criterion, the semantics of the weights, the covariance matrix of each random-effects block with its packing order, the residual variance, the reported objective with its constant convention, the covariance matrix of the fixed effects with its method and the raw convergence output, and the flags of the optional capabilities. The file holds observation keys, so it is an internal input that is never written to shareable output. The validators first check contract_version (E1441), then this schema, then the rules in code that documents.md lists with codes E7601 to E7607.",
+  "type": "object",
+  "allOf": [{"$ref": "urn:mixedcheck:schema:defs#/$defs/data_value"}],
+  "additionalProperties": false,
+  "required": [
+    "adapter",
+    "analysis_sample",
+    "capabilities",
+    "coefficients",
+    "contract_version",
+    "convergence",
+    "criterion",
+    "engine",
+    "fixed_effects_covariance",
+    "ir_hash",
+    "objective",
+    "random_effects",
+    "residual",
+    "weights"
+  ],
+  "properties": {
+    "contract_version": {
+      "title": "contract version 0.1",
+      "description": "The version of the fitted-model contract. This release reads every 0.1.x version. A version outside that line is reported with E1441 alone, before any other check.",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/semver",
+      "pattern": "^0\\.1\\.(0|[1-9][0-9]*)$"
+    },
+    "engine": {
+      "description": "The engine that fitted the model, by its package name, and its version.",
+      "$ref": "#/$defs/software"
+    },
+    "adapter": {
+      "description": "The code that wrote the file from the engine's fit, and its version.",
+      "$ref": "#/$defs/software"
+    },
+    "ir_hash": {
+      "description": "The hash of the canonical IR of the model that was fitted (ir.md).",
+      "$ref": "urn:mixedcheck:schema:defs#/$defs/sha256_hash"
+    },
+    "analysis_sample": {
+      "description": "The rows the engine used, identified by the declared observation key, never by position (02-decisions.md, cross-cutting conventions). columns lists the key's columns in declared order, and each item of keys holds the values of those columns for one row (E7606), each row once.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "keys"],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/column_name"}
+        },
+        "keys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": ["string", "integer"]}
+          }
+        }
+      }
+    },
+    "coefficients": {
+      "description": "One entry for each column of the fixed part of the IR, in the IR's column order: the IR column, the engine's name for its coefficient, absent when the engine reports none, whether the engine treated the column as aliased and, for a column that is not aliased, its estimate. Columns (E7601) and engine names (E7602) are unique. The map is built by matching design columns numerically, not by parsing names (02-decisions.md, Q1).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/coefficient"}
+    },
+    "criterion": {"$ref": "#/$defs/criterion"},
+    "weights": {
+      "description": "The semantics of the prior weights in the engine: none when the model has no weights, precision weights, frequency weights or log-likelihood multipliers (02-decisions.md, Q1).",
+      "enum": ["none", "precision", "frequency", "log_likelihood_multiplier"]
+    },
+    "random_effects": {
+      "description": "The absolute covariance matrix of each random-effects block, in the IR's order of blocks. A column belongs to at most one block of a grouping factor (E7607).",
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/block"}
+    },
+    "residual": {
+      "description": "The residual variance of a Gaussian model, the parameterisation of contract 0.1. The dispersion of other families follows with GLMMs in 1.1 (02-decisions.md, Q2).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parameterisation", "value"],
+      "properties": {
+        "parameterisation": {"enum": ["residual_variance"]},
+        "value": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_number"}
+      }
+    },
+    "objective": {
+      "description": "The objective that the engine reports at its estimates: its value, its scale and whether it includes every normalising constant. 'omitted' marks a value without some constants, such as lme4's AGQ log-likelihood before 2.1-0, which the registry's offsets for the engine and version account for (02-decisions.md, Q1).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constants", "scale", "value"],
+      "properties": {
+        "value": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_number"},
+        "scale": {"enum": ["minus_two_log_likelihood", "log_likelihood"]},
+        "constants": {"enum": ["included", "omitted"]}
+      }
+    },
+    "fixed_effects_covariance": {
+      "description": "The covariance matrix of the fixed effects with the method that produced it. columns are the columns of the coefficients that are not aliased, in the same order (E7605).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "method", "packing", "values"],
+      "properties": {
+        "method": {
+          "enum": [
+            "conditional_on_theta",
+            "joint_observed_hessian",
+            "finite_difference_hessian",
+            "expected_information",
+            "posterior"
+          ]
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/ir_name"}
+        },
+        "packing": {"$ref": "#/$defs/packing"},
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_number"}
+        }
+      }
+    },
+    "convergence": {
+      "description": "The engine's raw convergence output, stored as the engine gave it: the optimiser, its messages in order and any other values, by name. The suite computes its own optimisation status and never takes it from these values (02-decisions.md, Q1).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["messages"],
+      "properties": {
+        "optimiser": {"$ref": "#/$defs/ir_name"},
+        "messages": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_value"}
+        }
+      }
+    },
+    "capabilities": {
+      "description": "The optional capabilities of the contract (02-decisions.md, Q1): the design matrices X and Z, labelled predicted random effects, an objective function, refit, simulate and df. A missing capability makes the checks that need it not_available with the reason capability_missing. A file cannot carry a function, so objective_function, refit and simulate are false in every version, and contract 0.1 has no members for X, Z, predicted random effects or df, which a later version adds.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["df", "objective_function", "predicted_random_effects", "refit", "simulate", "x", "z"],
+      "properties": {
+        "x": {"const": false},
+        "z": {"const": false},
+        "predicted_random_effects": {"const": false},
+        "objective_function": {"const": false},
+        "refit": {"const": false},
+        "simulate": {"const": false},
+        "df": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"$ref": "urn:mixedcheck:schema:defs#/$defs/name"},
+        "version": {"$ref": "urn:mixedcheck:schema:defs#/$defs/software_version"}
+      }
+    },
+    "ir_name": {
+      "title": "name",
+      "description": "The name of an IR column or grouping factor, as ir.md gives it, or of an engine's coefficient or optimiser.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^[^\\u0000-\\u001F\\u007F]+$"
+    },
+    "coefficient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aliased", "column"],
+      "properties": {
+        "column": {"$ref": "#/$defs/ir_name"},
+        "engine_name": {"$ref": "#/$defs/ir_name"},
+        "aliased": {"type": "boolean"},
+        "estimate": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_number"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["aliased"], "properties": {"aliased": {"const": false}}},
+          "then": {"required": ["engine_name", "estimate"]}
+        },
+        {
+          "if": {"required": ["aliased"], "properties": {"aliased": {"const": true}}},
+          "then": {"properties": {"estimate": false}}
+        }
+      ]
+    },
+    "criterion": {
+      "title": "criterion",
+      "description": "The criterion the engine optimised: REML, ML, the Laplace approximation, adaptive Gauss-Hermite quadrature with its number of nodes, nAGQ = 0, variational Bayes or a MAP estimate, and whether the reported likelihood is exact rather than approximated (02-decisions.md, Q1).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exact_likelihood", "name"],
+      "properties": {
+        "name": {"enum": ["reml", "ml", "laplace", "agq", "nagq0", "variational_bayes", "map"]},
+        "nodes": {"type": "integer", "minimum": 2, "maximum": 1000},
+        "exact_likelihood": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["name"], "properties": {"name": {"const": "agq"}}},
+          "then": {"required": ["nodes"]}
+        },
+        {
+          "if": {"required": ["name"], "properties": {"name": {"enum": ["reml", "ml", "laplace", "nagq0", "variational_bayes", "map"]}}},
+          "then": {"properties": {"nodes": false}}
+        }
+      ]
+    },
+    "packing": {
+      "title": "packing order",
+      "description": "How the values of a symmetric matrix of q columns are listed: full_row_major lists all q * q values row by row. lower_column_major lists the q * (q + 1) / 2 values on and below the diagonal column by column, as R's lower.tri() selects them and as the half-vectorisation vech does. lower_row_major lists the same values row by row.",
+      "enum": ["full_row_major", "lower_column_major", "lower_row_major"]
+    },
+    "block": {
+      "title": "random-effects block",
+      "description": "One block of random effects: its grouping factor, its columns in the IR's order, the packing order and the values of its absolute covariance matrix, as many as the packing order needs for its columns (E7603), symmetric when packed in full (E7604).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columns", "covariance", "factor", "packing"],
+      "properties": {
+        "factor": {"$ref": "#/$defs/ir_name"},
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/ir_name"}
+        },
+        "packing": {"$ref": "#/$defs/packing"},
+        "covariance": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "urn:mixedcheck:schema:defs#/$defs/data_number"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+vocabulary: 0.1.0
+table:
+  fields:
+    - {name: hit, type: integer}
+variables:
+  hit: {role: outcome, measurement: binary, event_level: one}

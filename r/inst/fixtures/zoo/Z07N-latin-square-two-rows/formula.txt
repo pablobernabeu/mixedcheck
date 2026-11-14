@@ -1,0 +1,1 @@
+y ~ cond + (1 + cond | subject) + (1 + cond | item) + (1 | subject:item)

@@ -1,0 +1,16 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "lme4::sleepstudy",
+  "features": ["longitudinal"],
+  "units": [{"name": "Subject", "columns": ["Subject"], "role": "participant"}],
+  "observation": {
+    "key": ["Subject", "Days"],
+    "time": {"column": "Days", "kind": "occasion", "within": "Subject"}
+  },
+  "variables": {
+    "Reaction": {"role": "outcome", "measurement": "positive_duration"},
+    "Days": {"role": "time"}
+  },
+  "estimands": [{"id": "days", "term": "Days", "kind": "association"}],
+  "provenance": {"inferred": ["/observation/time"]}
+}

@@ -1,0 +1,75 @@
+{
+  "description": "Declarations whose vocabulary version is not supported, which stage 2 reports alone.",
+  "cases": [
+    {
+      "id": "declarations-version-001",
+      "description": "A version of another MINOR line.",
+      "path": "version/version_0_2.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-version-002",
+      "description": "A version with two components.",
+      "path": "version/version_two_parts.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-version-003",
+      "description": "A PATCH component with a leading zero.",
+      "path": "version/version_leading_zero.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1.01' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-version-004",
+      "description": "A version of 33 characters, which matches the pattern but is longer than 32 characters.",
+      "path": "version/version_too_long.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1.11111111111111111111111111111' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-version-005",
+      "description": "A version followed by a line feed. '$' matches only at the end of the string.",
+      "path": "version/version_line_feed.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.1.0\\u000A' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "hit", "type": "integer", "categories": [0, 1]}]},
+  "variables": {"hit": {"role": "outcome", "measurement": "binary", "event_level": 2}}
+}

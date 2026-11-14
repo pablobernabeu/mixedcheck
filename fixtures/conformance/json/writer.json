@@ -1,0 +1,665 @@
+{
+  "description": "Values in memory and their canonical bytes, or the first issue in the order of the canonical serialisation, with its JSON Pointer.",
+  "cases": [
+    {
+      "id": "json-writer-001",
+      "description": "An object with every kind of value. Only the hashable profile refuses its null.",
+      "json": "{\"b\":1,\"a\":[true,false,null],\"c\":\"x\"}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":[true,false,null],\"b\":1,\"c\":\"x\"}",
+          "sha256": "sha256:210bd8e5501c622e789c4b9e6cd70edbfbe598f4725066bac3c1ffe0176ff0e3"
+        },
+        "data": {
+          "canonical": "{\"a\":[true,false,null],\"b\":1,\"c\":\"x\"}",
+          "sha256": "sha256:210bd8e5501c622e789c4b9e6cd70edbfbe598f4725066bac3c1ffe0176ff0e3"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at /a/2 is not allowed in the hashable profile.",
+            "pointer": "/a/2"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-002",
+      "description": "Checks follow the canonical order of members, so the string in NFD under 'a' is reported before the null under 'b'.",
+      "json": "{\"b\":null,\"a\":\"e\\u0301\"}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":\"e\u0301\",\"b\":null}",
+          "sha256": "sha256:7488802bae4a0292c771df0eb80070c4f70a6231daa2866404eca71bba369a74"
+        },
+        "data": {
+          "canonical": "{\"a\":\"e\u0301\",\"b\":null}",
+          "sha256": "sha256:7488802bae4a0292c771df0eb80070c4f70a6231daa2866404eca71bba369a74"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at /a is not in Unicode normalisation form C (NFC).",
+            "pointer": "/a"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-003",
+      "description": "A key is checked before its value, at the pointer of its member.",
+      "json": "{\"e\\u0301\":null}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"e\u0301\":null}",
+          "sha256": "sha256:ae0979de914ebf5be1def4f43295bada0a96b48904875901c92743eedb77bce9"
+        },
+        "data": {
+          "canonical": "{\"e\u0301\":null}",
+          "sha256": "sha256:ae0979de914ebf5be1def4f43295bada0a96b48904875901c92743eedb77bce9"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1203",
+            "message": "The string at /e\u0301 is not in Unicode normalisation form C (NFC).",
+            "pointer": "/e\u0301"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-004",
+      "description": "Members are checked in the order of UTF-16 code units, so the key U+1F600 comes before the null under U+FF08.",
+      "json": "{\"\\uff08\":null,\"\\ud83d\\ude00\":1}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"\ud83d\ude00\":1,\"\uff08\":null}",
+          "sha256": "sha256:e72426846090ce975ed24356c844f3f0caa592c9902427efd1bb5ba66e8d3843"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at /\ud83d\ude00 contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/\ud83d\ude00"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at /\ud83d\ude00 contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/\ud83d\ude00"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-005",
+      "description": "A key outside the BMP in a nested object.",
+      "json": "{\"a\":{\"\\ud83d\\ude00\":1}}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a\":{\"\ud83d\ude00\":1}}",
+          "sha256": "sha256:7a59da4763fda905860d14fc058daa902ee4906b5d6bc2aa5367866ede23a110"
+        },
+        "data": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at /a/\ud83d\ude00 contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/a/\ud83d\ude00"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1108",
+            "message": "The key at /a/\ud83d\ude00 contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/a/\ud83d\ude00"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-006",
+      "description": "NaN and the infinities: the data profile writes them as strings, and the hashable profile refuses the first.",
+      "json": "[1,0,0,0]",
+      "substitutions": [
+        {
+          "pointer": "/1",
+          "double": "7ff8000000000000"
+        },
+        {
+          "pointer": "/2",
+          "double": "7ff0000000000000"
+        },
+        {
+          "pointer": "/3",
+          "double": "fff0000000000000"
+        }
+      ],
+      "expected": {
+        "data": {
+          "canonical": "[1,\"NaN\",\"Infinity\",\"-Infinity\"]",
+          "sha256": "sha256:39f7e352cf617d83b0cfa3a2287e33a92cee45d01c99847f817014d819ac50f4"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1107",
+            "message": "A non-finite number at /1 is not allowed in the hashable profile.",
+            "pointer": "/1"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-007",
+      "description": "NaN as a member's value beside a null.",
+      "json": "{\"y\":0,\"x\":null}",
+      "substitutions": [
+        {
+          "pointer": "/y",
+          "double": "7ff8000000000000"
+        }
+      ],
+      "expected": {
+        "data": {
+          "canonical": "{\"x\":null,\"y\":\"NaN\"}",
+          "sha256": "sha256:845ab12a78e7c4f4282c34f2b5460152c0d76e5d39ffdd6f4623546f8a728320"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at /x is not allowed in the hashable profile.",
+            "pointer": "/x"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-008",
+      "description": "A NaN under the key 'b' and a null under 'a': the null comes first in canonical order.",
+      "json": "{\"b\":0,\"a\":null}",
+      "substitutions": [
+        {
+          "pointer": "/b",
+          "double": "7ff8000000000000"
+        }
+      ],
+      "expected": {
+        "data": {
+          "canonical": "{\"a\":null,\"b\":\"NaN\"}",
+          "sha256": "sha256:65ff5ce6d5b4865c65d77462901eefb254a72ab099eb466140f685dd41991145"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at /a is not allowed in the hashable profile.",
+            "pointer": "/a"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-009",
+      "description": "Negative zero is written as 0.",
+      "json": "[-0.0,-0]",
+      "expected": {
+        "plain": {
+          "canonical": "[0,0]",
+          "sha256": "sha256:3d5812abc84c11768aa73a732c85d75dbed439188f5bb3239e9b762ea31d9862"
+        },
+        "data": {
+          "canonical": "[0,0]",
+          "sha256": "sha256:3d5812abc84c11768aa73a732c85d75dbed439188f5bb3239e9b762ea31d9862"
+        },
+        "hashable": {
+          "canonical": "[0,0]",
+          "sha256": "sha256:3d5812abc84c11768aa73a732c85d75dbed439188f5bb3239e9b762ea31d9862"
+        }
+      }
+    },
+    {
+      "id": "json-writer-010",
+      "description": "Integral doubles are written without a fraction.",
+      "json": "[1.0,100.0,1e2,-5.0]",
+      "expected": {
+        "plain": {
+          "canonical": "[1,100,100,-5]",
+          "sha256": "sha256:b57bfd344229ebcec696c3f1309f29fa6fbd6732dad2b370257d9b970a3c1461"
+        },
+        "data": {
+          "canonical": "[1,100,100,-5]",
+          "sha256": "sha256:b57bfd344229ebcec696c3f1309f29fa6fbd6732dad2b370257d9b970a3c1461"
+        },
+        "hashable": {
+          "canonical": "[1,100,100,-5]",
+          "sha256": "sha256:b57bfd344229ebcec696c3f1309f29fa6fbd6732dad2b370257d9b970a3c1461"
+        }
+      }
+    },
+    {
+      "id": "json-writer-011",
+      "description": "The largest integers of the hashable profile.",
+      "json": "[9007199254740991,-9007199254740991]",
+      "expected": {
+        "plain": {
+          "canonical": "[9007199254740991,-9007199254740991]",
+          "sha256": "sha256:84bad60c1793654a7cdca854230af90af531ecc8f7656e2c7b2bd91890017b37"
+        },
+        "data": {
+          "canonical": "[9007199254740991,-9007199254740991]",
+          "sha256": "sha256:84bad60c1793654a7cdca854230af90af531ecc8f7656e2c7b2bd91890017b37"
+        },
+        "hashable": {
+          "canonical": "[9007199254740991,-9007199254740991]",
+          "sha256": "sha256:84bad60c1793654a7cdca854230af90af531ecc8f7656e2c7b2bd91890017b37"
+        }
+      }
+    },
+    {
+      "id": "json-writer-012",
+      "description": "2^53 lies outside the range of the hashable profile.",
+      "json": "[9007199254740992]",
+      "expected": {
+        "plain": {
+          "canonical": "[9007199254740992]",
+          "sha256": "sha256:5dc10964d69741c9924433db7b0e8fe5b0ac6fac6a5dd6d142b8c4e05e2162c3"
+        },
+        "data": {
+          "canonical": "[9007199254740992]",
+          "sha256": "sha256:5dc10964d69741c9924433db7b0e8fe5b0ac6fac6a5dd6d142b8c4e05e2162c3"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740992 at /0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-013",
+      "description": "1e21 is an integer, and the message names it as the serialiser writes it.",
+      "json": "[1e21]",
+      "expected": {
+        "plain": {
+          "canonical": "[1e+21]",
+          "sha256": "sha256:5f5f297c3b2ec0b2793ea5cfe3f242ad4bd3aa438734268b6c9b7251a643d86c"
+        },
+        "data": {
+          "canonical": "[1e+21]",
+          "sha256": "sha256:5f5f297c3b2ec0b2793ea5cfe3f242ad4bd3aa438734268b6c9b7251a643d86c"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e+21 at /0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-014",
+      "description": "0.1 + 0.2 has 17 significant digits.",
+      "json": "[0.1,0.30000000000000004]",
+      "expected": {
+        "plain": {
+          "canonical": "[0.1,0.30000000000000004]",
+          "sha256": "sha256:450572d604aac8d26e95f167d9fa5535db016159615fe2a17382822acfafd35e"
+        },
+        "data": {
+          "canonical": "[0.1,0.30000000000000004]",
+          "sha256": "sha256:450572d604aac8d26e95f167d9fa5535db016159615fe2a17382822acfafd35e"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 0.30000000000000004 at /1 has more than 15 significant digits.",
+            "pointer": "/1"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-015",
+      "description": "1e-307 is the smallest magnitude allowed.",
+      "json": "[1e-307,-1e-307]",
+      "expected": {
+        "plain": {
+          "canonical": "[1e-307,-1e-307]",
+          "sha256": "sha256:ba7a164d8f2a469f077ba8c439ebed3daeb6d9626097dfe9207d561f15015bee"
+        },
+        "data": {
+          "canonical": "[1e-307,-1e-307]",
+          "sha256": "sha256:ba7a164d8f2a469f077ba8c439ebed3daeb6d9626097dfe9207d561f15015bee"
+        },
+        "hashable": {
+          "canonical": "[1e-307,-1e-307]",
+          "sha256": "sha256:ba7a164d8f2a469f077ba8c439ebed3daeb6d9626097dfe9207d561f15015bee"
+        }
+      }
+    },
+    {
+      "id": "json-writer-016",
+      "description": "1e-308 is below 1e-307.",
+      "json": "[1e-307,1e-308]",
+      "expected": {
+        "plain": {
+          "canonical": "[1e-307,1e-308]",
+          "sha256": "sha256:bb9e709f8b3ffdc43e2bb9ee9965333022563b43db7d3256d59845842490731a"
+        },
+        "data": {
+          "canonical": "[1e-307,1e-308]",
+          "sha256": "sha256:bb9e709f8b3ffdc43e2bb9ee9965333022563b43db7d3256d59845842490731a"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1104",
+            "message": "The number 1e-308 at /1 is smaller in magnitude than 1e-307.",
+            "pointer": "/1"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-017",
+      "description": "The largest subnormal double has 16 significant digits, which is reported before its magnitude.",
+      "json": "[2.225073858507201e-308]",
+      "expected": {
+        "plain": {
+          "canonical": "[2.225073858507201e-308]",
+          "sha256": "sha256:64865b8877dc542e451f21532363e45511805a930e030028bea34299014870e5"
+        },
+        "data": {
+          "canonical": "[2.225073858507201e-308]",
+          "sha256": "sha256:64865b8877dc542e451f21532363e45511805a930e030028bea34299014870e5"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1103",
+            "message": "The number 2.225073858507201e-308 at /0 has more than 15 significant digits.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-018",
+      "description": "Large doubles in the data profile.",
+      "json": "[1e300,-1.5e-300]",
+      "expected": {
+        "plain": {
+          "canonical": "[1e+300,-1.5e-300]",
+          "sha256": "sha256:b125eafde5d9f1e63ab155674da4b41a2a6b48b4eae809da6f72d96ecbad9866"
+        },
+        "data": {
+          "canonical": "[1e+300,-1.5e-300]",
+          "sha256": "sha256:b125eafde5d9f1e63ab155674da4b41a2a6b48b4eae809da6f72d96ecbad9866"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 1e+300 at /0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-019",
+      "description": "A pointer escapes '/' as '~1' and '~' as '~0'.",
+      "json": "{\"a/b\":{\"m~n\":null}}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"a/b\":{\"m~n\":null}}",
+          "sha256": "sha256:70894f2c924ba84424d7e5a8c605d0d64ae44c8641b35ff9f849edd55526465d"
+        },
+        "data": {
+          "canonical": "{\"a/b\":{\"m~n\":null}}",
+          "sha256": "sha256:70894f2c924ba84424d7e5a8c605d0d64ae44c8641b35ff9f849edd55526465d"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at /a~1b/m~0n is not allowed in the hashable profile.",
+            "pointer": "/a~1b/m~0n"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-020",
+      "description": "The message escapes a tab in the pointer, which holds the tab itself.",
+      "json": "{\"go\\tal\":null}",
+      "expected": {
+        "plain": {
+          "canonical": "{\"go\\tal\":null}",
+          "sha256": "sha256:4d4b7b0b071822ce7891df83448d5448d87997ac0ef047e7f25ec5d6cd67034f"
+        },
+        "data": {
+          "canonical": "{\"go\\tal\":null}",
+          "sha256": "sha256:4d4b7b0b071822ce7891df83448d5448d87997ac0ef047e7f25ec5d6cd67034f"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1101",
+            "message": "A null at /go\\u0009al is not allowed in the hashable profile.",
+            "pointer": "/go\tal"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-021",
+      "description": "An unassigned code point in the hashable profile.",
+      "json": "[\"\\u0378\"]",
+      "expected": {
+        "plain": {
+          "canonical": "[\"\u0378\"]",
+          "sha256": "sha256:b9b6e117bd3b275aeddce3dab970b0c5f6959417c17ae3d1366e12c779c0c7df"
+        },
+        "data": {
+          "canonical": "[\"\u0378\"]",
+          "sha256": "sha256:b9b6e117bd3b275aeddce3dab970b0c5f6959417c17ae3d1366e12c779c0c7df"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at /0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-022",
+      "description": "Escapes in strings.",
+      "json": "[\"\\u0001\\u001f\\\"\\\\/\\u007f\\u2028\\b\\f\\n\\r\\t\"]",
+      "expected": {
+        "plain": {
+          "canonical": "[\"\\u0001\\u001f\\\"\\\\/\u007f\u2028\\b\\f\\n\\r\\t\"]",
+          "sha256": "sha256:fbfc7ea3a534b502b01b9ac8b17fad0bf829ef27e81b0cbaf6c97a8c6e21a7ed"
+        },
+        "data": {
+          "canonical": "[\"\\u0001\\u001f\\\"\\\\/\u007f\u2028\\b\\f\\n\\r\\t\"]",
+          "sha256": "sha256:fbfc7ea3a534b502b01b9ac8b17fad0bf829ef27e81b0cbaf6c97a8c6e21a7ed"
+        },
+        "hashable": {
+          "canonical": "[\"\\u0001\\u001f\\\"\\\\/\u007f\u2028\\b\\f\\n\\r\\t\"]",
+          "sha256": "sha256:fbfc7ea3a534b502b01b9ac8b17fad0bf829ef27e81b0cbaf6c97a8c6e21a7ed"
+        }
+      }
+    },
+    {
+      "id": "json-writer-023",
+      "description": "A Python int of 2^53 - 1.",
+      "languages": [
+        "Python"
+      ],
+      "json": "[0]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "python_int": "9007199254740991"
+        }
+      ],
+      "expected": {
+        "data": {
+          "canonical": "[9007199254740991]",
+          "sha256": "sha256:cf0c058a3667326abbfce35f93db15ddea1ac816f12c19a6546f7c3880cecc1c"
+        },
+        "hashable": {
+          "canonical": "[9007199254740991]",
+          "sha256": "sha256:cf0c058a3667326abbfce35f93db15ddea1ac816f12c19a6546f7c3880cecc1c"
+        }
+      }
+    },
+    {
+      "id": "json-writer-024",
+      "description": "A Python int of 2^53, which no profile accepts, since it would be converted to a double.",
+      "languages": [
+        "Python"
+      ],
+      "json": "[0]",
+      "substitutions": [
+        {
+          "pointer": "/0",
+          "python_int": "9007199254740992"
+        }
+      ],
+      "expected": {
+        "data": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740992 at /0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer 9007199254740992 at /0 lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-025",
+      "description": "A negative Python int of 30 digits.",
+      "languages": [
+        "Python"
+      ],
+      "json": "{\"n\":0}",
+      "substitutions": [
+        {
+          "pointer": "/n",
+          "python_int": "-999999999999999999999999999999"
+        }
+      ],
+      "expected": {
+        "data": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -999999999999999999999999999999 at /n lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/n"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1102",
+            "message": "The integer -999999999999999999999999999999 at /n lies outside the range from -9007199254740991 to 9007199254740991.",
+            "pointer": "/n"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-026",
+      "description": "A value nested 64 deep.",
+      "json": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+      "expected": {
+        "plain": {
+          "canonical": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+          "sha256": "sha256:36127fd491fb6253bca865d070b1c735abaf9d9b4d8a225ea3392e9c36ad193a"
+        },
+        "data": {
+          "canonical": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+          "sha256": "sha256:36127fd491fb6253bca865d070b1c735abaf9d9b4d8a225ea3392e9c36ad193a"
+        },
+        "hashable": {
+          "canonical": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+          "sha256": "sha256:36127fd491fb6253bca865d070b1c735abaf9d9b4d8a225ea3392e9c36ad193a"
+        }
+      }
+    },
+    {
+      "id": "json-writer-027",
+      "description": "A value nested 65 deep, after the 64-deep value is placed in an array.",
+      "json": "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[1]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+      "substitutions": [
+        {
+          "pointer": "",
+          "wrap": 1
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0.",
+            "pointer": "/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0.",
+            "pointer": "/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0.",
+            "pointer": "/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0"
+          }
+        }
+      }
+    },
+    {
+      "id": "json-writer-028",
+      "description": "An object nested 65 deep.",
+      "json": "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":1}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}",
+      "substitutions": [
+        {
+          "pointer": "",
+          "wrap": 1
+        }
+      ],
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /0/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a.",
+            "pointer": "/0/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a"
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /0/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a.",
+            "pointer": "/0/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a"
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1030",
+            "message": "The JSON value is nested more than 64 levels deep at /0/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a.",
+            "pointer": "/0/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a"
+          }
+        }
+      }
+    }
+  ]
+}

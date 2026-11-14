@@ -1,0 +1,59 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Infection control, stepped wedge over five periods",
+  "features": ["stepped_wedge"],
+  "table": {
+    "fields": [
+      {"name": "hospital", "type": "string"},
+      {"name": "ward", "type": "string"},
+      {
+        "name": "period",
+        "type": "integer",
+        "categories": [1, 2, 3, 4, 5],
+        "categoriesOrdered": true
+      },
+      {"name": "treated", "type": "boolean"},
+      {"name": "infections", "type": "integer"},
+      {"name": "patient_days", "type": "number"},
+      {"name": "opened", "type": "date"},
+      {"name": "audited", "type": "datetime"},
+      {"name": "excluded", "type": "boolean"}
+    ]
+  },
+  "units": [
+    {"name": "hospital", "columns": ["hospital"], "role": "cluster"},
+    {
+      "name": "ward",
+      "columns": ["ward"],
+      "nested_in": "hospital",
+      "id_scope": "within_parent",
+      "role": "other"
+    }
+  ],
+  "observation": {
+    "key": ["hospital", "ward", "period"],
+    "time": {"column": "period", "kind": "occasion"}
+  },
+  "assignment": [
+    {
+      "column": "treated",
+      "unit": "hospital",
+      "randomised": true,
+      "level": "within_unit"
+    }
+  ],
+  "variables": {
+    "infections": {
+      "role": "outcome",
+      "measurement": "count",
+      "exposure": {"column": "patient_days", "scale": "raw"}
+    },
+    "patient_days": {"role": "auxiliary"},
+    "treated": {"role": "assigned"},
+    "period": {"role": "time"},
+    "opened": {"role": "baseline_covariate"},
+    "audited": {"role": "time_varying_covariate"},
+    "excluded": {"role": "exclusion_flag"}
+  },
+  "estimands": [{"id": "effect", "term": "treated", "kind": "total_effect"}]
+}

@@ -1,0 +1,1291 @@
+{
+  "description": "Declared columns: missing values, the lexical form of each field type (E5006) and categories (E5007).",
+  "cases": [
+    {
+      "id": "tables-values-001",
+      "description": "A field's missingValues replace the table's, which replace the default, so '' and 'NA' are values of 's' and only '-99' is missing.",
+      "path": "values/field_missing_values.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "missingValues": [
+                "-99"
+              ]
+            },
+            {
+              "name": "t",
+              "type": "string"
+            }
+          ],
+          "missingValues": [
+            "NA",
+            ""
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "NA",
+              null,
+              ""
+            ]
+          },
+          {
+            "name": "t",
+            "type": "string",
+            "values": [
+              null,
+              "-99",
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-002",
+      "description": "A labelled sentinel code of an integer field is missing, and another negative code is a value.",
+      "path": "values/labelled_sentinel.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "missingValues": [
+                {
+                  "value": "-99",
+                  "label": "refused"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              null,
+              -98,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-003",
+      "description": "Missing values are matched before the type is checked.",
+      "path": "values/missing_before_type.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "missingValues": [
+                "n/a"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              null,
+              5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-004",
+      "description": "A space is not the empty string, so it is a value.",
+      "path": "values/missing_not_trimmed.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              " ",
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-005",
+      "description": "A missing value is never checked against the categories.",
+      "path": "values/missing_category.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "categories": [
+                "a",
+                "b"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "a",
+              null,
+              "b"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-006",
+      "description": "Missing values are compared without case folding.",
+      "path": "values/missing_case.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "missingValues": [
+                "NA"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "na",
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-007",
+      "description": "Leading zeros, signs and signed zeros of integers.",
+      "path": "values/integer_forms.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6"
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              7,
+              5,
+              0,
+              0,
+              0,
+              -12
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-008",
+      "description": "'1_000' is not an integer.",
+      "path": "values/integer_underscore.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1_000' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-009",
+      "description": "A space after an integer.",
+      "path": "values/integer_space.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '12 ' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-010",
+      "description": "The eight boolean forms.",
+      "path": "values/boolean_forms.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "b",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ]
+          },
+          {
+            "name": "b",
+            "type": "boolean",
+            "values": [
+              true,
+              true,
+              true,
+              true,
+              false,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-011",
+      "description": "'yes' is not a boolean.",
+      "path": "values/boolean_yes.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "b",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'yes' of the column 'b' at byte 7 cannot be read as a boolean.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-012",
+      "description": "'tRUE' is not a boolean.",
+      "path": "values/boolean_mixed_case.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "b",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'tRUE' of the column 'b' at byte 7 cannot be read as a boolean.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-013",
+      "description": "Dates, including 29 February of leap years and the first and last days of the years allowed, are returned as written.",
+      "path": "values/date_forms.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          {
+            "name": "d",
+            "type": "date",
+            "values": [
+              "2024-02-29",
+              "2000-02-29",
+              "0001-01-01",
+              "9999-12-31",
+              "2026-11-08"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-014",
+      "description": "Not a date: 29 February of a year that is not a leap year.",
+      "path": "values/date_not_leap.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2023-02-29' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-015",
+      "description": "Not a date: 29 February of 1900, which is not a leap year.",
+      "path": "values/date_century.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1900-02-29' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-016",
+      "description": "Not a date: the year 0000.",
+      "path": "values/date_year_zero.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '0000-01-01' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-017",
+      "description": "Not a date: the month 13.",
+      "path": "values/date_month_13.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-13-01' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-018",
+      "description": "Not a date: 31 April.",
+      "path": "values/date_april_31.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-04-31' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-019",
+      "description": "Not a date: a month of one digit.",
+      "path": "values/date_short_month.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-1-01' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-020",
+      "description": "Not a date: a date and time.",
+      "path": "values/date_with_time.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "d",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08T00:00:00' of the column 'd' at byte 7 cannot be read as a date.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-021",
+      "description": "Dates and times with and without fractions of a second and offsets are returned as written.",
+      "path": "values/datetime_forms.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          {
+            "name": "t",
+            "type": "datetime",
+            "values": [
+              "2026-11-08T12:00:00",
+              "2026-11-08T23:59:59Z",
+              "2026-11-08T00:00:00.5+01:00",
+              "2026-11-08T00:00:00.000001-23:59",
+              "2024-02-29T12:00:00+00:00"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-022",
+      "description": "Not a date and time: the hour 24.",
+      "path": "values/datetime_hour_24.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08T24:00:00' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-023",
+      "description": "Not a date and time: the second 60.",
+      "path": "values/datetime_leap_second.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-12-31T23:59:60Z' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-024",
+      "description": "Not a date and time: a space in place of 'T'.",
+      "path": "values/datetime_space.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08 12:00:00' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-025",
+      "description": "Not a date and time: a lower-case 'z'.",
+      "path": "values/datetime_lower_z.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08T12:00:00z' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-026",
+      "description": "Not a date and time: an offset of 24 hours.",
+      "path": "values/datetime_offset_24.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08T12:00:00+24:00' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-027",
+      "description": "Not a date and time: no seconds.",
+      "path": "values/datetime_no_seconds.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08T12:00' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-028",
+      "description": "Not a date and time: a '.' without digits.",
+      "path": "values/datetime_empty_fraction.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2026-11-08T12:00:00.' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-029",
+      "description": "Not a date and time: a day that does not exist.",
+      "path": "values/datetime_bad_date.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "t",
+              "type": "datetime"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '2023-02-29T00:00:00Z' of the column 't' at byte 7 cannot be read as a date and time.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-030",
+      "description": "A field without a type is read as text, so '1' stays a string.",
+      "path": "values/without_type.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "a"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "a",
+            "type": "string",
+            "values": [
+              "1",
+              "x"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-031",
+      "description": "Plain categories and categories with labels; the values are returned as written.",
+      "path": "values/categories.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "categories": [
+                {
+                  "value": "low",
+                  "label": "Low"
+                },
+                {
+                  "value": "high"
+                }
+              ]
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "categories": [
+                1,
+                2
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "low",
+              "high"
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              1,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-032",
+      "description": "A string value outside the categories.",
+      "path": "values/category_outside.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "categories": [
+                "a",
+                "b"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5007",
+          "message": "The value 'c' of the column 's' at byte 11 is not one of its categories.",
+          "offset": 11
+        }
+      }
+    },
+    {
+      "id": "tables-values-033",
+      "description": "Categories are compared without case folding.",
+      "path": "values/category_case.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "categories": [
+                "a",
+                "b"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5007",
+          "message": "The value 'A' of the column 's' at byte 7 is not one of its categories.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-034",
+      "description": "Integer categories are compared by value, so '007' and '+2' are the categories 7 and 2.",
+      "path": "values/category_integer_value.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "categories": [
+                2,
+                7
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "k",
+            "type": "integer",
+            "values": [
+              7,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-values-035",
+      "description": "An integer outside the categories.",
+      "path": "values/category_integer_outside.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "categories": [
+                1,
+                2
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5007",
+          "message": "The value '3' of the column 'k' at byte 7 is not one of its categories.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-036",
+      "description": "A value that is no integer gives E5006, not E5007.",
+      "path": "values/category_type_first.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "k",
+              "type": "integer",
+              "categories": [
+                1,
+                2
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'x' of the column 'k' at byte 7 cannot be read as an integer.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-values-037",
+      "description": "The message names the column as the header writes it, here in NFD.",
+      "path": "values/value_message_column.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "caf\u00e9",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value 'x' of the column 'cafe\u0301' at byte 12 cannot be read as a number.",
+          "offset": 12
+        }
+      }
+    }
+  ]
+}

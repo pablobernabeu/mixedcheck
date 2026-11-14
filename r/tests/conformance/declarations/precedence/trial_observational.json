@@ -1,0 +1,9 @@
+{
+  "vocabulary": "0.1.0",
+  "goal": "confirmatory",
+  "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}],
+  "observation": {"key": ["subject", "condition"]},
+  "variables": {"rt": {"role": "outcome", "measurement": "positive_duration"}},
+  "estimands": [{"id": "effect", "term": "condition", "kind": "association"}],
+  "features": ["cluster_randomised", "observational"]
+}

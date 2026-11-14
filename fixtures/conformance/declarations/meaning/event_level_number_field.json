@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "resp", "type": "number"}]},
+  "variables": {"resp": {"role": "outcome", "measurement": "binary", "event_level": "1"}}
+}

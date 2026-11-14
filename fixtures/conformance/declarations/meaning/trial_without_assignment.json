@@ -1,0 +1,11 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}],
+  "observation": {"key": ["subject", "condition"]},
+  "variables": {
+    "rt": {"role": "outcome", "measurement": "positive_duration"},
+    "condition": {"role": "assigned"}
+  },
+  "estimands": [{"id": "effect", "term": "condition", "kind": "total_effect"}],
+  "features": ["cluster_randomised"]
+}

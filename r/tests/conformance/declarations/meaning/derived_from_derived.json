@@ -1,0 +1,8 @@
+{
+  "vocabulary": "0.1.0",
+  "variables": {
+    "y": {"role": "outcome"},
+    "y_lag": {"role": "outcome_derived", "derived_from": ["y"]},
+    "y_lag_mean": {"role": "time_varying_covariate", "derived_from": ["y_lag"]}
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "vocabulary": "0.1.0",
+  "features": ["family", "longitudinal"],
+  "table": {
+    "fields": [
+      {"name": "family", "type": "string"},
+      {"name": "child", "type": "string"},
+      {"name": "age_years", "type": "number"},
+      {
+        "name": "score",
+        "type": "integer",
+        "categories": [1, 2, 3, 4, 5],
+        "categoriesOrdered": true
+      },
+      {
+        "name": "sex",
+        "type": "string",
+        "categories": [{"value": "f", "label": "female"}, {"value": "m", "label": "male"}],
+        "categoriesOrdered": false
+      }
+    ]
+  },
+  "units": [
+    {"name": "family", "columns": ["family"], "role": "family"},
+    {
+      "name": "child",
+      "columns": ["child"],
+      "nested_in": "family",
+      "id_scope": "within_parent",
+      "membership": "fixed",
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": ["family", "child", "age_years"],
+    "time": {"column": "age_years", "kind": "duration_since_start", "within": "child"}
+  },
+  "variables": {
+    "score": {"role": "outcome", "measurement": "ordinal"},
+    "age_years": {"role": "time"},
+    "sex": {"role": "baseline_covariate"}
+  }
+}

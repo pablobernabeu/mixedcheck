@@ -1,0 +1,988 @@
+{
+  "description": "Inputs checked against Table 3-7 of the Unicode Standard before they are parsed. Ill-formed input gives the offset of its first ill-formed sequence, and well-formed sequences at the limits of the table are accepted.",
+  "cases": [
+    {
+      "id": "unicode-utf8-001",
+      "description": "A stray continuation byte.",
+      "input_hex": "228022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-002",
+      "description": "A stray continuation byte BF after a character.",
+      "input_hex": "22c3a9bf22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-003",
+      "description": "C0 80, an overlong U+0000.",
+      "input_hex": "22c08022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-004",
+      "description": "C1 BF, an overlong U+007F.",
+      "input_hex": "22c1bf22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-005",
+      "description": "E0 80 80, an overlong U+0000 in three bytes.",
+      "input_hex": "22e0808022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-006",
+      "description": "E0 9F BF, an overlong U+07FF.",
+      "input_hex": "22e09fbf22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-007",
+      "description": "F0 80 80 80, an overlong U+0000 in four bytes.",
+      "input_hex": "22f080808022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-008",
+      "description": "F0 8F BF BF, an overlong U+FFFF.",
+      "input_hex": "22f08fbfbf22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-009",
+      "description": "ED A0 80, the encoded surrogate U+D800.",
+      "input_hex": "22eda08022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-010",
+      "description": "ED BF BF, the encoded surrogate U+DFFF.",
+      "input_hex": "22edbfbf22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-011",
+      "description": "ED A0 BD ED B8 80, an encoded surrogate pair (CESU-8).",
+      "input_hex": "22eda0bdedb88022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-012",
+      "description": "F4 90 80 80, the code point U+110000.",
+      "input_hex": "22f490808022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-013",
+      "description": "F5, a byte that never appears in UTF-8.",
+      "input_hex": "22f580808022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-014",
+      "description": "FE, a byte that never appears in UTF-8.",
+      "input_hex": "22fe22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-015",
+      "description": "FF, a byte that never appears in UTF-8.",
+      "input_hex": "22ff22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-016",
+      "description": "A two-byte sequence without its continuation byte.",
+      "input_hex": "22c322",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-017",
+      "description": "A lead byte at the end of the input.",
+      "input_hex": "2261c3",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-018",
+      "description": "A three-byte sequence cut after two bytes.",
+      "input_hex": "22e28222",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-019",
+      "description": "A three-byte sequence cut after two bytes at the end of the input.",
+      "input_hex": "22e282",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-020",
+      "description": "A four-byte sequence cut after three bytes.",
+      "input_hex": "22f09f9822",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-021",
+      "description": "A lead byte followed by an ASCII byte.",
+      "input_hex": "22e2824122",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 1.",
+            "offset": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-022",
+      "description": "Invalid UTF-8 in a key.",
+      "input_hex": "7b22ff223a317d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 2.",
+            "offset": 2
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 2.",
+            "offset": 2
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 2.",
+            "offset": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-023",
+      "description": "Invalid UTF-8 outside a string.",
+      "input_hex": "5b312cff5d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-024",
+      "description": "Invalid UTF-8 after a syntax error is reported first.",
+      "input_hex": "5b312c2cff5d",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-025",
+      "description": "Invalid UTF-8 after the top-level value.",
+      "input_hex": "5b315dff",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 3.",
+            "offset": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-026",
+      "description": "The offset counts bytes: two characters of two bytes come first.",
+      "input_hex": "22c3a9c3a9ff22",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-027",
+      "description": "The offset counts bytes: a character of four bytes comes first.",
+      "input_hex": "22f09f9880c022",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 5.",
+            "offset": 5
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 5.",
+            "offset": 5
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 5.",
+            "offset": 5
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-028",
+      "description": "Latin-1 text: 'caf\u00e9' with E9 for '\u00e9'.",
+      "input_hex": "22636166e922",
+      "expected": {
+        "plain": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4.",
+            "offset": 4
+          }
+        },
+        "data": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4.",
+            "offset": 4
+          }
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1201",
+            "message": "Invalid UTF-8 at byte 4.",
+            "offset": 4
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-029",
+      "description": "The largest two-byte character, U+07FF.",
+      "input": "\"\u07ff\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u07ff\"",
+          "sha256": "sha256:96f88d3928c2796bc818c6fc1e7e77602e02d53cc796b5187cabab09ced06a07"
+        },
+        "data": {
+          "canonical": "\"\u07ff\"",
+          "sha256": "sha256:96f88d3928c2796bc818c6fc1e7e77602e02d53cc796b5187cabab09ced06a07"
+        },
+        "hashable": {
+          "canonical": "\"\u07ff\"",
+          "sha256": "sha256:96f88d3928c2796bc818c6fc1e7e77602e02d53cc796b5187cabab09ced06a07"
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-030",
+      "description": "The smallest three-byte character, U+0800.",
+      "input": "\"\u0800\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\u0800\"",
+          "sha256": "sha256:bb1310bd55284aa24baad8cf269a263686dd37aa46fd5a9e8b3a0595bcd29486"
+        },
+        "data": {
+          "canonical": "\"\u0800\"",
+          "sha256": "sha256:bb1310bd55284aa24baad8cf269a263686dd37aa46fd5a9e8b3a0595bcd29486"
+        },
+        "hashable": {
+          "canonical": "\"\u0800\"",
+          "sha256": "sha256:bb1310bd55284aa24baad8cf269a263686dd37aa46fd5a9e8b3a0595bcd29486"
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-031",
+      "description": "U+D7FF, the last code point before the surrogates, is well-formed but unassigned.",
+      "input": "\"\ud7ff\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ud7ff\"",
+          "sha256": "sha256:78eb0dbe9b8832bdbcb69e52b0340d767ff6310265ff3b9afac40b04f11a35ba"
+        },
+        "data": {
+          "canonical": "\"\ud7ff\"",
+          "sha256": "sha256:78eb0dbe9b8832bdbcb69e52b0340d767ff6310265ff3b9afac40b04f11a35ba"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-032",
+      "description": "U+D7FB, the last character that Unicode 14.0 assigns before the surrogates.",
+      "input": "\"\ud7fb\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ud7fb\"",
+          "sha256": "sha256:51e5d68073dd1b23b350bbdeeb4031de77c4b2daf67acaf39c18261e97af271e"
+        },
+        "data": {
+          "canonical": "\"\ud7fb\"",
+          "sha256": "sha256:51e5d68073dd1b23b350bbdeeb4031de77c4b2daf67acaf39c18261e97af271e"
+        },
+        "hashable": {
+          "canonical": "\"\ud7fb\"",
+          "sha256": "sha256:51e5d68073dd1b23b350bbdeeb4031de77c4b2daf67acaf39c18261e97af271e"
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-033",
+      "description": "U+E000, the first character after the surrogates.",
+      "input": "\"\ue000\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        },
+        "data": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        },
+        "hashable": {
+          "canonical": "\"\ue000\"",
+          "sha256": "sha256:2ae420786f133698ee38ccf4ade214858eafd2b2ac71c63f118b19df9aebed6b"
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-034",
+      "description": "The noncharacter U+FFFE is well-formed UTF-8 but unassigned.",
+      "input": "\"\ufffe\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ufffe\"",
+          "sha256": "sha256:a967623f44b2e95aef4cc06b2e60b07738e8e582181199a497e2b4e2cecf54ca"
+        },
+        "data": {
+          "canonical": "\"\ufffe\"",
+          "sha256": "sha256:a967623f44b2e95aef4cc06b2e60b07738e8e582181199a497e2b4e2cecf54ca"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-035",
+      "description": "U+10000, the smallest four-byte character.",
+      "input": "\"\ud800\udc00\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\ud800\udc00\"",
+          "sha256": "sha256:80066806fcc52478beec53a2ac42bc6a6324eb67c1161136649a669c15d4b7bf"
+        },
+        "data": {
+          "canonical": "\"\ud800\udc00\"",
+          "sha256": "sha256:80066806fcc52478beec53a2ac42bc6a6324eb67c1161136649a669c15d4b7bf"
+        },
+        "hashable": {
+          "canonical": "\"\ud800\udc00\"",
+          "sha256": "sha256:80066806fcc52478beec53a2ac42bc6a6324eb67c1161136649a669c15d4b7bf"
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-036",
+      "description": "U+10FFFF, the largest code point, is well-formed but unassigned.",
+      "input": "\"\udbff\udfff\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\udbff\udfff\"",
+          "sha256": "sha256:216551a7df34e082dd063693c09f0b567df0351251da1fd71057b83fe66003c6"
+        },
+        "data": {
+          "canonical": "\"\udbff\udfff\"",
+          "sha256": "sha256:216551a7df34e082dd063693c09f0b567df0351251da1fd71057b83fe66003c6"
+        },
+        "hashable": {
+          "issue": {
+            "code": "E1208",
+            "message": "The string at byte 0 contains a character that Unicode 14.0 does not assign, so the packages cannot normalise it in the same way.",
+            "offset": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-037",
+      "description": "U+F0000, a private-use character of plane 15.",
+      "input": "\"\udb80\udc00\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"\udb80\udc00\"",
+          "sha256": "sha256:8f6409fd39e0b8fc685f3a54e776b6520bf80a9ff1cb4ce9b626a8245544aacf"
+        },
+        "data": {
+          "canonical": "\"\udb80\udc00\"",
+          "sha256": "sha256:8f6409fd39e0b8fc685f3a54e776b6520bf80a9ff1cb4ce9b626a8245544aacf"
+        },
+        "hashable": {
+          "canonical": "\"\udb80\udc00\"",
+          "sha256": "sha256:8f6409fd39e0b8fc685f3a54e776b6520bf80a9ff1cb4ce9b626a8245544aacf"
+        }
+      }
+    },
+    {
+      "id": "unicode-utf8-038",
+      "description": "A mixture of one-, two-, three- and four-byte characters.",
+      "input": "\"a\u00e9\u20ac\ud83d\ude00\"",
+      "expected": {
+        "plain": {
+          "canonical": "\"a\u00e9\u20ac\ud83d\ude00\"",
+          "sha256": "sha256:b15403bb5a40d54e3b35fd9fd23837c7781bc224532ede3041da1fc57303dd60"
+        },
+        "data": {
+          "canonical": "\"a\u00e9\u20ac\ud83d\ude00\"",
+          "sha256": "sha256:b15403bb5a40d54e3b35fd9fd23837c7781bc224532ede3041da1fc57303dd60"
+        },
+        "hashable": {
+          "canonical": "\"a\u00e9\u20ac\ud83d\ude00\"",
+          "sha256": "sha256:b15403bb5a40d54e3b35fd9fd23837c7781bc224532ede3041da1fc57303dd60"
+        }
+      }
+    }
+  ]
+}

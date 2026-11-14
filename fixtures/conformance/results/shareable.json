@@ -1,0 +1,328 @@
+{
+  "description": "The invariants of a shareable document (E7020 to E7023 in stage 4 and E7024 in stage 5): person counts below min_count, findings that fail the minimum-count or dominance rule, quantiles, labels and ratios, the order in which one value gets at most one issue, and internal documents, to which the invariants do not apply.",
+  "cases": [
+    {
+      "id": "results-shareable-001",
+      "description": "A shareable document with the disclosure unit 'pupil' whose findings meet every invariant: outcome.boundary_shares writes person counts of at least min_count and their ratios, and structure.cluster_sizes writes the non-person count of the levels of 'school' and the person count of the rows, with its quantiles suppressed: no issue.",
+      "document": "shareable/001.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-shareable-002",
+      "description": "A person count of 5 written in a finding that passes both rules: E7020 with the limit of /privacy/min_count. The ratio floor_share, whose numerator it is, would give E7024 in stage 5, which does not run after an issue of stage 4.",
+      "document": "shareable/002.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/0/statistics/at_floor/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/0/statistics/at_floor/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-003",
+      "description": "A support with 8 rows and 9 distinct contributors written: E7020 at each. The finding fails the minimum-count rule, so its written person count 'rows' gets E7021, whereas the non-person count 'levels' stays.",
+      "document": "shareable/003.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/1/statistics/rows/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/1/statistics/rows/value"
+          },
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/1/support/contributors/distinct/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/1/support/contributors/distinct/value"
+          },
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/1/support/rows/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/1/support/rows/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-004",
+      "description": "distinct suppressed with the detail 'min_count': the finding fails the minimum-count rule, so the written real effective_size and person count rows get E7021, and the boolean and the non-person count do not.",
+      "document": "shareable/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/1/statistics/effective_size/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/1/statistics/effective_size/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/1/statistics/rows/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/1/statistics/rows/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-005",
+      "description": "A support whose dominated is true: the finding fails the dominance rule, so each written person count and ratio gets E7021 naming the rule 'dominance'.",
+      "document": "shareable/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/at_ceiling/value must be suppressed in a shareable document, because its finding fails the dominance rule.",
+            "pointer": "/findings/0/statistics/at_ceiling/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/at_floor/value must be suppressed in a shareable document, because its finding fails the dominance rule.",
+            "pointer": "/findings/0/statistics/at_floor/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/ceiling_share/value must be suppressed in a shareable document, because its finding fails the dominance rule.",
+            "pointer": "/findings/0/statistics/ceiling_share/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/floor_share/value must be suppressed in a shareable document, because its finding fails the dominance rule.",
+            "pointer": "/findings/0/statistics/floor_share/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/rows/value must be suppressed in a shareable document, because its finding fails the dominance rule.",
+            "pointer": "/findings/0/statistics/rows/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-006",
+      "description": "The document of results-shareable-005 with dominated false: the finding passes the dominance rule, so no issue.",
+      "document": "shareable/006.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-shareable-007",
+      "description": "A finding that fails both rules, with 9 contributors and dominated true: E7020 at the contributors, and E7021 names the rule 'minimum-count' for each written person count and ratio.",
+      "document": "shareable/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/at_ceiling/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/0/statistics/at_ceiling/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/at_floor/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/0/statistics/at_floor/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/ceiling_share/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/0/statistics/ceiling_share/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/floor_share/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/0/statistics/floor_share/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/0/statistics/rows/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/0/statistics/rows/value"
+          },
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/0/support/contributors/distinct/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/0/support/contributors/distinct/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-008",
+      "description": "Quantiles written in a finding that passes both rules: p 0 and p 1 give E7022 whatever n, p 0.5 of 19 values gives E7022 since 19 times 5 is below 10 times 10, p 0.25 of 40 values meets the rule exactly and p 0.9 of 100 values meets it in integer arithmetic, where n times (1 - p) in doubles is 9.999999999999998.",
+      "document": "shareable/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/largest/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "pointer": "/findings/1/statistics/largest/value"
+          },
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/median/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "pointer": "/findings/1/statistics/median/value"
+          },
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/smallest/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "pointer": "/findings/1/statistics/smallest/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-009",
+      "description": "A statistic of kind labels in a finding that passes both rules, with the items '#1', 'p17', '#01', '#0' and '#12': E7023 at each item that is not '#' followed by a positive integer without leading zeros.",
+      "document": "shareable/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7023",
+            "message": "The label at /findings/1/statistics/flagged/value/1 must be a pseudonym, such as '#1', in a shareable document.",
+            "pointer": "/findings/1/statistics/flagged/value/1"
+          },
+          {
+            "code": "E7023",
+            "message": "The label at /findings/1/statistics/flagged/value/2 must be a pseudonym, such as '#1', in a shareable document.",
+            "pointer": "/findings/1/statistics/flagged/value/2"
+          },
+          {
+            "code": "E7023",
+            "message": "The label at /findings/1/statistics/flagged/value/3 must be a pseudonym, such as '#1', in a shareable document.",
+            "pointer": "/findings/1/statistics/flagged/value/3"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-010",
+      "description": "A finding that fails the minimum-count rule and writes a person count of 3, a real and a labels value: each value gets the first issue that applies, E7020 for the count and E7021 for the real and the labels value, whose items are then not checked for pseudonyms.",
+      "document": "shareable/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/1/statistics/effective_size/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/1/statistics/effective_size/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/1/statistics/flagged/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/1/statistics/flagged/value"
+          },
+          {
+            "code": "E7021",
+            "message": "The statistic at /findings/1/statistics/rows/value must be suppressed in a shareable document, because its finding fails the minimum-count rule.",
+            "pointer": "/findings/1/statistics/rows/value"
+          },
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/1/statistics/singletons/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/1/statistics/singletons/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-011",
+      "description": "floor_share written while its numerator at_floor, a person count, is suppressed: stage 4 finds nothing, and stage 5 reports E7024 from the registry entry, which names the numerator and denominator.",
+      "document": "shareable/011.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7024",
+            "message": "The ratio at /findings/0/statistics/floor_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
+            "pointer": "/findings/0/statistics/floor_share/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-012",
+      "description": "zero_share written while its denominator rows is suppressed with the detail 'secondary': E7024.",
+      "document": "shareable/012.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7024",
+            "message": "The ratio at /findings/0/statistics/zero_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
+            "pointer": "/findings/0/statistics/zero_share/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-013",
+      "description": "constant_share written while its denominator, a non-person count, is suppressed: E7024, since the ratio and its written numerator would give back the suppressed count whatever its class.",
+      "document": "shareable/013.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7024",
+            "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
+            "pointer": "/findings/0/statistics/constant_share/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-014",
+      "description": "distinct suppressed with the detail 'secondary', as the filter does across findings: the finding does not fail the minimum-count rule, so its written real is allowed and there is no issue.",
+      "document": "shareable/014.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-shareable-015",
+      "description": "A document whose min_count is 5 writes a person count of 7: the invariants of stage 4 use the parameters that the document records, so it finds no issue, and stage 5 reports E7046 at min_count, which the registry gives as 10.",
+      "document": "shareable/015.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7046",
+            "message": "The value at /privacy/min_count must be 10, as the privacy block of the registry states.",
+            "pointer": "/privacy/min_count"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-016",
+      "description": "The values of results-shareable-003 with a person count of 3 in an internal document: the invariants apply only to shareable documents, so no issue.",
+      "document": "shareable/016.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "results-shareable-017",
+      "description": "The document of results-shareable-008 with the failing quantiles suppressed and n left out of the quantile 0.9, whose value is written: E7022 at it, since a quantile without n cannot be checked against the quantile rule.",
+      "document": "shareable/017.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/upper_quartile/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "pointer": "/findings/1/statistics/upper_quartile/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-018",
+      "description": "constant_share written with the class person while its numerator constant_levels, a by_unit count, is left out: a ratio has the class of its numerator and denominator, so the numerator counts as a person count that is not written, and stage 5 reports E7024, since the ratio and the written denominator multi_row_levels would give it back.",
+      "document": "shareable/018.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7024",
+            "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
+            "pointer": "/findings/0/statistics/constant_share/value"
+          }
+        ]
+      }
+    }
+  ]
+}

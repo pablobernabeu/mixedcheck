@@ -1,0 +1,7 @@
+{
+  "vocabulary": "0.1.0",
+  "goal": "confirmatory",
+  "units": [{"name": "s", "columns": ["s"]}],
+  "observation": {"key": ["s", "t"]},
+  "variables": {"y": {"role": "outcome"}}
+}

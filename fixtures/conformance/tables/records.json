@@ -1,0 +1,542 @@
+{
+  "description": "The CSV text: line breaks, quoted and unquoted fields, white space, quoting problems (E5004) and records of the wrong length (E5005).",
+  "cases": [
+    {
+      "id": "tables-records-001",
+      "description": "Records ended by LF.",
+      "path": "records/lf.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "x",
+              "y"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-002",
+      "description": "Records ended by CR alone.",
+      "path": "records/cr.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "x",
+              "y"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-003",
+      "description": "LF, CR LF and CR alone in one text, and a last record without a line break.",
+      "path": "records/mixed_line_breaks.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "x",
+              "y",
+              "z"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-004",
+      "description": "A quoted CR LF is kept as CR LF.",
+      "path": "records/quoted_crlf.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "a\r\nb"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-005",
+      "description": "A quoted CR alone is kept.",
+      "path": "records/quoted_cr.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "a\rb"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-006",
+      "description": "A doubled quotation mark in a quoted field stands for one.",
+      "path": "records/doubled_quotes.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "say \"hi\"",
+              "\""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-007",
+      "description": "A quoted empty field and an empty field are both the empty string, so both are missing by default.",
+      "path": "records/quoted_empty.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              null,
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-008",
+      "description": "With an empty list of missing values, a quoted empty field and an empty field are both the empty string.",
+      "path": "records/quoted_empty_no_missing.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string",
+              "missingValues": []
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              "",
+              ""
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-009",
+      "description": "Spaces and tabs belong to the field, inside or outside quotation marks.",
+      "path": "records/white_space.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              " x ",
+              "\tx",
+              " x "
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-010",
+      "description": "Quoted column names may hold ',' and '\"'.",
+      "path": "records/quoted_header.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "number",
+            "values": [
+              1.0
+            ]
+          },
+          {
+            "name": "a,b",
+            "type": "number",
+            "values": [
+              2.0
+            ]
+          },
+          {
+            "name": "c\"d",
+            "type": "number",
+            "values": [
+              3.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-011",
+      "description": "A ',' before the line break ends the record with an empty field.",
+      "path": "records/trailing_comma.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "s",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "string",
+            "values": [
+              "1"
+            ]
+          },
+          {
+            "name": "s",
+            "type": "string",
+            "values": [
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-records-012",
+      "description": "Text after the closing quotation mark.",
+      "path": "records/text_after_quote.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 10.",
+          "offset": 10
+        }
+      }
+    },
+    {
+      "id": "tables-records-013",
+      "description": "A quotation mark inside an unquoted field.",
+      "path": "records/quote_in_unquoted.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 8.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "tables-records-014",
+      "description": "A field that starts with a space is unquoted, so its quotation mark is misplaced.",
+      "path": "records/space_before_quote.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 8.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "tables-records-015",
+      "description": "A space after the closing quotation mark.",
+      "path": "records/space_after_quote.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 10.",
+          "offset": 10
+        }
+      }
+    },
+    {
+      "id": "tables-records-016",
+      "description": "A quoted field that the text ends inside is located at its opening quotation mark.",
+      "path": "records/unclosed_quote.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 7.",
+          "offset": 7
+        }
+      }
+    },
+    {
+      "id": "tables-records-017",
+      "description": "A quoting problem in the header.",
+      "path": "records/header_quote.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 6.",
+          "offset": 6
+        }
+      }
+    },
+    {
+      "id": "tables-records-018",
+      "description": "A record with fewer fields than the header.",
+      "path": "records/too_few.csv",
+      "expected": {
+        "issue": {
+          "code": "E5005",
+          "message": "The record at byte 13 has a different number of values from the header: 2 against 3.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "tables-records-019",
+      "description": "A record with more fields than the header, through a trailing ','.",
+      "path": "records/too_many.csv",
+      "expected": {
+        "issue": {
+          "code": "E5005",
+          "message": "The record at byte 5 has a different number of values from the header: 3 against 2.",
+          "offset": 5
+        }
+      }
+    },
+    {
+      "id": "tables-records-020",
+      "description": "Two line breaks at the end make an empty last record.",
+      "path": "records/two_final_line_breaks.csv",
+      "expected": {
+        "issue": {
+          "code": "E5005",
+          "message": "The record at byte 10 has a different number of values from the header: 1 against 2.",
+          "offset": 10
+        }
+      }
+    }
+  ]
+}

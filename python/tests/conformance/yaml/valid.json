@@ -1,0 +1,122 @@
+{
+  "description": "Declarations written in YAML, with the canonical bytes and declaration hashes of their JSON form.",
+  "cases": [
+    {
+      "id": "yaml-valid-001",
+      "description": "The cluster-randomised trial of the Example in declarations.md, with its declaration hash. Same canonical bytes as declarations-valid-003.",
+      "path": "valid/example.yaml",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"blocks\":[\"school\"],\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"class\"}],\"estimands\":[{\"id\":\"ITT\",\"kind\":\"total_effect\",\"term\":\"arm\"}],\"features\":[\"cluster_randomised\",\"longitudinal\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"school\",\"class\",\"pupil\",\"wave\"],\"time\":{\"column\":\"wave\",\"kind\":\"occasion\",\"within\":\"pupil\"}},\"provenance\":{\"created\":\"2026-11-08T09:00:00Z\",\"outcome_seen\":false},\"table\":{\"fields\":[{\"name\":\"school\",\"type\":\"string\"},{\"name\":\"class\",\"type\":\"string\"},{\"name\":\"pupil\",\"type\":\"string\"},{\"categories\":[0,1],\"categoriesOrdered\":true,\"name\":\"wave\",\"type\":\"integer\"},{\"categories\":[\"control\",\"tutoring\"],\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"pre\",\"type\":\"number\"},{\"missingValues\":[{\"value\":\"\"},{\"label\":\"absent on test day\",\"value\":\"-99\"}],\"name\":\"post\",\"type\":\"number\"}]},\"title\":\"Reading intervention, classes randomised within schools\",\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"class\"],\"id_scope\":\"within_parent\",\"name\":\"class\",\"nested_in\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"pupil\"],\"id_scope\":\"global\",\"name\":\"pupil\",\"nested_in\":\"class\",\"role\":\"participant\"}],\"variables\":{\"post\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"pre\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:93ed460de965c328571efe40719f1d80debb72ae532653f68fca4c301226b8c0"
+      }
+    },
+    {
+      "id": "yaml-valid-002",
+      "description": "The scalars of the draft's evidence on YAML typing (E/schema/yaml/scalars.yaml) at positions where the schema requires a string. Each stays the string it spells, including 'yes', 'NO', '~', 'null', the empty scalar, '007', '2026.10', '.inf' and '12:30', which YAML 1.1 loaders read as booleans, nulls, numbers, dates or sexagesimal integers.",
+      "path": "valid/scalars.yaml",
+      "expected": {
+        "canonical": "{\"provenance\":{\"author\":\"null\"},\"table\":{\"fields\":[{\"categories\":[\"yes\",\"no\",\"y\",\"n\",\"on\",\"off\",\"NO\",\"NA\",\"~\",\"null\",\"\",\"007\",\"08\",\"2026.10\",\"1e3\",\"1.0e3\",\".5\",\"0x1F\",\"1_000\",\"1,000\",\"12:30\",\"2026-11-07\",\"+1\",\".inf\"],\"name\":\"answer\",\"type\":\"string\"},{\"missingValues\":[\"no\",\"\",\"Null\"],\"name\":\"code\"}]},\"title\":\"~\",\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:60a354bb766fbd904ded4a754aaa44615ad50ea89672c954690e2bd08ceb49bf"
+      }
+    },
+    {
+      "id": "yaml-valid-003",
+      "description": "Scalars that R's yaml package types unless the reader gives it a handler for each of its implicit types: '.na' and its variants and exponents such as '1.0e+3' and '1.e+3', with '<<' quoted, since the pre-scan refuses a plain scalar that starts with '<<'. Each stays a string at a string position, and the bounds that have the form of a number become numbers.",
+      "path": "valid/r_types.yaml",
+      "expected": {
+        "canonical": "{\"table\":{\"fields\":[{\"name\":\"score\",\"type\":\"number\"}],\"missingValues\":[\".na\",\".na.real\",\".na.integer\",\".na.character\",\"NA\",\".NaN\",\"1.0e+3\",\"1.e+3\",\"-1.5E-7\",\"<<\"]},\"title\":\"<<\",\"variables\":{\"score\":{\"bounds\":[-1.5e-7,1000],\"measurement\":\"bounded_score\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:8fad12470d7582c1368ddfe7ac5f33bf4262accfade042e464446e0f6da080be"
+      }
+    },
+    {
+      "id": "yaml-valid-004",
+      "description": "Categories and event levels take the type of their field: integers in an integer field and strings in a string field, whether quoted or not and whether plain or the value of an object, while a label stays a string. A field without a type, or of type 'number', follows the general rule, so its event level is an integer when its text has that form.",
+      "path": "valid/typed_categories.yaml",
+      "expected": {
+        "canonical": "{\"table\":{\"fields\":[{\"categories\":[0,1,2,-3],\"name\":\"wave\",\"type\":\"integer\"},{\"categories\":[\"0\",\"1\",\"2\",\"-3\"],\"name\":\"arm\",\"type\":\"string\"},{\"categories\":[0,1],\"name\":\"hit\",\"type\":\"integer\"},{\"categories\":[\"0\",\"1\"],\"name\":\"acc\",\"type\":\"string\"},{\"name\":\"free\"},{\"name\":\"label\"},{\"name\":\"resp\",\"type\":\"number\"},{\"categories\":[{\"label\":\"low\",\"value\":1},{\"label\":\"3\",\"value\":2}],\"name\":\"grade\",\"type\":\"integer\"},{\"categories\":[{\"label\":\"one\",\"value\":\"1\"},{\"value\":\"2\"}],\"name\":\"code\",\"type\":\"string\"}]},\"variables\":{\"acc\":{\"event_level\":\"1\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"free\":{\"event_level\":1,\"measurement\":\"binary\",\"role\":\"outcome\"},\"hit\":{\"event_level\":1,\"measurement\":\"binary\",\"role\":\"outcome\"},\"label\":{\"event_level\":\"yes\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"resp\":{\"event_level\":2,\"measurement\":\"binary\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:22a0e1266143f1aca135cf02a9286194c665e7e10581017fe18ff435d4c0ecd6"
+      }
+    },
+    {
+      "id": "yaml-valid-005",
+      "description": "The positions that take booleans and numbers: categoriesOrdered, randomised, focal and outcome_seen read 'true' and 'false', and bounds read the number grammar of RFC 8259, quoted or not, with exponents.",
+      "path": "valid/booleans_numbers.yaml",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"column\":\"arm\",\"randomised\":false,\"unit\":\"unit\"}],\"estimands\":[{\"focal\":true,\"id\":\"e\",\"term\":\"arm\"}],\"provenance\":{\"outcome_seen\":false},\"table\":{\"fields\":[{\"name\":\"unit\",\"type\":\"string\"},{\"name\":\"arm\",\"type\":\"string\"},{\"categories\":[1,2,3],\"categoriesOrdered\":true,\"name\":\"s\",\"type\":\"integer\"},{\"name\":\"score\",\"type\":\"number\"},{\"name\":\"tiny\",\"type\":\"number\"},{\"name\":\"big\",\"type\":\"number\"}]},\"units\":[{\"columns\":[\"unit\"],\"name\":\"unit\"}],\"variables\":{\"arm\":{\"role\":\"assigned\"},\"big\":{\"bounds\":[1000,10000],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"},\"score\":{\"bounds\":[0,2.5],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"tiny\":{\"bounds\":[-1.5e-7,0],\"measurement\":\"bounded_score\",\"role\":\"auxiliary\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:fc02395c0ce6d422bdc5715483f333a545254c4296d33579ac7957a536ac0c3f"
+      }
+    },
+    {
+      "id": "yaml-valid-006",
+      "description": "Comments, document markers, a folded and a literal block scalar, single-quoted and double-quoted scalars with escapes and a '#' inside a quoted scalar.",
+      "path": "valid/layout.yaml",
+      "expected": {
+        "canonical": "{\"provenance\":{\"author\":\"A. Author\"},\"table\":{\"fields\":[{\"name\":\"class # 1\"},{\"name\":\"note\"}],\"missingValues\":[\"\",\"\\t\",\"it's missing\",\"caf\u00e9\"]},\"title\":\"Reading intervention, classes randomised within schools\",\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:8815bf74d73acad216ea32237ebba9cb5feaa52d38eb865bf26e4ad3f1e5537c"
+      }
+    },
+    {
+      "id": "yaml-valid-007",
+      "description": "The sleepstudy declaration in YAML with CRLF line endings. Same canonical bytes as declarations-valid-005.",
+      "path": "valid/sleepstudy_crlf.yaml",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"days\",\"kind\":\"association\",\"term\":\"Days\"}],\"features\":[\"longitudinal\"],\"observation\":{\"key\":[\"Subject\",\"Days\"],\"time\":{\"column\":\"Days\",\"kind\":\"occasion\",\"within\":\"Subject\"}},\"title\":\"lme4::sleepstudy\",\"units\":[{\"columns\":[\"Subject\"],\"name\":\"Subject\",\"role\":\"participant\"}],\"variables\":{\"Days\":{\"role\":\"time\"},\"Reaction\":{\"measurement\":\"positive_duration\",\"role\":\"outcome\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:0ed5b8cbc64b9672e52a708864f701348df5513327456808fe507115414a0b06"
+      }
+    },
+    {
+      "id": "yaml-valid-008",
+      "description": "The Example of declarations.md written in flow style with its members in another order. Same canonical bytes as yaml-valid-001.",
+      "path": "valid/example_flow.yaml",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"blocks\":[\"school\"],\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"class\"}],\"estimands\":[{\"id\":\"ITT\",\"kind\":\"total_effect\",\"term\":\"arm\"}],\"features\":[\"cluster_randomised\",\"longitudinal\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"school\",\"class\",\"pupil\",\"wave\"],\"time\":{\"column\":\"wave\",\"kind\":\"occasion\",\"within\":\"pupil\"}},\"provenance\":{\"created\":\"2026-11-08T09:00:00Z\",\"outcome_seen\":false},\"table\":{\"fields\":[{\"name\":\"school\",\"type\":\"string\"},{\"name\":\"class\",\"type\":\"string\"},{\"name\":\"pupil\",\"type\":\"string\"},{\"categories\":[0,1],\"categoriesOrdered\":true,\"name\":\"wave\",\"type\":\"integer\"},{\"categories\":[\"control\",\"tutoring\"],\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"pre\",\"type\":\"number\"},{\"missingValues\":[{\"value\":\"\"},{\"label\":\"absent on test day\",\"value\":\"-99\"}],\"name\":\"post\",\"type\":\"number\"}]},\"title\":\"Reading intervention, classes randomised within schools\",\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"class\"],\"id_scope\":\"within_parent\",\"name\":\"class\",\"nested_in\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"pupil\"],\"id_scope\":\"global\",\"name\":\"pupil\",\"nested_in\":\"class\",\"role\":\"participant\"}],\"variables\":{\"post\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"pre\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:93ed460de965c328571efe40719f1d80debb72ae532653f68fca4c301226b8c0"
+      }
+    },
+    {
+      "id": "yaml-valid-009",
+      "description": "The JSON declaration of the Example saved in a file whose name ends in '.yaml'. JSON text is YAML, so it is read as YAML. Same canonical bytes as declarations-valid-003.",
+      "path": "valid/json_text.yaml",
+      "expected": {
+        "canonical": "{\"assignment\":[{\"blocks\":[\"school\"],\"column\":\"arm\",\"level\":\"between_unit\",\"randomised\":true,\"unit\":\"class\"}],\"estimands\":[{\"id\":\"ITT\",\"kind\":\"total_effect\",\"term\":\"arm\"}],\"features\":[\"cluster_randomised\",\"longitudinal\"],\"goal\":\"confirmatory\",\"observation\":{\"key\":[\"school\",\"class\",\"pupil\",\"wave\"],\"time\":{\"column\":\"wave\",\"kind\":\"occasion\",\"within\":\"pupil\"}},\"provenance\":{\"created\":\"2026-11-08T09:00:00Z\",\"outcome_seen\":false},\"table\":{\"fields\":[{\"name\":\"school\",\"type\":\"string\"},{\"name\":\"class\",\"type\":\"string\"},{\"name\":\"pupil\",\"type\":\"string\"},{\"categories\":[0,1],\"categoriesOrdered\":true,\"name\":\"wave\",\"type\":\"integer\"},{\"categories\":[\"control\",\"tutoring\"],\"name\":\"arm\",\"type\":\"string\"},{\"name\":\"pre\",\"type\":\"number\"},{\"missingValues\":[{\"value\":\"\"},{\"label\":\"absent on test day\",\"value\":\"-99\"}],\"name\":\"post\",\"type\":\"number\"}]},\"title\":\"Reading intervention, classes randomised within schools\",\"units\":[{\"columns\":[\"school\"],\"name\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"class\"],\"id_scope\":\"within_parent\",\"name\":\"class\",\"nested_in\":\"school\",\"role\":\"cluster\"},{\"columns\":[\"pupil\"],\"id_scope\":\"global\",\"name\":\"pupil\",\"nested_in\":\"class\",\"role\":\"participant\"}],\"variables\":{\"post\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"outcome\"},\"pre\":{\"bounds\":[0,40],\"measurement\":\"bounded_score\",\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:93ed460de965c328571efe40719f1d80debb72ae532653f68fca4c301226b8c0"
+      }
+    },
+    {
+      "id": "yaml-valid-010",
+      "description": "Keys and values with non-ASCII characters in NFC, a category outside the BMP and a quoted term, since a plain scalar cannot start with a backquote.",
+      "path": "valid/unicode.yaml",
+      "expected": {
+        "canonical": "{\"estimands\":[{\"id\":\"age\",\"kind\":\"association\",\"term\":\"`\u00e2ge`\"}],\"table\":{\"fields\":[{\"name\":\"\u00e2ge\",\"type\":\"integer\"},{\"categories\":[\"oui\",\"non\",\"\ud83d\ude00\"],\"name\":\"r\u00e9ponse\",\"type\":\"string\"}]},\"title\":\"\u00c9tude sur l'\u00e2ge des r\u00e9ponses\",\"variables\":{\"r\u00e9ponse\":{\"event_level\":\"oui\",\"measurement\":\"binary\",\"role\":\"outcome\"},\"\u00e2ge\":{\"role\":\"baseline_covariate\"}},\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:6c6b412655075d7ab8a93e7d796c2e2a29b59f29b273a2036bc7dfb6bbfdf785"
+      }
+    },
+    {
+      "id": "yaml-valid-011",
+      "description": "A declaration in a file whose name ends in '.YML', which is compared in ASCII lower case and read as YAML. Same canonical bytes as declarations-valid-001.",
+      "path": "valid/upper_case.YML",
+      "expected": {
+        "canonical": "{\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:a0e5a5633167d5b72f5163234aa521ad7a84231d4b16eadd52b1bb95867b0ff8"
+      }
+    },
+    {
+      "id": "yaml-valid-012",
+      "description": "Tabs that libyaml accepts and PyYAML's pure-Python parser refuses: after a plain scalar and after a comma in a flow sequence.",
+      "path": "valid/tabs.yaml",
+      "expected": {
+        "canonical": "{\"features\":[\"crossed_experiment\",\"trial_level\"],\"title\":\"Tabs\",\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:cc3d89f56c6b2b999f3ddf2b8d0d8995fa772561316cc4aa514f2ee0b6d1df32"
+      }
+    },
+    {
+      "id": "yaml-valid-013",
+      "description": "A plain scalar continued on the next line, which YAML folds into one line with a space.",
+      "path": "valid/multiline.yaml",
+      "expected": {
+        "canonical": "{\"title\":\"Reading intervention\",\"vocabulary\":\"0.1.0\"}",
+        "sha256": "sha256:808b99700071a5a86f9325d3cf79441b16d536a93095f1e95b4145b504fb046a"
+      }
+    }
+  ]
+}

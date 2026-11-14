@@ -10,15 +10,22 @@ Description: Audits study designs before mixed-effects models are fitted
     schemas and the test fixtures are shared with the 'Python' package of
     the same name.
 License: MIT + file LICENSE
-URL: https://github.com/pablobernabeu/lmecheck
-BugReports: https://github.com/pablobernabeu/lmecheck/issues
+URL: https://github.com/pablobernabeu/mixedcheck
+BugReports: https://github.com/pablobernabeu/mixedcheck/issues
 Depends:
     R (>= 4.2.0)
 Imports:
     cli (>= 3.2.0),
-    jsonlite
+    jsonlite,
+    Matrix (>= 1.4-1),
+    methods,
+    utf8 (>= 1.2.4)
 Suggests:
-    testthat (>= 3.0.0)
+    lme4,
+    lpSolve,
+    openssl,
+    testthat (>= 3.1.7),
+    yaml (>= 2.3.8)
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-GB

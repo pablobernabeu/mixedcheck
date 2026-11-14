@@ -1,0 +1,35 @@
+{
+  "vocabulary": "0.1.0",
+  "features": ["longitudinal"],
+  "units": [
+    {"name": "school", "columns": ["school"], "role": "cluster"},
+    {
+      "name": "pupil",
+      "columns": ["pupil"],
+      "nested_in": "school",
+      "id_scope": "global",
+      "membership": "may_change_over_time",
+      "role": "participant"
+    },
+    {
+      "name": "teacher",
+      "columns": ["teacher"],
+      "nested_in": "school",
+      "id_scope": "global",
+      "membership": "multiple",
+      "role": "rater"
+    }
+  ],
+  "crossings": [{"units": ["pupil", "teacher"]}],
+  "observation": {
+    "key": ["pupil", "year"],
+    "time": {"column": "year", "kind": "occasion", "within": "pupil"}
+  },
+  "assignment": [{"column": "programme", "unit": "school", "randomised": false}],
+  "variables": {
+    "math": {"role": "outcome", "measurement": "continuous"},
+    "programme": {"role": "assigned"},
+    "year": {"role": "time"}
+  },
+  "estimands": [{"id": "programme", "term": "programme", "kind": "association", "outcome": "math"}]
+}

@@ -1,0 +1,125 @@
+id: design.rank_deficiency
+version: 1
+title: Rank deficiency of the fixed effects
+tier: T0
+summary: >-
+  Applies the sequential rule of ir.md to the fixed-effects columns, which
+  drops the later member of each dependent set in column order as lme4 does,
+  and reports the dropped columns, the terms they belong to and the empty
+  cells of interactions between factors. A greedy pivoted QR can drop
+  different columns, so both packages use the sequential rule. When cells are
+  empty, the coefficients of the affected terms refer to a subset that depends
+  on the design.
+reads: [declaration, formula, predictors]
+fitted_model: false
+sample: design
+scope: model
+applies_when: The fixed part has at least one column.
+availability: []
+statistics:
+  columns:
+    kind: count
+    count_class: non_person
+    measures: table_term_levels
+    definition: The number of fixed-effects columns of the IR, the intercept included.
+  kept:
+    kind: count
+    count_class: non_person
+    measures: term_levels
+    definition: The number of columns that the sequential rule keeps, the rank of the fixed-effects matrix.
+  dropped_columns:
+    kind: names
+    definition: >-
+      The columns that the sequential rule drops, because their values are
+      all 0 or they depend on the columns kept before them, named as the IR
+      names them, in column order.
+  dropped_terms:
+    kind: names
+    definition: The terms that own a dropped column, in term order.
+  empty_cells:
+    kind: count
+    count_class: non_person
+    measures: term_levels
+    definition: >-
+      The number of combinations of levels that have no row in the design
+      sample, summed over the interaction terms whose factors are all
+      categorical, with the levels of each factor that occur in the design
+      sample.
+  focal_dropped:
+    kind: boolean
+    definition: Whether a dropped column belongs to a focal term (registry.md, Terms).
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: focal_dropped is true.
+      statistics: [focal_dropped]
+      thresholds: []
+      message: focal
+    - finding: detectable_inconsequential
+      condition: dropped_columns is not empty.
+      statistics: [dropped_columns]
+      thresholds: []
+      message: nonfocal
+  otherwise:
+    finding: consistent
+    message: full_rank
+assessability: []
+messages:
+  focal:
+    template: >-
+      Fixed-effects columns that are 0 or depend on earlier columns and are
+      dropped: {dropped}. Terms they belong to, focal terms among them:
+      {terms}. The coefficients of the focal terms then refer to a subset that
+      depends on the design. Combinations of factor levels without rows:
+      {empty}.
+    fallback: >-
+      Fixed-effects columns that are 0 or depend on earlier columns and are
+      dropped: {dropped}. Terms they belong to, focal terms among them:
+      {terms}. The coefficients of the focal terms then refer to a subset that
+      depends on the design.
+    args:
+      dropped: {source: statistic, name: dropped_columns}
+      terms: {source: statistic, name: dropped_terms}
+      empty: {source: statistic, name: empty_cells}
+  nonfocal:
+    template: >-
+      Fixed-effects columns that are 0 or depend on earlier columns and are
+      dropped: {dropped}. Terms they belong to, none of them focal: {terms}.
+      Combinations of factor levels without rows: {empty}.
+    fallback: >-
+      Fixed-effects columns that are 0 or depend on earlier columns and are
+      dropped: {dropped}. Terms they belong to, none of them focal: {terms}.
+    args:
+      dropped: {source: statistic, name: dropped_columns}
+      terms: {source: statistic, name: dropped_terms}
+      empty: {source: statistic, name: empty_cells}
+  full_rank:
+    template: The fixed-effects columns are linearly independent ({columns} in all).
+    fallback: The fixed-effects columns are linearly independent.
+    args:
+      columns: {source: statistic, name: columns}
+remedies:
+  - id: cell_means
+    description: >-
+      Recode the factors of an incomplete interaction as one factor of the
+      observed cells, or collapse levels, and state the estimands for the
+      observed cells.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+  - id: remove_term
+    description: Remove a term whose columns the others already span.
+    uses_outcome: false
+    changes_estimand: true
+    software: []
+links:
+  requires: []
+  explained_by: [sample.raw_vs_analysis]
+references:
+  - kind: decision
+    citation: ir.md, the sequential rule for dropping aliased columns
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L1-12 and L2-05.
+catalogue: [L1-12, L2-04, L2-05]

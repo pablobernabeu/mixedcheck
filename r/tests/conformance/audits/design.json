@@ -1,0 +1,987 @@
+{
+  "description": "Cases of design.rank_deficiency, design.collinearity and design.scale_disparity: dropped columns of focal and other terms, empty cells, estimands that count or do not count for the model, the generalised variance inflation factor of numeric and factor terms against its thresholds and the scales of the fixed-effects columns.",
+  "cases": [
+    {
+      "id": "audits-design-001",
+      "description": "Two numeric predictors with little correlation, linearly independent columns and standard deviations of similar size: each check finds the design consistent, with the messages low, full_rank and similar.",
+      "checks": ["design.collinearity", "design.rank_deficiency", "design.scale_disparity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "x1": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x2": [3, 1, 4, 1, 5, 9, 2, 6]
+      },
+      "formula": "y ~ x1 + x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x1' has a generalised variance inflation factor of 1.30, or 1.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1.295275590551181},
+              "gvif_per_df": {"kind": "real", "value": 1.295275590551181}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x2' has a generalised variance inflation factor of 1.30, or 1.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1.295275590551181},
+              "gvif_per_df": {"kind": "real", "value": 1.295275590551181}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "full_rank", "text": "The fixed-effects columns are linearly independent (3 in all)."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": []},
+              "dropped_terms": {"kind": "names", "value": []},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x1' and 'x2' lies between 0.001 and 1000, and the largest is 1.1 times the smallest at most."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": 2.748376143938713},
+              "sd_smallest": {"kind": "real", "value": 2.449489742783178},
+              "sd_ratio": {"kind": "real", "value": 1.1220198623146436},
+              "condition_number": {"kind": "real", "value": 5.112558109791149}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-002",
+      "description": "An interaction of two factors with an empty cell and no declaration: the interaction column is 0 in every row and dropped, and one combination of levels has no row. With no estimand, every term other than the intercept is focal, so the finding is consequential with the message focal.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [4.1, 5.3, 3.8, 6, 4.6, 5.1, 4.9, 5.5],
+        "a": ["A1", "A1", "A1", "A1", "A2", "A2", "A2", "A2"],
+        "b": ["B1", "B2", "B1", "B2", "B1", "B1", "B1", "B1"]
+      },
+      "formula": "y ~ a * b",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'a[A2]:b[B2]'. Terms they belong to, focal terms among them: 'a:b'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 1."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["a[A2]:b[B2]"]},
+              "dropped_terms": {"kind": "names", "value": ["a:b"]},
+              "empty_cells": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-003",
+      "description": "x3 is the sum of x1 and x2 and is dropped. The declaration's one estimand names x1 and no outcome, and no outcome is declared, so it counts for the model and only x1 is focal: the finding is detectable_inconsequential with the message nonfocal.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [1.2, 2.9, 3.1, 4.8, 4.4, 6.5],
+        "x1": [1, 2, 3, 4, 5, 6],
+        "x2": [2, 0, 1, 3, 1, 2],
+        "x3": [3, 2, 4, 7, 6, 8]
+      },
+      "formula": "y ~ x1 + x2 + x3",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "estimands": [{"id": "slope", "term": "x1", "kind": "association"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nonfocal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'x3'. Terms they belong to, none of them focal: 'x3'. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["x3"]},
+              "dropped_terms": {"kind": "names", "value": ["x3"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-004",
+      "description": "The same data with one estimand that names the dropped term x3 with focal false: estimands count for the model but none is focal, so no term is focal and the finding is detectable_inconsequential with the message nonfocal.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [1.2, 2.9, 3.1, 4.8, 4.4, 6.5],
+        "x1": [1, 2, 3, 4, 5, 6],
+        "x2": [2, 0, 1, 3, 1, 2],
+        "x3": [3, 2, 4, 7, 6, 8]
+      },
+      "formula": "y ~ x1 + x2 + x3",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "estimands": [{"id": "sum", "term": "x3", "kind": "association", "focal": false}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nonfocal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'x3'. Terms they belong to, none of them focal: 'x3'. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["x3"]},
+              "dropped_terms": {"kind": "names", "value": ["x3"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-005",
+      "description": "Two outcomes are declared and the one estimand names x1 for the outcome z, which is not the response, so no estimand counts for the model: every term other than the intercept is focal, and the dropped x3 makes the finding consequential with the message focal.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [1.2, 2.9, 3.1, 4.8, 4.4, 6.5],
+        "x1": [1, 2, 3, 4, 5, 6],
+        "x2": [2, 0, 1, 3, 1, 2],
+        "x3": [3, 2, 4, 7, 6, 8],
+        "z": [0.4, 0.1, 0.9, 0.3, 0.7, 0.2]
+      },
+      "formula": "y ~ x1 + x2 + x3",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"y": {"role": "outcome"}, "z": {"role": "outcome"}},
+        "estimands": [{"id": "slope", "term": "x1", "outcome": "z"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'x3'. Terms they belong to, focal terms among them: 'x3'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["x3"]},
+              "dropped_terms": {"kind": "names", "value": ["x3"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-006",
+      "description": "A one-sided formula at T0: every estimand counts for it, so the estimand on x1 for the outcome z makes x1 the only focal term and the dropped x3 gives the message nonfocal.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "x1": [1, 2, 3, 4, 5, 6],
+        "x2": [2, 0, 1, 3, 1, 2],
+        "x3": [3, 2, 4, 7, 6, 8],
+        "z": [0.4, 0.1, 0.9, 0.3, 0.7, 0.2]
+      },
+      "formula": "~ x1 + x2 + x3",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"z": {"role": "outcome"}},
+        "estimands": [{"id": "slope", "term": "x1", "outcome": "z"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "nonfocal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'x3'. Terms they belong to, none of them focal: 'x3'. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["x3"]},
+              "dropped_terms": {"kind": "names", "value": ["x3"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": false}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-007",
+      "description": "A fixed part without an intercept or terms has no fixed-effects column, so applies_when of design.rank_deficiency fails, design.collinearity has no term and design.scale_disparity has no column: no check yields a finding.",
+      "checks": ["design.collinearity", "design.rank_deficiency", "design.scale_disparity"],
+      "data": {
+        "y": [1.5, 2.5, 2, 3, 2.5, 4],
+        "g": ["g1", "g1", "g2", "g2", "g3", "g3"]
+      },
+      "formula": "y ~ 0 + (1 | g)",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-design-008",
+      "description": "The level A3 of a occurs only in rows whose x is missing, so its columns are 0 in every row of the design sample and are dropped. Empty cells count only the levels that occur in the design sample, so a:b has none, although the table holds A3 with both levels of b.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [3.2, 4.1, 2.8, 5, 4.4, 3.9, 3.3, 5.6, 4.2, 4.8],
+        "a": ["A1", "A1", "A2", "A2", "A1", "A2", "A1", "A2", "A3", "A3"],
+        "b": ["B1", "B2", "B1", "B2", "B2", "B1", "B1", "B2", "B1", "B2"],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8, null, null]
+      },
+      "formula": "y ~ a * b + x",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'a[A3]' and 'a[A3]:b[B2]'. Terms they belong to, focal terms among them: 'a' and 'a:b'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 7, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 5, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["a[A3]", "a[A3]:b[B2]"]},
+              "dropped_terms": {"kind": "names", "value": ["a", "a:b"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-009",
+      "description": "Three crossed factors with the cells A2:B2:C1 and A2:B2:C2 empty: empty_cells sums the combinations without rows over the interaction terms, 1 for a:b and 2 for a:b:c, and the two interaction columns that are 0 are dropped.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [5.1, 4.3, 6.2, 5.8, 4.9, 6.6, 5.4, 6.1],
+        "a": ["A1", "A1", "A1", "A1", "A2", "A2", "A1", "A2"],
+        "b": ["B1", "B1", "B2", "B2", "B1", "B1", "B1", "B1"],
+        "c": ["C1", "C2", "C1", "C2", "C1", "C2", "C1", "C2"]
+      },
+      "formula": "y ~ a * b * c",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'a[A2]:b[B2]' and 'a[A2]:b[B2]:c[C2]'. Terms they belong to, focal terms among them: 'a:b' and 'a:b:c'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 3."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 8, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 6, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["a[A2]:b[B2]", "a[A2]:b[B2]:c[C2]"]},
+              "dropped_terms": {"kind": "names", "value": ["a:b", "a:b:c"]},
+              "empty_cells": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-010",
+      "description": "'x copy' is twice x, so the sequential rule drops it: the column is named without backquotes and the term with them, as the IR names them. For design.collinearity, `x copy` keeps no column and yields no finding, and x has no other kept column to correlate with, so its generalised variance inflation factor is 1.",
+      "checks": ["design.collinearity", "design.rank_deficiency"],
+      "data": {
+        "y": [2.2, 3.5, 3.1, 5, 6.4],
+        "x": [1, 2, 3, 4, 5],
+        "x copy": [2, 4, 6, 8, 10]
+      },
+      "formula": "y ~ x + `x copy`",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x' has a generalised variance inflation factor of 1.00, or 1.00 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1},
+              "gvif_per_df": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "rows", "distinct": {"value": 5}, "dominated": false}}
+          },
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'x copy'. Terms they belong to, focal terms among them: '`x copy`'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 0."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["x copy"]},
+              "dropped_terms": {"kind": "names", "value": ["`x copy`"]},
+              "empty_cells": {"kind": "count", "value": 0, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "rows", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-011",
+      "description": "The estimand names the term 'b:a', which refers to the term a:b of the IR because the set of variables is the same, so the dropped interaction column belongs to a focal term and the finding is consequential.",
+      "checks": ["design.rank_deficiency"],
+      "data": {
+        "y": [4.1, 5.3, 3.8, 6, 4.6, 5.1, 4.9, 5.5],
+        "a": ["A1", "A1", "A1", "A1", "A2", "A2", "A2", "A2"],
+        "b": ["B1", "B2", "B1", "B2", "B1", "B1", "B1", "B1"]
+      },
+      "formula": "y ~ a * b",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "estimands": [{"id": "interaction", "term": "b:a", "kind": "association"}]
+      },
+      "expected": {
+        "findings": [
+          {
+            "check": "design.rank_deficiency",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "focal", "text": "Fixed-effects columns that are 0 or depend on earlier columns and are dropped: 'a[A2]:b[B2]'. Terms they belong to, focal terms among them: 'a:b'. The coefficients of the focal terms then refer to a subset that depends on the design. Combinations of factor levels without rows: 1."},
+            "statistics": {
+              "columns": {"kind": "count", "value": 4, "count_class": "non_person"},
+              "kept": {"kind": "count", "value": 3, "count_class": "non_person"},
+              "dropped_columns": {"kind": "names", "value": ["a[A2]:b[B2]"]},
+              "dropped_terms": {"kind": "names", "value": ["a:b"]},
+              "empty_cells": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "focal_dropped": {"kind": "boolean", "value": true}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-012",
+      "description": "Two numeric predictors correlated so that the generalised variance inflation factor of each is 441/80, at or above the threshold moderate (5) and below high (10): message moderate.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "x1": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x2": [2, 1, 4, 3, 6, 5, 8, 7]
+      },
+      "formula": "y ~ x1 + x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x1' has a generalised variance inflation factor of 5.51, or 5.51 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.5125},
+              "gvif_per_df": {"kind": "real", "value": 5.5125}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x2' has a generalised variance inflation factor of 5.51, or 5.51 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.5125},
+              "gvif_per_df": {"kind": "real", "value": 5.5125}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-013",
+      "description": "Two numeric predictors whose generalised variance inflation factor is 441/41, above the threshold high (10): message high.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "x1": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x2": [2, 1, 3, 4, 6, 5, 7, 8]
+      },
+      "formula": "y ~ x1 + x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "high", "text": "'x1' has a generalised variance inflation factor of 10.76, or 10.76 per degree of freedom, at or above 10, so the design estimates its coefficients with much less precision than uncorrelated predictors would allow."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 10.75609756097561},
+              "gvif_per_df": {"kind": "real", "value": 10.75609756097561}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "high", "text": "'x2' has a generalised variance inflation factor of 10.76, or 10.76 per degree of freedom, at or above 10, so the design estimates its coefficients with much less precision than uncorrelated predictors would allow."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 10.75609756097561},
+              "gvif_per_df": {"kind": "real", "value": 10.75609756097561}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-014",
+      "description": "A factor of three levels and a numeric predictor share one generalised variance inflation factor, 90/17. The factor keeps two columns, so its factor per degree of freedom is the square root, below 5, while that of x is at or above 5.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.1, 3.4, 2.6, 4.5, 4, 5.8, 5.1, 7.2, 6.6],
+        "a": ["A1", "A1", "A1", "A2", "A2", "A2", "A3", "A3", "A3"],
+        "x": [1, 3, 2, 5, 4, 7, 6, 9, 8]
+      },
+      "formula": "y ~ a + x",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "a"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'a' has a generalised variance inflation factor of 5.29, or 2.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.294117647058823},
+              "gvif_per_df": {"kind": "real", "value": 2.3008949665421112}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "rows", "distinct": {"value": 9}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x' has a generalised variance inflation factor of 5.29, or 5.29 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.294117647058823},
+              "gvif_per_df": {"kind": "real", "value": 5.294117647058823}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "rows", "distinct": {"value": 9}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-015",
+      "description": "The data of audits-design-014 without an intercept: the factor is coded by indicators, and the column of ones that the check always puts first makes the sequential rule drop a[A3]. The statistics equal those with treatment contrasts.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.1, 3.4, 2.6, 4.5, 4, 5.8, 5.1, 7.2, 6.6],
+        "a": ["A1", "A1", "A1", "A2", "A2", "A2", "A3", "A3", "A3"],
+        "x": [1, 3, 2, 5, 4, 7, 6, 9, 8]
+      },
+      "formula": "y ~ 0 + a + x",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "a"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'a' has a generalised variance inflation factor of 5.29, or 2.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.294117647058823},
+              "gvif_per_df": {"kind": "real", "value": 2.3008949665421112}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "rows", "distinct": {"value": 9}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x' has a generalised variance inflation factor of 5.29, or 5.29 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.294117647058823},
+              "gvif_per_df": {"kind": "real", "value": 5.294117647058823}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "rows", "distinct": {"value": 9}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-016",
+      "description": "The data of audits-design-014 with sum contrasts for a: the generalised variance inflation factor does not change with the coding of the factor's contrasts.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.1, 3.4, 2.6, 4.5, 4, 5.8, 5.1, 7.2, 6.6],
+        "a": ["A1", "A1", "A1", "A2", "A2", "A2", "A3", "A3", "A3"],
+        "x": [1, 3, 2, 5, 4, 7, 6, 9, 8]
+      },
+      "formula": "y ~ a + x",
+      "coding": {"a": {"contrast": "sum"}},
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "a"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'a' has a generalised variance inflation factor of 5.29, or 2.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 2, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.294117647058823},
+              "gvif_per_df": {"kind": "real", "value": 2.3008949665421112}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "rows", "distinct": {"value": 9}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x' has a generalised variance inflation factor of 5.29, or 5.29 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5.294117647058823},
+              "gvif_per_df": {"kind": "real", "value": 5.294117647058823}
+            },
+            "support": {"rows": {"value": 9}, "contributors": {"basis": "rows", "distinct": {"value": 9}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-017",
+      "description": "Interaction terms yield no finding and their columns are left out of the correlations, so x1 and x2 in y ~ x1 * x2 have the values of audits-design-001.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "x1": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x2": [3, 1, 4, 1, 5, 9, 2, 6]
+      },
+      "formula": "y ~ x1 * x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x1' has a generalised variance inflation factor of 1.30, or 1.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1.295275590551181},
+              "gvif_per_df": {"kind": "real", "value": 1.295275590551181}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "low", "text": "'x2' has a generalised variance inflation factor of 1.30, or 1.30 per degree of freedom, below 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 1.295275590551181},
+              "gvif_per_df": {"kind": "real", "value": 1.295275590551181}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-018",
+      "description": "The fixed part has one main-effect term, x1, beside the interaction x1:x2, so applies_when fails and no term yields a finding.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "x1": [1, 2, 3, 4, 5, 6, 7, 8],
+        "x2": [3, 1, 4, 1, 5, 9, 2, 6]
+      },
+      "formula": "y ~ x1 + x1:x2",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-design-019",
+      "description": "The squared correlation of x1 and x2 is 0.8, so the generalised variance inflation factor is 5 in exact arithmetic, on the threshold moderate: each finding is near_threshold, and its finding status, message and statistics chosen by the decision may differ between the languages. The expected values are those of exact arithmetic.",
+      "checks": ["design.collinearity"],
+      "data": {
+        "y": [1.1, 0.4, 2.3, 3.8, 3.5],
+        "x1": [-2, -1, 0, 1, 2],
+        "x2": [-1.5, -2, 0, 2, 1.5]
+      },
+      "formula": "y ~ x1 + x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x1"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "near_threshold"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x1' has a generalised variance inflation factor of 5.00, or 5.00 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5},
+              "gvif_per_df": {"kind": "real", "value": 5}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "rows", "distinct": {"value": 5}, "dominated": false}}
+          },
+          {
+            "check": "design.collinearity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {"term": "x2"},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "near_threshold"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "moderate", "text": "'x2' has a generalised variance inflation factor of 5.00, or 5.00 per degree of freedom, at or above 5."},
+            "statistics": {
+              "df": {"kind": "count", "value": 1, "count_class": "non_person"},
+              "gvif": {"kind": "real", "value": 5},
+              "gvif_per_df": {"kind": "real", "value": 5}
+            },
+            "support": {"rows": {"value": 5}, "contributors": {"basis": "rows", "distinct": {"value": 5}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-020",
+      "description": "The standard deviation of x2 is 2000 times that of x1, above the threshold ratio, while both lie between 0.001 and 1000: message disparate.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [1.2, 2.9, 3.1, 4.8, 4.4, 6.5],
+        "x1": [0.01, 0.02, 0.03, 0.04, 0.05, 0.06],
+        "x2": [20, 60, 40, 100, 80, 120]
+      },
+      "formula": "y ~ x1 + x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disparate", "text": "The standard deviations of 'x1' and 'x2' differ by a factor of 2000, or one of them lies outside 0.001 to 1000, which makes lme4 warn that the predictors are on very different scales. Centre and scale these columns outside the formula with stored constants."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": 37.416573867739416},
+              "sd_smallest": {"kind": "real", "value": 0.01870828693386971},
+              "sd_ratio": {"kind": "real", "value": 2000},
+              "condition_number": {"kind": "real", "value": 11.389125780727637}
+            },
+            "support": {"rows": {"value": 6}, "contributors": {"basis": "rows", "distinct": {"value": 6}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-021",
+      "description": "One scaled column whose standard deviation, about 1936, exceeds the threshold high: message disparate, with a ratio of 1.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [3.5, 2.1, 4.4, 5],
+        "x": [0, 1500, 3000, 4500]
+      },
+      "formula": "y ~ x",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disparate", "text": "The standard deviations of 'x' differ by a factor of 1, or one of them lies outside 0.001 to 1000, which makes lme4 warn that the predictors are on very different scales. Centre and scale these columns outside the formula with stored constants."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x"]},
+              "sd_largest": {"kind": "real", "value": 1936.4916731037085},
+              "sd_smallest": {"kind": "real", "value": 1936.4916731037085},
+              "sd_ratio": {"kind": "real", "value": 1},
+              "condition_number": {"kind": "real", "value": 3.0149608395680247}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "rows", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-022",
+      "description": "The standard deviation of x1, about 0.00013, is below the threshold low, while the ratio of the two, about 132, is not above the threshold ratio: message disparate.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [3.5, 2.1, 4.4, 5],
+        "x1": [0.0001, 0.0003, 0.0002, 0.0004],
+        "x2": [0.05, 0.02, 0.03, 0.01]
+      },
+      "formula": "y ~ x1 + x2",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disparate", "text": "The standard deviations of 'x1' and 'x2' differ by a factor of 132, or one of them lies outside 0.001 to 1000, which makes lme4 warn that the predictors are on very different scales. Centre and scale these columns outside the formula with stored constants."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": 0.01707825127659933},
+              "sd_smallest": {"kind": "real", "value": 0.00012909944487358055},
+              "sd_ratio": {"kind": "real", "value": 132.28756555322954},
+              "condition_number": {"kind": "real", "value": 45.36831459736231}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "rows", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-023",
+      "description": "Without an intercept, a constant column is kept and its standard deviation is exactly 0, so sd_ratio is absent, sd_smallest is below low and the message disparate renders its fallback.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [3.5, 2.1, 4.4, 5],
+        "x": [5, 5, 5, 5]
+      },
+      "formula": "y ~ 0 + x",
+      "exact": ["design.scale_disparity:sd_largest", "design.scale_disparity:sd_smallest"],
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disparate", "text": "The standard deviations of 'x' differ by a factor above 1000, or one of them lies outside 0.001 to 1000, which makes lme4 warn that the predictors are on very different scales. Centre and scale these columns outside the formula with stored constants."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x"]},
+              "sd_largest": {"kind": "real", "value": 0},
+              "sd_smallest": {"kind": "real", "value": 0},
+              "condition_number": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "rows", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-024",
+      "description": "scaled_columns keeps x and the numeric interaction x:w. It leaves out the intercept, the column of the factor a and the numeric column d, whose values are only 0 and 1. It also leaves out x2, which the sequential rule drops.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "a": ["A1", "A2", "A1", "A2", "A1", "A2", "A1", "A2"],
+        "x": [1, 2, 3, 4, 5, 6, 7, 8],
+        "d": [0, 1, 0, 1, 1, 0, 1, 0],
+        "x2": [2, 4, 6, 8, 10, 12, 14, 16],
+        "w": [2, 1, 2, 1, 2, 1, 2, 1]
+      },
+      "formula": "y ~ a + x + d + x2 + x:w",
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x' and 'x:w' lies between 0.001 and 1000, and the largest is 1.7 times the smallest at most."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x", "x:w"]},
+              "sd_largest": {"kind": "real", "value": 4.105745103771404},
+              "sd_smallest": {"kind": "real", "value": 2.449489742783178},
+              "sd_ratio": {"kind": "real", "value": 1.6761634196950514},
+              "condition_number": {"kind": "real", "value": 44.56152924317998}
+            },
+            "support": {"rows": {"value": 8}, "contributors": {"basis": "rows", "distinct": {"value": 8}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-025",
+      "description": "A design sample of one row fails applies_when, although the column x is kept and scaled: no finding.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [2.5],
+        "x": [3]
+      },
+      "formula": "y ~ 0 + x",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-design-026",
+      "description": "Only a factor and a numeric column of 0 and 1: scaled_columns is empty, so applies_when fails and no finding is yielded.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [2.5, 3.1, 4, 3.6, 5.2, 7.9, 4.4, 6.8],
+        "a": ["A1", "A2", "A1", "A2", "A1", "A2", "A1", "A2"],
+        "d": [0, 1, 0, 1, 1, 0, 1, 0]
+      },
+      "formula": "y ~ a + d",
+      "expected": {
+        "findings": []
+      }
+    },
+    {
+      "id": "audits-design-027",
+      "description": "The standard deviation of x is exactly 1000, on the threshold high, which it does not exceed: message similar, near_threshold.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [1.5, 2, 3.5],
+        "x": [-1000, 0, 1000]
+      },
+      "formula": "y ~ x",
+      "exact": ["design.scale_disparity:sd_largest", "design.scale_disparity:sd_smallest"],
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "consistent"}, "threshold_proximity": {"value": "near_threshold"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "similar", "text": "Each standard deviation of 'x' lies between 0.001 and 1000, and the largest is 1.0 times the smallest at most."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x"]},
+              "sd_largest": {"kind": "real", "value": 1000},
+              "sd_smallest": {"kind": "real", "value": 1000},
+              "sd_ratio": {"kind": "real", "value": 1},
+              "condition_number": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 3}, "contributors": {"basis": "rows", "distinct": {"value": 3}, "dominated": false}}
+          }
+        ]
+      }
+    },
+    {
+      "id": "audits-design-028",
+      "description": "x1 takes the values 1 and -1 and x2 the values 2.5e20 and -2.5e20, in patterns orthogonal to each other and to the intercept, so that sd_ratio is the double 2.5e20, at or above 1e15, which the message disparate renders in scientific notation with 0 digits, rounded half to even to 2e+20, and the condition number is 1.",
+      "checks": ["design.scale_disparity"],
+      "data": {
+        "y": [3.5, 2.1, 4.4, 5],
+        "x1": [1, -1, 1, -1],
+        "x2": [2.5e20, 2.5e20, -2.5e20, -2.5e20]
+      },
+      "formula": "y ~ x1 + x2",
+      "exact": ["design.scale_disparity:sd_largest", "design.scale_disparity:sd_smallest", "design.scale_disparity:sd_ratio"],
+      "expected": {
+        "findings": [
+          {
+            "check": "design.scale_disparity",
+            "check_version": 1,
+            "tier": "T0",
+            "scope": {},
+            "status": {"availability": {"value": "available"}, "assessability": {"value": "adequate"}, "finding": {"value": "detectable_inconsequential"}, "threshold_proximity": {"value": "clear"}, "validation": {"value": "descriptive"}},
+            "message": {"id": "disparate", "text": "The standard deviations of 'x1' and 'x2' differ by a factor of 2e+20, or one of them lies outside 0.001 to 1000, which makes lme4 warn that the predictors are on very different scales. Centre and scale these columns outside the formula with stored constants."},
+            "statistics": {
+              "scaled_columns": {"kind": "names", "value": ["x1", "x2"]},
+              "sd_largest": {"kind": "real", "value": 288675134594812870000},
+              "sd_smallest": {"kind": "real", "value": 1.1547005383792515},
+              "sd_ratio": {"kind": "real", "value": 250000000000000000000},
+              "condition_number": {"kind": "real", "value": 1}
+            },
+            "support": {"rows": {"value": 4}, "contributors": {"basis": "rows", "distinct": {"value": 4}, "dominated": false}}
+          }
+        ]
+      }
+    }
+  ]
+}

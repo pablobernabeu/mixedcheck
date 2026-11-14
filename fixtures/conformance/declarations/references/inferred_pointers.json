@@ -1,0 +1,21 @@
+{
+  "vocabulary": "0.1.0",
+  "title": "Draft",
+  "units": [{"name": "school", "columns": ["school"]}],
+  "variables": {"a/b": {"role": "id"}},
+  "provenance": {
+    "created": "2026-11-08T09:00:00Z",
+    "inferred": [
+      "",
+      "/vocabulary",
+      "/provenance",
+      "/provenance/created",
+      "/units/1",
+      "/units/00",
+      "/units/-",
+      "/title/0",
+      "/variables/a/b",
+      "/units/0"
+    ]
+  }
+}

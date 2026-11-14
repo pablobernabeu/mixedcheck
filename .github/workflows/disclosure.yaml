@@ -1,0 +1,92 @@
+# Runs the disclosure-attack tests of the privacy filter (sim/disclosure/README.md)
+# on every pull request that touches the R package, which holds the filter,
+# the writer of findings and the validator, the shared specification, the
+# privacy cases of the audit corpus that the regression attacks read, the
+# pathology zoo, whose stored instances and generators the tests read, or
+# the tests, and with the full matrix of R-CMD-check.yaml: when started by hand,
+# on the 'full-ci' label and nightly. The job fails when an attack recovers a
+# value that docs/spec/privacy.md undertakes to hide.
+name: disclosure
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - 'r/R/**'
+      - 'r/DESCRIPTION'
+      - 'spec/**'
+      - 'fixtures/conformance/audits/privacy.json'
+      - 'fixtures/zoo/**'
+      - 'sim/disclosure/**'
+      - 'sim/zoo/**'
+      - '.github/workflows/disclosure.yaml'
+  workflow_dispatch:
+  schedule:
+    - cron: '41 2 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.action }}-${{ github.event.label.name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The standard runners are free for a public repository and paid for in a
+  # private one, so scheduled runs start only while the repository is public.
+  # The payload of a scheduled event may lack the repository object, and this
+  # job then reads the visibility from the API, as in R-CMD-check.yaml.
+  visibility:
+    name: Repository visibility
+    if: github.event_name == 'schedule' && toJSON(github.event.repository.private) == 'null'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      public: ${{ steps.read.outputs.public }}
+    steps:
+      - id: read
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo "public=$(gh api "repos/$GITHUB_REPOSITORY" --jq '.private | not')" >> "$GITHUB_OUTPUT"
+
+  # Four shards of the families, each in its own job, keep a run within the
+  # time limit. They were sized while the repository was private, on runners
+  # with two cores, and each shard runs on all the cores of its runner, four
+  # on the Linux runners of a public repository. Shard 1 also runs the stored
+  # instances of the zoo and the regression and validation attacks
+  # (run.R --shard).
+  attacks:
+    name: Disclosure-attack tests (${{ matrix.shard }} of 4)
+    needs: visibility
+    if: >-
+      !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' &&
+      (toJSON(github.event.repository.private) == 'false' ||
+      needs.visibility.outputs.public == 'true')) ||
+      (github.event_name == 'pull_request' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'full-ci')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+      # The tests need the package's Imports and lpSolve, which solves the
+      # interval audit and the separation check of the T2 families.
+      - uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05  # v2.14.0
+        with:
+          dependencies: '"hard"'
+          extra-packages: any::lpSolve
+          working-directory: r
+      - name: Install the package
+        run: R CMD INSTALL r
+      - name: Run the attacks
+        run: Rscript sim/disclosure/run.R --cores "$(nproc)" --shard "${{ matrix.shard }}/4"

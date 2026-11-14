@@ -1,0 +1,125 @@
+id: assignment.constant_within_unit
+version: 1
+title: Assignment constant within its unit
+tier: T0
+summary: >-
+  For a variable assigned between units, checks that it takes one value within
+  each level of the unit to which it was assigned. When the declaration does
+  not state the level of the assignment, the level is inferred from the data
+  with the tolerance of 02-decisions.md (Q4), and the check applies only when
+  it is inferred as between_unit, so that a crossover assignment is not
+  reported as mixed. A unit with
+  mixed values points to a data error or to contamination between arms, which
+  must be resolved before the analysis.
+reads: [declaration, grouping_factors, predictors]
+fitted_model: false
+sample: design
+scope: assignment
+applies_when: >-
+  The assignment's level is between_unit, declared or inferred (registry.md,
+  Terms), and some level of the unit has at least two rows of the
+  assignment.
+availability:
+  - reason: declaration_missing
+    condition: >-
+      The declaration has no assignment block, or every entry of the block
+      counts as absent (registry.md, Terms).
+    pointer: /assignment
+statistics:
+  units:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: unit}]
+    measures: levels
+    definition: >-
+      The number of levels of the assignment unit (registry.md, Terms) in the
+      rows of the assignment.
+  mixed_units:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: unit}]
+    part_of: units
+    definition: >-
+      The number of those levels in which the assigned column takes more than
+      one value, compared by value (registry.md, Terms).
+  level_source:
+    kind: category
+    values: [declared, inferred_from_the_data]
+    definition: >-
+      declared when the assignment declares its level, and
+      inferred_from_the_data when its level is inferred (registry.md, Terms).
+thresholds: {}
+parameters:
+  agreement:
+    value: 0.99
+    definition: >-
+      The share of the rows of the assignment, pooled over the levels of the
+      unit with at least two rows, that must have the most frequent value of
+      their level for an assignment without a declared level to be inferred
+      as between_unit (registry.md, Terms).
+    sources:
+      - kind: decision
+        citation: >-
+          02-decisions.md, Q4. A rule that required 99% agreement within
+          clusters, pooled over the rows of all clusters, recovered the school
+          level in 99.3 to 100% of 2,000 replicates with up to 0.5% of rows
+          miscoded (evidence/decisions/E-verify/scripts/exp2_tolerant.py, rule
+          R2). The same share applied to each cluster separately behaves as
+          the exact rule R1 for clusters of fewer than 100 rows.
+decision:
+  rules:
+    - finding: consequential
+      condition: mixed_units is above 0.
+      statistics: [mixed_units]
+      thresholds: []
+      message: mixed
+  otherwise:
+    finding: consistent
+    message: constant
+assessability: []
+messages:
+  mixed:
+    template: >-
+      '{column}' takes more than one value within {mixed} of the {units} of
+      '{unit}', the unit to which it was assigned between units, a level that
+      is {level}. Check these levels for data errors or contamination before
+      the analysis.
+    fallback: >-
+      '{column}' takes more than one value within some levels of '{unit}', the
+      unit to which it was assigned between units, a level that is {level}.
+      Check these levels for data errors or contamination before the
+      analysis.
+    args:
+      column: {source: scope, name: column}
+      mixed: {source: statistic, name: mixed_units}
+      units: {source: statistic, name: units, noun: [level, levels]}
+      unit: {source: scope, name: unit}
+      level: {source: statistic, name: level_source}
+  constant:
+    template: >-
+      '{column}' is constant within every level of '{unit}' ({units} in all),
+      the unit to which it was assigned between units, a level that is
+      {level}.
+    fallback: >-
+      '{column}' is constant within every level of '{unit}', the unit to which
+      it was assigned between units, a level that is {level}.
+    args:
+      column: {source: scope, name: column}
+      units: {source: statistic, name: units}
+      unit: {source: scope, name: unit}
+      level: {source: statistic, name: level_source}
+remedies:
+  - id: check_assignment
+    description: >-
+      Check the assignment records of the units with mixed values, and correct
+      the data or declare the assignment at the level at which it varies.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: [labels.unicode_forms]
+references:
+  - kind: derivation
+    citation: Review catalogue (docs/design/evidence/review-catalogue.md), L7-03.
+catalogue: [L7-03]

@@ -1,0 +1,24 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [
+    {
+      "name": "pupil",
+      "columns": [
+        "pupil"
+      ],
+      "role": "participant"
+    }
+  ],
+  "observation": {
+    "key": [
+      "pupil",
+      "wave"
+    ]
+  },
+  "variables": {
+    "post": {
+      "role": "outcome",
+      "measurement": "continuous"
+    }
+  }
+}

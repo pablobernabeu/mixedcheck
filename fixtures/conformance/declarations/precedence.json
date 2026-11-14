@@ -1,0 +1,989 @@
+{
+  "description": "Declarations in JSON that break several rules, with the issues reported under the order of stages, the order of issues and the cap.",
+  "cases": [
+    {
+      "id": "declarations-precedence-001",
+      "description": "A duplicate key in a declaration that also has an unsupported version and an unknown key. The reader reports one issue and validation stops.",
+      "path": "precedence/reading_first.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1029",
+            "message": "Duplicate key 'goal' at byte 59.",
+            "offset": 59
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-002",
+      "description": "A null early in the input and a trailing comma later. A syntax error anywhere comes before a value error.",
+      "path": "precedence/syntax_before_values.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1022",
+            "message": "Unexpected character ']' at byte 67.",
+            "offset": 67
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-003",
+      "description": "A title in NFD before a null. The reader reports the token that starts first.",
+      "path": "precedence/first_token.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1203",
+            "message": "The string at byte 33 is not in Unicode normalisation form C (NFC).",
+            "offset": 33
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-004",
+      "description": "An unsupported version in a declaration with an unknown key and a units block of the wrong type. Only E1441 is reported.",
+      "path": "precedence/version_first.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /vocabulary is not supported. This release reads version 0.1.x.",
+            "pointer": "/vocabulary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-005",
+      "description": "The draft's example ex1 as written, with schema_version in place of vocabulary: the missing member and the unknown key, sorted by code.",
+      "path": "precedence/schema_version.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1402",
+            "message": "The object at (root) lacks the required member 'vocabulary'.",
+            "pointer": ""
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'schema_version' in the object at (root).",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-006",
+      "description": "The draft's bad2: a misspelt nested_in beside an id_scope, which then lacks nested_in.",
+      "path": "precedence/typo_and_scope.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/0.",
+            "pointer": "/units/0"
+          },
+          {
+            "code": "E1419",
+            "message": "The member 'id_scope' in the object at /units/0 requires the member 'nested_in'.",
+            "pointer": "/units/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-007",
+      "description": "The draft's example ex4 with its dyad block and its feature 'dyadic'.",
+      "path": "precedence/dyadic.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'dyad' in the object at (root).",
+            "pointer": ""
+          },
+          {
+            "code": "E1405",
+            "message": "The value at /features/0 must be 'cluster_randomised', 'multisite', 'stepped_wedge', 'partially_nested', 'longitudinal', 'intensive_longitudinal', 'family', 'crossed_experiment', 'counterbalanced', 'trial_level', 'corpus' or 'observational'.",
+            "pointer": "/features/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-008",
+      "description": "An unknown key and an undeclared unit. Stage 4 runs only when the structure is valid.",
+      "path": "precedence/structure_before_references.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'level' in the object at /units/0.",
+            "pointer": "/units/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-009",
+      "description": "The faulty declaration of declarations.md with the class nested in 'schools' and the assignment blocked on 'School'. Stage 4 reports the two undeclared units and stage 5 does not run.",
+      "path": "precedence/references_before_meaning.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2006",
+            "message": "The unit 'School' at /assignment/0/blocks/0 is not declared in the units block.",
+            "pointer": "/assignment/0/blocks/0"
+          },
+          {
+            "code": "E2006",
+            "message": "The unit 'schools' at /units/1/nested_in is not declared in the units block.",
+            "pointer": "/units/1/nested_in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-010",
+      "description": "The faulty declaration of the Reporting section of declarations.md, with four issues from stage 5 in the order of their pointers.",
+      "path": "precedence/reporting_example.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2031",
+            "message": "The estimands at /estimands include no focal estimand, which a minimal declaration requires.",
+            "pointer": "/estimands"
+          },
+          {
+            "code": "E2025",
+            "message": "The feature 'longitudinal' at /features/1 requires '/observation/time' to be declared.",
+            "pointer": "/features/1"
+          },
+          {
+            "code": "E2019",
+            "message": "The outcome column 'post' cannot be used at /observation/key/4.",
+            "pointer": "/observation/key/4"
+          },
+          {
+            "code": "E2018",
+            "message": "The column 'arm' is in the assignment block, so its role at /variables/arm/role must be 'assigned'.",
+            "pointer": "/variables/arm/role"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-011",
+      "description": "Issues in units 9 and 10. Pointers are compared code point by code point, so '/units/10' comes before '/units/9'.",
+      "path": "precedence/pointer_order.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'parent' in the object at /units/10.",
+            "pointer": "/units/10"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'parent' in the object at /units/9.",
+            "pointer": "/units/9"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-012",
+      "description": "105 units with an unknown key each. The first 100 issues in pointer order are reported, followed by W1490.",
+      "path": "precedence/truncation.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/0.",
+            "pointer": "/units/0"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/1.",
+            "pointer": "/units/1"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/10.",
+            "pointer": "/units/10"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/100.",
+            "pointer": "/units/100"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/101.",
+            "pointer": "/units/101"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/102.",
+            "pointer": "/units/102"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/103.",
+            "pointer": "/units/103"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/104.",
+            "pointer": "/units/104"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/11.",
+            "pointer": "/units/11"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/12.",
+            "pointer": "/units/12"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/13.",
+            "pointer": "/units/13"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/14.",
+            "pointer": "/units/14"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/15.",
+            "pointer": "/units/15"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/16.",
+            "pointer": "/units/16"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/17.",
+            "pointer": "/units/17"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/18.",
+            "pointer": "/units/18"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/19.",
+            "pointer": "/units/19"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/2.",
+            "pointer": "/units/2"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/20.",
+            "pointer": "/units/20"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/21.",
+            "pointer": "/units/21"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/22.",
+            "pointer": "/units/22"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/23.",
+            "pointer": "/units/23"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/24.",
+            "pointer": "/units/24"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/25.",
+            "pointer": "/units/25"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/26.",
+            "pointer": "/units/26"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/27.",
+            "pointer": "/units/27"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/28.",
+            "pointer": "/units/28"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/29.",
+            "pointer": "/units/29"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/3.",
+            "pointer": "/units/3"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/30.",
+            "pointer": "/units/30"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/31.",
+            "pointer": "/units/31"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/32.",
+            "pointer": "/units/32"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/33.",
+            "pointer": "/units/33"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/34.",
+            "pointer": "/units/34"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/35.",
+            "pointer": "/units/35"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/36.",
+            "pointer": "/units/36"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/37.",
+            "pointer": "/units/37"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/38.",
+            "pointer": "/units/38"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/39.",
+            "pointer": "/units/39"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/4.",
+            "pointer": "/units/4"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/40.",
+            "pointer": "/units/40"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/41.",
+            "pointer": "/units/41"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/42.",
+            "pointer": "/units/42"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/43.",
+            "pointer": "/units/43"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/44.",
+            "pointer": "/units/44"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/45.",
+            "pointer": "/units/45"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/46.",
+            "pointer": "/units/46"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/47.",
+            "pointer": "/units/47"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/48.",
+            "pointer": "/units/48"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/49.",
+            "pointer": "/units/49"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/5.",
+            "pointer": "/units/5"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/50.",
+            "pointer": "/units/50"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/51.",
+            "pointer": "/units/51"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/52.",
+            "pointer": "/units/52"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/53.",
+            "pointer": "/units/53"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/54.",
+            "pointer": "/units/54"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/55.",
+            "pointer": "/units/55"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/56.",
+            "pointer": "/units/56"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/57.",
+            "pointer": "/units/57"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/58.",
+            "pointer": "/units/58"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/59.",
+            "pointer": "/units/59"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/6.",
+            "pointer": "/units/6"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/60.",
+            "pointer": "/units/60"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/61.",
+            "pointer": "/units/61"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/62.",
+            "pointer": "/units/62"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/63.",
+            "pointer": "/units/63"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/64.",
+            "pointer": "/units/64"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/65.",
+            "pointer": "/units/65"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/66.",
+            "pointer": "/units/66"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/67.",
+            "pointer": "/units/67"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/68.",
+            "pointer": "/units/68"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/69.",
+            "pointer": "/units/69"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/7.",
+            "pointer": "/units/7"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/70.",
+            "pointer": "/units/70"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/71.",
+            "pointer": "/units/71"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/72.",
+            "pointer": "/units/72"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/73.",
+            "pointer": "/units/73"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/74.",
+            "pointer": "/units/74"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/75.",
+            "pointer": "/units/75"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/76.",
+            "pointer": "/units/76"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/77.",
+            "pointer": "/units/77"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/78.",
+            "pointer": "/units/78"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/79.",
+            "pointer": "/units/79"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/8.",
+            "pointer": "/units/8"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/80.",
+            "pointer": "/units/80"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/81.",
+            "pointer": "/units/81"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/82.",
+            "pointer": "/units/82"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/83.",
+            "pointer": "/units/83"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/84.",
+            "pointer": "/units/84"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/85.",
+            "pointer": "/units/85"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/86.",
+            "pointer": "/units/86"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/87.",
+            "pointer": "/units/87"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/88.",
+            "pointer": "/units/88"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/89.",
+            "pointer": "/units/89"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/9.",
+            "pointer": "/units/9"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/90.",
+            "pointer": "/units/90"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/91.",
+            "pointer": "/units/91"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/92.",
+            "pointer": "/units/92"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/93.",
+            "pointer": "/units/93"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/94.",
+            "pointer": "/units/94"
+          },
+          {
+            "code": "W1490",
+            "message": "5 further problems were found but not listed."
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-013",
+      "description": "Values of the wrong type. Nothing is reported at or below a value that fails its type, while its siblings are still checked.",
+      "path": "precedence/type_hides_below.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1403",
+            "message": "Unknown key 'primarykey' in the object at /table.",
+            "pointer": "/table"
+          },
+          {
+            "code": "E1401",
+            "message": "Expected array at /table/fields, found object.",
+            "pointer": "/table/fields"
+          },
+          {
+            "code": "E1403",
+            "message": "Unknown key 'nestedin' in the object at /units/0.",
+            "pointer": "/units/0"
+          },
+          {
+            "code": "E1401",
+            "message": "Expected array at /units/0/columns, found string.",
+            "pointer": "/units/0/columns"
+          },
+          {
+            "code": "E1401",
+            "message": "Expected object at /units/1, found string.",
+            "pointer": "/units/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-014",
+      "description": "A value that fails the enum of the shared keyed commitment and the narrower enum of the declaration. The two issues differ in their messages, so both are reported.",
+      "path": "precedence/two_enums.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1405",
+            "message": "The value at /provenance/data_commitment/covers must be 'analysis_table', 'data_file' or 'outcome_column'.",
+            "pointer": "/provenance/data_commitment/covers"
+          },
+          {
+            "code": "E1405",
+            "message": "The value at /provenance/data_commitment/covers must be 'data_file' or 'analysis_table'.",
+            "pointer": "/provenance/data_commitment/covers"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-015",
+      "description": "A field name with a character outside the BMP, which fails the pattern of a column name and the check in code.",
+      "path": "precedence/column_outside_bmp.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1207",
+            "message": "The identifier at /table/fields/0/name contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/table/fields/0/name"
+          },
+          {
+            "code": "E1406",
+            "message": "The string at /table/fields/0/name is not a valid column name.",
+            "pointer": "/table/fields/0/name"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-016",
+      "description": "Two variables of one term outside the BMP. The issue they give is the same, so it is reported once.",
+      "path": "precedence/term_outside_bmp_twice.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1207",
+            "message": "The identifier at /estimands/0/term contains a character outside the Basic Multilingual Plane.",
+            "pointer": "/estimands/0/term"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-017",
+      "description": "A confirmatory declaration with nothing else: four issues for the missing blocks, sorted by message, followed by one for the missing assigned variable.",
+      "path": "precedence/minimal_empty.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'estimands', which a minimal declaration requires.",
+            "pointer": ""
+          },
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'observation', which a minimal declaration requires.",
+            "pointer": ""
+          },
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'units', which a minimal declaration requires.",
+            "pointer": ""
+          },
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'variables', which a minimal declaration requires.",
+            "pointer": ""
+          },
+          {
+            "code": "E2030",
+            "message": "The declaration at (root) names no assigned variable. A minimal declaration needs one unless it declares the feature 'observational'.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-018",
+      "description": "The draft's bad4 as written: a confirmatory declaration without estimands and without an assigned variable.",
+      "path": "precedence/confirmatory_without_estimands.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2028",
+            "message": "The object at (root) lacks the member 'estimands', which a minimal declaration requires.",
+            "pointer": ""
+          },
+          {
+            "code": "E2030",
+            "message": "The declaration at (root) names no assigned variable. A minimal declaration needs one unless it declares the feature 'observational'.",
+            "pointer": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-019",
+      "description": "A cluster-randomised trial declared observational: the missing assignment block and the contradiction, at the same pointer, sorted by code.",
+      "path": "precedence/trial_observational.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2025",
+            "message": "The feature 'cluster_randomised' at /features/0 requires '/assignment' to be declared.",
+            "pointer": "/features/0"
+          },
+          {
+            "code": "E2027",
+            "message": "The entry at /features/0 contradicts the feature 'observational'.",
+            "pointer": "/features/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-020",
+      "description": "A term whose variable is not a field and appears twice: E2007 and E2008 at the same pointer.",
+      "path": "precedence/term_unknown_repeated.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2007",
+            "message": "The column 'x' at /estimands/0/term is not a field of the table block.",
+            "pointer": "/estimands/0/term"
+          },
+          {
+            "code": "E2008",
+            "message": "The term at /estimands/0/term names the variable 'x' more than once.",
+            "pointer": "/estimands/0/term"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-021",
+      "description": "Two units nested in each other and crossed with each other.",
+      "path": "precedence/cycle_and_crossing.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2011",
+            "message": "The crossing at /crossings/0/units pairs a unit with a unit it is nested in.",
+            "pointer": "/crossings/0/units"
+          },
+          {
+            "code": "E2010",
+            "message": "The unit 'a' at /units/0/nested_in is nested in itself, directly or through other units.",
+            "pointer": "/units/0/nested_in"
+          },
+          {
+            "code": "E2010",
+            "message": "The unit 'b' at /units/1/nested_in is nested in itself, directly or through other units.",
+            "pointer": "/units/1/nested_in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-022",
+      "description": "A list of categories that mixes forms and repeats a value.",
+      "path": "precedence/mixed_and_repeated.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2014",
+            "message": "The list at /table/fields/0/categories mixes plain values and objects.",
+            "pointer": "/table/fields/0/categories"
+          },
+          {
+            "code": "E2015",
+            "message": "The value 'control' at /table/fields/0/categories/1 repeats an earlier value in the list.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-023",
+      "description": "Categories of the wrong type on a column that labels a unit.",
+      "path": "precedence/identifier_category_type.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2016",
+            "message": "The field 'school' is an identifier column and cannot have the categories at /table/fields/0/categories.",
+            "pointer": "/table/fields/0/categories"
+          },
+          {
+            "code": "E2013",
+            "message": "The category at /table/fields/0/categories/0 must be a string to match the type of its field.",
+            "pointer": "/table/fields/0/categories/0"
+          },
+          {
+            "code": "E2013",
+            "message": "The category at /table/fields/0/categories/1 must be a string to match the type of its field.",
+            "pointer": "/table/fields/0/categories/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-024",
+      "description": "A confirmatory draft with a pointer that does not resolve. Stage 4 reports E2009, and E2032 of stage 5 is not reached.",
+      "path": "precedence/draft_pointer_before_minimal.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2009",
+            "message": "The pointer '/units/1' at /provenance/inferred/0 does not point to an entry that can be marked as inferred.",
+            "pointer": "/provenance/inferred/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "declarations-precedence-025",
+      "description": "An observational study whose assigned column has an entry with another role: E2018 and E2027 at different pointers.",
+      "path": "precedence/assigned_observational.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E2027",
+            "message": "The entry at /assignment contradicts the feature 'observational'.",
+            "pointer": "/assignment"
+          },
+          {
+            "code": "E2018",
+            "message": "The column 'programme' is in the assignment block, so its role at /variables/programme/role must be 'assigned'.",
+            "pointer": "/variables/programme/role"
+          }
+        ]
+      }
+    }
+  ]
+}

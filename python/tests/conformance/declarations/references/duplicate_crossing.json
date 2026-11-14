@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "units": [{"name": "subject", "columns": ["subject"]}, {"name": "item", "columns": ["item"]}],
+  "crossings": [{"units": ["subject", "item"]}, {"units": ["item", "subject"], "list": "list"}]
+}

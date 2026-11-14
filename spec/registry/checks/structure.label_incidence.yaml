@@ -1,0 +1,260 @@
+id: structure.label_incidence
+version: 1
+title: Label incidence between grouping columns
+tier: T0
+summary: >-
+  Classifies how the labels of two grouping columns occur together in the
+  design sample: as identical partitions, as one column nested in the other,
+  fully crossed or partially crossed. It then compares the observed relation,
+  and the way the IR combines the two columns into grouping factors, with the
+  relation, ID scope and membership that the declaration states for the units
+  the columns label. Labels that repeat under several outer units cannot show
+  whether they denote one unit or several (02-decisions.md, Q4), so the check
+  never recodes a column.
+reads: [declaration, formula, grouping_factors]
+fitted_model: false
+sample: design
+scope: grouping_column_pair
+availability: []
+statistics:
+  levels_first:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: first}]
+    measures: levels
+    definition: >-
+      The number of distinct labels of the first column in the rows of the
+      design sample in which both columns are present, compared by value
+      (registry.md, Terms), as are the labels of every statistic below.
+  levels_second:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: second}]
+    measures: levels
+    definition: The number of distinct labels of the second column in the same rows.
+  combinations:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: first}, {source: scope, name: second}]
+    measures: levels
+    definition: >-
+      The number of distinct pairs of a label of the first column and a label
+      of the second that occur together in a row of the same rows, which are
+      the levels of the interaction of the two columns.
+  first_in_several:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: first}]
+    part_of: levels_first
+    definition: >-
+      The number of labels of the first column that occur with more than one
+      label of the second.
+  second_in_several:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: scope, name: second}]
+    part_of: levels_second
+    definition: >-
+      The number of labels of the second column that occur with more than one
+      label of the first.
+  relation:
+    kind: category
+    values: [identical, first_nested_in_second, second_nested_in_first, crossed, partially_crossed]
+    definition: >-
+      The first of these values whose condition holds, tested in the order
+      listed: identical when first_in_several and second_in_several are both
+      0, first_nested_in_second when first_in_several is 0,
+      second_nested_in_first when second_in_several is 0, crossed when
+      combinations equals levels_first multiplied by levels_second, and
+      partially_crossed otherwise. So neither first_in_several nor
+      second_in_several is 0 for crossed and partially_crossed.
+  declared:
+    kind: category
+    values: [none, nested_within_parent, nested_global, nested_mobile, crossed]
+    definition: >-
+      The relation that the declaration states for the two units whose
+      `columns` member lists one of the two columns alone, none when no unit,
+      or more than one, lists a column alone. The label columns that a parent
+      adds to a unit declared within_parent (registry.md, Terms) do not count
+      here, so that a class declared within its school is the unit of the
+      column class. nested_within_parent,
+      nested_global and nested_mobile apply when one of the units names the
+      other, its direct parent, in nested_in: with id_scope 'within_parent',
+      with id_scope 'global' and membership 'fixed' or absent, and with
+      id_scope 'global' and membership 'may_change_over_time' or 'multiple'.
+      A unit whose nested_in, id_scope or membership is inferred counts as
+      not nested (registry.md, Terms). crossed applies when the crossings
+      block lists the two units. none applies otherwise, including when there
+      is no declaration.
+  inner:
+    kind: names
+    definition: >-
+      For a pair declared nested, the column that labels the unit that names
+      the other in nested_in, and no column otherwise.
+  outer:
+    kind: names
+    definition: >-
+      For a pair declared nested, the column that labels the parent unit, and
+      no column otherwise.
+  inner_in_several:
+    kind: count
+    count_class: by_unit
+    resolved_by: [{source: statistic, name: inner}]
+    suppress_with: [first_in_several, second_in_several]
+    definition: >-
+      For a pair declared nested, the number of labels of the inner column
+      that occur with more than one label of the outer column. It is absent
+      for other pairs.
+  composite:
+    kind: boolean
+    definition: >-
+      Whether the IR combines the two columns so that the units of one of
+      them are split: some grouping factor of the IR is an interaction that
+      contains both columns (ir.md, Random terms) and, for a pair whose
+      declared is nested_within_parent, nested_global or nested_mobile, the
+      inner column appears in no grouping factor without the outer column,
+      or, for any other pair, one of the two columns appears in no grouping
+      factor without the other. The factor school:class of (1 | school/class)
+      makes it true for classes nested in schools, (1 | pupil) + (1 |
+      school:pupil) makes it false for pupils nested in schools, (1 |
+      subject:item) alone or with (1 | subject) makes it true for subjects
+      and items declared crossed, and (1 | subject) + (1 | item) + (1 |
+      subject:item) makes it false for them.
+  inner_alone:
+    kind: boolean
+    definition: >-
+      For a pair declared nested, whether some grouping factor of the IR
+      contains the inner column without the outer column, as the factor class
+      of (1 | class) does, and false for other pairs.
+thresholds: {}
+parameters: {}
+decision:
+  rules:
+    - finding: consequential
+      condition: >-
+        declared is nested_within_parent, inner_alone is true and
+        inner_in_several is above 0.
+      statistics: [declared, inner_alone, inner_in_several]
+      thresholds: []
+      message: merged_units
+    - finding: consequential
+      condition: declared is nested_global and inner_in_several is above 0.
+      statistics: [declared, inner_in_several]
+      thresholds: []
+      message: labels_change_parent
+    - finding: consequential
+      condition: >-
+        declared is nested_mobile, composite is true and inner_in_several is
+        above 0.
+      statistics: [declared, composite, inner_in_several]
+      thresholds: []
+      message: movers_split
+    - finding: consequential
+      condition: declared is crossed and composite is true.
+      statistics: [declared, composite]
+      thresholds: []
+      message: crossed_split
+  otherwise:
+    finding: consistent
+    message: relation
+assessability: []
+messages:
+  merged_units:
+    template: >-
+      Labels of {inner} that occur under more than one level of {outer}:
+      {count}. The declaration states that these labels are unique only within
+      {outer}, but the model uses {inner} without {outer} in a grouping factor
+      and so treats units with the same label as one unit. Nest {inner} in
+      {outer} in the formula.
+    fallback: >-
+      Some labels of {inner} occur under more than one level of {outer}. The
+      declaration states that these labels are unique only within {outer}, but
+      the model uses {inner} without {outer} in a grouping factor and so treats
+      units with the same label as one unit. Nest {inner} in {outer} in the
+      formula.
+    args:
+      count: {source: statistic, name: inner_in_several}
+      inner: {source: statistic, name: inner}
+      outer: {source: statistic, name: outer}
+  labels_change_parent:
+    template: >-
+      Labels of {inner} that occur under more than one level of {outer}:
+      {count}. The declaration states that each unit stays in one level of
+      {outer} and that its label is unique across the data.
+    fallback: >-
+      Some labels of {inner} occur under more than one level of {outer},
+      although the declaration states that each unit stays in one level of
+      {outer} and that its label is unique across the data.
+    args:
+      count: {source: statistic, name: inner_in_several}
+      inner: {source: statistic, name: inner}
+      outer: {source: statistic, name: outer}
+  movers_split:
+    template: >-
+      Units labelled by {inner} that change their level of {outer}: {count}.
+      The model nests {inner} in {outer}, so it splits each of them into
+      separate units. For outcomes measured on each occasion, use separate
+      random terms for {outer} and {inner}, so that each unit keeps one random
+      effect.
+    fallback: >-
+      Some units labelled by {inner} change their level of {outer}, and the
+      model nests {inner} in {outer}, so it splits each of them into separate
+      units. For outcomes measured on each occasion, use separate random terms
+      for {outer} and {inner}, so that each unit keeps one random effect.
+    args:
+      count: {source: statistic, name: inner_in_several}
+      inner: {source: statistic, name: inner}
+      outer: {source: statistic, name: outer}
+  crossed_split:
+    template: >-
+      The declaration states that '{first}' and '{second}' are crossed, so that
+      a label shared between levels of one denotes one unit, but the model
+      combines the two columns into one grouping factor and splits such units.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+  relation:
+    template: >-
+      In the design sample, '{first}' has {levels_first} and '{second}' has
+      {levels_second}, which occur in {combinations}. Relation from the
+      labels: {relation}.
+    fallback: >-
+      In the design sample, the relation of '{first}' and '{second}' from the
+      labels is: {relation}.
+    args:
+      first: {source: scope, name: first}
+      second: {source: scope, name: second}
+      levels_first: {source: statistic, name: levels_first, noun: [label, labels]}
+      levels_second: {source: statistic, name: levels_second, noun: [label, labels]}
+      combinations: {source: statistic, name: combinations, noun: [combination, combinations]}
+      relation: {source: statistic, name: relation}
+remedies:
+  - id: declare_relation
+    description: >-
+      State the relation of the two units in the declaration, with nested_in,
+      id_scope and membership, or as a crossing.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+  - id: nest_in_formula
+    description: >-
+      Write the random term with '/', as in (1 | school/class), so that the IR
+      builds a grouping factor whose levels are unique across the data.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+  - id: cross_in_formula
+    description: >-
+      Use separate random terms for the two columns, with labels that are
+      unique across the data, so that a unit keeps one random effect when it
+      changes its parent.
+    uses_outcome: false
+    changes_estimand: false
+    software: []
+links:
+  requires: []
+  explained_by: []
+references:
+  - kind: decision
+    citation: 02-decisions.md, Q4
+catalogue: [L1-01, L2-22, L7-01]

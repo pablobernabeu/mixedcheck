@@ -1,0 +1,830 @@
+{
+  "description": "Errors that need the data, the declaration or the coding argument, and the order in which they are reported.",
+  "cases": [
+    {
+      "id": "context-01",
+      "description": "A column that is not in the data.",
+      "formula": "y ~ x + age",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6051",
+          "message": "The column 'age' at byte 8 is not in the data, or in the declared table when there are no data.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-02",
+      "description": "Without data, a column must be declared in the table block.",
+      "formula": "y ~ x + age",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "y", "type": "number"}, {"name": "x", "type": "number"}]}
+      },
+      "expected": {
+        "issue": {
+          "code": "E6051",
+          "message": "The column 'age' at byte 8 is not in the data, or in the declared table when there are no data.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-03",
+      "description": "A declared date column cannot be a predictor.",
+      "formula": "y ~ day",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "y", "type": "number"}, {"name": "day", "type": "date"}]}
+      },
+      "data": {"y": [1, 2], "day": ["2026-11-01", "2026-11-02"]},
+      "expected": {
+        "issue": {
+          "code": "E6052",
+          "message": "The column 'day' at byte 4 has the kind 'date', which cannot be used as a predictor.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-04",
+      "description": "log() needs a numeric response.",
+      "formula": "log(cond) ~ x",
+      "data": {"cond": ["a", "b"], "x": [1, 2]},
+      "expected": {
+        "issue": {
+          "code": "E6052",
+          "message": "The column 'cond' at byte 4 has the kind 'categorical', which cannot be used as the argument of log().",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-05",
+      "description": "A response with declared trials cannot be written with log().",
+      "formula": "log(k) ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "k", "type": "integer"},
+            {"name": "n", "type": "integer"},
+            {"name": "x", "type": "number"}
+          ]
+        },
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "data": {"k": [1, 2], "n": [3, 3], "x": [1, 2]},
+      "expected": {
+        "issue": {
+          "code": "E6054",
+          "message": "The response at byte 0 has a declared 'trials', so it cannot be written with log().",
+          "offset": 0
+        }
+      }
+    },
+    {
+      "id": "context-06",
+      "description": "Without data, the levels of an undeclared categorical column are unknown.",
+      "formula": "y ~ cond",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {"fields": [{"name": "y", "type": "number"}, {"name": "cond", "type": "string"}]}
+      },
+      "expected": {
+        "issue": {
+          "code": "E6055",
+          "message": "The levels of the categorical column 'cond' at byte 4 are neither declared nor found in the data.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-07",
+      "description": "A categorical predictor with one level cannot be coded.",
+      "formula": "y ~ x + cond",
+      "data": {"y": [1, 2], "x": [1, 2], "cond": ["A", "A"]},
+      "expected": {
+        "issue": {
+          "code": "E6056",
+          "message": "The categorical column 'cond' at byte 8 has fewer than two levels and cannot be coded.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-08",
+      "description": "The coding names a column that is not a predictor.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "z": [0.5, 0.25, 1.5, 2, 0.75, 1.25, 1, 0.5, 2.5, 1.75, 0.25, 3]
+      },
+      "coding": {"z": {"centring": "mean"}},
+      "expected": {
+        "issue": {
+          "code": "E6061",
+          "message": "The coding names the column 'z', which is not a predictor of the formula."
+        }
+      }
+    },
+    {
+      "id": "context-09",
+      "description": "A contrast for a numeric column.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"contrast": "sum"}},
+      "expected": {
+        "issue": {
+          "code": "E6062",
+          "message": "The coding of the column 'x' sets 'contrast', which does not apply to a column of its kind."
+        }
+      }
+    },
+    {
+      "id": "context-10",
+      "description": "A contrast that is not in IR 0.1.",
+      "formula": "y ~ a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "coding": {"a": {"contrast": "helmert"}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'a' has an unknown member, an invalid value or a missing value at 'contrast'."
+        }
+      }
+    },
+    {
+      "id": "context-11",
+      "description": "A reference level that is not a level.",
+      "formula": "y ~ a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "coding": {"a": {"reference": "A4"}},
+      "expected": {
+        "issue": {
+          "code": "E6064",
+          "message": "The reference level 'A4' of the column 'a' is not one of its levels."
+        }
+      }
+    },
+    {
+      "id": "context-12",
+      "description": "An integer reference for a column of strings is not a level.",
+      "formula": "y ~ a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "coding": {"a": {"reference": 1}},
+      "expected": {
+        "issue": {
+          "code": "E6064",
+          "message": "The reference level 1 of the column 'a' is not one of its levels."
+        }
+      }
+    },
+    {
+      "id": "context-13",
+      "description": "Significant digits apply only to mean centring.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"significant_digits": 3}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'x' has an unknown member, an invalid value or a missing value at 'significant_digits'."
+        }
+      }
+    },
+    {
+      "id": "context-14",
+      "description": "Centring at a value needs the value.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"centring": "value"}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'x' has an unknown member, an invalid value or a missing value at 'centring'."
+        }
+      }
+    },
+    {
+      "id": "context-15",
+      "description": "A centring value must be a decimal string.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"centring": "value", "value": "1e3"}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'x' has an unknown member, an invalid value or a missing value at 'value'."
+        }
+      }
+    },
+    {
+      "id": "context-16",
+      "description": "The declared trials column is not in the data.",
+      "formula": "k ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "data": {"k": [1, 2], "x": [1, 2]},
+      "expected": {
+        "issue": {
+          "code": "E6065",
+          "message": "The column 'n', declared as the trials of the response, is not a numeric column of the data or the declaration."
+        }
+      }
+    },
+    {
+      "id": "context-17",
+      "description": "The weights column must be numeric.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "weights": "a",
+      "expected": {
+        "issue": {
+          "code": "E6066",
+          "message": "The weights column 'a' is not a numeric column of the data or the declaration."
+        }
+      }
+    },
+    {
+      "id": "context-18",
+      "description": "Mean centring on an empty design sample.",
+      "formula": "y ~ x + z",
+      "data": {"y": [1, 2], "x": [1, null], "z": [null, 2]},
+      "coding": {"x": {"centring": "mean"}},
+      "expected": {
+        "issue": {
+          "code": "E6067",
+          "message": "The design sample has no rows, so the centring constant of 'x' cannot be computed."
+        }
+      }
+    },
+    {
+      "id": "context-19",
+      "description": "Two columns of the fixed part with the same name: the numeric column 'a[A2]' and the column of level A2 of 'a'.",
+      "formula": "y ~ a + `a[A2]`",
+      "data": {"y": [1, 2], "a": ["A1", "A2"], "a[A2]": [0.5, 1.5]},
+      "expected": {
+        "issue": {"code": "E6059", "message": "Two columns of one part of the model are both named 'a[A2]'."}
+      }
+    },
+    {
+      "id": "context-20",
+      "description": "An unknown column is reported before a coding problem.",
+      "formula": "y ~ x + age",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"contrast": "sum"}},
+      "expected": {
+        "issue": {
+          "code": "E6051",
+          "message": "The column 'age' at byte 8 is not in the data, or in the declared table when there are no data.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-21",
+      "description": "Among the issues of one pass, the first by offset is reported: 'cond' at byte 4 comes before 'day' at byte 16.",
+      "formula": "log(cond) ~ x + day",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "cond", "type": "string"},
+            {"name": "x", "type": "number"},
+            {"name": "day", "type": "date"}
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E6052",
+          "message": "The column 'cond' at byte 4 has the kind 'categorical', which cannot be used as the argument of log().",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-22",
+      "description": "A coding value is checked before its kind: an invalid contrast for a numeric column is reported as an invalid value.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"contrast": "poly"}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'x' has an unknown member, an invalid value or a missing value at 'contrast'."
+        }
+      }
+    },
+    {
+      "id": "context-23",
+      "description": "Within one entry of the coding, every member is checked for its name and value before any is checked against the kind: 'zzz' is reported, not 'contrast'.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"contrast": "sum", "zzz": 1}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'x' has an unknown member, an invalid value or a missing value at 'zzz'."
+        }
+      }
+    },
+    {
+      "id": "context-24",
+      "description": "Entries of the coding are checked one at a time in code-point order of their keys, so the invalid member of 'a' is reported before the unknown column 'z'.",
+      "formula": "y ~ a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "coding": {"a": {"bad": 1}, "z": {}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'a' has an unknown member, an invalid value or a missing value at 'bad'."
+        }
+      }
+    },
+    {
+      "id": "context-25",
+      "description": "Freezing applies only to categorical predictors.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "coding": {"x": {"frozen": true}},
+      "expected": {
+        "issue": {
+          "code": "E6062",
+          "message": "The coding of the column 'x' sets 'frozen', which does not apply to a column of its kind."
+        }
+      }
+    },
+    {
+      "id": "context-26",
+      "description": "'frozen' takes a boolean.",
+      "formula": "y ~ a",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "a": ["A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"]
+      },
+      "coding": {"a": {"frozen": "yes"}},
+      "expected": {
+        "issue": {
+          "code": "E6063",
+          "message": "The coding of the column 'a' has an unknown member, an invalid value or a missing value at 'frozen'."
+        }
+      }
+    },
+    {
+      "id": "context-27",
+      "description": "The label column of the participant unit cannot be a predictor.",
+      "formula": "y ~ subject + x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {"name": "x", "type": "number"},
+            {"name": "subject", "type": "string"}
+          ]
+        },
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}]
+      },
+      "data": {"y": [1, 2, 3, 4], "x": [0.5, 1.5, 2.5, 3.5], "subject": ["s1", "s1", "s2", "s2"]},
+      "expected": {
+        "issue": {
+          "code": "E6068",
+          "message": "The column 'subject' at byte 4 identifies persons and cannot be a predictor. Use it to group a random term.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-28",
+      "description": "A column with the role 'id' cannot be a predictor of a random term either.",
+      "formula": "y ~ x + (1 + pid | g)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {"name": "x", "type": "number"},
+            {"name": "pid", "type": "string"},
+            {"name": "g", "type": "string"}
+          ]
+        },
+        "variables": {"pid": {"role": "id"}}
+      },
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [0.5, 1.5, 2.5, 3.5],
+        "pid": ["p1", "p2", "p3", "p4"],
+        "g": ["g1", "g1", "g2", "g2"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6068",
+          "message": "The column 'pid' at byte 13 identifies persons and cannot be a predictor. Use it to group a random term.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "context-29",
+      "description": "A column of a unit nested in the participant unit identifies persons too.",
+      "formula": "y ~ session",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {"name": "subject", "type": "string"},
+            {"name": "session", "type": "string"}
+          ]
+        },
+        "units": [
+          {"name": "subject", "columns": ["subject"], "role": "participant"},
+          {
+            "name": "session",
+            "columns": ["session"],
+            "nested_in": "subject",
+            "id_scope": "global",
+            "role": "session"
+          }
+        ]
+      },
+      "data": {"y": [1, 2, 3, 4], "subject": ["s1", "s1", "s2", "s2"], "session": ["t1", "t2", "t3", "t4"]},
+      "expected": {
+        "issue": {
+          "code": "E6068",
+          "message": "The column 'session' at byte 4 identifies persons and cannot be a predictor. Use it to group a random term.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-30",
+      "description": "A sample column must be a column of the data.",
+      "formula": "y ~ x",
+      "data": {
+        "y": [1.5, 2.25, 3, 2.5, 4, 3.5, 1, 2, 2.75, 3.25, 4.5, 0.5],
+        "x": [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+      },
+      "sample_columns": ["site"],
+      "expected": {
+        "issue": {
+          "code": "E6070",
+          "message": "The sample column 'site' is not in the data, or in the declared table when there are no data."
+        }
+      }
+    },
+    {
+      "id": "context-31",
+      "description": "A categorical column in a summand that '-' removes from the left-hand side of '||' still gives E6053 at its first appearance.",
+      "formula": "y ~ (1 + x + a - a || g)",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "a": ["A1", "A2", "A1", "A2"],
+        "g": ["g1", "g1", "g2", "g2"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6053",
+          "message": "The column 'a' at byte 13 is categorical, and '||' splits only numeric terms. Use '|' for a random term with a categorical column.",
+          "offset": 13
+        }
+      }
+    },
+    {
+      "id": "context-32",
+      "description": "A column that identifies persons is refused as a predictor even in a summand that '-' removes.",
+      "formula": "y ~ x + subject - subject",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {"name": "x", "type": "number"},
+            {"name": "subject", "type": "string"}
+          ]
+        },
+        "units": [{"name": "subject", "columns": ["subject"], "role": "participant"}]
+      },
+      "data": {"y": [1, 2, 3, 4], "x": [0.5, 1.5, 2.5, 3.5], "subject": ["s1", "s1", "s2", "s2"]},
+      "expected": {
+        "issue": {
+          "code": "E6068",
+          "message": "The column 'subject' at byte 8 identifies persons and cannot be a predictor. Use it to group a random term.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-33",
+      "description": "E6055 is located at the first appearance of the predictor, here in a summand that '-' removes.",
+      "formula": "y ~ x + a - a + a:x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {"name": "x", "type": "number"},
+            {"name": "a", "type": "string"}
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E6055",
+          "message": "The levels of the categorical column 'a' at byte 8 are neither declared nor found in the data.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-34",
+      "description": "E6056 is located at the first appearance of the predictor, here in a summand that '-' removes.",
+      "formula": "y ~ x + d - d + a:d",
+      "data": {
+        "y": [1, 2, 3, 4],
+        "x": [1, 2, 3, 4],
+        "a": ["A1", "A2", "A1", "A2"],
+        "d": ["u", "u", "u", "u"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6056",
+          "message": "The categorical column 'd' at byte 8 has fewer than two levels and cannot be coded.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-35",
+      "description": "A formula of 10,000 characters, counted as code points, is not too long, and its one column is unknown.",
+      "formula": "y ~ `éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé`",
+      "declaration": {"vocabulary": "0.1.0", "table": {"fields": [{"name": "y", "type": "number"}]}},
+      "expected": {
+        "issue": {
+          "code": "E6051",
+          "message": "The column 'ééééééééééééééééééééééééééééééééééééééééééééééééééééééééé...' at byte 4 is not in the data, or in the declared table when there are no data.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "context-36",
+      "description": "A level with a line break could not name a column of the IR.",
+      "formula": "y ~ x + c",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 3], "c": ["a", "line\nbreak", "a"]},
+      "expected": {
+        "issue": {
+          "code": "E6074",
+          "message": "A level of the categorical column 'c' at byte 8 contains a control character or a character that Unicode 14.0 does not assign, so the IR cannot hold it.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-37",
+      "description": "A level with U+1E4EC, which Unicode 14.0 does not assign, could not be normalised in the same way by both packages.",
+      "formula": "y ~ x + c",
+      "data": {"y": [1, 2, 3], "x": [1, 2, 3], "c": ["a", "x𞓬", "a"]},
+      "expected": {
+        "issue": {
+          "code": "E6074",
+          "message": "A level of the categorical column 'c' at byte 8 contains a control character or a character that Unicode 14.0 does not assign, so the IR cannot hold it.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "context-38",
+      "description": "'a:b:c' of three factors of 22 levels, coded by indicators, would have 10,648 columns.",
+      "formula": "y ~ a:b:c",
+      "data": {
+        "y": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "a": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "b": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "c": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"]
+      },
+      "expected": {"issue": {"code": "E6075", "message": "The fixed part would have more than 10000 columns."}}
+    },
+    {
+      "id": "context-39",
+      "description": "The random term of '*' on ten columns lists 1,023 terms in its name, which would have more than 10,000 characters.",
+      "formula": "y ~ (a*b*c*d*e*f*h*i*j*k | g)",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {"name": "y", "type": "number"},
+            {"name": "a", "type": "number"},
+            {"name": "b", "type": "number"},
+            {"name": "c", "type": "number"},
+            {"name": "d", "type": "number"},
+            {"name": "e", "type": "number"},
+            {"name": "f", "type": "number"},
+            {"name": "h", "type": "number"},
+            {"name": "i", "type": "number"},
+            {"name": "j", "type": "number"},
+            {"name": "k", "type": "number"},
+            {"name": "g", "type": "string"}
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E6076",
+          "message": "The name '1 + a + b + c + d + e + f + h + i + j + k + a:b + a:c + b...' of the IR would have more than 10000 characters."
+        }
+      }
+    },
+    {
+      "id": "context-40",
+      "description": "The exact sum of the design sample rounds to an infinity, so the mean centring constant is not finite.",
+      "formula": "y ~ x",
+      "data": {"y": [1, 2], "x": [1.7e+308, 1.7e+308]},
+      "coding": {"x": {"centring": "mean"}},
+      "expected": {"issue": {"code": "E6077", "message": "A value computed for 'x' is not finite."}}
+    },
+    {
+      "id": "context-41",
+      "description": "NaN in the design sample stops the mean centring constant of its column.",
+      "formula": "y ~ x",
+      "data": {"y": [1, 2, 3], "x": [1, "NaN", 3]},
+      "coding": {"x": {"centring": "mean"}},
+      "expected": {
+        "issue": {
+          "code": "E6073",
+          "message": "The column 'x' holds NaN or an infinity in a row that the model uses."
+        }
+      }
+    },
+    {
+      "id": "context-42",
+      "description": "An infinity in a predictor gives an IR, and the design matrices report it.",
+      "formula": "y ~ x",
+      "data": {"y": [1, 2, 3], "x": [1, "Infinity", 3]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:3f6501719ebc756b895a121211359d6f34480fbfca539098025f7bcccfe6b563",
+        "issue": {
+          "code": "E6073",
+          "message": "The column 'x' holds NaN or an infinity in a row that the model uses."
+        }
+      }
+    },
+    {
+      "id": "context-43",
+      "description": "The product of two finite values overflows, which the design matrices report for the column of X.",
+      "formula": "y ~ x:z",
+      "data": {"y": [1, 2, 3], "x": [1e+200, 1, 2], "z": [1e+200, 3, 1]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "x": {"kind": "numeric", "centring": {"rule": "none"}},
+            "z": {"kind": "numeric", "centring": {"rule": "none"}}
+          },
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x:z", "variables": [{"variable": "x"}, {"variable": "z"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x:z", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "y", "transform": "identity"}
+        },
+        "ir_hash": "sha256:83a894a31995c54f4c130ed4a7761efca2cf5fd40ace97e4343e93bf5da41d39",
+        "issue": {"code": "E6077", "message": "A value computed for 'x:z' is not finite."}
+      }
+    },
+    {
+      "id": "context-44",
+      "description": "NaN trials stay in the analysis sample, which only 0 or negative trials leave, and the design matrices report them.",
+      "formula": "k ~ x",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "variables": {"k": {"role": "outcome", "measurement": "binomial", "trials": "n"}}
+      },
+      "data": {"k": [1, 1, 2, 0], "n": [3, "NaN", 4, -1], "x": [1, 2, 3, 4]},
+      "expected": {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {"x": {"kind": "numeric", "centring": {"rule": "none"}}},
+          "fixed": {
+            "terms": [
+              {"name": "(Intercept)", "variables": []},
+              {"name": "x", "variables": [{"variable": "x"}]}
+            ],
+            "columns": [
+              {"name": "(Intercept)", "term": 0, "levels": {}},
+              {"name": "x", "term": 1, "levels": {}}
+            ]
+          },
+          "random": [],
+          "offsets": [],
+          "response": {"variable": "k", "transform": "identity", "trials": "n"}
+        },
+        "ir_hash": "sha256:21f72da72da4f25c4fa296e5b770fd1c790e1e1318f690ff2911385f05879380",
+        "issue": {
+          "code": "E6073",
+          "message": "The column 'n' holds NaN or an infinity in a row that the model uses."
+        }
+      }
+    },
+    {
+      "id": "context-45",
+      "description": "E6077 for 'a' comes before E6073 for 'b', since centring reports every code of one predictor, in code-point order, before those of the next.",
+      "formula": "y ~ b + a",
+      "data": {"y": [1, 2], "a": [1.7e+308, 1.7e+308], "b": [1, "NaN"]},
+      "coding": {"a": {"centring": "mean"}, "b": {"centring": "mean"}},
+      "expected": {"issue": {"code": "E6077", "message": "A value computed for 'a' is not finite."}}
+    },
+    {
+      "id": "context-46",
+      "description": "The random term '0 + a:b:c | g' of three factors of 22 levels, coded by indicators, would have 10,648 columns.",
+      "formula": "y ~ (0 + a:b:c | g)",
+      "data": {
+        "y": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        "a": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "b": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "c": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"],
+        "g": ["l00", "l01", "l02", "l03", "l04", "l05", "l06", "l07", "l08", "l09", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19", "l20", "l21"]
+      },
+      "expected": {
+        "issue": {
+          "code": "E6075",
+          "message": "The random term '0 + a:b:c | g' would have more than 10000 columns."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "description": "Columns without a table block, whose types are inferred from their values.",
+  "cases": [
+    {
+      "id": "tables-inference-001",
+      "description": "A column of '1' and '0' is a number column.",
+      "path": "inference/zero_one.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "b",
+            "type": "number",
+            "values": [
+              1.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-002",
+      "description": "A column of the six boolean words is a boolean column, and an empty value is missing.",
+      "path": "inference/boolean_words.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "b",
+            "type": "boolean",
+            "values": [
+              true,
+              false,
+              null,
+              true
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-003",
+      "description": "A column of 'true' and '1' is neither a number nor a boolean column.",
+      "path": "inference/boolean_and_one.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "b",
+            "type": "string",
+            "values": [
+              "true",
+              "1"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-004",
+      "description": "A column without a value that is not missing is a string column.",
+      "path": "inference/all_missing.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "a",
+            "type": "number",
+            "values": [
+              1.0,
+              2.0
+            ]
+          },
+          {
+            "name": "b",
+            "type": "string",
+            "values": [
+              null,
+              null
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-005",
+      "description": "Missing values do not change the type.",
+      "path": "inference/number_with_missing.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              1.5,
+              null,
+              -2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-006",
+      "description": "A column of 'NaN' and 'inf' is a number column.",
+      "path": "inference/only_nan.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "y",
+            "type": "number",
+            "values": [
+              "NaN",
+              "Infinity"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-007",
+      "description": "' 1' has no number form, so its column is a string column.",
+      "path": "inference/space_before_number.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "y",
+            "type": "string",
+            "values": [
+              " 1",
+              "2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-008",
+      "description": "Dates are strings without a table block.",
+      "path": "inference/dates.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "d",
+            "type": "string",
+            "values": [
+              "2026-11-08"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tables-inference-009",
+      "description": "'1e400' has the lexical form of a number, so its column is a number column, and the value gives E5006.",
+      "path": "inference/overflow.csv",
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1e400' of the column 'y' at byte 4 cannot be read as a number.",
+          "offset": 4
+        }
+      }
+    },
+    {
+      "id": "tables-inference-010",
+      "description": "Without a table block, the record of the wrong length later in the file is reported before the value that gives E5006.",
+      "path": "inference/structure_first.csv",
+      "expected": {
+        "issue": {
+          "code": "E5005",
+          "message": "The record at byte 8 has a different number of values from the header: 2 against 1.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "tables-inference-011",
+      "description": "With a table block, the same text gives E5006 at the earlier record.",
+      "path": "inference/structure_first_declared.csv",
+      "declaration": {
+        "vocabulary": "0.1.0",
+        "table": {
+          "fields": [
+            {
+              "name": "y",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "issue": {
+          "code": "E5006",
+          "message": "The value '1e400' of the column 'y' at byte 2 cannot be read as a number.",
+          "offset": 2
+        }
+      }
+    },
+    {
+      "id": "tables-inference-012",
+      "description": "Without a table block, a quoting problem later in the file is reported before the value that gives E5006.",
+      "path": "inference/quote_after_value.csv",
+      "expected": {
+        "issue": {
+          "code": "E5004",
+          "message": "Invalid quoting in the CSV text at byte 8.",
+          "offset": 8
+        }
+      }
+    },
+    {
+      "id": "tables-inference-013",
+      "description": "Labels that differ only in their Unicode form are returned as written. The IR merges them (ir.md).",
+      "path": "inference/nfd_labels.csv",
+      "expected": {
+        "columns": [
+          {
+            "name": "g",
+            "type": "string",
+            "values": [
+              "caf\u00e9",
+              "cafe\u0301"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "vocabulary": "0.1.0",
+  "disclosure_unit": "person",
+  "units": [
+    {"name": "school", "columns": ["school"]},
+    {"name": "class", "columns": ["class"], "nested_in": "School", "id_scope": "global"}
+  ],
+  "crossings": [{"units": ["class", "rater"]}],
+  "observation": {"unit": "pupil", "time": {"column": "wave", "kind": "occasion", "within": "child"}},
+  "assignment": [
+    {
+      "column": "arm",
+      "unit": "klass",
+      "randomised": true,
+      "blocks": ["school", "district"]
+    }
+  ]
+}

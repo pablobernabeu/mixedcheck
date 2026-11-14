@@ -1,0 +1,5 @@
+{
+  "vocabulary": "0.1.0",
+  "table": {"fields": [{"name": "pid", "type": "integer", "categories": [101, 102]}]},
+  "variables": {"pid": {"role": "id"}}
+}

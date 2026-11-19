@@ -203,10 +203,11 @@ test_that("validate_plan() reports the rules in code", {
   edited <- plan
   edited$ceiling$ir$fixed$terms[[2L]]$name <- "arms"
   expect_identical(codes(edited), "E6101 /ceiling/ir/fixed/terms/1/name")
-  edited <- plan
-  edited$bindings[[1L]]$binding$rungs <- edited$bindings[[1L]]$binding$rungs[1L]
-  edited$bindings[[1L]]$hash <- canonical_hash(edited$bindings[[1L]]$binding, "hashable")
+  # Without lme4, the plan has no binding to edit.
   if (length(plan$bindings)) {
+    edited <- plan
+    edited$bindings[[1L]]$binding$rungs <- edited$bindings[[1L]]$binding$rungs[1L]
+    edited$bindings[[1L]]$hash <- canonical_hash(edited$bindings[[1L]]$binding, "hashable")
     expect_identical(codes(edited), "E7301 /bindings/0/binding/rungs")
   }
   edited <- plan

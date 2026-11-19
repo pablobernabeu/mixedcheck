@@ -2333,6 +2333,60 @@
       }
     },
     {
+      "code": "E7311",
+      "name": "plan_protected_unavailable",
+      "area": "plan",
+      "location": "none",
+      "template": "The protected term '{term}' of '{factor}' cannot enter rung 0, because {reason}.",
+      "args": {
+        "term": "text",
+        "factor": "text",
+        "reason": "text"
+      }
+    },
+    {
+      "code": "E7312",
+      "name": "plan_protected_empty",
+      "area": "plan",
+      "location": "none",
+      "template": "The units and focal estimands of the declaration protect no random term of the formula, so the ladder cannot be protected.",
+      "args": {}
+    },
+    {
+      "code": "E7313",
+      "name": "plan_check_unavailable",
+      "area": "plan",
+      "location": "none",
+      "template": "The plan needs the identifiability verdict of every rung, which is not available beyond the registry limit '{parameter}'.",
+      "args": {
+        "parameter": "text"
+      }
+    },
+    {
+      "code": "E7314",
+      "name": "plan_estimand_term",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The focal estimand term at {location} is not a term of the fixed part of the formula.",
+      "args": {}
+    },
+    {
+      "code": "E7315",
+      "name": "plan_no_random_part",
+      "area": "plan",
+      "location": "none",
+      "template": "The formula has no random term, so there is no random part to plan.",
+      "args": {}
+    },
+    {
+      "code": "E7316",
+      "name": "plan_unit_not_grouping",
+      "area": "plan",
+      "location": "pointer",
+      "template": "The randomisation unit at {location} is not a grouping factor of the formula, so its random intercept cannot be protected.",
+      "args": {}
+    },
+    {
       "code": "E7601",
       "name": "estimates_duplicate_column",
       "area": "estimates",

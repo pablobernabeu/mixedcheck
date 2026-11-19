@@ -97,7 +97,8 @@ plan_key <- strrep("00", 32L)
 #'   for a focal estimand whose term is not a fixed term, E7316 for a
 #'   randomisation unit that is not a grouping factor, E7311 for a protected
 #'   term that cannot enter rung 0, E7312 when the declaration protects no
-#'   random term, E7313 when identifiability.gram_rank is not available and
+#'   random term, E7317 when no random intercept is identified, E7313 when
+#'   identifiability.gram_rank is not available and
 #'   E7309 for cluster_robust_cr2 without nested grouping factors.
 #' @references Barr, D. J., Levy, R., Scheepers, C., & Tily, H. J. (2013).
 #'   Random effects structure for confirmatory hypothesis testing: Keep it
@@ -164,6 +165,9 @@ design_plan <- function(data, formula, declaration = NULL, family = NULL, coding
   # Rung 0 and the terms left out of it.
   restricted <- identifiable_state(ceiling_state, setting)
   check_protected_entered(protected, restricted)
+  if (is.null(restricted$verdict)) {
+    raise_issue("E7317")
+  }
   ladder <- ladder_states(restricted$state, protected, setting)
   rung_irs <- lapply(ladder$states, rung_ir, setting = setting)
   design <- list()
@@ -581,10 +585,6 @@ identifiable_state <- function(state, setting) {
         verdict <- found
       }
     }
-  }
-  if (is.null(verdict)) {
-    raise_issue("E7311", list(term = "1", factor = state[[1L]]$factor,
-                              reason = "the design does not identify it"))
   }
   list(state = current, verdict = verdict, excluded = excluded)
 }

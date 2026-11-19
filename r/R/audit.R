@@ -645,6 +645,10 @@ merged_coding <- function(planned, coding) {
       keys <- c(keys, comparison_form(name))
     } else {
       entry <- planned[[k]]
+      if (!is.null(coding[[name]][["centring"]])) {
+        # A centring of the caller's replaces the plan's with its members.
+        entry[c("centring", "significant_digits", "value")] <- NULL
+      }
       for (member in names(coding[[name]])) {
         if (member != "frozen") {
           entry[[member]] <- coding[[name]][[member]]

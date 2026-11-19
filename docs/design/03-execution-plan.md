@@ -312,7 +312,7 @@ M3 implements what Q3 (02-decisions.md) lists for the first 0.x release, and `dr
 
 ### The gate
 
-The gate asks for identical design-plan hashes across the languages on the zoo and for every plan to validate. On 19 November 2026, in the development container, both packages built the same plan, or refused it with the same issue, for every one of the 60 directories of the zoo, with R under C.UTF-8 and C, and gave the same preregistration text and draft, every plan they built validated in both, and both gave the expected issues on every case of the plan corpus. On pull request 3, every job that runs on a pull request passed on both pushes: R CMD check on Ubuntu with R release, the Python tests on Python 3.11 at the floors of the dependencies and 3.15, ruff, the vendored copies, the parity harness, the two parts of the differential test and the four shards of the disclosure-attack tests. The rest of the matrix of M2, R CMD check on its other nine configurations and Python 3.12 to 3.14, runs nightly on main and when the label that starts it is added.
+The gate asks for identical design-plan hashes across the languages on the zoo and for every plan to validate. On 19 November 2026, in the development container, both packages built the same plan, or refused it with the same issue, for every one of the 60 directories of the zoo, with R under C.UTF-8 and C, and gave the same preregistration text and draft, every plan they built validated in both, and both gave the expected issues on every case of the plan corpus.
 
 ### Open items
 

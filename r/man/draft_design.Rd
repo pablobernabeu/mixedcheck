@@ -27,13 +27,15 @@ the grouping columns of the formula and never the outcome, whose column it
 names from the formula alone.
 }
 \details{
-The draft holds a unit for each grouping column, in the order of the
-formula. A unit whose grouping factor joins it to the columns before it,
-as \code{(1 | school/class)} does, is nested in the unit of the column before
-it with id_scope 'within_parent'. Otherwise a unit is nested, with
-id_scope 'global', in the unit with the most labels among those of which
-each of its labels meets exactly one label in the rows where both are
-present, when the reverse does not hold. Two units neither of which is
+The draft holds a unit for each grouping column that is not a predictor,
+in the order of the formula. A unit is nested, with id_scope 'global', in
+the unit with the most labels among those of which each of its labels
+meets exactly one label in the rows where both are present, when the
+reverse does not hold. Labels reused within parents, as class labels 1, 2
+and 3 in every school, look like crossed units in the data (02-decisions.md,
+Q4), so the draft never infers id_scope 'within_parent', and a grouping
+such as \code{(1 | school/class)} does not decide it either, since the formula
+writes crossed factors in the same way. Two units neither of which is
 nested in the other, directly or through other units, are crossed when a
 label of each meets two or more labels of the other. The observation key
 is the first set of grouping columns, by size and then in the order of the

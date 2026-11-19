@@ -411,15 +411,14 @@ protected_components <- function(ir, declaration, focal, within) {
   }
   unit_of <- function(columns) {
     for (name in names(units)) {
-      if (setequal(unit_label_columns(declaration, name), columns)) {
+      if (unit_is_factor(declaration, name, columns)) {
         return(name)
       }
     }
     NULL
   }
   for (unit in randomised) {
-    columns <- unit_label_columns(declaration, unit$name)
-    if (!any(vapply(factor_columns, function(x) setequal(x, columns), NA))) {
+    if (!any(vapply(factor_columns, function(x) unit_is_factor(declaration, unit$name, x), NA))) {
       raise_issue("E7316", pointer = path_pointer("assignment", unit$index - 1L, "unit"))
     }
   }
@@ -435,9 +434,13 @@ protected_components <- function(ir, declaration, focal, within) {
     components[[length(components) + 1L]] <<- list(factor = factor, variables = variables,
                                                    reason = reason)
   }
+  # The grouping factors that are declared units, whose slopes focal
+  # estimands protect, since Q3 protects by-unit slopes.
+  unit_factors <- character(0)
   for (factor in names(within)) {
     unit <- unit_of(factor_columns[[match(factor, names(within))]])
     if (!is.null(unit)) {
+      unit_factors <- c(unit_factors, factor)
       add(factor, character(0),
           if (unit %in% vapply(randomised, function(u) u$name, "")) "randomisation_unit"
           else "replication_unit")
@@ -449,7 +452,7 @@ protected_components <- function(ir, declaration, focal, within) {
       raise_issue("E7314", pointer = path_pointer("estimands", estimand$index - 1L, "term"))
     }
     variables <- fixed_terms[[t]]
-    for (factor in names(within)) {
+    for (factor in unit_factors) {
       varying <- within[[factor]]
       inside <- variables[varying[match(variables, names(varying))]]
       if (!length(inside)) {
@@ -474,6 +477,24 @@ protected_components <- function(ir, declaration, focal, within) {
     raise_issue("E7312")
   }
   components
+}
+
+# Whether a grouping factor with the given columns is a declared unit: its
+# columns are the label columns of the unit, or those together with the
+# columns of the units that it is nested in, as (1 | school/class) writes a
+# unit class nested in school whatever its id_scope.
+unit_is_factor <- function(declaration, name, columns) {
+  if (setequal(unit_label_columns(declaration, name), columns)) {
+    return(TRUE)
+  }
+  units <- declared_units(declaration)
+  unit <- units[[name]]
+  chain <- character(0)
+  while (!is.null(unit)) {
+    chain <- c(chain, comparison_form(as.character(unlist(unit[["columns"]]))))
+    unit <- unit_parent(declaration, unit)
+  }
+  setequal(chain, columns)
 }
 
 # The units of the randomised assignments that do not count as absent, by
@@ -871,6 +892,7 @@ plan_count <- function(finding, name, min_count) {
   } else {
     statistic$availability$detail
   }
+  detail <- detail %||% "secondary"
   if (identical(detail, "min_count") && !is.null(statistic)) {
     return(list(below = min_count))
   }
@@ -912,7 +934,7 @@ lme4_binding <- function(design, design_hash) {
 # the columns of X, the offsets and each random term with its columns.
 lme4_encoding <- function(ir) {
   quote <- function(name) {
-    if (identical(name, "(Intercept)")) "1" else paste0("`", name, "`")
+    if (identical(name, "(Intercept)")) "1" else lme4_name(name)
   }
   columns <- vapply(ir$fixed$columns, function(c) c$name, "")
   fixed <- if (length(columns) && columns[1L] == "(Intercept)") {
@@ -921,7 +943,7 @@ lme4_encoding <- function(ir) {
     c("0", vapply(columns, quote, ""))
   }
   offsets <- vapply(ir$offsets, function(o) {
-    column <- paste0("`", o$variable, "`")
+    column <- lme4_name(o$variable)
     paste0("offset(", if (o$transform == "log") paste0("log(", column, ")") else column, ")")
   }, "")
   random <- vapply(ir$random, function(term) {
@@ -931,13 +953,19 @@ lme4_encoding <- function(ir) {
     } else {
       c("0", vapply(columns, quote, ""))
     }
-    grouping <- paste(paste0("`", unlist(term$grouping), "`"), collapse = ":")
+    grouping <- paste(vapply(unlist(term$grouping), lme4_name, ""), collapse = ":")
     paste0("(", paste(lhs, collapse = " + "), " | ", grouping, ")")
   }, "")
   response <- ir$response
   lhs <- if (is.null(response)) "" else {
-    column <- paste0("`", response$variable, "`")
+    column <- lme4_name(response$variable)
     if (response$transform == "log") paste0("log(", column, ") ") else paste0(column, " ")
   }
   paste0(lhs, "~ ", paste(c(fixed, offsets, random), collapse = " + "))
+}
+
+# A name between backquotes as R parses it, with each backslash and backquote
+# escaped by a backslash.
+lme4_name <- function(name) {
+  paste0("`", gsub("`", "\\`", gsub("\\", "\\\\", name, fixed = TRUE), fixed = TRUE), "`")
 }

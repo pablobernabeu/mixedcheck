@@ -93,7 +93,9 @@ preregistration_text <- function(plan) {
       terms <- join(vapply(rung$step$terms, quote, ""))
       head <- paste0(head, ", ", switch(rung$step$kind,
         decorrelate = paste("decorrelating", terms),
-        complex_intercepts = paste("replacing", terms, "by complex random intercepts"),
+        complex_intercepts = paste("replacing", terms, "by complex random intercepts, which",
+                                   "restrict the correlations between its levels to be",
+                                   "non-negative"),
         drop_terms = paste("dropping", terms)
       ))
     }

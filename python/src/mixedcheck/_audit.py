@@ -83,6 +83,7 @@ def audit(
     outcome_seen: bool | None = None,
     privacy: str = "shareable",
     key: str | None = None,
+    plan: Any = None,
 ) -> Results:
     """Audit the design of a mixed-effects model.
 
@@ -174,6 +175,16 @@ def audit(
         key: ``None``, or the commitment key of the run as 64 lower-case
             hexadecimal digits. Without it, the run creates a key as
             :func:`new_commitment_key` does.
+        plan: ``None``, or the frozen plan that the run belongs to, as
+            :func:`validate_plan` accepts it. The run's declaration hash must
+            equal the plan's and its IR, with each 'mean' centring as its
+            rule, must be the IR of a rung, which the formula of that rung in
+            :func:`preregistration_text` gives. The run takes the coding of
+            the ceiling of the plan, with the members that ``coding`` gives in
+            place of its own, and without ``sample_columns`` the sample
+            columns of the ceiling, so that its factors are frozen and its
+            design sample is the plan's. The access log then records the plan, and accesses at T1
+            and T2 have the mode 'planned' rather than 'exploratory'.
 
     Returns:
         A :class:`Results` object with the attributes ``document``, the
@@ -200,7 +211,9 @@ def audit(
             is the response, holds its trials or is declared an outcome or
             derived from one, E7007 for a design sample, or at T1 and T2 an
             analysis sample, without rows, and the errors of
-            :func:`design_matrices` for the values that the samples read.
+            :func:`design_matrices` for the values that the samples read, the
+            error of :func:`validate_plan` for a plan that is not valid and
+            E7310 for a run that does not belong to its plan.
         TypeError: An argument of the wrong type.
         ValueError: An argument with a value that is not accepted, such as a
             reason at T0 or an ``outcome_seen`` that differs from the
@@ -237,7 +250,15 @@ def audit(
         ...     print(err.issues[0]["code"])
         E7008
     """
-    # Step 1: the arguments.
+    # Step 1: the arguments, with the coding and sample columns of the plan
+    # when the caller gives a plan and not them.
+    if plan is not None:
+        from mixedcheck._plan_validate import validate_plan
+
+        plan = validate_plan(plan)
+        coding = merged_coding(plan_coding(plan), coding)
+        if sample_columns is None:
+            sample_columns = plan_sample_columns(plan)
     arguments = audit_arguments(
         data,
         formula,
@@ -252,6 +273,7 @@ def audit(
         privacy,
         key,
     )
+    arguments.planned = plan is not None
     tier = arguments.tier
     # Step 2: the declaration, validated again as a minimal declaration.
     minimal: bool | None = None
@@ -279,8 +301,11 @@ def audit(
     )
     if tier != "T0" and "response" not in ir:
         raise_issue("E7009", {"tier": tier, "requirement": "a formula with a response"})
-    # Step 6: the columns that the outcome-blind checks may read.
+    # Step 6: the columns that the outcome-blind checks may read, and the
+    # run's declaration and IR against the plan.
     outcome_blind_columns(ir, declaration)
+    if plan is not None:
+        plan_run_belongs(plan, declaration, ir)
     # Step 7: the family class.
     family_class = audit_family_class(arguments.family, ir, declaration)
     # Step 8: the design sample, X and Z, without the response.
@@ -310,6 +335,11 @@ def audit(
     access_log: dict[str, Any] = {
         "entries": access_log_entries(run, arguments, checked.times, data_read, declaration)
     }
+    if plan is not None:
+        access_log["plan"] = {
+            "design_plan_hash": plan["design_plan_hash"],
+            "outcome_access": plan["outcome_access"],
+        }
     if seen is not None:
         access_log["outcome_seen"] = seen
     # Step 14: the inputs and the time of creation.
@@ -377,6 +407,7 @@ class AuditArguments:
     privacy: str
     key: str
     key_created: str
+    planned: bool = False
 
 
 def audit_arguments(
@@ -624,6 +655,69 @@ def audit_family_class(family: str | None, ir: dict[str, Any], declaration: Any)
     }.get(measurement or "", "gaussian")
 
 
+# --- The plan ----------------------------------------------------------------------
+
+
+def plan_coding(plan: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    """The coding of the ceiling of a plan as a coding argument: the contrast
+    and reference level of each categorical predictor, frozen, and the
+    centring of each numeric one, with its significant digits or value."""
+    coding: dict[str, dict[str, Any]] = {}
+    for name, p in plan["ceiling"]["ir"]["predictors"].items():
+        if p["kind"] == "categorical":
+            coding[name] = {"contrast": p["contrast"], "reference": p["reference"], "frozen": True}
+            continue
+        centring = p["centring"]
+        if centring["rule"] == "mean":
+            digits = centring.get("significant_digits")
+            if digits is None:
+                digits = centring["constant"]["significant_digits"]
+            coding[name] = {"centring": "mean", "significant_digits": digits}
+        elif centring["rule"] == "value":
+            coding[name] = {"centring": "value", "value": centring["constant"]["value"]}
+    return coding
+
+
+def merged_coding(
+    planned: dict[str, dict[str, Any]], coding: Mapping[str, Mapping[str, Any]] | None
+) -> dict[str, dict[str, Any]]:
+    """The coding of a plan with the members that the caller's coding gives in
+    place of its own, column by column, so that every factor stays frozen."""
+    if coding is None:
+        return planned
+    _check_coding_argument(coding)
+    keys = {comparison_form(name): name for name in planned}
+    for name, entry in coding.items():
+        key = keys.get(comparison_form(name))
+        if key is None:
+            planned[name] = dict(entry)
+            keys[comparison_form(name)] = name
+        else:
+            planned[key].update({m: v for m, v in entry.items() if m != "frozen"})
+    return planned
+
+
+def plan_sample_columns(plan: Mapping[str, Any]) -> list[str]:
+    """The sample columns of every rung of a plan: the columns that its ceiling
+    reads other than the response and its trials, and its sample columns."""
+    from mixedcheck._plan import ceiling_read_columns
+
+    ir = plan["ceiling"]["ir"]
+    return ceiling_read_columns(ir) + list(ir.get("sample_columns", []))
+
+
+def plan_run_belongs(plan: Mapping[str, Any], declaration: Any, ir: dict[str, Any]) -> None:
+    """E7310 unless the run's declaration hash equals the plan's and its IR,
+    with each 'mean' centring as its rule, is the IR of a rung (documents.md,
+    Access log)."""
+    declared = canonical_hash(declaration, "hashable") if declaration is not None else None
+    if declared != plan["design"].get("declaration_hash"):
+        raise_issue("E7310", {"member": "declaration hash"})
+    found = canonical_hash(ir_without_means(ir), "hashable")
+    if found not in [canonical_hash(rung["ir"], "hashable") for rung in plan["design"]["rungs"]]:
+        raise_issue("E7310", {"member": "IR hash"})
+
+
 # --- The document -----------------------------------------------------------------
 
 
@@ -657,7 +751,7 @@ def access_log_entries(
                 {
                     "tier": tier,
                     "time": times[tier],
-                    "mode": "exploratory",
+                    "mode": "planned" if arguments.planned else "exploratory",
                     "outcome": {"column": column, "commitment": commitment},
                     "reason": arguments.reason,
                 }

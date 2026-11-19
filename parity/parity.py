@@ -109,6 +109,9 @@ def expected_parts(kind: str, case: dict[str, Any]) -> dict[str, dict[str, Any] 
         return expected_audit(case)
     if kind == "results":
         return expected_results(case)
+    if kind == "plan":
+        issues = expected["issues"]
+        return {"plan": {"issues": issues} if issues else {"valid": True}}
     raise HarnessError(f"Unknown kind of corpus '{kind}'.")
 
 
@@ -812,6 +815,7 @@ def show_audit(outcome: dict[str, Any] | None) -> list[str]:
 # The line of the summary and the file of the records of the zoo.
 ZOO = "zoo"
 ZOO_PARTS = ("internal", "shareable")
+ZOO_CROSS_PARTS = ("plan", "draft")
 # The defaults of the status fields that an expected finding leaves out.
 STATUS_DEFAULTS = {
     "availability": "available",
@@ -1233,6 +1237,14 @@ def compare_runs(
                     )
                     and agreed
                 )
+            # The plan and the draft, which no expected.json states, are
+            # compared across the runs alone, exactly.
+            for part in ZOO_CROSS_PARTS:
+                key = (ZOO, fixture_id, part)
+                seen.add(key)
+                found = {header["run"]: outcomes.get(key) for header, outcomes in indexed}
+                row.parts += 1
+                agreed = report.compare(f"{ZOO} {fixture_id} [{part}]", None, found) and agreed
             row.mismatched += not agreed
     expected_artefact = expected_artefacts(artefacts)
     row = Row(FILES, len(expected_artefact), report.names)

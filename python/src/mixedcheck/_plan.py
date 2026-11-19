@@ -175,7 +175,8 @@ def design_plan(
             a focal estimand whose term is not a fixed term, E7316 for a
             randomisation unit that is not a grouping factor, E7311 for a
             protected term that cannot enter rung 0, E7312 when the
-            declaration protects no random term, E7313 when
+            declaration protects no random term, E7317 when no random intercept is
+            identified, E7313 when
             identifiability.gram_rank is not available and E7307 for
             cluster_robust_cr2.
         TypeError, ValueError: Arguments of the wrong type or value.
@@ -257,6 +258,8 @@ def design_plan(
     # Rung 0 and the terms left out of it.
     restricted = identifiable_state(ceiling, setting)
     check_protected_entered(protected, restricted.state)
+    if restricted.verdict is None:
+        raise_issue("E7317")
     ladder = ladder_states(restricted.state, protected, setting)
     rung_irs = [rung_ir(state, setting) for state in ladder.states]
     design: dict[str, Any] = {}
@@ -681,7 +684,7 @@ def randomisation_units(declaration: Any) -> list[RandomisationUnit]:
 @dataclass
 class Restricted:
     state: State
-    verdict: str
+    verdict: str | None
     excluded: list[dict[str, str]]
 
 
@@ -726,11 +729,6 @@ def identifiable_state(state: State, setting: Setting) -> Restricted:
             else:
                 current = candidate
                 verdict = found
-    if verdict is None:
-        raise_issue(
-            "E7311",
-            {"term": "1", "factor": state[0].factor, "reason": "the design does not identify it"},
-        )
     return Restricted(current, verdict, excluded)
 
 

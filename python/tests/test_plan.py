@@ -387,3 +387,29 @@ def test_caller_coding_keeps_frozen_factors() -> None:
         crossed_data(), formula, crossed_declaration(), plan=plan, coding=coding, key=AUDIT_KEY
     )
     assert results.document["access_log"]["plan"]["design_plan_hash"] == plan["design_plan_hash"]
+
+
+def test_nothing_identified() -> None:
+    data = pd.DataFrame(
+        [
+            {"subject": f"s{s:02d}", "item": f"i{i}", "cond": "a" if (s * 4 + i) % 2 else "b"}
+            for s in range(1, 9)
+            for i in range(1, 5)
+        ]
+    )
+    data["y"] = float("nan")
+    assert issue(data, "y ~ cond + (1 | item:subject)")["code"] == "E7317"
+
+
+def test_caller_centring_replaces_plan_centring() -> None:
+    data = crossed_data()
+    plan = design_plan(data, "rt ~ freq + (1 | subject)", coding={"freq": {"centring": "mean"}})
+    with pytest.raises(MixedcheckError) as raised:
+        audit(
+            data,
+            "rt ~ freq + (1 | subject)",
+            plan=plan,
+            coding={"freq": {"centring": "none"}},
+            key=AUDIT_KEY,
+        )
+    assert raised.value.issues[0]["code"] == "E7310"

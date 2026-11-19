@@ -693,6 +693,10 @@ def merged_coding(
             planned[name] = dict(entry)
             keys[comparison_form(name)] = name
         else:
+            if "centring" in entry:
+                # A centring of the caller's replaces the plan's with its members.
+                for member in ("centring", "significant_digits", "value"):
+                    planned[key].pop(member, None)
             planned[key].update({m: v for m, v in entry.items() if m != "frozen"})
     return planned
 

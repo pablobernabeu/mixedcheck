@@ -113,7 +113,8 @@ minimal declaration, E7315 for a formula without a random term, E7314
 for a focal estimand whose term is not a fixed term, E7316 for a
 randomisation unit that is not a grouping factor, E7311 for a protected
 term that cannot enter rung 0, E7312 when the declaration protects no
-random term, E7313 when identifiability.gram_rank is not available and
+random term, E7317 when no random intercept is identified, E7313 when
+identifiability.gram_rank is not available and
 E7309 for cluster_robust_cr2 without nested grouping factors.
 }
 

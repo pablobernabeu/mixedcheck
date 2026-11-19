@@ -310,3 +310,20 @@ test_that("the lme4 encoding escapes backquotes and backslashes", {
   }
   expect_match(plan$bindings[[1L]]$binding$rungs[[1L]]$encoding, "`cond[b\\\\y]`", fixed = TRUE)
 })
+
+test_that("a design that identifies no random intercept gives E7317", {
+  data <- expand.grid(subject = sprintf("s%02d", 1:8), item = sprintf("i%d", 1:4),
+                      stringsAsFactors = FALSE)
+  data$cond <- ifelse(seq_len(nrow(data)) %% 2 == 0, "a", "b")
+  data$y <- NA_real_
+  expect_identical(plan_issue(data, "y ~ cond + (1 | item:subject)")$code, "E7317")
+})
+
+test_that("a caller's centring replaces the plan's with its members", {
+  data <- crossed_data()
+  plan <- plan_at_zero(data, "rt ~ freq + (1 | subject)",
+                       coding = list(freq = list(centring = "mean")))
+  issue <- audit_issue(data, "rt ~ freq + (1 | subject)", plan = plan,
+                       coding = list(freq = list(centring = "none")))
+  expect_identical(issue$code, "E7310")
+})

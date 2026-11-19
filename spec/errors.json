@@ -2387,6 +2387,14 @@
       "args": {}
     },
     {
+      "code": "E7317",
+      "name": "plan_nothing_identified",
+      "area": "plan",
+      "location": "none",
+      "template": "No random intercept of the formula is identified by the design, so the plan has no rung 0.",
+      "args": {}
+    },
+    {
       "code": "E7601",
       "name": "estimates_duplicate_column",
       "area": "estimates",

@@ -94,10 +94,11 @@ declarations.md (table).}
 
 \item{columns}{The columns that label a member of the unit.}
 
-\item{nested_in, id_scope, membership, role}{\code{NULL} or a string, as
+\item{nested_in, id_scope, membership}{\code{NULL} or a string, as
 declarations.md (units) defines them.}
 
-\item{role}{The role of the column.}
+\item{role}{For \code{declare_unit()}, \code{NULL} or the role of the members of
+the unit, and for \code{declare_variable()}, the role of the column.}
 
 \item{list_column}{\code{NULL} or the column that holds the counterbalancing
 list, the member \code{list} of a crossing.}

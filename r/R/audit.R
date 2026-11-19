@@ -93,6 +93,14 @@
 #' @param key `NULL`, or the commitment key of the run as 64 lower-case
 #'   hexadecimal digits. Without it, the run creates a key as
 #'   [new_commitment_key()] does.
+#' @param plan `NULL`, or the frozen plan that the run belongs to, as
+#'   [validate_plan()] accepts it. The run's declaration hash must equal the
+#'   plan's and its IR, with each 'mean' centring as its rule, must be the IR
+#'   of a rung, which the formula of that rung in [preregistration_text()]
+#'   gives. Without `coding` and `sample_columns`, the run takes them from
+#'   the ceiling of the plan, so that its factors are frozen and its design
+#'   sample is the plan's. The access log then records the plan, and accesses
+#'   at T1 and T2 have the mode 'planned' rather than 'exploratory'.
 #' @return A results object, a list of class 'mixedcheck_results' with the
 #'   elements `document`, the results document in the form that
 #'   [read_json_strict()] returns in the data profile, and `sidecar`, the
@@ -118,7 +126,8 @@
 #'   the values that the samples read. Arguments of the wrong type, a reason
 #'   at T0, an `outcome_seen` that differs from the declaration, columns of
 #'   other types, such as dates, and an invalid MIXEDCHECK_TIME give an
-#'   ordinary error.
+#'   ordinary error. A plan that is not valid gives the error of
+#'   [validate_plan()], and a run that does not belong to its plan E7310.
 #' @family results documents
 #' @export
 #' @examples
@@ -139,10 +148,17 @@
 audit <- function(data, formula, declaration = NULL, family = NULL, coding = NULL,
                   weights = NULL, sample_columns = NULL, outcome_access = "T0",
                   reason = NULL, exploratory = FALSE, outcome_seen = NULL,
-                  privacy = "shareable", key = NULL) {
-  # Step 1: the arguments.
+                  privacy = "shareable", key = NULL, plan = NULL) {
+  # Step 1: the arguments, with the coding and sample columns of the plan
+  # when the caller gives a plan and not them.
+  if (!is.null(plan)) {
+    plan <- validate_plan(plan)
+    coding <- coding %||% plan_coding(plan)
+    sample_columns <- sample_columns %||% plan_sample_columns(plan)
+  }
   arguments <- audit_arguments(data, formula, family, coding, weights, sample_columns,
                                outcome_access, reason, exploratory, outcome_seen, privacy, key)
+  arguments$planned <- !is.null(plan)
   tier <- arguments$tier
   # Step 2: the declaration, validated again as a minimal declaration.
   minimal <- NULL
@@ -165,8 +181,12 @@ audit <- function(data, formula, declaration = NULL, family = NULL, coding = NUL
   if (tier != "T0" && is.null(ir$response)) {
     raise_issue("E7009", list(tier = tier, requirement = "a formula with a response"))
   }
-  # Step 6: the columns that the outcome-blind checks may read.
+  # Step 6: the columns that the outcome-blind checks may read, and the run's
+  # declaration and IR against the plan.
   outcome_blind_columns(ir, declaration)
+  if (!is.null(plan)) {
+    plan_run_belongs(plan, declaration, ir)
+  }
   # Step 7: the family class.
   family_class <- audit_family_class(arguments$family, ir, declaration)
   # Step 8: the design sample, X and Z, without the response.
@@ -203,6 +223,10 @@ audit <- function(data, formula, declaration = NULL, family = NULL, coding = NUL
   # Step 13: the access log.
   access_log <- list(entries = access_log_entries(run, arguments, checked$times, data,
                                                   declaration))
+  if (!is.null(plan)) {
+    access_log$plan <- list(design_plan_hash = plan[["design_plan_hash"]],
+                            outcome_access = plan[["outcome_access"]])
+  }
   if (!is.null(outcome_seen)) {
     access_log$outcome_seen <- outcome_seen
   }
@@ -581,6 +605,54 @@ audit_family_class <- function(family, ir, declaration) {
   )
 }
 
+# --- The plan ----------------------------------------------------------------------
+
+# The coding of the ceiling of a plan as a coding argument: the contrast and
+# reference level of each categorical predictor, frozen, and the centring of
+# each numeric one, with its significant digits or value.
+plan_coding <- function(plan) {
+  predictors <- plan[["ceiling"]][["ir"]][["predictors"]]
+  coding <- lapply(predictors, function(p) {
+    if (identical(p[["kind"]], "categorical")) {
+      return(list(contrast = p[["contrast"]], reference = p[["reference"]], frozen = TRUE))
+    }
+    centring <- p[["centring"]]
+    switch(centring[["rule"]],
+      mean = list(centring = "mean",
+                  significant_digits = centring[["significant_digits"]] %||%
+                    centring[["constant"]][["significant_digits"]]),
+      value = list(centring = "value", value = centring[["constant"]][["value"]]),
+      list()
+    )
+  })
+  coding[lengths(coding) > 0L]
+}
+
+# The sample columns of every rung of a plan: the columns that its ceiling
+# reads other than the response and its trials, and its sample columns.
+plan_sample_columns <- function(plan) {
+  ir <- plan[["ceiling"]][["ir"]]
+  c(ceiling_read_columns(ir), as.character(unlist(ir[["sample_columns"]])))
+}
+
+# E7310 unless the run's declaration hash equals the plan's and its IR, with
+# each 'mean' centring as its rule, is the IR of a rung (documents.md,
+# Access log).
+plan_run_belongs <- function(plan, declaration, ir) {
+  declared <- if (!is.null(declaration)) canonical_hash(declaration, "hashable")
+  if (!identical(declared, plan[["design"]][["declaration_hash"]])) {
+    raise_issue("E7310", list(member = "declaration hash"))
+  }
+  hash <- canonical_hash(ir_without_means(ir), "hashable")
+  rungs <- vapply(plan[["design"]][["rungs"]], function(rung) {
+    canonical_hash(rung[["ir"]], "hashable")
+  }, "")
+  if (!hash %in% rungs) {
+    raise_issue("E7310", list(member = "IR hash"))
+  }
+  invisible()
+}
+
 # --- The document -----------------------------------------------------------------
 
 # Step 13: one entry at T0 and, for each further tier that the run reached,
@@ -600,7 +672,8 @@ access_log_entries <- function(run, arguments, times, data, declaration) {
   for (tier in reached) {
     for (j in seq_along(columns)) {
       entries[[length(entries) + 1L]] <- list(
-        tier = tier, time = times[[tier]], mode = "exploratory",
+        tier = tier, time = times[[tier]],
+        mode = if (arguments$planned) "planned" else "exploratory",
         outcome = list(column = columns[j], commitment = commitments[[j]]),
         reason = arguments$reason
       )

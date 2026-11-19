@@ -229,13 +229,15 @@ builder_entries <- function(x, name) {
 #' the grouping columns of the formula and never the outcome, whose column it
 #' names from the formula alone.
 #'
-#' The draft holds a unit for each grouping column, in the order of the
-#' formula. A unit whose grouping factor joins it to the columns before it,
-#' as `(1 | school/class)` does, is nested in the unit of the column before
-#' it with id_scope 'within_parent'. Otherwise a unit is nested, with
-#' id_scope 'global', in the unit with the most labels among those of which
-#' each of its labels meets exactly one label in the rows where both are
-#' present, when the reverse does not hold. Two units neither of which is
+#' The draft holds a unit for each grouping column that is not a predictor,
+#' in the order of the formula. A unit is nested, with id_scope 'global', in
+#' the unit with the most labels among those of which each of its labels
+#' meets exactly one label in the rows where both are present, when the
+#' reverse does not hold. Labels reused within parents, as class labels 1, 2
+#' and 3 in every school, look like crossed units in the data (02-decisions.md,
+#' Q4), so the draft never infers id_scope 'within_parent', and a grouping
+#' such as `(1 | school/class)` does not decide it either, since the formula
+#' writes crossed factors in the same way. Two units neither of which is
 #' nested in the other, directly or through other units, are crossed when a
 #' label of each meets two or more labels of the other. The observation key
 #' is the first set of grouping columns, by size and then in the order of the
@@ -262,16 +264,13 @@ draft_design <- function(data, formula, coding = NULL) {
   run <- new.env(parent = emptyenv())
   run$table <- table
   run$cache <- new.env(parent = emptyenv())
-  # The grouping columns in order, with the column before each in a
-  # grouping factor that joins several.
+  # The grouping columns in order, other than predictors, such as the
+  # factor f of (1 | g:f).
   columns <- character(0)
-  parents <- character(0)
   for (term in ir$random) {
-    grouping <- unlist(term$grouping)
-    for (j in seq_along(grouping)) {
-      if (!grouping[j] %in% columns) {
-        columns <- c(columns, grouping[j])
-        parents <- c(parents, if (j > 1L) grouping[j - 1L] else NA_character_)
+    for (column in unlist(term$grouping)) {
+      if (!column %in% c(columns, names(ir$predictors))) {
+        columns <- c(columns, column)
       }
     }
   }
@@ -294,20 +293,14 @@ draft_design <- function(data, formula, coding = NULL) {
   parent_of <- rep(NA_integer_, length(columns))
   for (i in seq_along(columns)) {
     unit <- list(name = names[i], columns = list(columns[i]))
-    if (!is.na(parents[i])) {
-      parent_of[i] <- match(parents[i], columns)
+    candidates <- which(vapply(seq_along(columns), function(j) {
+      j != i && within(columns[i], columns[j]) && !within(columns[j], columns[i])
+    }, NA))
+    if (length(candidates)) {
+      counts <- vapply(candidates, function(j) label_count(columns[j]), 0L)
+      parent_of[i] <- candidates[which.max(counts)]
       unit$nested_in <- names[parent_of[i]]
-      unit$id_scope <- "within_parent"
-    } else {
-      candidates <- which(vapply(seq_along(columns), function(j) {
-        j != i && within(columns[i], columns[j]) && !within(columns[j], columns[i])
-      }, NA))
-      if (length(candidates)) {
-        counts <- vapply(candidates, function(j) label_count(columns[j]), 0L)
-        parent_of[i] <- candidates[which.max(counts)]
-        unit$nested_in <- names[parent_of[i]]
-        unit$id_scope <- "global"
-      }
+      unit$id_scope <- "global"
     }
     units[[i]] <- unit
   }

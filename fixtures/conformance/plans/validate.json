@@ -1,0 +1,348 @@
+{
+  "description": "Plans checked in the four stages of validate_plan(): the version, and the rules in code E1321, E6101 and E7301 to E7309 (fixtures/conformance/plans/README.md).",
+  "cases": [
+    {
+      "id": "plans-validate-001",
+      "description": "A protected plan of three rungs with an lme4 binding, the example of documents.md in small.",
+      "plan": "validate/001.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "plans-validate-002",
+      "description": "An exploratory plan without a protected set, rule, terminal state or binding.",
+      "plan": "validate/002.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "plans-validate-003",
+      "description": "Complex random intercepts replace a protected slope of a categorical variable (E7306).",
+      "plan": "validate/003.json",
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "plans-validate-004",
+      "description": "Complex random intercepts in rung 0, without a step complex_intercepts, do not stand for a protected slope.",
+      "plan": "validate/004.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7306",
+            "message": "The protected component at /design/protected/1 is missing from rung 0.",
+            "pointer": "/design/protected/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-005",
+      "description": "A version outside 0.1.x is reported before anything else.",
+      "plan": "validate/005.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1441",
+            "message": "Version '0.2.0' at /plan_version is not supported. This release reads version 0.1.x.",
+            "pointer": "/plan_version"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-006",
+      "description": "The design was edited after its hash was recorded.",
+      "plan": "validate/006.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1321",
+            "message": "The hash at /design_plan_hash does not match the content it covers.",
+            "pointer": "/design_plan_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-007",
+      "description": "A binding was edited after its hash was recorded.",
+      "plan": "validate/007.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E1321",
+            "message": "The hash at /bindings/0/hash does not match the content it covers.",
+            "pointer": "/bindings/0/hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-008",
+      "description": "A binding has fewer rungs than the design.",
+      "plan": "validate/008.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7301",
+            "message": "The binding at /bindings/0/binding/rungs has 2 rungs, but the design has 3.",
+            "pointer": "/bindings/0/binding/rungs"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-009",
+      "description": "A binding refers to another design plan.",
+      "plan": "validate/009.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7302",
+            "message": "The binding at /bindings/0/binding/design_plan_hash refers to a design plan other than the one at /design_plan_hash.",
+            "pointer": "/bindings/0/binding/design_plan_hash"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-010",
+      "description": "The plan has fewer verdicts than rungs.",
+      "plan": "validate/010.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7303",
+            "message": "The plan has 2 verdicts at /verdicts, but 3 rungs.",
+            "pointer": "/verdicts"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-011",
+      "description": "A rung on the ladder is not identified.",
+      "plan": "validate/011.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7304",
+            "message": "The rung whose verdict is at /verdicts/1 is not identified, so it cannot be on the ladder.",
+            "pointer": "/verdicts/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-012",
+      "description": "A protected component repeats an earlier one with another reason.",
+      "plan": "validate/012.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7305",
+            "message": "The protected component at /design/protected/1 repeats an earlier protected component.",
+            "pointer": "/design/protected/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-013",
+      "description": "A protected slope is missing from the last rung, numbered from 0.",
+      "plan": "validate/013.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7306",
+            "message": "The protected component at /design/protected/1 is missing from rung 2.",
+            "pointer": "/design/protected/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-014",
+      "description": "CR2 on one grouping factor, which R can run.",
+      "plan": "validate/014.json",
+      "languages": [
+        "R"
+      ],
+      "expected": {
+        "issues": []
+      }
+    },
+    {
+      "id": "plans-validate-015",
+      "description": "CR2, which Python cannot run.",
+      "plan": "validate/015.json",
+      "languages": [
+        "Python"
+      ],
+      "expected": {
+        "issues": [
+          {
+            "code": "E7307",
+            "message": "The terminal state 'cluster_robust_cr2' at /design/terminal/state cannot be run by this package.",
+            "pointer": "/design/terminal/state"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-016",
+      "description": "CR2 on crossed grouping factors in R.",
+      "plan": "validate/016.json",
+      "languages": [
+        "R"
+      ],
+      "expected": {
+        "issues": [
+          {
+            "code": "E7309",
+            "message": "The terminal state 'cluster_robust_cr2' at /design/terminal/state needs one grouping factor of rung 0 whose columns every other grouping factor of rung 0 includes.",
+            "pointer": "/design/terminal/state"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-017",
+      "description": "CR2 on crossed grouping factors in Python: E7307 sorts before E7309 at one pointer.",
+      "plan": "validate/017.json",
+      "languages": [
+        "Python"
+      ],
+      "expected": {
+        "issues": [
+          {
+            "code": "E7307",
+            "message": "The terminal state 'cluster_robust_cr2' at /design/terminal/state cannot be run by this package.",
+            "pointer": "/design/terminal/state"
+          },
+          {
+            "code": "E7309",
+            "message": "The terminal state 'cluster_robust_cr2' at /design/terminal/state needs one grouping factor of rung 0 whose columns every other grouping factor of rung 0 includes.",
+            "pointer": "/design/terminal/state"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-018",
+      "description": "A grouping factor of the ceiling repeats an earlier one.",
+      "plan": "validate/018.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7308",
+            "message": "The grouping factor 'subject' at /ceiling/factors/1/factor is already described by an earlier entry.",
+            "pointer": "/ceiling/factors/1/factor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-019",
+      "description": "A column of the fixed part has a name that its term does not give.",
+      "plan": "validate/019.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/0/ir/fixed/columns/1/name differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/0/ir/fixed/columns/1/name"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-020",
+      "description": "A reference level that is not one of the levels.",
+      "plan": "validate/020.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/0/ir/predictors/cond/reference differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/0/ir/predictors/cond/reference"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-021",
+      "description": "A random term repeats an earlier one, which comes before its shared column.",
+      "plan": "validate/021.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/1/ir/random/2 differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/1/ir/random/2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-022",
+      "description": "Sample columns out of code-point order.",
+      "plan": "validate/022.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/2/ir/sample_columns/0 differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/2/ir/sample_columns/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-023",
+      "description": "Offsets out of order: the first member that differs is the transform of the first.",
+      "plan": "validate/023.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/2/ir/offsets/0/transform differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/2/ir/offsets/0/transform"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-024",
+      "description": "A level carried in a random term that has an intercept.",
+      "plan": "validate/024.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/0/ir/random/0/terms/1/variables/0/level differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/0/ir/random/0/terms/1/variables/0/level"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans-validate-025",
+      "description": "A fixed term repeats an earlier one.",
+      "plan": "validate/025.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E6101",
+            "message": "The IR at /design/rungs/0/ir/fixed/terms/2 differs from what its own predictors and terms define.",
+            "pointer": "/design/rungs/0/ir/fixed/terms/2"
+          }
+        ]
+      }
+    }
+  ]
+}

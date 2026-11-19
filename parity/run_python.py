@@ -571,10 +571,60 @@ def run_zoo(fixture_id: str) -> dict[str, dict[str, Any]]:
 
         return run
 
-    return {privacy: outcome_of(audit_in(privacy)) for privacy in ("internal", "shareable")}
+    def at_zero(
+        compute: Callable[[dict[str, Any]], dict[str, Any]],
+    ) -> Callable[[], dict[str, Any]]:
+        def run() -> dict[str, Any]:
+            previous = os.environ.get("MIXEDCHECK_TIME")
+            os.environ["MIXEDCHECK_TIME"] = "0"
+            try:
+                return compute(mixedcheck.pathology_zoo(fixture_id))
+            finally:
+                if previous is None:
+                    del os.environ["MIXEDCHECK_TIME"]
+                else:
+                    os.environ["MIXEDCHECK_TIME"] = previous
+
+        return run
+
+    # The plan and the draft of the directory, at the time 0. The plan is
+    # compared without its language, its package version and its bindings,
+    # which belong to the language, and so is its preregistration text.
+    def plan(fixture: dict[str, Any]) -> dict[str, Any]:
+        names = ("family", "coding", "weights", "sample_columns")
+        arguments = {k: v for k, v in fixture["arguments"].items() if k in names}
+        found = mixedcheck.design_plan(
+            fixture["data"], fixture["formula"], fixture["declaration"], **arguments
+        )
+        found["language"] = "R"
+        found["versions"]["package"] = "0"
+        found["bindings"] = []
+        return {
+            "plan": canonical_bytes(found, "hashable"),
+            "text": mixedcheck.preregistration_text(found).encode("utf-8"),
+        }
+
+    def draft(fixture: dict[str, Any]) -> dict[str, Any]:
+        found = mixedcheck.draft_design(fixture["data"], fixture["formula"])
+        return {"draft": canonical_bytes(found, "hashable")}
+
+    outcomes = {privacy: outcome_of(audit_in(privacy)) for privacy in ("internal", "shareable")}
+    outcomes["plan"] = outcome_of(at_zero(plan))
+    outcomes["draft"] = outcome_of(at_zero(draft))
+    return outcomes
 
 
 # Cases of results/.
+
+
+def run_plan(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """The plan validated by validate_plan(): 'valid' when the call returns."""
+
+    def validate() -> dict[str, Any]:
+        mixedcheck.validate_plan(str(context["directory"] / case["plan"]))
+        return {"valid": True}
+
+    return {"plan": outcome_of(validate)}
 
 
 def run_results(case: dict[str, Any], context: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -613,6 +663,7 @@ RUNNERS: dict[str, Callable[[dict[str, Any], dict[str, Any]], dict[str, dict[str
     "formula": run_formula,
     "audit": run_audit,
     "results": run_results,
+    "plan": run_plan,
 }
 
 

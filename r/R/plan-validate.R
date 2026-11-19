@@ -89,14 +89,15 @@ plan_rule_issues <- function(p) {
       add("E1321", paste0(here, "/hash"))
     }
     if (length(entry[["binding"]][["rungs"]]) != length(rungs)) {
-      add("E7301", paste0(here, "/binding/rungs"))
+      add("E7301", paste0(here, "/binding/rungs"),
+          list(found = length(entry[["binding"]][["rungs"]]), expected = length(rungs)))
     }
     if (!identical(entry[["binding"]][["design_plan_hash"]], p[["design_plan_hash"]])) {
       add("E7302", paste0(here, "/binding/design_plan_hash"))
     }
   }
   if (length(p[["verdicts"]]) != length(rungs)) {
-    add("E7303", "/verdicts")
+    add("E7303", "/verdicts", list(found = length(p[["verdicts"]]), expected = length(rungs)))
   }
   for (i in seq_along(p[["verdicts"]])) {
     if (identical(p[["verdicts"]][[i]][["value"]], "not_identified")) {
@@ -117,7 +118,14 @@ plan_rule_issues <- function(p) {
       }
     }
     for (r in seq_along(rungs)) {
-      if (!component_in_rung(component, rungs[[r]][["ir"]])) {
+      # Complex random intercepts stand for the component only from a step
+      # complex_intercepts on its grouping factor (documents.md, E7306).
+      complex <- any(vapply(rungs[seq_len(r)], function(rung) {
+        identical(rung[["step"]][["kind"]], "complex_intercepts") &&
+          identical(comparison_form(rung[["step"]][["factor"]]),
+                    comparison_form(component[["factor"]]))
+      }, NA))
+      if (!component_in_rung(component, rungs[[r]][["ir"]], complex)) {
         add("E7306", here, list(rung = r - 1L))
       }
     }
@@ -128,7 +136,8 @@ plan_rule_issues <- function(p) {
   }
   factors <- comparison_form(vapply(p[["ceiling"]][["factors"]], function(f) f[["factor"]], ""))
   for (i in which(duplicated(factors))) {
-    add("E7308", path_pointer("ceiling", "factors", i - 1L, "factor"))
+    add("E7308", path_pointer("ceiling", "factors", i - 1L, "factor"),
+        list(name = p[["ceiling"]][["factors"]][[i]][["factor"]]))
   }
   irs <- c(list(list(ir = p[["ceiling"]][["ir"]], pointer = "/ceiling/ir")),
            lapply(seq_along(rungs), function(r) {
@@ -148,7 +157,7 @@ plan_rule_issues <- function(p) {
 # component's, or the intercept for an empty list, or, for one categorical
 # variable f, the random intercept of the factor joined with f, which
 # complex random intercepts give.
-component_in_rung <- function(component, ir) {
+component_in_rung <- function(component, ir, complex = TRUE) {
   factor <- comparison_form(component[["factor"]])
   variables <- comparison_form(as.character(unlist(component[["variables"]])))
   for (term in ir[["random"]]) {
@@ -161,7 +170,7 @@ component_in_rung <- function(component, ir) {
         }
       }
     }
-    if (length(variables) == 1L &&
+    if (complex && length(variables) == 1L &&
         identical(named_member(ir[["predictors"]], variables)[["kind"]], "categorical") &&
         random_term_has_intercept(term) && length(grouping) >= 2L &&
         identical(grouping[length(grouping)], variables) &&
@@ -381,15 +390,24 @@ earliest_pointer <- function(pointers) {
   best
 }
 
+# Whether a JSON Pointer comes before another in the order of the canonical
+# serialisation: at the first token that differs, a number before a string,
+# numbers by value and strings, unescaped, by code point, and otherwise the
+# shorter pointer first.
 pointer_before <- function(p, q) {
-  tokens <- function(x) if (identical(x, "")) character(0) else strsplit(substring(x, 2L), "/", fixed = TRUE)[[1L]]
+  tokens <- function(x) {
+    if (identical(x, "")) character(0) else strsplit(substring(x, 2L), "/", fixed = TRUE)[[1L]]
+  }
   a <- tokens(p)
   b <- tokens(q)
   for (j in seq_len(min(length(a), length(b)))) {
     if (a[j] != b[j]) {
-      numeric <- grepl("^[0-9]+$", a[j]) && grepl("^[0-9]+$", b[j])
-      if (numeric) {
+      numeric <- grepl("^[0-9]+$", c(a[j], b[j]))
+      if (all(numeric)) {
         return(as.numeric(a[j]) < as.numeric(b[j]))
+      }
+      if (any(numeric)) {
+        return(numeric[1L])
       }
       x <- gsub("~0", "~", gsub("~1", "/", a[j], fixed = TRUE), fixed = TRUE)
       y <- gsub("~0", "~", gsub("~1", "/", b[j], fixed = TRUE), fixed = TRUE)

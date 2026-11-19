@@ -65,9 +65,10 @@ hexadecimal digits. Without it, the run creates a key as
 \code{\link[=validate_plan]{validate_plan()}} accepts it. The run's declaration hash must equal the
 plan's and its IR, with each 'mean' centring as its rule, must be the IR
 of a rung, which the formula of that rung in \code{\link[=preregistration_text]{preregistration_text()}}
-gives. Without \code{coding} and \code{sample_columns}, the run takes them from
-the ceiling of the plan, so that its factors are frozen and its design
-sample is the plan's. The access log then records the plan, and accesses
+gives. The run takes the coding of the ceiling of the plan, with the
+members that \code{coding} gives in place of its own, and without
+\code{sample_columns} the sample columns of the ceiling, so that its factors
+are frozen and its design sample is the plan's. The access log then records the plan, and accesses
 at T1 and T2 have the mode 'planned' rather than 'exploratory'.}
 }
 \value{

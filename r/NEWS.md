@@ -2,6 +2,22 @@
 
 ## Added
 
+* `design_plan()` builds the Stream B plan of a design without reading the
+  outcome: the design-implied ceiling of each grouping factor with its counts
+  and identifiability verdict, rung 0 restricted to identifiable terms, the
+  outcome-free ladder with its protected set, the stopping rule, the terminal
+  state, the design-plan hash and, when lme4 is installed, an lme4 execution
+  binding. `validate_plan()` validates a plan, and `preregistration_text()`
+  states it in words that both packages write identically. `audit()` takes a
+  plan in its new argument `plan`, refuses a run that does not belong to it
+  (E7310) and records accesses to the outcome at T1 and T2 as planned.
+
+* `declaration()` and the helpers `declare_unit()`, `declare_crossing()`,
+  `declare_observation()`, `declare_assignment()`, `declare_variable()` and
+  `declare_estimand()` build a declaration in code, and `draft_design()`
+  writes a draft declaration from the grouping columns of the data, with
+  every entry marked as inferred.
+
 * The package skeleton, with `spec_versions()`, which returns the versions of
   the registry, the schemas and the canonicaliser in the shared specification
   vendored into the package.

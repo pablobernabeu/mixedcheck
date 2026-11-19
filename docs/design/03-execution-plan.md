@@ -295,7 +295,32 @@ On ARC, the pilot checks the R module, the Apptainer runtime, the array and QoS 
 
 ## M3 and M3b. Plan object and convergence triage
 
-M3 implements what Q3 (02-decisions.md) lists for the first 0.x release, and `draft_design()` and the code-first builders of Q4 write declarations in both languages. A shareable results document records the declaration hash unkeyed (documents.md, inputs), which would let a reader confirm by search a value of a draft computed from the outcome, such as the observed bounds of a score, so it was decided on 10 November 2026 that `draft_design()` infers no value from the outcome. The values that it infers from predictors and identifiers stay, on the ground on which privacy.md (Decisions) accepts the T0 findings, that they describe the structure of the design. M3b adds the convergence-triage core for lme4 fits in R: optimisation statuses from the gap to the best objective found, a scale-free rank criterion and second-optimiser restarts. Every step of the stopping rule then runs in R, which is enough to preregister V3 and V5 and submit the Stage 1 report while M4 and M5 continue.
+M3 implements what Q3 (02-decisions.md) lists for the first 0.x release, and `draft_design()` and the code-first builders of Q4 write declarations in both languages. A shareable results document records the declaration hash unkeyed (documents.md, inputs), which would let a reader confirm by search a value of a draft computed from the outcome, such as the observed bounds of a score, so it was decided on 10 November 2026 that `draft_design()` infers no value from the outcome. The values that it infers from predictors and identifiers stay, on the ground on which privacy.md (Decisions) accepts the T0 findings, that they describe the structure of the design.
+
+### What M3 built
+
+`design_plan()`, `validate_plan()` and `preregistration_text()` in both packages build, validate and state the plan of documents.md (The plan builder), and `audit()` takes a plan, records it in the access log and gives the mode 'planned' to accesses at T1 and T2 of a run whose declaration and IR belong to it (E7310). `draft_design()` and the builders `declaration()` and `declare_*()` write declarations (02-decisions.md, Q4). The error catalogue gains E7311 to E7316 for plans that cannot be built, which changes no version (conventions.md, Versions), and no schema, version or vocabulary changed. The plan corpus (fixtures/conformance/plans/) holds 25 cases written from the specifications, and the parity harness runs it with the kind 'plan' and compares, for every directory of the zoo, the plan without its language, package version and bindings, its preregistration text and the draft of `draft_design()`.
+
+### Decisions that bind later milestones
+
+- The maintainer chose on 19 November 2026 the three points of the public API that Q3 and Q4 left open: the ceiling derived from the fixed part and the grouping factors, `declaration()` with one helper for each block and a statsmodels binding in Python (02-decisions.md, Decisions for the maintainer).
+- Rung 0 adds the random intercepts and then the slopes one at a time and keeps each that identifiability.gram_rank does not find unidentified, so that the terms left out do not depend on which parameter the eigenvectors of a larger model confound. A plan inherits the parity of that check, so its design-plan hash agrees across the languages except where a verdict is near_threshold (conventions.md, Comparison across languages).
+- Each rung is built by the IR builder from a formula that repeats the caller's fixed part, cut from the formula between its summands, since writing the fixed part from the IR's term names could change the order of the variables of an interaction written before its main effects (ir.md, Order of terms and variables).
+- The counts of the ceiling come from a shareable audit of the ceiling, so the privacy filter decides them, and the internal key of that audit never leaves the builder.
+- One adversarial review of the R code, before the port, confirmed six defects, all fixed in both packages with tests: a unit written as `school/class` with id_scope 'global' was not matched with its grouping factor, `draft_design()` inferred within_parent nesting from the order of the terms of a formula, `audit()` with a plan and a coding argument lost the frozen factors, E7306 accepted complex random intercepts without a step complex_intercepts, the lme4 encoding did not escape backquotes and backslashes, and focal slopes were protected by grouping factors that are not declared units, while the text did not state the restriction of complex random intercepts.
+
+### The gate
+
+The gate asks for identical design-plan hashes across the languages on the zoo and for every plan to validate. On 19 November 2026, in the development container, both packages built the same plan, or refused it with the same issue, for every one of the 60 directories of the zoo, with R under C.UTF-8 and C, and gave the same preregistration text and draft, every plan they built validated in both, and both gave the expected issues on every case of the plan corpus. CI_RESULT
+
+### Open items
+
+- The optimisers of the bindings, nloptwrap and Nelder_Mead for lme4 and lbfgs and nm for statsmodels, are provisional until M3b settles the restarts, and the statsmodels encoding until the adapter of M5 reads it.
+- The design section does not record the family class, so a run of another family can be bound to a plan whose verdicts assumed the Gaussian test. Recording it would change the plan schema, which waits for the next MINOR version of the schema bundle.
+- The validator does not check that the rungs are nested, that each step matches the difference between its rungs or that every rung has the fixed part and response of the ceiling, since documents.md lists no such rule. A plan edited by hand and rehashed can pass with such faults, and the rules belong to the next version of the plan.
+
+### M3b
+M3b adds the convergence-triage core for lme4 fits in R: optimisation statuses from the gap to the best objective found, a scale-free rank criterion and second-optimiser restarts. Every step of the stopping rule then runs in R, which is enough to preregister V3 and V5 and submit the Stage 1 report while M4 and M5 continue.
 
 ## R0 and P1
 

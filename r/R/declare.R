@@ -80,7 +80,7 @@ declaration <- function(units = NULL, crossings = NULL, observation = NULL, assi
 #' @rdname declaration
 #' @param name The name of the unit.
 #' @param columns The columns that label a member of the unit.
-#' @param nested_in,id_scope,membership,role `NULL` or a string, as
+#' @param nested_in,id_scope,membership `NULL` or a string, as
 #'   declarations.md (units) defines them.
 #' @export
 declare_unit <- function(name, columns, nested_in = NULL, id_scope = NULL, membership = NULL,
@@ -134,7 +134,8 @@ declare_assignment <- function(column, unit, randomised, level = NULL, blocks = 
 }
 
 #' @rdname declaration
-#' @param role The role of the column.
+#' @param role For `declare_unit()`, `NULL` or the role of the members of
+#'   the unit, and for `declare_variable()`, the role of the column.
 #' @param measurement `NULL` or the measurement level.
 #' @param derived_from `NULL` or the columns the column was computed from.
 #' @param bounds `NULL` or the lowest and highest possible values.
@@ -247,6 +248,8 @@ builder_entries <- function(x, name) {
 #' left to the user.
 #'
 #' @inheritParams audit
+#' @param coding `NULL`, or the coding of the model, as [formula_ir()] takes
+#'   it.
 #' @return The draft declaration, as [validate_declaration()] returns it.
 #' @section Errors: The errors of [audit()] for the data, the formula and
 #'   the coding.

@@ -14,6 +14,9 @@ values, with \code{NA} for a missing value, or the path of a CSV file, which
 
 \item{formula}{The formula, as a character string, such as
 \code{"rt ~ cond + (1 + cond | subject)"}.}
+
+\item{coding}{\code{NULL}, or the coding of the model, as \code{\link[=formula_ir]{formula_ir()}} takes
+it.}
 }
 \value{
 The draft declaration, as \code{\link[=validate_declaration]{validate_declaration()}} returns it.

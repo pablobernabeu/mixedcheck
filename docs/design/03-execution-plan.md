@@ -312,7 +312,7 @@ M3 implements what Q3 (02-decisions.md) lists for the first 0.x release, and `dr
 
 ### The gate
 
-The gate asks for identical design-plan hashes across the languages on the zoo and for every plan to validate. On 19 November 2026, in the development container, both packages built the same plan, or refused it with the same issue, for every one of the 60 directories of the zoo, with R under C.UTF-8 and C, and gave the same preregistration text and draft, every plan they built validated in both, and both gave the expected issues on every case of the plan corpus.
+The gate asks for identical design-plan hashes across the languages on the zoo and for every plan to validate. On 19 November 2026, in the development container, both packages built the same plan, or refused it with the same issue, for every one of the 60 directories of the zoo, with R under C.UTF-8 and C, and gave the same preregistration text and draft, every plan they built validated in both, and both gave the expected issues on every case of the plan corpus. Full CI passed on 0ed48f4, which holds these changes, on 19 November 2026, on every job of the matrix: R CMD check on Ubuntu with R release, R-devel, oldrel-1, R 4.2 with Matrix 1.4-1, lme4 1.1-35.1, LC_ALL=C and without Suggests, on macOS and on Windows, the Python tests on Python 3.11 to 3.15, at the floors of the dependencies and with pandas 2.3, ruff, the vendored copies, the parity harness, the two parts of the differential test and the four shards of the disclosure-attack tests. The run before it, on ecba38d, failed on R 4.2 and without Suggests, because a test of the plan validator edited the lme4 binding that a plan built without lme4 lacks, and 0ed48f4 guards that edit.
 
 ### Open items
 

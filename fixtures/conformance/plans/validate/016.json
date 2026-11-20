@@ -1,0 +1,327 @@
+{
+  "plan_version": "0.1.0",
+  "created": "2026-11-08T09:00:00Z",
+  "language": "R",
+  "versions": {
+    "package": "0.1.0",
+    "registry": "0.1.0",
+    "schemas": "0.1.0",
+    "canonicaliser": "0.1.0"
+  },
+  "outcome_access": "T0",
+  "for_preregistration": false,
+  "rule_evidence": "simulated_conditions_only",
+  "design": {
+    "declaration_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "ladder": "protected",
+    "rungs": [
+      {
+        "ir": {
+          "ir_version": "0.1.0",
+          "predictors": {
+            "cond": {
+              "kind": "categorical",
+              "levels": [
+                "A",
+                "B"
+              ],
+              "levels_source": "declared",
+              "contrast": "simple",
+              "reference": "A",
+              "frozen": true
+            }
+          },
+          "fixed": {
+            "terms": [
+              {
+                "name": "(Intercept)",
+                "variables": []
+              },
+              {
+                "name": "cond",
+                "variables": [
+                  {
+                    "variable": "cond",
+                    "coding": "contrast"
+                  }
+                ]
+              }
+            ],
+            "columns": [
+              {
+                "name": "(Intercept)",
+                "term": 0,
+                "levels": {}
+              },
+              {
+                "name": "cond[B]",
+                "term": 1,
+                "levels": {
+                  "cond": "B"
+                }
+              }
+            ]
+          },
+          "random": [
+            {
+              "name": "1 + cond | subject",
+              "factor": "subject",
+              "grouping": [
+                "subject"
+              ],
+              "covariance": "unstructured",
+              "terms": [
+                {
+                  "name": "(Intercept)",
+                  "variables": []
+                },
+                {
+                  "name": "cond",
+                  "variables": [
+                    {
+                      "variable": "cond",
+                      "coding": "contrast"
+                    }
+                  ]
+                }
+              ],
+              "columns": [
+                {
+                  "name": "(Intercept)",
+                  "term": 0,
+                  "levels": {}
+                },
+                {
+                  "name": "cond[B]",
+                  "term": 1,
+                  "levels": {
+                    "cond": "B"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "1 | item",
+              "factor": "item",
+              "grouping": [
+                "item"
+              ],
+              "covariance": "unstructured",
+              "terms": [
+                {
+                  "name": "(Intercept)",
+                  "variables": []
+                }
+              ],
+              "columns": [
+                {
+                  "name": "(Intercept)",
+                  "term": 0,
+                  "levels": {}
+                }
+              ]
+            }
+          ],
+          "offsets": [],
+          "response": {
+            "variable": "rt",
+            "transform": "identity"
+          }
+        }
+      }
+    ],
+    "protected": [
+      {
+        "factor": "subject",
+        "variables": [],
+        "reason": "replication_unit"
+      }
+    ],
+    "rule": {
+      "id": "localised_backoff",
+      "version": 1,
+      "parameters": {}
+    },
+    "terminal": {
+      "state": "cluster_robust_cr2"
+    }
+  },
+  "ceiling": {
+    "ir": {
+      "ir_version": "0.1.0",
+      "predictors": {
+        "cond": {
+          "kind": "categorical",
+          "levels": [
+            "A",
+            "B"
+          ],
+          "levels_source": "declared",
+          "contrast": "simple",
+          "reference": "A",
+          "frozen": true
+        }
+      },
+      "fixed": {
+        "terms": [
+          {
+            "name": "(Intercept)",
+            "variables": []
+          },
+          {
+            "name": "cond",
+            "variables": [
+              {
+                "variable": "cond",
+                "coding": "contrast"
+              }
+            ]
+          }
+        ],
+        "columns": [
+          {
+            "name": "(Intercept)",
+            "term": 0,
+            "levels": {}
+          },
+          {
+            "name": "cond[B]",
+            "term": 1,
+            "levels": {
+              "cond": "B"
+            }
+          }
+        ]
+      },
+      "random": [
+        {
+          "name": "1 + cond | subject",
+          "factor": "subject",
+          "grouping": [
+            "subject"
+          ],
+          "covariance": "unstructured",
+          "terms": [
+            {
+              "name": "(Intercept)",
+              "variables": []
+            },
+            {
+              "name": "cond",
+              "variables": [
+                {
+                  "variable": "cond",
+                  "coding": "contrast"
+                }
+              ]
+            }
+          ],
+          "columns": [
+            {
+              "name": "(Intercept)",
+              "term": 0,
+              "levels": {}
+            },
+            {
+              "name": "cond[B]",
+              "term": 1,
+              "levels": {
+                "cond": "B"
+              }
+            }
+          ]
+        },
+        {
+          "name": "1 | item",
+          "factor": "item",
+          "grouping": [
+            "item"
+          ],
+          "covariance": "unstructured",
+          "terms": [
+            {
+              "name": "(Intercept)",
+              "variables": []
+            }
+          ],
+          "columns": [
+            {
+              "name": "(Intercept)",
+              "term": 0,
+              "levels": {}
+            }
+          ]
+        }
+      ],
+      "offsets": [],
+      "response": {
+        "variable": "rt",
+        "transform": "identity"
+      }
+    },
+    "verdict": {
+      "value": "identified"
+    },
+    "factors": [
+      {
+        "factor": "subject",
+        "levels": 48,
+        "df_budget": 47,
+        "terms": [
+          {
+            "term": "1 + cond | subject",
+            "informative_groups": 48
+          }
+        ]
+      },
+      {
+        "factor": "item",
+        "levels": 32,
+        "df_budget": 31,
+        "terms": [
+          {
+            "term": "1 | item",
+            "informative_groups": 32
+          }
+        ]
+      }
+    ]
+  },
+  "verdicts": [
+    {
+      "value": "identified"
+    }
+  ],
+  "bindings": [
+    {
+      "binding": {
+        "design_plan_hash": "sha256:9d726904cda40e86a9ef4c0fca9bfc310cf80cb83cbabb6ce7d22a06561e6c12",
+        "language": "R",
+        "engine": {
+          "name": "lme4",
+          "version": "2.1-0"
+        },
+        "optimisers": [
+          {
+            "name": "bobyqa",
+            "settings": {}
+          },
+          {
+            "name": "Nelder_Mead",
+            "settings": {}
+          }
+        ],
+        "rungs": [
+          {
+            "availability": {
+              "value": "available"
+            },
+            "encoding": "rung 0"
+          }
+        ]
+      },
+      "hash": "sha256:71312a9635e5ff127282304fb2cb9378ed5a5d748debe980244e36a3de37141b"
+    }
+  ],
+  "design_plan_hash": "sha256:9d726904cda40e86a9ef4c0fca9bfc310cf80cb83cbabb6ce7d22a06561e6c12"
+}

@@ -435,7 +435,7 @@ The rules behind these codes, the stages in which they are checked and their loc
 
 ### plan
 
-The rules behind these codes are in [documents.md](documents.md) (Plan, version 0.1, and Access log for E7310). E7307 is raised by the Python package only, because only the R package can run the terminal state cluster_robust_cr2.
+The rules behind these codes are in [documents.md](documents.md) (Plan, version 0.1, with The plan builder for E7311 to E7317, and Access log for E7310). E7307 is raised by the Python package only, because only the R package can run the terminal state cluster_robust_cr2.
 
 | Code | Name | Raised when |
 |---|---|---|
@@ -449,6 +449,13 @@ The rules behind these codes are in [documents.md](documents.md) (Plan, version 
 | E7308 | plan_duplicate_factor | a grouping factor of the ceiling repeats an earlier one |
 | E7309 | plan_terminal_design | the terminal state cluster_robust_cr2 is declared for grouping factors that are not nested |
 | E7310 | plan_run_mismatch | a run bound to a plan has a declaration or IR that the plan does not record |
+| E7311 | plan_protected_unavailable | a protected term cannot enter rung 0, because the fixed part lacks its term or the design does not identify it |
+| E7312 | plan_protected_empty | the declaration protects no random term of the formula |
+| E7313 | plan_check_unavailable | the identifiability verdict that the plan needs is beyond a registry limit |
+| E7314 | plan_estimand_term | a focal estimand term is not a term of the fixed part of the formula |
+| E7315 | plan_no_random_part | the formula of a plan has no random term |
+| E7316 | plan_unit_not_grouping | a randomisation unit is not a grouping factor of the formula |
+| E7317 | plan_nothing_identified | no random intercept of the formula is identified by the design |
 
 ### estimates
 

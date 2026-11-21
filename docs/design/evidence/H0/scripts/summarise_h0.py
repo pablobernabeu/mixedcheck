@@ -43,8 +43,8 @@ def bench_rows(f):
     d = pd.DataFrame(rows)
     d["class"] = [classify(g, r) if s == "ok" else None
                   for g, r, s in zip(d.get("obj_gap"), d.get("ref_dev"), d["status"])]
-    keep = ["model", "engine", "status", "obj_gap", "class", "max_abs_dbeta_in_se", "max_rel_dse",
-            "time_median", "time_ratio_vs_lme4", "peak_rss_mb"]
+    keep = ["model", "engine", "status", "obj_gap", "class", "reported_minus_ref", "max_abs_dbeta_in_se",
+            "max_rel_dse", "time_median", "time_ratio_vs_lme4", "peak_rss_mb"]
     return d[[c for c in keep if c in d.columns]]
 
 
@@ -70,8 +70,20 @@ if os.path.exists(new_f) and os.path.exists(old_f):
             "max_rel_dse": g["max_rel_dse"].max(),
             "median_time_ratio_vs_lme4": g["time_ratio_vs_lme4"].median(),
         })
-    pe = per_engine(old).join(per_engine(new), lsuffix="_earlier", rsuffix="_h0", how="outer")
+    pe = per_engine(old).merge(per_engine(new), left_index=True, right_index=True, how="outer",
+                               suffixes=("_earlier", "_h0"))
     pe.to_csv(os.path.join(out, "bench_engines_earlier_vs_h0.csv"))
+    # Offsets: an engine's reported objective (-2 log-likelihood or criterion) minus the common
+    # reference objective at its own estimates. A constant offset per engine and model class is
+    # what the expected-disagreement registry records; a change between runs is a finding.
+    if "reported_minus_ref_h0" in m.columns:
+        off = m.dropna(subset=["reported_minus_ref_h0"])[
+            ["engine", "model", "reported_minus_ref_earlier", "reported_minus_ref_h0"]].copy()
+        off["change"] = off["reported_minus_ref_h0"] - off["reported_minus_ref_earlier"]
+        off.sort_values(["engine", "model"]).to_csv(os.path.join(out, "bench_offsets_earlier_vs_h0.csv"),
+                                                    index=False)
+        log.append(f"offsets: {len(off)} engine-model pairs, largest absolute change "
+                   f"{off['change'].abs().max():.3g}")
     log.append(f"benchmark: {len(new)} H0 rows, {len(old)} earlier rows, {len(changed)} class changes")
 else:
     log.append("benchmark: comparison_rows.json missing, skipped")
@@ -123,7 +135,7 @@ for name, keys in [("timing_raw.csv", ["design", "size", "task", "engine_family"
         ga, gb = a.groupby(keys).agg(agg), b.groupby(keys).agg(agg)
         ga.columns = ["_".join(c) for c in ga.columns]
         gb.columns = ["_".join(c) for c in gb.columns]
-        m = ga.join(gb, lsuffix="_earlier", rsuffix="_h0", how="outer")
+        m = ga.merge(gb, left_index=True, right_index=True, how="outer", suffixes=("_earlier", "_h0"))
         m["median_ratio_h0_to_earlier"] = m["elapsed_median_h0"] / m["elapsed_median_earlier"]
         m.to_csv(os.path.join(out, name.replace(".csv", "_earlier_vs_h0.csv")))
         both = m.dropna(subset=["median_ratio_h0_to_earlier"])

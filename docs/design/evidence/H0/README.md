@@ -89,7 +89,7 @@ Pending: the rerun of Sim 1 to 6 is still running.
 
 ## Limits
 
-- `cs()` was not tested: no script in `../decisions/B/sim` fits a `cs()` term, so a later session needs to supply one.
+- `cs()` was not tested: no script in `../decisions/B/sim` fits a `cs()` term, so one remains to be written.
 - The speed multiplier leaves out the suite's overhead, and it mixes hardware with the engine version.
 - The H1 stopping-rule walk with a second optimiser and suite derivatives was not timed, for want of a script.
 - The re-time used the existing timing scripts (`F/timing/time_grid.R`, `time_grid2.R` and `A-verify/scripts/lme4_timing.R`) with their own time budgets, in place of a 20-fit subset, for which no script exists.

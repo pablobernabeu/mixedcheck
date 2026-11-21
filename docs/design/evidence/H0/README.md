@@ -46,6 +46,9 @@ The wrappers are in [`slurm/`](slurm/) and the summary script in [`scripts/`](sc
 | Re-time | h0_timing.sbatch | 9448240 | htc-c028 | 6 min 53 s | 0.46 | 0.67 GB | F/timing/out_h0 |
 | Random-effects simulations | h0_bsim.sbatch | 9448241 | htc-c068 (EPYC 9634) | running | | | B/sim/out |
 | Summaries | h0_summarise.sbatch | 9448284, 9448393 | | under 30 s | 0.01 | | H0/summaries |
+| lme4 2.x on older R (A8) | h0_a8_rversions.sbatch | 9448965, tasks 1 to 4 (after 9448869, see below) | htc-c021 | 1 min 7 s to 3 min 54 s per task | 0.70 | 0.23 to 1.47 GB per task | H0/results/A8 |
+
+The first A8 run (9448869) pulled the four images, in 7 min 50 s to 8 min 26 s per task (2.18 CPU-hours together), and then stopped in its report line before installing anything, because R's package index leaves out the snapshot's Matrix on these R versions. The rerun reads the metadata from the unfiltered index.
 
 Three builds failed before the one that succeeded, each on an environment detail rather than on the packages: the host's PATH does not reach the container (uv was then called by its path), `libR.so` was not found by rpy2 (fixed by `LD_LIBRARY_PATH`), and rpy2 3.6 lacks `rpy2.__version__` (fixed by rpy2 3.5.17). They used 0.83 CPU-hours together. The jobs that waited on them were cancelled before they started and resubmitted.
 
@@ -87,9 +90,23 @@ The H1 cost has not yet been re-estimated as the H0 gate requires (03-execution-
 
 Pending: the rerun of Sim 1 to 6 is still running.
 
+### lme4 2.x on R 4.2.0 to 4.3.3 (A8)
+
+Each R release ran in a rocker/r-ver image pulled by digest (linux/amd64 manifests read from Docker Hub on 21 November 2026; the digests are in the wrapper). lme4 and its missing dependencies were installed from the snapshot of 2026-11-20 into an empty library, with R's own library, and so the Matrix it bundles, behind it ([`results/A8/`](results/A8/)). The snapshot's lme4 is 2.1-0, which declares `Depends: R (>= 3.6), Matrix` and `LinkingTo: Matrix (>= 1.5-0)`.
+
+| R | Image OS | Bundled Matrix | lme4 2.1-0 with the bundled Matrix | Load test (sleepstudy, REML criterion) |
+|---|---|---|---|---|
+| 4.2.0 | Ubuntu 20.04 (focal) | 1.4-1 | fails: lme4 needs Matrix ≥ 1.5-0 | not run |
+| 4.2.2 | Ubuntu 22.04 (jammy) | 1.5-1 | installs | 1743.6283 |
+| 4.2.3 | Ubuntu 22.04 (jammy) | 1.5-3 | installs | 1743.6283 |
+| 4.3.3 | Ubuntu 22.04 (jammy) | 1.6-5 | installs | 1743.6283 |
+
+lme4 2.x therefore installs with the bundled Matrix from R 4.2.2 on, but not on R 4.2.0, whose Matrix 1.4-1 is below lme4's `LinkingTo` requirement; R 4.2.1, which bundles the same Matrix 1.4-1, was not tested and is expected to behave the same way. On R 4.2.0 the fallback of installing the snapshot's Matrix was not possible either: the snapshot holds only Matrix 1.7-6, which CRAN's page lists with `Depends: R (>= 4.4)` (read 21 November 2026) and whose entry in the snapshot's index even declares R ≥ 4.7. An archived Matrix between 1.5-0 and 1.6-5 was not tried. This confirms by installation what 02-decisions.md (Q10) inferred from the packages' metadata: Stream A with lme4 2.x on R 4.2 needs R 4.2.2 or later, or an archived Matrix of 1.5-0 or later, under the package's floor of R ≥ 4.2.0.
+
 ## Limits
 
 - `cs()` was not tested: no script in `../decisions/B/sim` fits a `cs()` term, so one remains to be written.
+- The optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe were not run: no script in the repository runs them, and the open item asks for same-engine parity tests on the fixtures, which remain to be written.
 - The speed multiplier leaves out the suite's overhead, and it mixes hardware with the engine version.
 - The H1 stopping-rule walk with a second optimiser and suite derivatives was not timed, for want of a script.
 - The re-time used the existing timing scripts (`F/timing/time_grid.R`, `time_grid2.R` and `A-verify/scripts/lme4_timing.R`) with their own time budgets, in place of a 20-fit subset, for which no script exists.

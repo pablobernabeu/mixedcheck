@@ -12,7 +12,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=16G
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --output=logs/%x-%j.out
 
 set -euo pipefail
@@ -85,13 +85,15 @@ stopifnot(packageVersion("lme4") >= "2.1-0", packageVersion("glmmTMB") >= "1.1.1
 EOF
 
 echo "== Python environments ($(date -Is))"
+# Apptainer does not pass the host's PATH into the container, so uv is called by its path.
+export UV=$H0/bin/uv
 run bash -euo pipefail -c '
-  uv python install "$PYVER"
-  uv venv --python "$PYVER" "$ENVS/venv312"
-  uv pip install --python "$ENVS/venv312/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
+  "$UV" python install "$PYVER"
+  "$UV" venv --python "$PYVER" "$ENVS/venv312"
+  "$UV" pip install --python "$ENVS/venv312/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
       numpy pandas scipy statsmodels mixedlm glmm gpboost
-  uv venv --python "$PYVER" "$ENVS/venv_pymer4"
-  uv pip install --python "$ENVS/venv_pymer4/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
+  "$UV" venv --python "$PYVER" "$ENVS/venv_pymer4"
+  "$UV" pip install --python "$ENVS/venv_pymer4/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
       numpy pandas scipy rpy2
   "$ENVS/venv312/bin/python" -I -c "import statsmodels, mixedlm, glmm, gpboost, sys; print(sys.version.split()[0], statsmodels.__version__, mixedlm.__version__ if hasattr(mixedlm, \"__version__\") else \"\", gpboost.__version__)"
   R_LIBS="$RLIB" R_HOME="$(R RHOME)" "$ENVS/venv_pymer4/bin/python" -I -c "import rpy2, rpy2.robjects as ro; from rpy2.robjects.packages import importr; importr(\"lme4\"); print(\"rpy2\", rpy2.__version__, \"R\", ro.r(\"R.version.string\")[0], \"lme4\", ro.r(\"as.character(packageVersion(\\\"lme4\\\"))\")[0])"

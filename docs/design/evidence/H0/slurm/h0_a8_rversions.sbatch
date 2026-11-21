@@ -8,7 +8,10 @@
 # Attempt 1 installs the snapshot's lme4 and its missing dependencies into an empty library,
 # with R's own library (and so its bundled Matrix) behind it and the site library left out.
 # Only if attempt 1 fails does attempt 2, in a fresh R process, add the snapshot's Matrix,
-# to tell a Matrix requirement apart from other causes. Results: $OUT/a8_<R version>.tsv.
+# to tell a Matrix requirement apart from other causes; it is skipped, and says so, when that
+# Matrix requires a newer R. Results: $OUT/a8_<R version>.tsv, with the installation logs.
+# The first run (9448869) stopped before installing: the report line read the snapshot's
+# Matrix from the index that R filters by its own version, where it was missing.
 #SBATCH --clusters=htc
 #SBATCH --account=educ-intract
 #SBATCH --partition=short
@@ -46,7 +49,9 @@ export SNAP=2026-11-20                          # the same Posit Package Manager
 export OUT=$H0/results/A8
 export TAG NCPUS=${SLURM_CPUS_PER_TASK:-1} LC_ALL=C.UTF-8
 mkdir -p "$OUT" "$H0/lib/a8"
-rm -rf "$H0/lib/a8/R-$TAG-attempt1" "$H0/lib/a8/R-$TAG-attempt2"   # libraries of this script only
+# Libraries, logs and results of this script only, so that a rerun starts clean.
+rm -rf "$H0/lib/a8/R-$TAG-attempt1" "$H0/lib/a8/R-$TAG-attempt2" \
+       "$OUT/install-logs_${TAG}_attempt1" "$OUT/install-logs_${TAG}_attempt2" "$OUT/a8_$TAG.tsv"
 
 echo "== $(hostname) $(date -Is) R $TAG $DIGEST"
 if [ ! -s "$SIF" ]; then
@@ -67,19 +72,41 @@ options(HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(),
 bin <- sprintf("https://p3m.dev/cran/__linux__/%s/%s", os, snap)
 src <- sprintf("https://p3m.dev/cran/%s", snap)
 bundled <- as.character(packageVersion("Matrix", lib.loc = .Library))
-ap <- available.packages(repos = src)
+# The unfiltered index gives the metadata; the default index drops packages whose R
+# requirement this R does not meet, which is what install.packages() sees.
+au <- available.packages(repos = src, filters = list())
+af <- available.packages(repos = c(bin, src))
+fld <- function(p, f) if (p %in% rownames(au)) gsub("\\s+", " ", au[p, f]) else NA_character_
+installable <- function(p) p %in% rownames(af)
 cat("R:", R.version.string, "| OS:", os, "| bundled Matrix:", bundled,
-    "| snapshot lme4:", ap["lme4", "Version"], "| snapshot Matrix:", ap["Matrix", "Version"], "\n")
-for (f in c("Depends", "Imports", "LinkingTo")) cat("lme4", f, ":", gsub("\\s+", " ", ap["lme4", f]), "\n")
+    "| snapshot lme4:", fld("lme4", "Version"), "(installable here:", installable("lme4"), ")",
+    "| snapshot Matrix:", fld("Matrix", "Version"), "Depends", fld("Matrix", "Depends"),
+    "(installable here:", installable("Matrix"), ")\n")
+for (f in c("Depends", "Imports", "LinkingTo")) cat("lme4", f, ":", fld("lme4", f), "\n")
 
 .libPaths(c(lib, .Library))                     # leaves the image's site library out
 pk <- if (k == 2) c("Matrix", "lme4") else "lme4"
 msgs <- character()
-withCallingHandlers(
-  tryCatch(install.packages(pk, lib = lib, repos = c(bin, src), dependencies = NA, Ncpus = ncpus),
-           error = function(e) msgs <<- c(msgs, conditionMessage(e))),
-  warning = function(w) { msgs <<- c(msgs, conditionMessage(w)); invokeRestart("muffleWarning") })
-ok <- requireNamespace("lme4", lib.loc = lib, quietly = TRUE)
+logs <- file.path(out, sprintf("install-logs_%s_attempt%d", tag, k))
+dir.create(logs, recursive = TRUE, showWarnings = FALSE)
+if (k == 2 && !installable("Matrix")) {
+  msgs <- sprintf("snapshot Matrix %s (Depends %s) cannot install on R %s; attempt not run",
+                  fld("Matrix", "Version"), fld("Matrix", "Depends"), getRversion())
+} else {
+  withCallingHandlers(
+    tryCatch(install.packages(pk, lib = lib, repos = c(bin, src), dependencies = NA, Ncpus = ncpus,
+                              keep_outputs = logs),
+             error = function(e) msgs <<- c(msgs, conditionMessage(e))),
+    warning = function(w) { msgs <<- c(msgs, conditionMessage(w)); invokeRestart("muffleWarning") })
+  # The reasons for any failed installation, from the kept installation logs.
+  for (lf in list.files(logs, pattern = "\\.out$", full.names = TRUE)) {
+    hit <- grep("ERROR|required|requires|not available|is being loaded|was found", readLines(lf, warn = FALSE),
+                value = TRUE)
+    if (length(hit)) msgs <- c(msgs, paste0(basename(lf), ": ", paste(utils::head(hit, 4), collapse = " / ")))
+  }
+}
+ok <- tryCatch({ loadNamespace("lme4", lib.loc = lib); TRUE },
+               error = function(e) { msgs <<- c(msgs, paste("load:", conditionMessage(e))); FALSE })
 fit <- NA_character_
 if (ok) {
   fit <- tryCatch({
@@ -89,9 +116,11 @@ if (ok) {
   }, error = function(e) paste("fit failed:", conditionMessage(e)))
 }
 res <- data.frame(r_version = as.character(getRversion()), os = os, attempt = k,
-                  bundled_matrix = bundled, snapshot = snap, snapshot_lme4 = ap["lme4", "Version"],
-                  lme4_depends = gsub("\\s+", " ", ap["lme4", "Depends"]),
-                  lme4_imports = gsub("\\s+", " ", ap["lme4", "Imports"]),
+                  bundled_matrix = bundled, snapshot = snap, snapshot_lme4 = fld("lme4", "Version"),
+                  lme4_depends = fld("lme4", "Depends"), lme4_imports = fld("lme4", "Imports"),
+                  lme4_linkingto = fld("lme4", "LinkingTo"),
+                  snapshot_matrix = fld("Matrix", "Version"), matrix_depends = fld("Matrix", "Depends"),
+                  lme4_installable = installable("lme4"), matrix_installable = installable("Matrix"),
                   installed = ok,
                   lme4 = if (ok) as.character(packageVersion("lme4", lib.loc = lib)) else NA_character_,
                   matrix_used = as.character(packageVersion("Matrix", lib.loc = c(lib, .Library))),

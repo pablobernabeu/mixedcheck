@@ -1,0 +1,6 @@
+fit,seconds_earlier,seconds_h0,ratio_h0_to_earlier
+crossed_zcp_ML,0.113,0.198,1.752212389380531
+crossed_zcp_REML,0.117,0.203,1.735042735042735
+crossedbig_zcp_REML,0.86,0.943,1.0965116279069766
+crossed_REML (corr),0.191,0.325,1.7015706806282722
+crossedbig_REML,1.333,1.164,0.873218304576144

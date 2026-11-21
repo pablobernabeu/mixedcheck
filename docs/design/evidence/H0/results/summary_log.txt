@@ -1,0 +1,11 @@
+offsets: 164 engine-model pairs, largest absolute change 1.68e+03
+benchmark: 216 H0 rows, 216 earlier rows, 4 class changes
+benchmark memory: 162 engine runs
+V1 pilot: time ratio per cell 1.645, 1.652, 1.786, 1.712; flags identical: True
+timing_raw.csv: 126 groups timed in both runs, median of the ratios 1.730
+timing_raw2.csv: 28 groups timed in both runs, median of the ratios 1.297
+lme4_timing: crossed_zcp_ML 1.75, crossed_zcp_REML 1.74, crossedbig_zcp_REML 1.10, crossed_REML (corr) 1.70, crossedbig_REML 0.87
+B/sim sim1_summary_small.csv: not available yet
+B/sim sim1_summary_large.csv: not available yet
+B/sim sim2_summary.csv: not available yet
+B/sim sim3_summary.csv: not available yet

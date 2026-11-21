@@ -1,0 +1,2 @@
+image,rocker/r-ver:4.6.2@sha256:1ca5bfbc810a4e176d74e05267a670e84de86b23a4a5791fa06862bfa35369ba
+snapshot,2026-11-20

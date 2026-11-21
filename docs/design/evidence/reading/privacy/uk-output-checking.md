@@ -21,4 +21,14 @@
 
 The defaults agree with the primary UK guidance on the threshold, rounding, residual df, differencing and point-level detail, and are stricter on zeros and on dominance. Two points differ in the other direction and are for the maintainer: the quantile rule, which the SRS sets between adjacent reported percentiles, and exact counts of institutions, which DfE bounds below at 3. Both arise only when the data provider's rules apply, which Q5 already makes binding; a registry option for the SRS percentile rule would close the first for users of DfE data.
 
+## Fields that differ from the repository's records
+
+- Evidence C (references_C.csv) lists five authors of the SDC Handbook and marks the list incomplete; its title page names the eight given above.
+- Evidence C cites the SACRO guide as https://doi.org/10.5281/zenodo.10054629 (30 October 2023), with five authors (Ritchie, Green, Smith, Tilbrook and White). Zenodo holds a second record of the guide, https://doi.org/10.5281/zenodo.10282526 (31 October 2023), with six (Ritchie, Tilbrook, Green, White, Derrick and Kendall), whose PDF has the same size, 3,807,131 bytes; this reading used the second. The PDF itself names Ritchie as primary author, with the project team (Green, Ritchie, Smith, Tilbrook and White) and Kendall for the summaries (p. 2).
+- Evidence C cites a DfE policy of June 2025; the version read here is that of April 2026.
+
+## Not read
+
+Version 2.0 of the SDC Handbook (UK Data Service, https://ukdataservice.ac.uk/app/uploads/sdc-handbook-v2.0.pdf, a PDF of 2.4 MB dated July 2025) and the ONS SRS output-checking guidance of February 2025 (a PDF on ons.gov.uk, which evidence C cites), since each needs a download not yet approved.
+
 **Questions for a person.** Whether to add the SRS's spacing rule for reported quantiles as an option or a default.

@@ -1,0 +1,22 @@
+# Data licences of the candidate external datasets
+
+**Records read, 21 November 2026,** in the browser: the OSF API (https://api.osf.io/v2/nodes/ID/, with each node's licence and child components), the DataCite record of the ERP CORE DOI, the ERP CORE page of ERP Info, the two LSHTM Data Compass records and the Zenodo API for the records of the openESM community. No data file was opened or downloaded.
+
+**Rule being checked (02-decisions.md, Q8, layer 3, and Q10).** Packages and fixtures accept only CC0 or CC BY; ShareAlike material stays in the corpus folder that is never shipped, and each dataset is added only after a local licence check.
+
+## Facts
+
+1. **OSF 4p8hz.** 'Open Data of a cluster-randomized trial of GraphoGame-NL in Groningen, The Netherlands and Ghent, Belgium': public, created 26 May 2023, last modified 5 June 2023, no components. Licence: CC BY 4.0 (year 2023, no copyright holder named). The description reports 312 children offered participation in 16 classrooms at 8 schools. The evidence (E, q8_datasets.csv) had CC BY 4.0 from search snippets only; it is now confirmed on the live record.
+2. **LSHTM Data Compass 4719 and 4333** (WASH in Schools, Addis Ababa). Record 4719, 'Data for: Effects of a school-based water and hygiene intervention on the health and school attendance of kindergarten pupils in Addis Ababa, Ethiopia: a cluster-randomised controlled trial', https://doi.org/10.17037/DATA.00004719, deposited 30 June 2025: pupil and school CSV files and Stata do-files, each 'available under Creative Commons: Attribution 4.0'. Record 4333, the main trial's data (https://doi.org/10.17037/DATA.00004333): pupil files in long and wide form, a school file and do-files, each under CC BY 4.0. Confirmed.
+3. **Many Labs 2** (OSF 8cd4r). The root project and every component carry CC0 1.0 (the overview ux3eh, 'Data and Results (per site, etc.)' fanre, 'Codebooks and Study Files' iumfx, 'Materials for Individual Studies' 3r9tm and 'Videos Documenting Data Collection' r9uwd), except 'Analysis Scripts' (irhfc), which carries CC BY 4.0. The evidence had not seen the main project's licence; it is CC0. The report of personal information in the full data, from a 2024 reanalysis, was not checked here, and the rule of Q8 to use only the public subset stands.
+4. **ERP CORE.** The DOI 10.18115/D5JW4R (DataCite: 'ERP CORE (Compendium of Open Resources and Experiments)', Luck, S. J., University of California, Davis, 2020) resolves to OSF project thsqg. On OSF, the project and all 13 of its components carry CC BY 4.0. The ERP CORE page of ERP Info (https://erpinfo.org/erp-core) states instead that the resources are shared under CC BY-SA 4.0, with credit required and derivatives to be shared under the same licence. The records therefore conflict: OSF's licence field says CC BY, the project's own website says CC BY-SA. 02-decisions.md (Q8) and evidence E follow the website.
+5. **openESM** (Zenodo community 'openesm'). 63 dataset records, one version each, published between 14 October 2025 and 13 October 2026. Their Zenodo licences: CC BY-NC 4.0 for 37, CC BY 4.0 for 20, CC0 for 3, CC BY-NC-SA 4.0 for 1, GPL-3.0 for 1 and none stated for 1. So 23 of the 63 meet the CC0-or-CC-BY rule; the rest may be fetched at run time in documentation, as Q8 plans, but cannot enter fixtures. The Zenodo licence is the openESM deposit's; the openESM README notes that individual datasets may carry their source's licence, so a dataset chosen for the corpus needs its source licence checked too.
+
+## Bearing on Q8 and Q10
+
+The checks that 03-execution-plan.md lists ('the data licences of OSF project 4p8hz, LSHTM Data Compass, Many Labs 2, ERP CORE and the openESM datasets') are done. 4p8hz and the LSHTM trials meet the CC BY rule and could enter the corpus with attribution, which answers the 'revisit_if' of evidence E for 4p8hz (a small education CRT confirmed as CC BY could become a realistic layer-1 fixture in both packages). Many Labs 2 is CC0 apart from its analysis scripts. ERP CORE stays in the never-shipped folder under the stricter reading, as Q8 already provides.
+
+## Questions for a person
+
+- ERP CORE: whether to treat the data as CC BY-SA 4.0 (the website) or CC BY 4.0 (OSF's licence field). The stricter reading costs nothing now, since Q8 keeps ERP CORE outside the packages, but a question to the ERP CORE team would settle it.
+- Whether to bundle a subset of OSF 4p8hz as a layer-1 fixture in both packages, now that its licence is confirmed.

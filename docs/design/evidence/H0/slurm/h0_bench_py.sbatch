@@ -40,7 +40,10 @@ RUN=$H0/runs/h0-2026-11-21/decisions
 export R_LIBS=$H0/lib/R-4.6.2-p3m-$SNAP R_LIBS_USER=$H0/lib/R-4.6.2-p3m-$SNAP
 export LC_ALL=C.UTF-8
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 FLEXIBLAS_NUM_THREADS=1
-run() { apptainer exec --home "$H0/home" --bind "$H0" "$SIF" "$@"; }
+# The image's R is built from source and its libR.so is not registered with the linker, so the
+# rpy2 engine's embedded R needs R's lib directory on LD_LIBRARY_PATH (Ubuntu's own R needs none).
+run() { apptainer exec --home "$H0/home" --bind "$H0" \
+          --env LD_LIBRARY_PATH=/usr/local/lib/R/lib:/.singularity.d/libs "$SIF" "$@"; }
 
 ENGINES=(statsmodels mixedlm glmm gpboost gpboost_chol rpy2_lme4)
 ENGINE=${ENGINES[$((SLURM_ARRAY_TASK_ID - 1))]}

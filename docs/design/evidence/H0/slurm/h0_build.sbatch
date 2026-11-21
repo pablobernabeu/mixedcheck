@@ -76,7 +76,10 @@ options(repos = c(CRAN = repo), Ncpus = as.integer(Sys.getenv("NCPUS")),
 .libPaths(c(lib, .libPaths()))
 cat("repo:", repo, "\nlibPaths:", .libPaths(), sep = "\n")
 pkgs <- c("lme4", "glmmTMB", "lmerTest", "pbkrtest", "clubSandwich", "jsonlite")
-install.packages(pkgs, lib = lib, dependencies = c("Depends", "Imports", "LinkingTo"))
+# The snapshot is fixed, so a library that already holds every package is left as it is.
+if (!all(pkgs %in% rownames(installed.packages(lib.loc = lib)))) {
+  install.packages(pkgs, lib = lib, dependencies = c("Depends", "Imports", "LinkingTo"))
+}
 for (p in c(pkgs, "Matrix", "MASS")) {
   suppressPackageStartupMessages(library(p, character.only = TRUE))
   cat(sprintf("%-14s %-10s %s\n", p, as.character(packageVersion(p)), dirname(find.package(p))))
@@ -89,14 +92,17 @@ echo "== Python environments ($(date -Is))"
 export UV=$H0/bin/uv
 run bash -euo pipefail -c '
   "$UV" python install "$PYVER"
-  "$UV" venv --python "$PYVER" "$ENVS/venv312"
+  "$UV" venv --clear --python "$PYVER" "$ENVS/venv312"
   "$UV" pip install --python "$ENVS/venv312/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
       numpy pandas scipy statsmodels mixedlm glmm gpboost
-  "$UV" venv --python "$PYVER" "$ENVS/venv_pymer4"
+  "$UV" venv --clear --python "$PYVER" "$ENVS/venv_pymer4"
   "$UV" pip install --python "$ENVS/venv_pymer4/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
       numpy pandas scipy rpy2
   "$ENVS/venv312/bin/python" -I -c "import statsmodels, mixedlm, glmm, gpboost, sys; print(sys.version.split()[0], statsmodels.__version__, mixedlm.__version__ if hasattr(mixedlm, \"__version__\") else \"\", gpboost.__version__)"
-  R_LIBS="$RLIB" R_HOME="$(R RHOME)" "$ENVS/venv_pymer4/bin/python" -I -c "import rpy2, rpy2.robjects as ro; from rpy2.robjects.packages import importr; importr(\"lme4\"); print(\"rpy2\", rpy2.__version__, \"R\", ro.r(\"R.version.string\")[0], \"lme4\", ro.r(\"as.character(packageVersion(\\\"lme4\\\"))\")[0])"
+  # The image builds R from source and does not register libR.so with the linker, so an
+  # embedded R (rpy2) needs R'"'"'s lib directory on LD_LIBRARY_PATH.
+  R_LIBS="$RLIB" R_HOME="$(R RHOME)" LD_LIBRARY_PATH="$(R RHOME)/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+    "$ENVS/venv_pymer4/bin/python" -I -c "import rpy2, rpy2.robjects as ro; from rpy2.robjects.packages import importr; importr(\"lme4\"); print(\"rpy2\", rpy2.__version__, \"R\", ro.r(\"R.version.string\")[0], \"lme4\", ro.r(\"as.character(packageVersion(\\\"lme4\\\"))\")[0])"
 '
 
 echo "== lockfile ($(date -Is))"

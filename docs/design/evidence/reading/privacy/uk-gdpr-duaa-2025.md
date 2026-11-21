@@ -1,0 +1,12 @@
+# UK GDPR and the Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025
+
+**Pages read.** legislation.gov.uk, Data (Use and Access) Act 2025 (c. 18): contents (https://www.legislation.gov.uk/ukpga/2025/18/contents) and Part 5, Chapter 1 (https://www.legislation.gov.uk/ukpga/2025/18/part/5/chapter/1), as published on 21 November 2026, read that day; the ICO's anonymisation guidance (ico-anonymisation.md).
+
+**Fact.**
+- **Identifiability.** Part 5, Chapter 1, which amends the UK GDPR and the 2018 Act for general processing, does not contain the word 'identifiable' anywhere: the Act does not change the definition of personal data or the test of identifiability. Identifiability is still judged as before, by the means reasonably likely to be used (UK GDPR Recital 26, as the ICO's guidance applies it).
+- **Statistical purposes.** Section 67 renumbers Article 4 of the UK GDPR and inserts new paragraphs. New Article 4(5) defines processing for statistical purposes as processing for statistical surveys or for producing statistical results where (a) the information that results is aggregate data that is not personal data, and (b) neither the personal data nor the results are used to support measures or decisions about a particular data subject. New Article 4(2) and (3) define scientific research broadly, including privately funded and commercial research, and Article 4(4) brings genealogical research under historical research. Section 67 came into force on 5 February 2026 (S.I. 2026/82, reg. 2(a)).
+
+**Bearing on Q5 (02-decisions.md) and 03-execution-plan.md (Open checks).** 03 asks how the law applies to shareable output 'including the identifiability provisions of the 2025 Act'. The Act's data-protection chapter has no such provisions, so the Open check should be reworded. What the Act adds that bears on the shareable mode is Article 4(5): for statistical processing, the results must be aggregate data that is not personal data. A shareable report meets that only if no person is identifiable from it by means reasonably likely to be used, which is the standard the privacy filter's rules aim at; the 2025 Act sets no numerical rule.
+
+**Questions for a person.**
+- Whether a data-protection specialist (for example the University's Information Compliance team) should confirm this reading before 1.0, as 02 (Q5) intends.

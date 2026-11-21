@@ -1,0 +1,13 @@
+# ARC accounting
+
+**Pages read, 21 November 2026.** ARC User Guide, 'General FAQs' and 'Submitting Priority Jobs' (https://arc-user-guide.readthedocs.io/en/latest/general-faq.html, https://arc-user-guide.readthedocs.io/en/latest/arc-priority-jobs.html). The 'ARC Accounting' page that the guide links (https://www.arc.ox.ac.uk/arc-accounting) now redirects to the University's general page on Advanced Research Computing, which gives no accounting details. A web search on the same day returned excerpts of ARC's earlier accounting and access-policy pages, which are reported below as excerpts, not as pages read.
+
+**Fact.**
+- From the user guide: jobs run under the standard service level by default; priority credit is bought separately and kept in a second account with the suffix '-priority', which a job uses only when submitted with `--qos priority`; `mybalance` shows the credit left.
+- From the search excerpts of ARC's earlier accounting page, not confirmed on a live page: a new project receives free credits equivalent to 25,000 core-hours; projects in the MPLS, Social Sciences and Humanities divisions receive standard credits under the free service, and Medical Sciences projects basic credits; the full economic cost of CPU time is £0.01 per core-hour, reviewed annually; one core-hour is 3,600 credits. An older service-level page quoted £0.01 per standard core-hour and £0.02 per priority core-hour for 2020/21.
+- From ARC itself (H0, 21 November 2026): the project's association has the QoS basic, priority and standard, with standard as the default, and the H0 jobs ran under standard QoS on the project's own account. The project's credit was sufficient for H0; the balance is not recorded here.
+
+**For the record.** open_items_local_session.csv asks to confirm that Social Sciences projects get standard credits under the free service, that new projects receive 25,000 free core-hours and that the full economic cost is £0.01 per core-hour. The live ARC pages no longer state these figures; only the search excerpts of the earlier pages do.
+
+**Questions for a person.**
+- The current charge per core-hour and the terms of the free allocation, since ARC's accounting page has been withdrawn (ARC support).

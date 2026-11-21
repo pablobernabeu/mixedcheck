@@ -1,0 +1,10 @@
+# Behavior Research Methods: Registered Reports of simulation studies
+
+**Pages read.** Springer Nature Link, 'Submission guidelines | Behavior Research Methods' (https://link.springer.com/journal/13428/submission-guidelines), read 21 November 2026, sections 'Behavior Research Methods General Information' and 'Open Practices', and the whole page searched for registered reports, preregistration, Stage 1 and in-principle acceptance; a web search on the same day for a Psychonomic Society page on registered reports at BRM, which found none.
+
+**Fact.** The guidelines say that BRM accepts original research articles and tutorials. They do not mention registered reports, Stage 1 review or in-principle acceptance. The Open Practices section asks for statements on preregistration and on the availability of materials and code, with an example noting that a study was preregistered, but this concerns preregistration of ordinary submissions, not a registered-report track. The ADEMP-PreReg template's wiki lists BRM among journals that, to its authors' knowledge, accept registered reports for simulation studies (see the note on Siepe et al., 2024).
+
+**For the record.** 02-decisions.md (Q9) names BRM, beside AMPPS, as a venue for the Stage 1 registered report and as the venue for the validation paper as a preregistered regular article. The journal's public guidelines support the second use (a preregistered regular article) but not, on their own, a registered-report submission.
+
+**Questions for a person.**
+- Whether BRM accepts registered reports, and for simulation studies in particular (the BRM editors or the Psychonomic Society).

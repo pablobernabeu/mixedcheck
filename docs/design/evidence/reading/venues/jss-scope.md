@@ -1,0 +1,9 @@
+# JSS: scope wording
+
+**Pages read.** Journal of Statistical Software, 'Information on Mission', sections 'Scope' and 'Types of Papers' (https://www.jstatsoft.org/mission), and 'Submissions', the submission checklist (https://www.jstatsoft.org/about/submissions), read 21 November 2026.
+
+**Fact.** JSS publishes open-source software together with reproducible articles on the design, implementation, documentation, application, evaluation, comparison, maintenance and distribution of software that improves the state of the art in statistical computing. Code and article are reviewed and published as a unit, and full reproducibility is required. The journal aims at comprehensive open-source implementations of broad classes of statistical models and procedures, or the computational infrastructure for them. It does not publish methodological innovations: novel models or estimation procedures should be published elsewhere before an article on their implementation, and a later JSS article on a corresponding package needs a substantial software innovation (Scope; Types of Papers). The software must carry GPL-2, GPL-3 or a GPL-compatible licence; JSS does not consider software under other licences (Copyright and Costs; submission checklist).
+
+**For the record.** A JSS article on mixedcheck would have to describe the software, not the validation results, which fits 02-decisions.md (Q9). The licence condition is met: both packages are MIT-licensed (02-decisions.md, Q10), and the Expat (MIT) licence is GPL-compatible, which 02 still marks as to be confirmed on gnu.org (an Open check of B7).
+
+**Questions for a person.** None.

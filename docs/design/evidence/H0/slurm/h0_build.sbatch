@@ -95,15 +95,43 @@ run bash -euo pipefail -c '
   "$UV" venv --clear --python "$PYVER" "$ENVS/venv312"
   "$UV" pip install --python "$ENVS/venv312/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
       numpy pandas scipy statsmodels mixedlm glmm gpboost
+  # rpy2 is pinned to 3.5.17, the version of the earlier benchmark, because A/bench/engines.py
+  # reads rpy2.__version__, which the split rpy2 3.6 packages no longer provide.
   "$UV" venv --clear --python "$PYVER" "$ENVS/venv_pymer4"
   "$UV" pip install --python "$ENVS/venv_pymer4/bin/python" --exclude-newer "$EXCLUDE_NEWER" \
-      numpy pandas scipy rpy2
+      numpy pandas scipy "rpy2==3.5.17"
   "$ENVS/venv312/bin/python" -I -c "import statsmodels, mixedlm, glmm, gpboost, sys; print(sys.version.split()[0], statsmodels.__version__, mixedlm.__version__ if hasattr(mixedlm, \"__version__\") else \"\", gpboost.__version__)"
-  # The image builds R from source and does not register libR.so with the linker, so an
-  # embedded R (rpy2) needs R'"'"'s lib directory on LD_LIBRARY_PATH.
-  R_LIBS="$RLIB" R_HOME="$(R RHOME)" LD_LIBRARY_PATH="$(R RHOME)/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
-    "$ENVS/venv_pymer4/bin/python" -I -c "import rpy2, rpy2.robjects as ro; from rpy2.robjects.packages import importr; importr(\"lme4\"); print(\"rpy2\", rpy2.__version__, \"R\", ro.r(\"R.version.string\")[0], \"lme4\", ro.r(\"as.character(packageVersion(\\\"lme4\\\"))\")[0])"
 '
+
+# The rpy2 check does what the benchmark's rpy2 engine does: convert a pandas data frame to R
+# and fit lmer. The image builds R from source and does not register libR.so with the linker,
+# so the embedded R needs R's lib directory on LD_LIBRARY_PATH.
+cat > "$TMPDIR/rpy2_check.py" <<'EOF'
+import numpy as np, pandas as pd
+import rpy2, rpy2.robjects as ro
+from rpy2.robjects import pandas2ri
+from rpy2.robjects.conversion import localconverter
+from rpy2.robjects.packages import importr
+importr("lme4")
+rng = np.random.default_rng(1)
+d = pd.DataFrame({"y": rng.normal(size=60), "x": np.linspace(0, 1, 60), "g": [f"g{i % 6}" for i in range(60)]})
+with localconverter(ro.default_converter + pandas2ri.converter):
+    rdf = ro.conversion.py2rpy(d)
+ro.globalenv["dd"] = rdf
+ro.r("fm <- lme4::lmer(y ~ x + (1 | g), data = dd)")
+print("rpy2", rpy2.__version__, "numpy", np.__version__, "pandas", pd.__version__,
+      "R", ro.r("R.version.string")[0], "lme4", ro.r('as.character(packageVersion("lme4"))')[0],
+      "logLik", float(ro.r("as.numeric(logLik(fm))")[0]))
+EOF
+check_rpy2() {
+  run env R_LIBS="$RLIB" LD_LIBRARY_PATH=/usr/local/lib/R/lib:/.singularity.d/libs \
+      "$ENVS/venv_pymer4/bin/python" -I - < "$TMPDIR/rpy2_check.py"
+}
+if ! check_rpy2; then
+  echo "rpy2 3.5.17 failed with the current pandas; retrying with pandas < 3"
+  run "$UV" pip install --python "$ENVS/venv_pymer4/bin/python" --exclude-newer "$EXCLUDE_NEWER" "pandas<3"
+  check_rpy2
+fi
 
 echo "== lockfile ($(date -Is))"
 LOCK=$H0/lock/h0-lock-$SNAP.csv

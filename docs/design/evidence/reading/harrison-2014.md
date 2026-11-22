@@ -4,13 +4,15 @@
 
 **Match.** Crossref (queried 21 November 2026) and the publisher's page agree on author, title, journal, volume 2, article number e616 and DOI. Published 9 October 2014, open access. Not retracted or corrected.
 
-**Platform and pages read.** PeerJ, HTML full text (open access), read 21 November 2026: Abstract and the opening of the Introduction and Methods (the three sources of overdispersion simulated). Places are given by section.
+**Platform and pages read.** PeerJ, HTML full text (open access), read 21 November 2026: Abstract and the opening of the Introduction and Methods (the three sources of overdispersion simulated); the whole text, from the Introduction to the Summary, on 22 November 2026. Places are given by section.
 
 ## Claims checked
 
 1. spec/registry/checks/identifiability.residual_confounding.yaml and structure.cluster_sizes.yaml: for counts (and binomial outcomes with trials) a random intercept with one row per level is an observation-level random effect, a standard term for overdispersion (Harrison, 2014, 2015).
    **Supported for counts.** The paper describes observation-level random effects (OLRE), in which each data point receives its own level of a random effect that models extra-Poisson variation, as commonly used for overdispersion in count data, and shows by simulation that they give more accurate estimates than ignoring overdispersion when it comes from random extra-Poisson noise or aggregation (Abstract). The binomial case is Harrison (2015). The paper does not discuss binary outcomes, which the registry attributes, correctly, to a separate derivation.
 2. review-catalogue.md (L3 entry on dispersion): OLRE do not reduce bias in zero-inflated counts; ignoring overdispersion inflates r². **Confirmed** (Abstract): OLRE failed to reduce bias in zero-inflated data and sometimes increased it at high overdispersion, bias grew with the magnitude of overdispersion, and failing to model overdispersion inflated measures of explained variance (r²). The simulations cover three sources of overdispersion: extra-Poisson noise, zero inflation and aggregation (Introduction and Methods).
+
+3. Read in full, the paper adds caveats that the registry's wording leaves intact: OLRE should be used with caution when the dispersion parameter exceeds about 20, zero-inflated data need zero-inflated models instead, and conditional r² is misleading in models with an OLRE (Discussion and Summary).
 
 ## Fields that differ from the repository's records
 

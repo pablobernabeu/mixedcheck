@@ -962,3 +962,12 @@ An algorithm that is later reimplemented or corrected gets a new entry, and earl
 - Code consulted: none copied. The search scripts were written for this search and are not part of the repository.
 - AI assistance: Claude Code (Anthropic), under the maintainer's direction, ran the searches, screened the records, read the full texts and wrote the note.
 - Verification: each cited reference against Crossref, apart from the preprints, the arXiv paper and the software record, checked on their own pages.
+
+### 2026-11-22: the YAML nesting limit and the remaining full readings (local session)
+
+- Files: docs/spec/conventions.md (YAML), fixtures/conformance/yaml/ (conversion/deep_1000.yaml, conversion.json and README.md) with their vendored copies, python/tests/test_yaml.py, the reading notes on Terwee et al. (2007), Pustejovsky and Tipton (2018) and Harrison (2014, 2015), the references of outcome.boundary_shares, assignment.unit_in_random_part, identifiability.residual_confounding and structure.cluster_sizes in spec/registry/checks/, .github/GOVERNANCE.md (Succession) and docs/design/03-execution-plan.md (Open checks).
+- Algorithm: None. The conformance case was shortened to 999 nested sequences; the reader is unchanged.
+- Sources: the release notes of PyYAML 6.0.4 and its pull request 1010 on GitHub, the NEWS of R's yaml package on CRAN, and the full texts of the four papers and of the corrigendum, read through the publishers' sites with the maintainer's institutional access or as open access.
+- Code consulted: PyYAML's test of its recursion control (MIT), read to understand the limit. No code was copied.
+- AI assistance: Claude Code (Anthropic), under the maintainer's direction, reproduced the failure with PyYAML 6.0.3 and 6.0.4, changed the case, the test and the specification, read the sources and updated the notes and the registry.
+- Verification: the Python suite with PyYAML 6.0.4 (2,957 of 2,958 tests pass; the remaining one fails on Windows only, as recorded for release) and the YAML and declaration tests with PyYAML 6.0.3; compile_registry.py, rehash_results.py, vendor.py sync and check, and the 188 tests of spec/tools.

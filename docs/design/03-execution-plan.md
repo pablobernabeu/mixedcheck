@@ -444,7 +444,7 @@ That session took place on 21 and 22 November 2026. It ran the H0 pilot on ARC (
 
 Each item needs the local session, CI with network access or ARC. Delete an item once it is resolved, and record the outcome in 02-decisions.md if it changes a decision.
 
-The decisions still open are the arrangement for succession, settled before R0 (.github/GOVERNANCE.md), the paper route, settled at P1 (02-decisions.md, Decisions for the maintainer) and, for each restricted dataset, where its agreement allows it to be analysed.
+The arrangement for succession was settled on 22 November 2026: no successor is named, and the repository would be archived, with the MIT licence allowing a fork (.github/GOVERNANCE.md). The decisions still open are the paper route, settled at P1 (02-decisions.md, Decisions for the maintainer) and, for each restricted dataset, where its agreement allows it to be analysed.
 
 The local session of 21 and 22 November 2026 resolved the checks on registries and current software, the environment checks of the H0 pilot, the venue facts, the privacy and reporting standards, the licence checks, the terms of the conformance test vectors and the reading of the papers and registry sources listed here, as evidence/H0 and evidence/reading record and 02-decisions.md summarises. The checks that remain are:
 
@@ -455,4 +455,4 @@ The local session of 21 and 22 November 2026 resolved the checks on registries a
 - screen-reader testing of a prototype report
 - after the OSF preregistration of V1, V2 and V7, a fixture from OSF project 4p8hz in both packages with its attribution (02-decisions.md, Q8)
 
-Terwee et al. (2007), Pustejovsky and Tipton (2018) and Harrison (2014, 2015) were read in the parts the registry cites and stay marked full_text_read: false until they are read in full. The issue and pages of Siepe et al. (2024) are still to be assigned by the journal.
+Terwee et al. (2007), Pustejovsky and Tipton (2018) with its corrigendum and Harrison (2014, 2015), first read in the parts the registry cites, were read in full on 22 November 2026, so every literature source of registry 0.1.0 is now marked full_text_read: true. The issue and pages of Siepe et al. (2024) are still to be assigned by the journal.

@@ -18,6 +18,7 @@ discussed there, and the maintainer decides.
 
 ## Succession
 
-An arrangement for succession, stating who can take over maintenance and
-releases if the maintainer can no longer continue, is to be settled before the
-first release of the packages (R0 in `03-execution-plan.md`).
+No successor is named. If the maintainer can no longer maintain the packages,
+the repository will be archived with a notice in its README, and the packages
+will stay at their last releases. The MIT licence lets anyone continue the work
+in a fork, under another name.

@@ -5,3 +5,5 @@
 **Fact.** The guidelines say that BRM accepts original research articles and tutorials. They do not mention registered reports, Stage 1 review or in-principle acceptance. The Open Practices section asks for statements on preregistration and on the availability of materials and code, with an example noting that a study was preregistered, but this concerns preregistration of ordinary submissions, not a registered-report track. The ADEMP-PreReg template's wiki lists BRM among journals that, to its authors' knowledge, accept registered reports for simulation studies (see the note on Siepe et al., 2024).
 
 **For the record.** 02-decisions.md (Q9) names BRM, beside AMPPS, as a venue for the Stage 1 registered report and as the venue for the validation paper as a preregistered regular article. The journal's public guidelines support the second use (a preregistered regular article) but not, on their own, a registered-report submission.
+
+Since 22 November 2026 the Stage 1 report of Q9 no longer goes to BRM, which keeps the validation paper.

@@ -20,13 +20,13 @@
 
 ## Bearing on Q5 and the Open checks
 
-The defaults agree with the primary UK guidance on the threshold, the usual quantiles, residual df, differencing, rounding and point-level detail, and with the SRS on zeros. Three points differ, each where the guidance is stricter, and are for the maintainer:
+The defaults agree with the primary UK guidance on the threshold, the usual quantiles, residual df, differencing, rounding and point-level detail, and with the SRS on zeros. Three points differ, each where the guidance is stricter:
 
 - **Dominance.** The SRS's rule (largest above 43.75%, or the rest below 12.5% of the largest) differs from Q5's (2, 0.90) and catches a single large contributor that Q5's rule passes.
 - **Quantiles.** For irregular sets of quantiles, ONS–DfE and the SRS's reasoning require the threshold between adjacent reported quantiles, which n·min(p, 1 − p) ≥ k does not.
 - **Counts of non-person units.** The SRS's default rules treat schools and firms as data subjects with a threshold of 10, and ONS–DfE sets 3 for counts of a type of school; Q5 shows such counts exactly.
 
-All three arise only where a provider's rules apply, which Q5 already makes binding. Registry options that switch to the SRS's dominance rule, the spacing rule for quantiles and a threshold for organisational units would let a user of SRS data meet them without editing the filter.
+All three arise only where a provider's rules apply, which Q5 already makes binding. Registry options that switch to the SRS's dominance rule, the spacing rule for quantiles and a threshold for organisational units would let a user of SRS data meet them without editing the filter. On 22 November 2026 the spacing rule became part of the quantile rule, and the SRS's dominance rule and the threshold for organisational units became registry options, off by default (02-decisions.md, Q5).
 
 ## Fields that differ from the repository's records
 

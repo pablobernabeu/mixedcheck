@@ -348,7 +348,7 @@ M3b also checks that rung 0 leaves out the slopes of within-unit factors that ea
 
 ## R0 and P1
 
-Stream B ships to CRAN, PyPI and R-universe as 0.1, with the results object, console output and the preregistration text, all passed through the privacy filter. Examples and tests use only bundled zoo fixtures and stay within CRAN's limits of two cores and short run times. Early users also give JOSS its evidence of research use.
+Stream B ships to CRAN, PyPI and R-universe as 0.1, with the results object, console output and the preregistration text, all passed through the privacy filter. Examples and tests use only bundled zoo fixtures and stay within CRAN's limits of two cores and short run times. Before R0, both privacy filters add the spacing condition of the quantile rule and the registry options for the SRS's dominance rule and for a threshold on counts of organisational units, with unit tests and parity cases (02-decisions.md, Q5). Early users also give JOSS its evidence of research use.
 
 P1 is the Stage 1 Registered Report, or the OSF preregistration if the maintainer chooses the regular route (02-decisions.md, Q9). It is written in the local session from the H0 results.
 
@@ -446,19 +446,13 @@ Each item needs the local session, CI with network access or ARC. Delete an item
 
 The decisions still open are the arrangement for succession, settled before R0 (.github/GOVERNANCE.md), the paper route, settled at P1 (02-decisions.md, Decisions for the maintainer) and, for each restricted dataset, where its agreement allows it to be analysed.
 
-The local session of 21 and 22 November 2026 resolved the checks on registries and current software, the environment checks of the H0 pilot, the venue facts that public pages settle, the privacy and reporting standards, the licence checks and the reading of the papers and registry sources listed here, as evidence/H0 and evidence/reading record and 02-decisions.md summarises. The checks that remain are:
+The local session of 21 and 22 November 2026 resolved the checks on registries and current software, the environment checks of the H0 pilot, the venue facts, the privacy and reporting standards, the licence checks, the terms of the conformance test vectors and the reading of the papers and registry sources listed here, as evidence/H0 and evidence/reading record and 02-decisions.md summarises. The checks that remain are:
 
 - optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe, for which no script exists yet
-- questions for editors and offices: whether JSS would consider software already published in JOSS, whether Behavior Research Methods takes Registered Reports of simulation studies, which candidate journals Oxford's open-access agreements cover, the journals' times to first decision and Psychological Methods' TOP level
-- ARC's current charge per core-hour and the terms of its free allocation, since ARC's accounting page has been withdrawn
 - confirmation by a data-protection specialist of the reading of the UK GDPR as amended by the Data (Use and Access) Act 2025, and a recheck of the ICO's anonymisation guidance once its review after that Act ends
 - the output rules of each data provider other than DfE, when its data are first analysed
 - tagged print-to-PDF in browsers other than Chromium (02-decisions.md, Q5)
 - screen-reader testing of a prototype report
-- the wording of the REUSE-style licence files of fixtures/conformance/hmac/, json/ and hash/ (M0), which need one: the test vectors of RFC 4231 and RFC 8785 fall outside the IETF Trust's licence for code components, and NIST's examples of SHA-256 are public domain in the United States only, so the maintainer decides whether the files name each source's terms or treat the vectors as facts reproduced for interoperability testing
-- whether ERP CORE is CC BY 4.0, as its OSF records say, or CC BY-SA 4.0, as its website says
-- which schools, classes and students of the trial's Los Angeles 2 × 2 the SmokingPrevention data of mixor hold, and where the 4,059-pupil version of the Exam data comes from and under what licence, before either serves as a vignette
-- which clubSandwich versions rely, for lme and lmerMod fits, on the short cut for CR2 that the corrigendum of Pustejovsky and Tipton (2023) withdraws
-- whether the registry cites Santner and Duffy (1986) beside Albert and Anderson (1984), and McHorney and Tarlov (1995), the origin of the 15% figure, beside Terwee et al. (2007)
+- after the OSF preregistration of V1, V2 and V7, a fixture from OSF project 4p8hz in both packages with its attribution (02-decisions.md, Q8), and the numbers of schools and classes in mixor's SmokingPrevention data, read from its identifiers before it serves in an R example
 
 Terwee et al. (2007), Pustejovsky and Tipton (2018) and Harrison (2014, 2015) were read in the parts the registry cites and stay marked full_text_read: false until they are read in full. The issue and pages of Siepe et al. (2024) are still to be assigned by the journal.

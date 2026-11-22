@@ -470,6 +470,13 @@ references:
       1-10.
     doi: 10.1093/biomet/71.1.1
     full_text_read: true
+  - kind: literature
+    citation: >-
+      Santner, T. J., & Duffy, D. E. (1986). A note on A. Albert and J. A.
+      Anderson's conditions for the existence of maximum likelihood estimates
+      in logistic regression models. Biometrika, 73(3), 755-758.
+    doi: 10.1093/biomet/73.3.755
+    full_text_read: true
   - kind: derivation
     citation: >-
       Albert and Anderson (1984) prove the result for logistic regression. In

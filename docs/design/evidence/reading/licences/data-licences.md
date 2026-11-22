@@ -15,3 +15,5 @@
 ## Bearing on Q8 and Q10
 
 The checks that 03-execution-plan.md lists ('the data licences of OSF project 4p8hz, LSHTM Data Compass, Many Labs 2, ERP CORE and the openESM datasets') are done. 4p8hz and the LSHTM trials meet the CC BY rule and could enter the corpus with attribution, which answers the 'revisit_if' of evidence E for 4p8hz (a small education CRT confirmed as CC BY could become a realistic layer-1 fixture in both packages). Many Labs 2 is CC0 apart from its analysis scripts. ERP CORE stays in the never-shipped folder under the stricter reading, as Q8 already provides.
+
+On 22 November 2026 ERP CORE was settled on the ShareAlike reading, which meets the terms of both records, and part of 4p8hz was chosen as a fixture in both packages, to be built after the OSF preregistration of V1, V2 and V7, since its data file holds the trial's outcomes (02-decisions.md, Q8).

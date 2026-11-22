@@ -5,9 +5,9 @@
 **Fact.**
 - **Behavior Research Methods**: neither page gives a time to first decision or other review-time figure.
 - **AMPPS**: the guidelines give no review-time figure. They describe a partnership with MetaResearch Open Review, whose published review reports AMPPS may use in whole or part for its decision, which the journal says speeds revise or accept decisions; and the PCI RR route, under which a Stage 2 report recommended by PCI RR is accepted without further review (rr-ampps.md).
-- **Psychological Methods**: APA reports times in its annual operations PDFs (latest listed: 2023), not read here (psychological-methods-operations.md). For the registered-report special issue, Stage 1 reports are due on 1 April 2027 and first decisions are expected by the end of May 2027.
+- **Psychological Methods**: APA's operations report for 2023, read on 22 November 2026, gives no time to first decision, only the average lag from acceptance to publication, 3.7 months online first and 15.2 months in print (psychological-methods-operations.md). For the registered-report special issue, Stage 1 reports are due on 1 April 2027 and first decisions are expected by the end of May 2027.
 
 **For the record.** 02-decisions.md (Q9) and open_items_local_session.csv leave review times open. Only the Psychological Methods special issue gives a public figure, about two months to a Stage 1 decision.
 
 **Questions for a person.**
-- The median times to first decision for BRM and AMPPS (the journals' editorial offices) and for Psychological Methods (APA's 2023 operations report).
+- The median times to first decision for BRM, AMPPS and Psychological Methods (the journals' editorial offices; APA's operations report does not give it).

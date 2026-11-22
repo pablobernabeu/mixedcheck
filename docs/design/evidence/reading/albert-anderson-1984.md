@@ -4,7 +4,7 @@
 
 **Match.** Crossref (queried 21 November 2026), the publisher's page and JSTOR (stable 2336390) agree on authors, title, journal, volume 71, issue 1, pages 1–10 and DOI; published 1 April 1984. Not retracted or corrected.
 
-**Platform and pages read.** JSTOR, page images with their text layer, through Oxford's subscription, read 21 November 2026: all ten pages, with the introduction (p. 1), Theorems 1 to 3 (pp. 3, 5 and 7) and the section on categorising data sets (p. 7) read closely. Oxford Academic offers the article only as a PDF. Also read, for the question below: Santner, T. J., & Duffy, D. E. (1986). A note on A. Albert and J. A. Anderson's conditions for the existence of maximum likelihood estimates in logistic regression models. *Biometrika, 73*(3), 755–758 (JSTOR stable 2336546), its summary and introduction.
+**Platform and pages read.** JSTOR, page images with their text layer, through Oxford's subscription, read 21 November 2026: all ten pages, with the introduction (p. 1), Theorems 1 to 3 (pp. 3, 5 and 7) and the section on categorising data sets (p. 7) read closely. Oxford Academic offers the article only as a PDF. Also read, for its correction of the separated cases: Santner, T. J., & Duffy, D. E. (1986). A note on A. Albert and J. A. Anderson's conditions for the existence of maximum likelihood estimates in logistic regression models. *Biometrika, 73*(3), 755–758 (JSTOR stable 2336546), its summary and introduction.
 
 ## Claims checked
 
@@ -16,7 +16,3 @@
 ## Fields that differ from the repository's records
 
 None.
-
-## Questions for a person
-
-- Whether the registry should cite Santner and Duffy (1986) beside this paper, since it corrects the statements for the separated cases and supplies the linear programme.

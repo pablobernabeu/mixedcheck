@@ -13,5 +13,3 @@
 **Fact: CONSORT 2025.** The CONSORT 2025 statement was published in April 2025 in several journals (among them BMJ 2025;388:e081123 and PLoS Medicine 22(4):e1004587), and EQUATOR lists it as the related generic guideline. EQUATOR's page for cluster trials still names the 2010 extension, and the search found no cluster extension aligned with CONSORT 2025; the extension for cluster randomised crossover trials published in the BMJ in January 2025 (388, e080472) builds on CONSORT 2010.
 
 **Bearing on Q5 (02-decisions.md) and the report elements (evidence C, q5_standards_to_report_elements.csv).** The record's 'CONSORT cluster ICC item' corresponds to item 17a, which asks for an ICC for each primary outcome, alongside 7a's assumed ICC with its uncertainty. An ICC computed from the outcome is an outcome-derived value, so a shareable report can give it only under the tier-A guarantee of privacy.md; 12a and 3a are met by the declaration and the plan. No CONSORT 2025-aligned cluster extension exists yet, so the 2010 extension remains the reference.
-
-**Questions for a person.** None.

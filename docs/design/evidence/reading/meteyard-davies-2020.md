@@ -18,7 +18,3 @@
 ## Fields that differ from the repository's records
 
 None. Some files give the article number as '104092' and others as 'Article 104092'; the APA form is the latter.
-
-## Questions for a person
-
-None.

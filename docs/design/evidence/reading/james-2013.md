@@ -13,7 +13,3 @@
 ## Fields that differ from the repository's records
 
 None found in the bibliographic fields.
-
-## Questions for a person
-
-None. With this reading, the registry may set `full_text_read: true` for this source once the maintainer confirms the note.

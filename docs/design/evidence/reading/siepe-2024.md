@@ -16,7 +16,3 @@
 ## Fields that differ from the repository's records
 
 None. The volume, issue and pages remain to be added when APA assigns them.
-
-## Questions for a person
-
-None.

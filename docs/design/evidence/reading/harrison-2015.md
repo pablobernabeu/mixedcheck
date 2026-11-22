@@ -15,7 +15,3 @@
 ## Fields that differ from the repository's records
 
 None. As for Harrison (2014), the APA form names the article number ('Article e1114').
-
-## Questions for a person
-
-None.

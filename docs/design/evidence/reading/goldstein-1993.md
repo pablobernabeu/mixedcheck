@@ -18,7 +18,3 @@
 ## Fields that differ from the repository's records
 
 - The repository gives no DOI for the paper; the DOI is 10.1080/0305498930190401. The author list in reports.json ('Goldstein, Rasbash et al.') is abbreviated; the paper has seven authors.
-
-## Questions for a person
-
-- Where the 4,059-student, 65-school version of the Exam data was derived from the 5,748-student analysis sample, and under what licence it is distributed (the MLwiN data documentation or the Centre for Multilevel Modelling).

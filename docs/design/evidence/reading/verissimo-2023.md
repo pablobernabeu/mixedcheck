@@ -17,7 +17,3 @@
 ## Fields that differ from the repository's records
 
 - B/tables/reference_verification.tsv and reports.json give no issue number; Crossref gives issue 1. reports.json and the B tables spell the surname 'Verissimo' without the accent. Both files are frozen evidence and are not edited; any citation in the design record should read 'Veríssimo' and '6(1)'.
-
-## Questions for a person
-
-None.

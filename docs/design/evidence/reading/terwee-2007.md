@@ -14,7 +14,3 @@
 ## Fields that differ from the repository's records
 
 None.
-
-## Questions for a person
-
-- Whether the registry should cite McHorney and Tarlov (1995), the origin of the 15% figure, beside Terwee et al., and carry the minimum of 50 respondents.

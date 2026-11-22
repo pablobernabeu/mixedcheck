@@ -15,5 +15,3 @@
 - The correction concerns only a citation in the section on clinical trials (p. 13): the Declaration of Helsinki should be the 2008 version. It does not change Table 1.
 
 **Bearing on Q5 (02-decisions.md).** The record says JARS-Quant 'informs the minimum content, pending a full reading of its tables'. Table 1's data-diagnostics and analytic-strategy rows map onto what the suite's methods text and preregistration block can generate from the declaration and the plan. Its descriptive row asks for cell means and standard deviations per subgroup, which a shareable report can give only within the privacy filter's rules (k = 10 members per cell and the dominance rule); df and test statistics, which JARS asks for exactly, are among the values the filter shows exactly. Missing-data reporting (extent and mechanism) is outcome-derived and so falls under the tier-A guarantee.
-
-**Questions for a person.** None.

@@ -31,7 +31,3 @@
 ## Fields that differ from the repository's records
 
 None. The reference in 02-decisions.md and the one that M3 adds to docs/spec/documents.md (pull request #3) both match the published record.
-
-## Questions for a person
-
-None.

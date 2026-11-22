@@ -19,7 +19,3 @@
 ## Fields that differ from the repository's records
 
 - B/tables/reference_verification.tsv marks the year as confirmed only by a secondary listing; Crossref confirms 2019 (posted 25 January 2019). No field differs.
-
-## Questions for a person
-
-None.

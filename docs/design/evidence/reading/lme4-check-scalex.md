@@ -13,7 +13,3 @@
 ## Fields that differ from the repository's records
 
 - The registry cites lme4 '2.1-1', which is not a released version; the behaviour it describes is that of the CRAN release 2.1-0, whose CRAN record is https://CRAN.R-project.org/package=lme4 (DOI 10.32614/CRAN.package.lme4), with the author list that CRAN gives for that version.
-
-## Questions for a person
-
-- Whether the registry should cite the CRAN release 2.1-0 in place of the development version 2.1-1.

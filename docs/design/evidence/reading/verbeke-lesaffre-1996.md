@@ -14,7 +14,3 @@
 ## Fields that differ from the repository's records
 
 - The repository gives no DOI; the DOI is 10.1080/01621459.1996.10476679.
-
-## Questions for a person
-
-None.

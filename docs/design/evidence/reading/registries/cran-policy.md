@@ -10,5 +10,3 @@
 - Once a package is established, updates 'no more than every 1–2 months' seem appropriate; examples should each run for no more than a few seconds.
 
 **Bearing on 03-execution-plan.md (Open checks; the fastglmm item of H0).** A CRAN release of the R package may list fastglmm, which is distributed through R-universe only, in Suggests, provided DESCRIPTION gives the R-universe repository in Additional_repositories and the package is used conditionally, as Q6 already requires of every Suggests package. The other statements that 02 and 03 take from the policy stand at revision 6985.
-
-**Questions for a person.** None.

@@ -18,7 +18,3 @@
 ## Fields that differ from the repository's records
 
 - The repository cites the article without its 2019 correction to the Supplementary Material.
-
-## Questions for a person
-
-None.

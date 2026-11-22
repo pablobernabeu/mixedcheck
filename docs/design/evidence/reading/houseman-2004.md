@@ -14,7 +14,3 @@
 ## Fields that differ from the repository's records
 
 None.
-
-## Questions for a person
-
-None.

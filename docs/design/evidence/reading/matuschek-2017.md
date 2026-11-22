@@ -18,7 +18,3 @@
 ## Fields that differ from the repository's records
 
 None. The reference in 02-decisions.md matches the published record.
-
-## Questions for a person
-
-None.

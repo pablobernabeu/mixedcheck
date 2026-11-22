@@ -8,6 +8,3 @@
 - From ARC itself (H0, 21 November 2026): the project's association has the QoS basic, priority and standard, with standard as the default, and the H0 jobs ran under standard QoS on the project's own account. The project's credit was sufficient for H0; the balance is not recorded here.
 
 **For the record.** open_items_local_session.csv asks to confirm that Social Sciences projects get standard credits under the free service, that new projects receive 25,000 free core-hours and that the full economic cost is £0.01 per core-hour. The live ARC pages no longer state these figures; only the search excerpts of the earlier pages do.
-
-**Questions for a person.**
-- The current charge per core-hour and the terms of the free allocation, since ARC's accounting page has been withdrawn (ARC support).

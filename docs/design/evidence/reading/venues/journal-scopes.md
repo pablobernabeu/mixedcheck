@@ -9,5 +9,3 @@
 - **JSS** publishes open-source software with reproducible articles and not methodological innovations as such (jss-scope.md).
 
 **For the record.** 02-decisions.md (Q9) sends the ladder study's Stage 1 report to BRM or AMPPS, the validation paper to BRM, and reserves Psychological Methods for a reframed general comparison of diagnostic procedures. The scopes support these placements: AMPPS asks for broad relevance across psychology, which a study of random-effects reduction has; BRM's scope is data analysis in experimental psychology; Psychological Methods takes methodological articles generally and now also registered reports (rr-psychological-methods.md).
-
-**Questions for a person.** None.

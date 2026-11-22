@@ -17,7 +17,3 @@
 ## Fields that differ from the repository's records
 
 None. The reference in 02-decisions.md and in open_items_local_session.csv matches the published record.
-
-## Questions for a person
-
-None.

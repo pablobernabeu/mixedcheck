@@ -12,8 +12,4 @@ The page lists no deal with the Association for Psychological Science. (An entry
 
 **For the record.** Behavior Research Methods is a hybrid Springer journal and Psychological Methods a hybrid APA journal, so both would normally fall under these deals, but the page does not list individual titles for Springer Nature or APA. AMPPS is a fully open-access journal published by Sage for APS; if it counts among Sage's fully open-access titles, the 20% discount would apply to its $1,000 APC, but the Sage list could not be checked. open_items_local_session.csv also asks about the Springer Nature–Jisc agreement of 2026–2028 and the APA arrangement after July 2026: the page shows both publishers' deals as current but gives no dates.
 
-**Questions for a person.**
-- Whether Behavior Research Methods (Springer Nature deal), Psychological Methods (APA deal) and AMPPS (Sage discount for fully open-access titles) are each covered, and the dates of the Springer Nature and APA deals (the Bodleian open-access team).
-
-
 **Also asked by the CSV: the JORS APC.** The Journal of Open Research Software's 'Submission Guidelines' (https://openresearchsoftware.metajnl.com/about/submissions, read 21 November 2026) give, under 'Publication Fees', an APC of £824.00 for software metapapers and £891 for the section 'Issues in Research Software', payable on acceptance ('About', https://openresearchsoftware.metajnl.com/about). Whether an Oxford deal covers JORS was not checked.

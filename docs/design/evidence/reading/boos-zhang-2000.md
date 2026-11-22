@@ -15,7 +15,3 @@
 ## Fields that differ from the repository's records
 
 None. The reference in open_items_local_session.csv gives no DOI; the DOI is 10.1080/01621459.2000.10474226.
-
-## Questions for a person
-
-None.

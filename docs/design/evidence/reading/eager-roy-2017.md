@@ -18,7 +18,3 @@
 ## Fields that differ from the repository's records
 
 - reports.json gives no DOI; arXiv's DOI is 10.48550/arXiv.1701.04858.
-
-## Questions for a person
-
-None.

@@ -9,5 +9,3 @@
 - #Expat: the Expat licence is a lax, permissive, non-copyleft free software licence, compatible with the GNU GPL. The FSF notes that it is often called 'the MIT License', a name it advises against because MIT has used several licences, among them the X11 licence, which differs by a paragraph on the X Consortium's name.
 
 **Bearing on 02-decisions.md (Q10).** Q10 says that the FSF lists the Expat (MIT) licence as GPL-compatible, 'to be confirmed on gnu.org'; the licence list confirms it. The FAQ entry supports the decision's reading: an MIT-licensed package may use GPL-family dependencies, since MIT is GPL-compatible, and the GPL governs a combined work that is distributed. That remains consistent with Q10's rule that no code is copied or translated from GPL or AGPL packages, which keeps the packages' own code MIT. The words 'to be confirmed on gnu.org' can be removed.
-
-**Questions for a person.** None.

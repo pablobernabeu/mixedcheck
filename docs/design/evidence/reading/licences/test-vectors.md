@@ -15,7 +15,3 @@
 ## Bearing on M0 and Q10
 
 The README of each folder already says that the cases are MIT-licensed apart from the RFC 4231 keys and messages, the RFC 8785 examples and the NIST messages, and leaves the terms open. On the terms read here, none of the three sources is under the MIT licence or the BSD code-component licence. RFC 8785's examples come under TLP Section 3.a, which allows copying in whole or in part and modification; RFC 4231's come under the pre-2008 policy, with other rights held by the author; NIST's are public domain in the United States only. So the three directories cannot be declared wholly MIT, and REUSE-style per-file annotations that name each source and its terms (for example in a REUSE.toml or .license files beside rfc4231.json, rfc8785.json and sha256.json) would record the position correctly. Whether short test vectors such as keys, messages, numbers and digests attract copyright at all is a legal question this reading does not settle.
-
-## Questions for a person
-
-- Whether the project treats these test vectors as uncopyrightable facts or as material under each source's terms, and so whether the REUSE annotations name the RFCs' terms or state that the vectors are facts reproduced for interoperability testing.

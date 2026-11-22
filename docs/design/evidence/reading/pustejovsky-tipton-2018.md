@@ -17,7 +17,3 @@
 ## Fields that differ from the repository's records
 
 - 02-decisions.md, docs/spec/registry.md and spec/registry/checks/assignment.unit_in_random_part.yaml cite the article without its 2023 corrigendum.
-
-## Questions for a person
-
-- Whether clubSandwich's CR2 for lme and lmerMod fits depended on the short cut that the corrigendum withdraws, and from which version it does not (clubSandwich's NEWS or its author).

@@ -25,7 +25,3 @@
 ## Fields that differ from the repository's records
 
 - reports.json gives pages '1-21'; the published record has article number 25152459231214454 and no page range. The verifier's corrected entry in reports.json already uses the article number. reports.json is frozen evidence and is not edited.
-
-## Questions for a person
-
-None.

@@ -14,7 +14,3 @@
 ## Fields that differ from the repository's records
 
 - In reports.json (research:re-structure), one entry gives the authors as 'Greven & Küchenhoff (2008)', omitting Scheipl, the first author. reports.json is frozen evidence and is not edited; open_items_local_session.csv and review-catalogue.md name all three authors (the CSV transliterates Küchenhoff as 'Kuechenhoff').
-
-## Questions for a person
-
-None.

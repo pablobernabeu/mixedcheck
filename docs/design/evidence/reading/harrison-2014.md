@@ -15,7 +15,3 @@
 ## Fields that differ from the repository's records
 
 None. The registry gives the citation as 'PeerJ, 2, e616'; the APA form names the article number ('Article e616').
-
-## Questions for a person
-
-None.

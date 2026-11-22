@@ -17,7 +17,3 @@
 ## Fields that differ from the repository's records
 
 - open_items_local_session.csv gives the pages and names correctly but no DOI; the DOI is 10.1002/bimj.200610341. review-catalogue.md cites the authors as 'Nobre & Singer'; the Crossref record has the compound surnames 'Santos Nobre' and 'da Motta Singer'.
-
-## Questions for a person
-
-None.

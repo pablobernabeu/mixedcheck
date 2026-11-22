@@ -9,7 +9,3 @@
 | Roulin and Bersier (2007), https://doi.org/10.1016/j.anbehav.2007.01.027 | issue 4 | Crossref | **Confirmed**: *Animal Behaviour*, 74(4), 1099–1106. |
 
 No field that the file gives is contradicted by the records. With these, every field that the file marks as not confirmed is either settled in the evidence README or confirmed here.
-
-## Questions for a person
-
-None.

@@ -73,11 +73,13 @@ thresholds:
     sources:
       - kind: software
         citation: >-
-          lme4 2.1-1, the check of the scales of the fixed-effects columns that
-          the check.scaleX setting of lmerControl() controls, as the review
-          catalogue (docs/design/evidence/review-catalogue.md, L2-13) describes
-          it.
-        full_text_read: false
+          lme4 2.1-0, the CRAN release of 23 October 2026: the function
+          checkScaleX() in R/utilities.R, the check of the scales of the
+          fixed-effects columns that the check.scaleX setting of lmerControl()
+          controls.
+        doi: 10.32614/CRAN.package.lme4
+        url: https://CRAN.R-project.org/package=lme4
+        full_text_read: true
   high:
     statistic: sd_largest
     comparator: '>'
@@ -88,11 +90,13 @@ thresholds:
     sources:
       - kind: software
         citation: >-
-          lme4 2.1-1, the check of the scales of the fixed-effects columns that
-          the check.scaleX setting of lmerControl() controls, as the review
-          catalogue (docs/design/evidence/review-catalogue.md, L2-13) describes
-          it.
-        full_text_read: false
+          lme4 2.1-0, the CRAN release of 23 October 2026: the function
+          checkScaleX() in R/utilities.R, the check of the scales of the
+          fixed-effects columns that the check.scaleX setting of lmerControl()
+          controls.
+        doi: 10.32614/CRAN.package.lme4
+        url: https://CRAN.R-project.org/package=lme4
+        full_text_read: true
   low:
     statistic: sd_smallest
     comparator: '<'
@@ -103,11 +107,13 @@ thresholds:
     sources:
       - kind: software
         citation: >-
-          lme4 2.1-1, the check of the scales of the fixed-effects columns that
-          the check.scaleX setting of lmerControl() controls, as the review
-          catalogue (docs/design/evidence/review-catalogue.md, L2-13) describes
-          it.
-        full_text_read: false
+          lme4 2.1-0, the CRAN release of 23 October 2026: the function
+          checkScaleX() in R/utilities.R, the check of the scales of the
+          fixed-effects columns that the check.scaleX setting of lmerControl()
+          controls.
+        doi: 10.32614/CRAN.package.lme4
+        url: https://CRAN.R-project.org/package=lme4
+        full_text_read: true
 parameters: {}
 decision:
   rules:

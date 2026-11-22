@@ -77,13 +77,13 @@ thresholds:
           Springer.
         doi: 10.1007/978-1-4614-7138-7
         locator: Section 3.3.3
-        full_text_read: false
+        full_text_read: true
       - kind: literature
         citation: >-
           Fox, J., & Monette, G. (1992). Generalized collinearity diagnostics.
           Journal of the American Statistical Association, 87(417), 178-183.
         doi: 10.1080/01621459.1992.10475190
-        full_text_read: false
+        full_text_read: true
       - kind: derivation
         citation: >-
           Fox and Monette (1992) define the generalised variance inflation
@@ -108,7 +108,7 @@ thresholds:
           Springer.
         doi: 10.1007/978-1-4614-7138-7
         locator: Section 3.3.3
-        full_text_read: false
+        full_text_read: true
 parameters: {}
 decision:
   rules:
@@ -191,5 +191,5 @@ references:
       Fox, J., & Monette, G. (1992). Generalized collinearity diagnostics.
       Journal of the American Statistical Association, 87(417), 178-183.
     doi: 10.1080/01621459.1992.10475190
-    full_text_read: false
+    full_text_read: true
 catalogue: [L2-19]

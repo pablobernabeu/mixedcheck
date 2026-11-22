@@ -469,7 +469,14 @@ references:
       likelihood estimates in logistic regression models. Biometrika, 71(1),
       1-10.
     doi: 10.1093/biomet/71.1.1
-    full_text_read: false
+    full_text_read: true
+  - kind: literature
+    citation: >-
+      Santner, T. J., & Duffy, D. E. (1986). A note on A. Albert and J. A.
+      Anderson's conditions for the existence of maximum likelihood estimates
+      in logistic regression models. Biometrika, 73(3), 755-758.
+    doi: 10.1093/biomet/73.3.755
+    full_text_read: true
   - kind: derivation
     citation: >-
       Albert and Anderson (1984) prove the result for logistic regression. In
@@ -483,7 +490,7 @@ references:
       data in binary logistic regression models [Doctoral thesis, University
       of Oxford]. Oxford University Research Archive.
     url: https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a
-    full_text_read: false
+    full_text_read: true
   - kind: decision
     citation: 02-decisions.md, Q2
 catalogue: [L3-03, L3-04]

@@ -213,6 +213,9 @@ def test_the_rules_on_one_entry_find_each_kind_of_problem():
     prefix = f"/entries/{i}"
     entry = document["entries"][i]
     entry["thresholds"]["high"]["validation"]["value"] = "validated"
+    # E4010 needs a literature source that has not been read in full; the
+    # registry's own source of this threshold has been, so the test marks it unread.
+    entry["thresholds"]["high"]["sources"][0]["full_text_read"] = False
     entry["decision"]["rules"][0]["finding"] = "consequential"
     entry["decision"]["rules"][1]["thresholds"] = ["no_such_threshold"]
     entry["decision"]["rules"][1]["message"] = "no_such_message"

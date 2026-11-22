@@ -293,6 +293,26 @@ On ARC, the pilot checks the R module, the Apptainer runtime, the array and QoS 
 - a six-task array of V1 with the real suite overhead, which fixes the speed multiplier and the memory classes
 - a timing run of the stopping-rule walk on H1 cells, with a second optimiser and suite derivatives at every rung, which re-costs H1
 
+### What H0 found
+
+The pilot ran on ARC's htc cluster on 21 November 2026, and evidence/H0 holds its wrappers, summary tables and lockfile, with the full outputs on ARC under /data/educ-intract/educ1242/mixedcheck-h0. htc compute nodes have outbound network access, so the image was pulled and the library built in ordinary batch jobs, and ARC's modules now include R 4.5. The image is rocker/r-ver 4.6.2 at digest sha256:1ca5bfbc810a4e176d74e05267a670e84de86b23a4a5791fa06862bfa35369ba, on Ubuntu 26.04. The R packages come from the Posit Package Manager snapshot of 20 November 2026, among them lme4 2.1-0, glmmTMB 1.1.15.2, lmerTest 3.2-1, pbkrtest 0.5.5 and clubSandwich 0.7.0, and the Python 3.12 environments, built by uv from packages released before 21 November 2026, hold statsmodels 0.15.0, glmm 0.9.3, mixedlm 1.3.0, gpboost 1.8.0 and rpy2 3.5.17. All runs together used about 19 CPU-hours.
+
+- The 27-model benchmark ran without errors or timeouts. lme4, in R and through rpy2, and mixedlm reached the best objective on every model, glmm on 26 and glmmTMB on 20 of 25. The absolute tolerance of 1e-4 separated the engines at the optimum from the rest by more than a hundredfold, and the offsets of lme4 1.1-35.1 under adaptive quadrature vanished with lme4 2.1-0 (02-decisions.md, Q1).
+- The rerun of Sims 1 to 6 left rejection rates, the shares of singular fits and the rungs chosen unchanged within Monte Carlo error, and reproduced Sims 4 to 6 to the printed digits (02-decisions.md, Q3). No script fits a `cs()` term, so `cs()` was not tested.
+- The six-task array of V1 reproduced the earlier flags in every cell, at 1.64 to 1.79 times the earlier time per replicate, and the re-time with the existing timing scripts gave a median ratio of 1.73 for small fits, 1.30 for harder designs and about 1 for fits of 12,000 rows. pilot_V1a fits plain lme4 without the suite, so the multiplier leaves out the suite's overhead and mixes ARC's hardware with the change of lme4 version.
+- Peak memory was at most 0.19 GB per V1 task, 0.56 GB per engine process in the benchmark and 0.67 GB in the re-time.
+- lme4 2.1-0 installed with the bundled Matrix on R 4.2.2, 4.2.3 and 4.3.3 in rocker images and failed on R 4.2.0, whose Matrix 1.4-1 is below its requirement (02-decisions.md, Q10).
+
+### The gate
+
+Two of the gate's three conditions hold. The objective-match tolerances are fixed by the benchmark (evidence/H0/results/bench_engines_earlier_vs_h0.csv and bench_offsets_earlier_vs_h0.csv), and the memory classes by the V1 pilot and the benchmark (bench_engine_memory_by_engine.csv and the runs table of evidence/H0/README.md): one core and 2 GB per task suffice for Gaussian studies of V1's size. The cost of H1 has not been re-estimated with lme4 2.1-0, because no script times the stopping-rule walk with a second optimiser and the suite's derivatives, so the gate is not yet met. The multiplier of the V1 pilot and the re-time (v1_pilot_earlier_vs_h0.csv and timing_raw_earlier_vs_h0.csv) bounds the change to the central estimate at about 70%.
+
+### Open items
+
+- A script that times the stopping-rule walk on H1 cells, which needs the convergence-triage core of M3b, and a script that fits `cs()` terms.
+- The suite's own overhead in V1, which needs the suite.
+- The memory class of the conformance study, which still rests on the earlier run of statsmodels on 40,000 rows (02-decisions.md, Q9).
+
 ## M3 and M3b. Plan object and convergence triage
 
 M3 implements what Q3 (02-decisions.md) lists for the first 0.x release, and `draft_design()` and the code-first builders of Q4 write declarations in both languages. A shareable results document records the declaration hash unkeyed (documents.md, inputs), which would let a reader confirm by search a value of a draft computed from the outcome, such as the observed bounds of a score, so it was decided on 10 November 2026 that `draft_design()` infers no value from the outcome. The values that it infers from predictors and identifiers stay, on the ground on which privacy.md (Decisions) accepts the T0 findings, that they describe the structure of the design.
@@ -324,9 +344,11 @@ The gate asks for identical design-plan hashes across the languages on the zoo a
 ### M3b
 M3b adds the convergence-triage core for lme4 fits in R: optimisation statuses from the gap to the best objective found, a scale-free rank criterion and second-optimiser restarts. Every step of the stopping rule then runs in R, which is enough to preregister V3 and V5 and submit the Stage 1 report while M4 and M5 continue.
 
+M3b also checks that rung 0 leaves out the slopes of within-unit factors that each unit observes only once per level, which the ceiling of M3 includes but Barr et al. (2013) and Barr (2013) leave out as unidentifiable (02-decisions.md, Q3), and it writes the timing of the stopping-rule walk that the H0 gate still needs (H0, The gate).
+
 ## R0 and P1
 
-Stream B ships to CRAN, PyPI and R-universe as 0.1, with the results object, console output and the preregistration text, all passed through the privacy filter. Examples and tests use only bundled zoo fixtures and stay within CRAN's limits of two cores and short run times. Early users also give JOSS its evidence of research use.
+Stream B ships to CRAN, PyPI and R-universe as 0.1, with the results object, console output and the preregistration text, all passed through the privacy filter. Examples and tests use only bundled zoo fixtures and stay within CRAN's limits of two cores and short run times. Before R0, both privacy filters add the spacing condition of the quantile rule and the registry options for the SRS's dominance rule and for a threshold on counts of organisational units, with unit tests and parity cases (02-decisions.md, Q5). Early users also give JOSS its evidence of research use.
 
 P1 is the Stage 1 Registered Report, or the OSF preregistration if the maintainer chooses the regular route (02-decisions.md, Q9). It is written in the local session from the H0 results.
 
@@ -410,67 +432,27 @@ Studies V8 to V10 validate them. Python covers GLMMs through the routes in Q1 (0
 | CRAN archival | Small hard dependency closure, engine tests skipped when engines are absent, golden files based on fits kept off CRAN, files written only to tempdir() in examples and tests |
 | JOSS scrutiny of a single-author project, and dependence on one person | Public history since 14 November 2026, releases, tests, CI, governance and succession notes, research use in the maintainer's own analyses |
 | AI-assisted code reproducing GPL source | Clean-room rule, a provenance entry for every algorithm that records any AI assistance, and the AI-usage disclosure that JOSS requires (02-decisions.md, Q10) |
-| Reference-checking backlog | Full reads of the papers listed under Open checks in the local session at the start of M3b, before any preregistration, with DOI metadata checked by a GitHub Actions job |
+| Reference-checking backlog | Full reads of the papers listed under Open checks in the local session at the start of M3b, before any preregistration, with DOI metadata checked by a GitHub Actions job. Done on 21 and 22 November 2026, apart from the registry sources read only in part (Open checks) |
 
 ## Local session
 
 Full texts, publisher pages, Oxford's internal pages and ARC are out of reach of the cloud sessions. They are handled in one local session at the start of M3b, which covers the H0 pilot on ARC, the reading of the papers listed under Open checks, the venue facts and the privacy guidance. That point comes before the first steps that depend on them: the M3b gate needs H0, the Stage 1 report (P1) needs the full texts and the venue facts, and the first CRAN release (R0) should rest on no claim that has not been read in full. Until then, registry thresholds taken from the literature are labelled descriptive, with their sources marked as not yet read in full. Checks that need only network access run as GitHub Actions jobs instead, among them the DOI metadata of every reference, through the Crossref API, and the name checks.
 
+That session took place on 21 and 22 November 2026. It ran the H0 pilot on ARC (H0) and wrote one note for each source, venue fact and standard it read (evidence/reading), with the reference as checked against Crossref or the publisher, the pages read and a verdict on each claim the record takes from it. Sources available only as PDFs were read from copies kept outside the repository, and no full text entered it. What it left open is listed under Open checks.
+
 ## Open checks
 
 Each item needs the local session, CI with network access or ARC. Delete an item once it is resolved, and record the outcome in 02-decisions.md if it changes a decision.
 
-The decisions still open are the arrangement for succession, settled before R0 (.github/GOVERNANCE.md), the paper route, settled at P1 (02-decisions.md, Decisions for the maintainer) and, for each restricted dataset, where its agreement allows it to be analysed.
+The arrangement for succession was settled on 22 November 2026: no successor is named, and the repository would be archived, with the MIT licence allowing a fork (.github/GOVERNANCE.md). The decisions still open are the paper route, settled at P1 (02-decisions.md, Decisions for the maintainer) and, for each restricted dataset, where its agreement allows it to be analysed.
 
-The checks on registries and current software are:
+The local session of 21 and 22 November 2026 resolved the checks on registries and current software, the environment checks of the H0 pilot, the venue facts, the privacy and reporting standards, the licence checks, the terms of the conformance test vectors and the reading of the papers and registry sources listed here, as evidence/H0 and evidence/reading record and 02-decisions.md summarises. The checks that remain are:
 
-- the live CRAN policy revision
-- the H0 reruns with current engines
-- R 4.2.0, 4.2.2, 4.2.3 and 4.3.3 in rocker images, testing whether lme4 2.x installs with the bundled Matrix
-- optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe
-
-On ARC, the environment checks of the H0 pilot remain open, including whether htc compute nodes have outbound network access.
-
-The checks on venues and their policies are:
-
-- JSS's policy on software already published in JOSS
-- Registered Report acceptance for simulation studies at Behavior Research Methods and AMPPS
-- Oxford's coverage under the Springer Nature and APA open-access agreements
-- the AMPPS article charge
-- the scope wording of the candidate journals
-- review times, including Psychological Methods' time to first decision
-
-The checks on privacy and reporting standards are:
-
-- the primary UK output-checking guidance (ONS Secure Research Service, DfE and the SDC Handbook)
-- the ICO's anonymisation guidance
-- how the UK GDPR and the Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025, apply to shareable output, including the identifiability provisions of the 2025 Act
-- the output rules of the data providers
-- the wording of the CONSORT 2010 cluster extension and whether a cluster extension aligned with CONSORT 2025 exists
-- JARS-Quant Table 1
+- optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe, for which no script exists yet
+- before 1.0, a check by the maintainer that no text of the packages claims that shareable output is anonymous or lawful to share, and a recheck of the reading of the UK GDPR as amended by the Data (Use and Access) Act 2025 once the ICO's review of its anonymisation guidance after that Act ends (02-decisions.md, Q5)
+- the output rules of each data provider other than DfE, when its data are first analysed
 - tagged print-to-PDF in browsers other than Chromium (02-decisions.md, Q5)
 - screen-reader testing of a prototype report
+- after the OSF preregistration of V1, V2 and V7, a fixture from OSF project 4p8hz in both packages with its attribution (02-decisions.md, Q8)
 
-The licence checks cover the FSF entries on GPL compatibility (#IfLibraryIsGPL in the GPL FAQ and #Expat in the licence list). They also cover the data licences of OSF project 4p8hz, LSHTM Data Compass, Many Labs 2, ERP CORE and the openESM datasets, and the terms on which the conformance corpora may redistribute the test vectors of RFC 4231 (fixtures/conformance/hmac/) and RFC 8785 (json/) and the NIST examples of SHA-256 (hash/), which decide whether those directories need REUSE-style licence files (M0).
-
-These papers need reading in full before their content is used. Three of them, Barr (2013), Barr et al. (2013) and Matuschek et al. (2017), are already cited in 02-decisions.md for points that the full texts must confirm. The others are in the evidence tables but not yet cited:
-
-- Meteyard and Davies (2020), the checklist and survey figures
-- Bono et al. (2021), the GLMM reporting rates
-- Matuschek et al. (2017), the design and the α of .2
-- Barr (2013), the Type I error figures for interactions
-- Barr et al. (2013), the Type I error figures for the maximal model
-- Scandola and Tidoni (2024), the procedure and simulation grids
-- Luo and Li (2023)
-- Eager and Roy (2017), the conditions
-- Greven and Kneib (2010)
-- Oberauer (2022)
-- Veríssimo (2023)
-- Seedorff et al. (2019)
-- Goldstein et al. (1993), for the Exam data
-- Flay et al. (1988), for the smoking-prevention trial
-- the boundary-test, residual and Laplace-accuracy papers listed in evidence/decisions/F/tables/open_items_local_session.csv
-
-The sources of the thresholds of registry 0.1.0, marked full_text_read: false in spec/registry/checks/, need the same reading before any threshold is validated: Fox and Monette (1992), James et al. (2013), Terwee et al. (2007), Pustejovsky and Tipton (2018), Albert and Anderson (1984), Konis (2007) and the check.scaleX setting of lme4 2.1-1.
-
-The issue and pages of Siepe et al. (2024) are still missing. Before any work listed in evidence/decisions/A-verify/out/reference_checks.csv is cited, the fields that file marks as not confirmed need checking, apart from those settled by the bibliographic checks recorded in evidence/decisions/README.md.
+Terwee et al. (2007), Pustejovsky and Tipton (2018) with its corrigendum and Harrison (2014, 2015), first read in the parts the registry cites, were read in full on 22 November 2026, so every literature source of registry 0.1.0 is now marked full_text_read: true. The issue and pages of Siepe et al. (2024) are still to be assigned by the journal.

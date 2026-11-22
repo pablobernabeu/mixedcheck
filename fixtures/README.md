@@ -1,6 +1,6 @@
 # Fixtures
 
-This directory holds the test fixtures that the R and Python packages share: the conformance corpora, the simulated pathology zoo and, later, the golden files, each with its provenance (02-decisions.md, Q7 and Q8). A directory whose contents are not MIT-licensed is marked with REUSE-style licence files (03-execution-plan.md, M0). Whether the published test vectors of RFC 4231, RFC 8785 and NIST in conformance/hash/, hmac/ and json/ need such files is an open licence check of the execution plan.
+This directory holds the test fixtures that the R and Python packages share: the conformance corpora, the simulated pathology zoo and, later, the golden files, each with its provenance (02-decisions.md, Q7 and Q8). A directory whose contents are not MIT-licensed is marked with REUSE-style licence files (03-execution-plan.md, M0). The published test vectors of RFC 4231, RFC 8785 and NIST in conformance/hash/, hmac/ and json/ are reproduced as facts, with attribution, and need no such files (the README of each directory).
 
 | Directory | Contents |
 |---|---|

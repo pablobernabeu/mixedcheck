@@ -220,10 +220,22 @@ def test_complex_keys_are_equal_only_when_they_have_the_same_kind_and_items(tmp_
 
 def test_deep_nesting_is_parsed_without_recursion_and_refused_in_conversion(tmp_path):
     pytest.importorskip("yaml")
-    text = "a: " + "[" * 3000 + "]" * 3000 + "\n"
+    # 999 sequences in the root mapping, 1,000 collections in all: the most that
+    # libyaml 0.2.6 reads, and deeper than Python's default recursion limit.
+    text = "a: " + "[" * 999 + "]" * 999 + "\n"
     issues = issue_codes(yaml_file(tmp_path, text))
     assert len(issues) == 1
     assert issues[0].startswith("E1030 /a/0/0/0/")
+
+
+def test_nesting_beyond_the_limit_of_libyaml_is_refused_whatever_its_version(tmp_path):
+    pytest.importorskip("yaml")
+    # libyaml 0.2.6 (PyYAML 6.0.4) refuses the text as it parses it, and with
+    # libyaml 0.2.5 the conversion refuses it (conventions.md, YAML).
+    text = "a: " + "[" * 3000 + "]" * 3000 + "\n"
+    issues = issue_codes(yaml_file(tmp_path, text))
+    assert len(issues) == 1
+    assert issues[0] == "E3002 " or issues[0].startswith("E1030 /a/0/0/0/")
 
 
 def test_scalars_stay_strings_except_where_the_schema_requires_another_type():

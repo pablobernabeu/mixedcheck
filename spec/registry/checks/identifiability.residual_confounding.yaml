@@ -166,16 +166,16 @@ references:
   - kind: literature
     citation: >-
       Harrison, X. A. (2014). Using observation-level random effects to model
-      overdispersion in count data in ecology and evolution. PeerJ, 2, e616.
+      overdispersion in count data in ecology and evolution. PeerJ, 2, Article e616.
     doi: 10.7717/peerj.616
-    full_text_read: false
+    full_text_read: true
   - kind: literature
     citation: >-
       Harrison, X. A. (2015). A comparison of observation-level random effect
       and Beta-Binomial models for modelling overdispersion in Binomial data in
-      ecology & evolution. PeerJ, 3, e1114.
+      ecology & evolution. PeerJ, 3, Article e1114.
     doi: 10.7717/peerj.1114
-    full_text_read: false
+    full_text_read: true
   - kind: derivation
     citation: >-
       The R-sig-mixed-models thread 'reference on unidentifiability of

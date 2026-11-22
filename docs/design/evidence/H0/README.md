@@ -44,8 +44,8 @@ The wrappers are in [`slurm/`](slurm/) and the summary script in [`scripts/`](sc
 | V1 pilot | h0_v1.sbatch | 9448238, tasks 1 to 6 | htc-c021 | 28 s to 54 s per task | 0.07 | 0.16 to 0.19 GB per task | H0/results/V1a-pilot |
 | V1 collection | h0_v1_collect.sbatch | 9448239 | htc-c028 | 6 s | 0.00 | | H0/results/V1a-pilot_summary.csv |
 | Re-time | h0_timing.sbatch | 9448240 | htc-c028 | 6 min 53 s | 0.46 | 0.67 GB | F/timing/out_h0 |
-| Random-effects simulations | h0_bsim.sbatch | 9448241 | htc-c068 (EPYC 9634) | running | | | B/sim/out |
-| Summaries | h0_summarise.sbatch | 9448284, 9448393 | | under 30 s | 0.01 | | H0/summaries |
+| Random-effects simulations | h0_bsim.sbatch | 9448241 | htc-c068 (EPYC 9634) | 3 h 12 min | 12.83 | 1.69 GB | B/sim/out |
+| Summaries | h0_summarise.sbatch | 9448284, 9448393, 9449634 | | under 40 s | 0.01 | | H0/summaries |
 | lme4 2.x on older R (A8) | h0_a8_rversions.sbatch | 9448965, tasks 1 to 4 (after 9448869, see below) | htc-c021 | 1 min 7 s to 3 min 54 s per task | 0.70 | 0.23 to 1.47 GB per task | H0/results/A8 |
 
 The first A8 run (9448869) pulled the four images, in 7 min 50 s to 8 min 26 s per task (2.18 CPU-hours together), and then stopped in its report line before installing anything, because R's package index leaves out the snapshot's Matrix on these R versions. The rerun reads the metadata from the unfiltered index.
@@ -88,7 +88,14 @@ The H1 cost has not yet been re-estimated as the H0 gate requires (03-execution-
 
 ### Random-effects simulations
 
-Pending: the rerun of Sim 1 to 6 is still running.
+The rerun of Sim 1 to 6 of `../decisions/B/sim`, with its own grids and seeds, shows how current lme4 handles the singular rungs of the ladder. Each value is set beside the stored earlier value in [`results/sim1_summary_small_earlier_vs_h0.csv`](results/sim1_summary_small_earlier_vs_h0.csv), [`sim1_summary_large_earlier_vs_h0.csv`](results/sim1_summary_large_earlier_vs_h0.csv), [`sim2_summary_earlier_vs_h0.csv`](results/sim2_summary_earlier_vs_h0.csv) and [`sim3_summary_earlier_vs_h0.csv`](results/sim3_summary_earlier_vs_h0.csv).
+
+- **Rejection rates.** Unchanged in Sim 2 (40 rows) and Sim 3 (16 rows) and in the large Sim 1 design (36 rows). In the small Sim 1 design (24 subjects by 16 items), 2 of the 72 rows differ, by .002 each, where the Monte Carlo standard error is .02.
+- **Singular and non-converged fits.** The share of singular maximal fits moved by at most .004 in either direction, and the share of non-converged maximal fits by at most .014: slightly more often in the small Sim 1 design (up to .037 against .028) and slightly less often in the large one (.004 to .032 against .008 to .040) and in Sim 2.
+- **Structures chosen.** The stopping rules ended on the same structure in all but a few datasets per condition: at most 8 of 1,000 changed rung in Sim 1, and 3 of 1,000 in Sim 2.
+- **Sims 4 to 6.** Reproduced to the printed digits ([`results/sim4_zcp_coding_h0.txt`](results/sim4_zcp_coding_h0.txt), [`sim5_reml_masking_h0.txt`](results/sim5_reml_masking_h0.txt), [`sim6_singular_df_h0.txt`](results/sim6_singular_df_h0.txt)). Zero-correlation fits still differ with the coding (REML criteria 1773.66 under treatment coding against 1774.99 under deviation coding), and `(1 + f || s)` with a three-level factor still expands to a correlated block of seven parameters, against three for numeric columns. REML masking moves θ by at most 0.001. In the 585 singular protected fits with a zero focal-slope variance, keeping or dropping the slope gives the same standard errors (median relative difference 3e-6), the same median Satterthwaite df (22.2) and the same rejection rate (.59).
+
+With lme4 2.1-0, then, singular rungs behave as they did with the earlier lme4, and the conclusions that 02-decisions.md (Q3) draws from Sims 1 to 6 stand.
 
 ### lme4 2.x on R 4.2.0 to 4.3.3 (A8)
 

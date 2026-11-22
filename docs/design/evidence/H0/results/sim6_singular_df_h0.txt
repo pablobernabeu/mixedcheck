@@ -1,0 +1,9 @@
+singular protected fits analysed: 585 ; with a zero focal-slope variance: 585 
+median |SE_keep/SE_drop - 1|: 3.11e-06 ; max: 0.0257 
+median df keep vs drop: 22.2 vs 22.2 ; share with df_keep < df_drop: 0.525 
+rejection at .05 (H1, beta=.25): keep 0.59 drop 0.59 
+         
+            0 0.1
+  zero:I  105  88
+  zero:S   92 100
+  zero:SI 108  92

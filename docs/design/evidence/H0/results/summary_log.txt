@@ -5,7 +5,7 @@ V1 pilot: time ratio per cell 1.645, 1.652, 1.786, 1.712; flags identical: True
 timing_raw.csv: 126 groups timed in both runs, median of the ratios 1.730
 timing_raw2.csv: 28 groups timed in both runs, median of the ratios 1.297
 lme4_timing: crossed_zcp_ML 1.75, crossed_zcp_REML 1.74, crossedbig_zcp_REML 1.10, crossed_REML (corr) 1.70, crossedbig_REML 0.87
-B/sim sim1_summary_small.csv: not available yet
-B/sim sim1_summary_large.csv: not available yet
-B/sim sim2_summary.csv: not available yet
-B/sim sim3_summary.csv: not available yet
+B/sim sim1_summary_small.csv: 72 rows merged on ['S', 'I', 'tau1', 'beta', 'strategy']
+B/sim sim1_summary_large.csv: 36 rows merged on ['S', 'I', 'tau1', 'beta', 'strategy']
+B/sim sim2_summary.csv: 40 rows merged on ['J', 'tau1', 'b3', 'n', 'strategy']
+B/sim sim3_summary.csv: 16 rows merged on ['S', 'm', 'tau', 'r', 'beta1', 'model']

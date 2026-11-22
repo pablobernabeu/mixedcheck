@@ -325,7 +325,7 @@
     },
     {
       "id": "yaml-conversion-024",
-      "description": "Sequences nested 1,000 deep, which the check of keys walks before the conversion reports the depth.",
+      "description": "Sequences nested 999 deep in the root mapping, 1,000 collections in all, the most that libyaml 0.2.6 reads, which the check of keys walks before the conversion reports the depth.",
       "path": "conversion/deep_1000.yaml",
       "expected": {
         "issues": [

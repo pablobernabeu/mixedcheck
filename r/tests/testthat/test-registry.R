@@ -160,6 +160,9 @@ test_that("the rules on one entry find each kind of problem", {
   i <- at("design.collinearity")
   prefix <- sprintf("/entries/%d", i - 1L)
   document$entries[[i]]$thresholds$high$validation$value <- "validated"
+  # E4010 needs a literature source that has not been read in full; the
+  # registry's own source of this threshold has been, so the test marks it unread.
+  document$entries[[i]]$thresholds$high$sources[[1L]]$full_text_read <- FALSE
   document$entries[[i]]$decision$rules[[1L]]$finding <- "consequential"
   document$entries[[i]]$decision$rules[[2L]]$thresholds <- list("no_such_threshold")
   document$entries[[i]]$decision$rules[[2L]]$message <- "no_such_message"

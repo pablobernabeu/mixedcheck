@@ -953,3 +953,12 @@ An algorithm that is later reimplemented or corrected gets a new entry, and earl
 - AI assistance: Claude Code (Anthropic), under the maintainer's direction, read the sources and wrote the notes and the updates of the record and the registry.
 - Verification: each new reference against Crossref; compile_registry.py, rehash_results.py, vendor.py sync and check, and the 188 tests of spec/tools.
 - Record: Santner and Duffy (1986) and McHorney and Tarlov (1995) are marked full_text_read: true after a reading of every page. The composition of mixor's SmokingPrevention data comes from Hedeker (2015), so the data were not opened.
+
+### 2026-11-22: the literature search for the ladder study (local session)
+
+- Files: docs/design/evidence/reading/gap-ladder-study.md and venues/rr-ampps.md, docs/design/02-decisions.md (Q3 and Q9).
+- Algorithm: None. Boolean queries of OpenAlex, forward citations of nine seed works from OpenAlex and Semantic Scholar, removal of duplicates by DOI and title, then screening of titles, abstracts and full texts against the inclusion criteria stated in the note.
+- Sources: the OpenAlex and Semantic Scholar APIs, read on 22 November 2026; the full texts of the closest studies, read through the publishers' sites with the maintainer's institutional access or as open access; the reference manual of buildmer. Each is cited in the note.
+- Code consulted: none copied. The search scripts were written for this search and are not part of the repository.
+- AI assistance: Claude Code (Anthropic), under the maintainer's direction, ran the searches, screened the records, read the full texts and wrote the note.
+- Verification: each cited reference against Crossref, apart from the preprints, the arXiv paper and the software record, checked on their own pages.

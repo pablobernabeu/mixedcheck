@@ -7,3 +7,5 @@
 **For the record.** 02-decisions.md (Q9) says the ADEMP-PreReg authors list AMPPS as accepting registered reports of simulation studies; their template's wiki does so (see the note on Siepe et al., 2024). The journal's own wording supports methodological registered reports in general. The PCI RR route is an alternative way to in-principle acceptance at AMPPS.
 
 Since 22 November 2026 AMPPS, directly or through PCI RR, takes the Stage 1 report of Q9 if the deadline of the Psychological Methods special issue cannot be met.
+
+AMPPS has since published a simulation study as a Registered Report, on model specification in moderated mediation (Fossum et al., 2026; gap-ladder-study.md), which shows that its registered-report track takes simulation studies.

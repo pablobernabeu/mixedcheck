@@ -1300,6 +1300,41 @@ part_columns <- function(intercept, terms, predictors,
 
 # --- The IR document ------------------------------------------------------------
 
+# The terms and columns of a part of the IR document, from its coding and
+# columns (ir.md, The IR document), with the level that each variable of a
+# term that '||' has split carries.
+ir_part_document <- function(part) {
+  term_entries <- list()
+  if (part$intercept) {
+    term_entries[[1L]] <- list(name = "(Intercept)", variables = list())
+  }
+  for (i in seq_along(part$terms)) {
+    term <- part$terms[[i]]
+    labels <- if (!is.null(part$labels)) part$labels[[1L]]
+    variables <- lapply(seq_along(term), function(v) {
+      variable <- term[[v]]
+      entry <- list(variable = variable)
+      coding <- part$coding[[i]]
+      if (variable %in% names(coding)) {
+        entry$coding <- named_member(coding, variable)
+        if (!is.null(labels) && !is.na(labels[v])) {
+          entry$level <- named_member(part$levels[[1L]], variable)
+        }
+      }
+      entry
+    })
+    term_entries[[length(term_entries) + 1L]] <- list(
+      name = term_name_of(term, labels),
+      variables = variables
+    )
+  }
+  column_entries <- lapply(part$columns, function(column) {
+    levels <- if (length(column$levels)) column$levels else empty_object()
+    list(name = column$name, term = as.double(column$term), levels = levels)
+  })
+  list(terms = term_entries, columns = column_entries)
+}
+
 # Assembles the IR document (ir.md, The IR document) as a named list.
 ir_document <- function(model, context) {
   empty_object <- structure(list(), names = character(0))
@@ -1330,38 +1365,8 @@ ir_document <- function(model, context) {
     }
     entry
   })
-  part_document <- function(part) {
-    term_entries <- list()
-    if (part$intercept) {
-      term_entries[[1L]] <- list(name = "(Intercept)", variables = list())
-    }
-    for (i in seq_along(part$terms)) {
-      term <- part$terms[[i]]
-      labels <- if (!is.null(part$labels)) part$labels[[1L]]
-      variables <- lapply(seq_along(term), function(v) {
-        variable <- term[[v]]
-        entry <- list(variable = variable)
-        coding <- part$coding[[i]]
-        if (variable %in% names(coding)) {
-          entry$coding <- named_member(coding, variable)
-          if (!is.null(labels) && !is.na(labels[v])) {
-            entry$level <- named_member(part$levels[[1L]], variable)
-          }
-        }
-        entry
-      })
-      term_entries[[length(term_entries) + 1L]] <- list(
-        name = term_name_of(term, labels),
-        variables = variables
-      )
-    }
-    column_entries <- lapply(part$columns, function(column) {
-      list(name = column$name, term = as.double(column$term), levels = as_object(column$levels))
-    })
-    list(terms = term_entries, columns = column_entries)
-  }
   random <- lapply(context$random, function(term) {
-    document <- part_document(term$part)
+    document <- ir_part_document(term$part)
     term_names <- vapply(document$terms, function(t) t$name, "")
     if (term$part$intercept) {
       term_names <- term_names[-1L]
@@ -1393,7 +1398,7 @@ ir_document <- function(model, context) {
     }
   }
   ir$predictors <- as_object(predictors)
-  ir$fixed <- part_document(context$fixed)
+  ir$fixed <- ir_part_document(context$fixed)
   ir$random <- random
   ir$offsets <- offsets
   if (!is.null(context$weights)) {

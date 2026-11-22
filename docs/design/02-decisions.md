@@ -182,6 +182,8 @@ The first 0.x release contains:
 - the plan hashes with generated preregistration text
 - the access log
 
+M3 implemented this release's part of the decision on 19 November 2026 (03-execution-plan.md, M3, and documents.md, The plan builder). The maintainer chose that the formula gives only the fixed part and the grouping factors, from which the package derives the ceiling as every fixed term whose variables all vary within a factor (Barr et al., 2013). Three readings settle points this section left open. A replication unit is any grouping factor that is a declared unit, and focal slopes are protected only by such factors, since the section protects by-unit slopes. The order among nuisance terms is the order of the IR, until study H2. A plan stores each mean centring as its rule rather than its constant, because a plan is shared and an unkeyed hash of a mean over the design sample could be confirmed by search, as Q5 rules for the IR hash of a shareable results document. The Python package writes a statsmodels binding by the rule of Q1 for what MixedLM can express, and the optimisers of both bindings are provisional until M3b.
+
 A protected set as such is not new. buildmer's `include` argument and lme4's guidance on singular fits already point that way, and the lme4 documentation states that there is not yet consensus on how to choose a random-effects specification. The novelty lies in the outcome-free ladder, the plan contract and their validation.
 
 ## Q4. Design declarations
@@ -197,7 +199,7 @@ Declarations are optional by default and required in the three situations set ou
 
 Without a declaration, such a check reports not_available with the reason 'declaration missing', names the field to declare and never recodes. For an undeclared ID scope, the report adds outcome-free evidence, such as whether unit attributes stay consistent across outer units. In mlmRev's Exam data, 269 of 322 shared student labels change sex across schools, whereas in a crossed psycholinguistic dataset none of 600 items changes its frequency or length.
 
-A minimal declaration becomes mandatory in three situations: a confirmatory goal, outcome-blind and preregistration exports, and trial features (cluster-randomised, stepped-wedge and partially nested designs). A `draft_design()` function in both languages writes a declaration pre-filled from inference and marks the inferred entries. The draft counts as a declaration only after the user accepts it, and in outcome-blind mode it reads only ID-typed and right-hand-side columns. A code-first builder in both languages writes the same JSON.
+A minimal declaration becomes mandatory in three situations: a confirmatory goal, outcome-blind and preregistration exports, and trial features (cluster-randomised, stepped-wedge and partially nested designs). A `draft_design()` function in both languages writes a declaration pre-filled from inference and marks the inferred entries. The draft counts as a declaration only after the user accepts it, and in outcome-blind mode it reads only ID-typed and right-hand-side columns. A code-first builder in both languages writes the same JSON. The maintainer chose on 19 November 2026 a function `declaration()` with one helper for the entries of each block, `declare_unit()`, `declare_crossing()`, `declare_observation()`, `declare_assignment()`, `declare_variable()` and `declare_estimand()`, with the same names in both languages. `draft_design()` reads only the grouping columns, never infers id_scope 'within_parent', since reused labels and genuine crossing give identical incidence patterns, and makes no unit of a predictor in a grouping factor.
 
 Every design tool reviewed takes structure as a declared input rather than inferring it, including DeclareDesign (Blair et al., 2019) and simr (Green & MacLeod, 2016). Reused labels and genuine crossing produce identical incidence patterns.
 
@@ -430,6 +432,7 @@ The following choices rest with the maintainer. On 8 November 2026, the maintain
 | Plans from 0.x releases as preregistrations | Not until the plan schema and the canonicaliser are versioned and later releases can verify earlier plans (Q3) |
 | Satterthwaite df in 1.0 | lmerTest in R, labelled engine-specific, and not computed in Python. In-house in both languages after 1.0 (Q1) |
 | Early binary GLMM support | Only if the maintainer's own analyses need it before 1.1, under the rule in Q2 |
+| Plan builder and declaration builders (M3) | Chosen on 19 November 2026: `design_plan()` derives the ceiling from the fixed part and the grouping factors, `declaration()` with one `declare_*()` helper for each block, and a statsmodels binding in Python (Q3 and Q4) |
 
 ## References
 

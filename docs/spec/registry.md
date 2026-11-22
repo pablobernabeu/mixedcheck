@@ -333,6 +333,8 @@ James, G., Witten, D., Hastie, T., & Tibshirani, R. (2013). *An introduction to 
 
 Konis, K. (2007). *Linear programming algorithms for detecting separated data in binary logistic regression models* [Doctoral thesis, University of Oxford]. Oxford University Research Archive. https://ora.ox.ac.uk/objects/uuid:8f9ee0d0-d78e-4101-9ab4-f9cbceed2a2a
 
+McHorney, C. A., & Tarlov, A. R. (1995). Individual-patient monitoring in clinical practice: Are available health status surveys adequate? *Quality of Life Research, 4*(4), 293–307. https://doi.org/10.1007/BF01593882
+
 Pustejovsky, J. E., & Tipton, E. (2018). Small-sample methods for cluster-robust variance estimation and hypothesis testing in fixed effects models. *Journal of Business & Economic Statistics, 36*(4), 672–683. https://doi.org/10.1080/07350015.2016.1247004
 
 Pustejovsky, J. E., & Tipton, E. (2023). Corrigendum: Small sample methods for cluster-robust variance estimation and hypothesis testing in fixed effects models. *Journal of Business & Economic Statistics, 41*(2), 650–652. https://doi.org/10.1080/07350015.2023.2174123

@@ -69,8 +69,9 @@ thresholds:
     rationale: >-
       More than 15% of respondents at the lowest possible score is a common
       criterion for a floor effect in the validation of health status
-      questionnaires, where each respondent gives one score. It goes back to
-      McHorney and Tarlov (1995, as cited in Terwee et al., 2007). Applying it
+      questionnaires, where each respondent gives one score. McHorney and
+      Tarlov (1995) proposed it as a standard for health surveys used with
+      individual patients, and Terwee et al. (2007) adopted it. Applying it
       to the rows of an analysis sample, which can hold several rows of one
       person, is this project's extension. Terwee et al. rate a questionnaire
       free of floor effects only in a sample of at least 50, a condition for
@@ -78,6 +79,13 @@ thresholds:
       population. The share here describes the rows that the model fits, so
       the check sets no minimum.
     sources:
+      - kind: literature
+        citation: >-
+          McHorney, C. A., & Tarlov, A. R. (1995). Individual-patient
+          monitoring in clinical practice: Are available health status surveys
+          adequate? Quality of Life Research, 4(4), 293-307.
+        doi: 10.1007/BF01593882
+        full_text_read: true
       - kind: literature
         citation: >-
           Terwee, C. B., Bot, S. D. M., de Boer, M. R., van der Windt, D. A. W.
@@ -95,8 +103,9 @@ thresholds:
     rationale: >-
       More than 15% of respondents at the highest possible score is a common
       criterion for a ceiling effect in the validation of health status
-      questionnaires, where each respondent gives one score. It goes back to
-      McHorney and Tarlov (1995, as cited in Terwee et al., 2007). Applying it
+      questionnaires, where each respondent gives one score. McHorney and
+      Tarlov (1995) proposed it as a standard for health surveys used with
+      individual patients, and Terwee et al. (2007) adopted it. Applying it
       to the rows of an analysis sample, which can hold several rows of one
       person, is this project's extension. Terwee et al. rate a questionnaire
       free of ceiling effects only in a sample of at least 50, a condition for
@@ -104,6 +113,13 @@ thresholds:
       population. The share here describes the rows that the model fits, so
       the check sets no minimum.
     sources:
+      - kind: literature
+        citation: >-
+          McHorney, C. A., & Tarlov, A. R. (1995). Individual-patient
+          monitoring in clinical practice: Are available health status surveys
+          adequate? Quality of Life Research, 4(4), 293-307.
+        doi: 10.1007/BF01593882
+        full_text_read: true
       - kind: literature
         citation: >-
           Terwee, C. B., Bot, S. D. M., de Boer, M. R., van der Windt, D. A. W.

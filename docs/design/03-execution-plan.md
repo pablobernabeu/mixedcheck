@@ -449,10 +449,10 @@ The decisions still open are the arrangement for succession, settled before R0 (
 The local session of 21 and 22 November 2026 resolved the checks on registries and current software, the environment checks of the H0 pilot, the venue facts, the privacy and reporting standards, the licence checks, the terms of the conformance test vectors and the reading of the papers and registry sources listed here, as evidence/H0 and evidence/reading record and 02-decisions.md summarises. The checks that remain are:
 
 - optional tests of pymer4 through conda, MixedModels.jl through juliacall and fastglmm from R-universe, for which no script exists yet
-- confirmation by a data-protection specialist of the reading of the UK GDPR as amended by the Data (Use and Access) Act 2025, and a recheck of the ICO's anonymisation guidance once its review after that Act ends
+- before 1.0, a check by the maintainer that no text of the packages claims that shareable output is anonymous or lawful to share, and a recheck of the reading of the UK GDPR as amended by the Data (Use and Access) Act 2025 once the ICO's review of its anonymisation guidance after that Act ends (02-decisions.md, Q5)
 - the output rules of each data provider other than DfE, when its data are first analysed
 - tagged print-to-PDF in browsers other than Chromium (02-decisions.md, Q5)
 - screen-reader testing of a prototype report
-- after the OSF preregistration of V1, V2 and V7, a fixture from OSF project 4p8hz in both packages with its attribution (02-decisions.md, Q8), and the numbers of schools and classes in mixor's SmokingPrevention data, read from its identifiers before it serves in an R example
+- after the OSF preregistration of V1, V2 and V7, a fixture from OSF project 4p8hz in both packages with its attribution (02-decisions.md, Q8)
 
 Terwee et al. (2007), Pustejovsky and Tipton (2018) and Harrison (2014, 2015) were read in the parts the registry cites and stay marked full_text_read: false until they are read in full. The issue and pages of Siepe et al. (2024) are still to be assigned by the journal.

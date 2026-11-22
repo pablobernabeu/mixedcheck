@@ -65,7 +65,8 @@
     {"file": "results/stages.json", "kind": "results"},
     {"file": "results/structure.json", "kind": "results"},
     {"file": "results/valid.json", "kind": "results"},
-    {"file": "results/version.json", "kind": "results"}
+    {"file": "results/version.json", "kind": "results"},
+    {"file": "plans/validate.json", "kind": "plan"}
   ],
   "zoo": {"index": "fixtures/zoo/index.json", "kind": "zoo"}
 }

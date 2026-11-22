@@ -17,7 +17,8 @@ audit(
   exploratory = FALSE,
   outcome_seen = NULL,
   privacy = "shareable",
-  key = NULL
+  key = NULL,
+  plan = NULL
 )
 }
 \arguments{
@@ -59,6 +60,16 @@ skips the privacy filter.}
 \item{key}{\code{NULL}, or the commitment key of the run as 64 lower-case
 hexadecimal digits. Without it, the run creates a key as
 \code{\link[=new_commitment_key]{new_commitment_key()}} does.}
+
+\item{plan}{\code{NULL}, or the frozen plan that the run belongs to, as
+\code{\link[=validate_plan]{validate_plan()}} accepts it. The run's declaration hash must equal the
+plan's and its IR, with each 'mean' centring as its rule, must be the IR
+of a rung, which the formula of that rung in \code{\link[=preregistration_text]{preregistration_text()}}
+gives. The run takes the coding of the ceiling of the plan, with the
+members that \code{coding} gives in place of its own, and without
+\code{sample_columns} the sample columns of the ceiling, so that its factors
+are frozen and its design sample is the plan's. The access log then records the plan, and accesses
+at T1 and T2 have the mode 'planned' rather than 'exploratory'.}
 }
 \value{
 A results object, a list of class 'mixedcheck_results' with the
@@ -151,7 +162,8 @@ analysis sample, without rows, and the errors of \code{\link[=design_matrices]{d
 the values that the samples read. Arguments of the wrong type, a reason
 at T0, an \code{outcome_seen} that differs from the declaration, columns of
 other types, such as dates, and an invalid MIXEDCHECK_TIME give an
-ordinary error.
+ordinary error. A plan that is not valid gives the error of
+\code{\link[=validate_plan]{validate_plan()}}, and a run that does not belong to its plan E7310.
 }
 
 \examples{

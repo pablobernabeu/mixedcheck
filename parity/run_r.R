@@ -561,8 +561,38 @@ run_zoo <- function(id) {
            sidecar = canonical_bytes(results$sidecar, "data"))
     }
   }
+  # The plan and the draft of the directory, at the time 0. The plan is
+  # compared without its language, its package version and its bindings,
+  # which belong to the language, and so is its preregistration text.
+  at_zero <- function(compute) {
+    function() {
+      previous <- Sys.getenv("MIXEDCHECK_TIME", NA_character_)
+      Sys.setenv(MIXEDCHECK_TIME = "0")
+      on.exit(if (is.na(previous)) {
+        Sys.unsetenv("MIXEDCHECK_TIME")
+      } else {
+        Sys.setenv(MIXEDCHECK_TIME = previous)
+      })
+      compute(pathology_zoo(id))
+    }
+  }
+  plan <- at_zero(function(fixture) {
+    args <- fixture$arguments[intersect(names(fixture$arguments),
+                                        c("family", "coding", "weights", "sample_columns"))]
+    found <- do.call(design_plan, c(list(fixture$data, fixture$formula, fixture$declaration),
+                                    args))
+    found$language <- "R"
+    found$versions$package <- "0"
+    found$bindings <- list()
+    list(plan = canonical_bytes(found, "hashable"), text = utf8_bytes(preregistration_text(found)))
+  })
+  draft <- at_zero(function(fixture) {
+    list(draft = canonical_bytes(draft_design(fixture$data, fixture$formula), "hashable"))
+  })
   list(internal = outcome_of(audit_in("internal")),
-       shareable = outcome_of(audit_in("shareable")))
+       shareable = outcome_of(audit_in("shareable")),
+       plan = outcome_of(plan),
+       draft = outcome_of(draft))
 }
 
 # Cases of results/ -------------------------------------------------------
@@ -587,6 +617,16 @@ run_results <- function(case, context) {
   outcomes
 }
 
+# Cases of plans/ ---------------------------------------------------------
+
+# The plan validated by validate_plan(): 'valid' when the call returns.
+run_plan <- function(case, context) {
+  list(plan = outcome_of(function() {
+    validate_plan(file.path(context$directory, case[["plan"]]))
+    list(valid = TRUE)
+  }))
+}
+
 runners <- list(
   json = run_json,
   decimal = run_decimal,
@@ -600,7 +640,8 @@ runners <- list(
   table = run_table,
   formula = run_formula,
   audit = run_audit,
-  results = run_results
+  results = run_results,
+  plan = run_plan
 )
 
 # Reads each vendored file of spec/ installed with the package in the data

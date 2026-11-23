@@ -282,6 +282,7 @@ shareable_finding_issues <- function(finding, here, k) {
     }
   }
   statistics <- finding[["statistics"]]
+  unspaced <- unspaced_quantiles(statistics, k)
   for (name in names(statistics)) {
     statistic <- statistics[[name]]
     value <- statistic[["value"]]
@@ -298,7 +299,8 @@ shareable_finding_issues <- function(finding, here, k) {
                            (kind %in% c("count", "ratio") && person))) {
       add("E7021", at, list(rule = rule))
     } else if (!is.null(quantile) &&
-               (is.null(quantile[["n"]]) || !quantile_shown(quantile[["n"]], quantile[["p"]], k))) {
+               (is.null(quantile[["n"]]) || !quantile_shown(quantile[["n"]], quantile[["p"]], k) ||
+                  name %in% unspaced)) {
       add("E7022", at, list(limit = k))
     } else if (kind == "labels") {
       bundle <- schema_bundle()
@@ -319,6 +321,66 @@ shareable_finding_issues <- function(finding, here, k) {
 # where m / 10^d is the shortest decimal that represents p, so that p = 0
 # and p = 1 never are. p is a double from 0 to 1 or a decimal string.
 quantile_shown <- function(n, p, k) {
+  decimal <- quantile_decimal(p)
+  if (is.null(decimal)) {
+    return(FALSE)
+  }
+  m <- decimal$m
+  power <- bn_ten(decimal$d)
+  smaller <- if (bn_compare(bn_add(m, m), power) <= 0L) m else bn_sub(power, m)
+  bn_compare(bn_mul(bn_normalise(n), smaller), bn_mul(bn_normalise(k), power)) >= 0L
+}
+
+# The spacing condition of the quantile rule (privacy.md, Steps, 4): two
+# quantiles p and q of the same n values, each of which meets the quantile
+# rule, are both written only when n x |m_p - m_q| >= k x 10^d in integer
+# arithmetic, where m_p / 10^d and m_q / 10^d are p and q to the larger of
+# their numbers of decimals. Two quantiles with the same p are the same
+# value and always spaced.
+quantiles_spaced <- function(n, p, q, k) {
+  a <- quantile_decimal(p)
+  b <- quantile_decimal(q)
+  d <- max(a$d, b$d)
+  ma <- bn_mul(a$m, bn_ten(d - a$d))
+  mb <- bn_mul(b$m, bn_ten(d - b$d))
+  order <- bn_compare(ma, mb)
+  if (order == 0L) {
+    return(TRUE)
+  }
+  difference <- if (order > 0L) bn_sub(ma, mb) else bn_sub(mb, ma)
+  bn_compare(bn_mul(bn_normalise(n), difference), bn_mul(bn_normalise(k), bn_ten(d))) >= 0L
+}
+
+# The written quantiles of a finding of a shareable document that meet the
+# quantile rule but lie fewer than k values from another such quantile with
+# the same n, which the spacing condition of E7022 refuses, both members of
+# each such pair.
+unspaced_quantiles <- function(statistics, k) {
+  shown <- Filter(function(name) {
+    statistic <- statistics[[name]]
+    quantile <- statistic[["quantile"]]
+    !is.null(statistic[["value"]]) && !is.null(quantile) && !is.null(quantile[["n"]]) &&
+      quantile_shown(quantile[["n"]], quantile[["p"]], k)
+  }, names(statistics))
+  unspaced <- character(0)
+  for (name in shown) {
+    quantile <- statistics[[name]][["quantile"]]
+    for (other in setdiff(shown, name)) {
+      paired <- statistics[[other]][["quantile"]]
+      if (quantile[["n"]] == paired[["n"]] &&
+          !quantiles_spaced(quantile[["n"]], quantile[["p"]], paired[["p"]], k)) {
+        unspaced <- c(unspaced, name)
+        break
+      }
+    }
+  }
+  unspaced
+}
+
+# The p of a quantile as m / 10^d, with m a big integer, or NULL when p is 0
+# or at least 1. p is a double from 0 to 1 or a decimal string, and m / 10^d
+# is the shortest decimal that represents it.
+quantile_decimal <- function(p) {
   if (is.character(p)) {
     digits <- sub("^0\\.?", "", p)
     exponent <- if (startsWith(p, "0.")) {
@@ -329,7 +391,7 @@ quantile_shown <- function(n, p, k) {
     digits <- sub("^0+", "", digits)
   } else {
     if (p == 0) {
-      return(FALSE)
+      return(NULL)
     }
     parts <- number_parts(p)
     digits <- parts$digits
@@ -337,13 +399,14 @@ quantile_shown <- function(n, p, k) {
   }
   # p = 0.digits x 10^exponent, so m = digits and d = nchar(digits) - exponent.
   if (!nzchar(digits) || exponent >= 1L) {
-    return(FALSE)
+    return(NULL)
   }
-  d <- nchar(digits) - exponent
-  m <- bn_from_digits(digits)
-  power <- c(numeric(d %/% 7L), 10^(d %% 7L))
-  smaller <- if (bn_compare(bn_add(m, m), power) <= 0L) m else bn_sub(power, m)
-  bn_compare(bn_mul(bn_normalise(n), smaller), bn_mul(bn_normalise(k), power)) >= 0L
+  list(m = bn_from_digits(digits), d = nchar(digits) - exponent)
+}
+
+# 10^d as a big integer.
+bn_ten <- function(d) {
+  c(numeric(d %/% 7L), 10^(d %% 7L))
 }
 
 # A big integer from a string of decimal digits.

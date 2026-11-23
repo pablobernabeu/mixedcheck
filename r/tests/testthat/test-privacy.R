@@ -242,6 +242,45 @@ test_that("quartiles of many levels are written, and minima and maxima never", {
   expect_identical(detail(shared, "singletons"), "secondary")
 })
 
+# A finding with the counts n and the quantiles of an entry, by name, each
+# with its p and the count that gives its n, which is all that the spacing
+# condition of step 4 reads.
+quantile_finding <- function(n, quantiles) {
+  statistics <- lapply(n, function(count) list(kind = "count"))
+  values <- as.list(n)
+  for (i in seq_along(quantiles)) {
+    name <- names(quantiles)[i]
+    statistics[[name]] <- list(kind = "count",
+                               quantile = list(p = quantiles[[i]][1L], n = quantiles[[i]][2L]))
+    values[[name]] <- i
+  }
+  list(statistics = statistics, values = values)
+}
+
+test_that("the spacing condition keeps the quantiles nearest the median", {
+  # Of the deciles of 50 values, the quantile rule writes 0.2 to 0.8, and the
+  # spacing condition needs 0.2 between two written ones, so 0.5, 0.3 and 0.7
+  # stay. With 100 values, every decile is 10 values from the next.
+  deciles <- setNames(lapply(1:9, function(i) c(sprintf("0.%d", i), "levels")),
+                      sprintf("q%d", 1:9))
+  finding <- quantile_finding(list(levels = 50), deciles)
+  expect_identical(sort(privacy_unspaced_quantiles(finding, 10)), c("q2", "q4", "q6", "q8"))
+  expect_identical(vapply(sprintf("q%d", 1:9), privacy_quantile_hidden, logical(1),
+                          finding = finding, k = 10, USE.NAMES = FALSE),
+                   c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE))
+  finding$values$levels <- 100
+  expect_identical(privacy_unspaced_quantiles(finding, 10), character(0))
+  # At equal distances from 0.5, the smaller p is kept: 60 x 0.1 values lie
+  # between 0.45 and 0.55. Quantiles whose n comes from counts of different
+  # values are not compared.
+  pair <- list(low = c("0.45", "levels"), high = c("0.55", "levels"))
+  expect_identical(privacy_unspaced_quantiles(quantile_finding(list(levels = 60), pair), 10),
+                   "high")
+  pair$high <- c("0.55", "other")
+  finding <- quantile_finding(list(levels = 60, other = 61), pair)
+  expect_identical(privacy_unspaced_quantiles(finding, 10), character(0))
+})
+
 test_that("the sizes of two samples do not give back the rows that a missing outcome removes", {
   # 3 of 40 rows lack the outcome: the rows of the design sample minus those
   # of the analysis sample would give 3.
@@ -2921,4 +2960,77 @@ test_that("the rows without a key value count towards the bound of the key's lev
   expect_same_reading(pair[[1L]], pair[[2L]])
   zeros <- finding_of(pair[[1L]], "outcome.zero_shares", factor = "subject")
   expect_identical(detail(zeros, "rows"), "secondary")
+})
+
+# Schools of pupils, the disclosure unit, with a Poisson count, in a T1 run:
+# sizes gives the pupils of each school and lost the positions of the pupils
+# without an outcome.
+school_pupils <- function(sizes, lost) {
+  n <- sum(sizes)
+  count <- seq_len(n) %% 3L + 1
+  count[lost] <- NA
+  data <- data.frame(count = count, x = (seq_len(n) * 7L) %% 11L + 0.5,
+                     school = rep(sprintf("S%02d", seq_along(sizes)), sizes),
+                     pupil = sprintf("p%02d", seq_len(n)), stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  audit_both(data, "count ~ x + (1 | school)", declaration = declaration, family = "poisson",
+             outcome_access = "T1", reason = "Schools of pupils.")
+}
+
+test_that("the analysed levels are hidden wherever rule 3 could fire with a bound that gives the rows without an outcome", {
+  # At k = 3, 5 schools of two pupils, 2 without an outcome: rule 3 hides the
+  # 5 analysed schools, beside 8 analysed rows, and its firing would show 5
+  # or more, which beside the class non_person of the schools of the design
+  # sample would show 10 rows there, while rule 1 shows fewer than 11. The
+  # analysed schools are hidden as well for 4 schools of 2, 2, 2 and 3
+  # pupils, one without an outcome, where rule 3 does not fire, so that
+  # their loss shows nothing. At k = 4 the bound leaves the rows several
+  # values, and the 4 schools are written.
+  five <- with_min_count(3L, school_pupils(rep(2L, 5L), c(8L, 10L)))
+  four <- with_min_count(3L, school_pupils(c(2L, 2L, 2L, 3L), 5L))
+  for (found in list(five, four)) {
+    zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+    expect_identical(detail(zeros, "levels"), "secondary")
+    expect_identical(written(zeros, "rows"), 8)
+  }
+  internal <- finding_of(four$internal, "outcome.zero_shares", factor = "school")
+  expect_identical(written(internal, "levels"), 4)
+  shared <- with_min_count(4L, school_pupils(c(2L, 2L, 2L, 3L), 5L))$shareable
+  zeros <- finding_of(shared, "outcome.zero_shares", factor = "school")
+  expect_identical(written(zeros, "levels"), 4)
+})
+
+# Subjects of two rows with an observation key, subjects of one row without
+# x and rows without a subject, every outcome present, in a T1 run of a
+# Poisson model.
+keyed_subjects <- function(doubles, x_lost, missing_key) {
+  subject <- c(rep(sprintf("s%02d", seq_len(doubles)), each = 2L),
+               sprintf("u%02d", seq_len(x_lost)), rep(NA_character_, missing_key))
+  trial <- c(rep(1:2, doubles), rep(1L, x_lost + missing_key))
+  n <- length(subject)
+  x <- (seq_len(n) * 7L) %% 11L + 0.5
+  x[startsWith(subject, "u") %in% TRUE] <- NA
+  data <- data.frame(y = (seq_len(n) * 5L) %% 4L, x = x, subject = subject, trial = trial,
+                     stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", observation = list(key = list("subject", "trial")))
+  audit_both(data, "y ~ x + (1 | subject)", declaration = declaration, family = "poisson",
+             outcome_access = "T1", reason = "Rows that leave the design sample.")
+}
+
+test_that("the table loses its rows beside the analysis sample when the names show k - 1 rows that leave the design sample", {
+  # At k = 3, 4 subjects of two rows with every outcome. With 2 subjects of
+  # one row without x and a row without a subject, the names show a subject
+  # that loses its level and a row without a subject, 2 rows that leave the
+  # design sample, which beside the firing of rule 1 would show that no
+  # outcome is missing. The 11 rows of the table exceed the 8 analysed rows
+  # by 3, which rule 1 alone would leave written, and the table loses them.
+  # With 3 subjects without x and no row without a subject, the names show
+  # one row, and the table's rows are written.
+  keyed <- with_min_count(3L, keyed_subjects(4L, 2L, 1L))$shareable
+  expect_identical(detail(finding_of(keyed, "sample.raw_vs_analysis"), "rows_raw"), "secondary")
+  plain <- with_min_count(3L, keyed_subjects(4L, 3L, 0L))$shareable
+  expect_identical(written(finding_of(plain, "sample.raw_vs_analysis"), "rows_raw"), 11)
 })

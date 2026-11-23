@@ -76,6 +76,12 @@ dm_mutants <- function() {
         "!privacy_quantile_hidden(finding, name, k)", "TRUE"))),
     m("step-4", "Steps 4: the quantile rule", function(ns) list(
       privacy_quantiles = function(finding, k) finding)),
+    # No finding of registry 0.1.0 writes two quantiles of one count that the
+    # quantile rule leaves closer than k values, so the spacing condition
+    # changes no document, and the unit tests of both packages reach it.
+    m("step-4-spacing", "Steps 4: the spacing condition of the quantile rule",
+      function(ns) list(privacy_unspaced_quantiles = function(finding, k) character(0)),
+      reachable = FALSE),
     m("step-5", "Steps 5: ratios", function(ns) list(
       privacy_ratios = function(finding, k) finding)),
     m("step-5-class", "Steps 5: ratios of suppressed non-person counts", function(ns) list(
@@ -234,6 +240,9 @@ dm_mutants <- function() {
       "Across findings: rule 1, the levels of a non-person item that the members of a sample bound",
       function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
         "if (!length(members)) {", "if (TRUE) {"))),
+    m("across-1-names",
+      "Across findings: rule 1, the table's rows beside the rows that the names show to leave the design sample",
+      function(ns) list(privacy_names_bound = function(run, findings) 0L)),
     m("across-1-unit-levels",
       "Across findings: rule 1, the levels of the disclosure unit with the contributors that the analysis sample loses",
       function(ns) list(privacy_analysis_marks = dm_patch(ns, "privacy_analysis_marks",
@@ -278,6 +287,10 @@ dm_mutants <- function() {
       function(ns) list(privacy_single_row_items = function(design, marks, basis, unit_item) {
         marks
       })),
+    m("across-3-bound",
+      "Across findings: rule 3, the analysed levels wherever its firing would leave the rows without an outcome one value",
+      function(ns) list(privacy_rule_3_bound = function(analysis, quantities, holders, ruled, marks,
+                                                        quartiles, basis, k) marks)),
     m("across-3-rows", "Across findings: rule 3, the analysed rows fewer than 2k",
       function(ns) list(privacy_rule_3 = dm_patch(ns, "privacy_rule_3",
         "if (quantity$rows < 2 * k && quantity$contributors >= k) {", "if (FALSE) {"))),
@@ -464,6 +477,8 @@ dm_mutants <- function() {
     m("validator-E7022", "Validation: E7022", function(ns) list(
       shareable_finding_issues = dm_patch(ns, "shareable_finding_issues",
         "add(\"E7022\"", "c(\"E7022\""))),
+    m("validator-E7022-spacing", "Validation: E7022, the spacing condition", function(ns) list(
+      unspaced_quantiles = function(statistics, k) character(0)), reachable = FALSE),
     # Registry 0.1.0 has no statistic of kind labels, so a forged label fails
     # E7042 first.
     m("validator-E7023", "Validation: E7023", function(ns) list(

@@ -340,6 +340,45 @@ dh_alternatives_non_person <- function(p, case) {
     rownames(c1$data) <- NULL
     out$missing_school_two <- dz_alt(school_two(c1), 2L)
   }
+  # In the family, every school that loses an outcome loses one of two
+  # pupils, so the schools, which the class non_person shows to hold two
+  # pupils or more, would give the rows without an outcome. Two tables
+  # outside the family hold the same analysed rows: without the second row
+  # that lacks an outcome, whose school's other pupils join the first school
+  # with every outcome, and with the last pupil of the second school with
+  # every outcome without it and a pupil with an outcome added to the first.
+  miss <- which(is.na(d$count))
+  whole <- setdiff(unique(d$school), unique(d$school[miss]))
+  if (m > 1L && length(whole)) {
+    c1 <- case
+    second <- d$school == d$school[miss[2L]]
+    c1$data$school[second] <- whole[1L]
+    c1$data <- c1$data[-miss[2L], , drop = FALSE]
+    rownames(c1$data) <- NULL
+    out$schools_merged <- dz_alt(c1, m - 1L)
+  }
+  if (length(whole) >= 2L) {
+    c1 <- case
+    last <- max(which(d$school == whole[2L]))
+    c1$data$count[last] <- NA
+    added <- d[last, , drop = FALSE]
+    added$school <- whole[1L]
+    added$pupil <- "p90"
+    c1$data <- rbind(c1$data, added)
+    rownames(c1$data) <- NULL
+    out$lost_and_added <- dz_alt(c1, m + 1L)
+  }
+  # Each row without an outcome swapped with the last pupil of each school
+  # with every outcome, which keeps the analysed counts and moves the loss
+  # to another school.
+  for (i in miss) {
+    for (school in whole) {
+      j <- max(which(d$school == school))
+      c1 <- case
+      c1$data$count[c(i, j)] <- c(d$count[j], NA)
+      out[[sprintf("swapped_%d_%d", i, j)]] <- dz_alt(c1, m)
+    }
+  }
   out
 }
 
@@ -391,11 +430,29 @@ dh_family_cross_tier <- function() {
 # missing_key_rows fire or not beside a design sample that loses its rows to
 # the analysis sample, the chains of comparisons of rules 1 and 4 of Across
 # findings.
+# The alternatives of chain (dh_alternatives()): those that the zoo families
+# share and, for each subject with an outcome, a further row of it without
+# an outcome under the next trial. In the family only a second row lacks an
+# outcome, so the subjects of one and three rows, which the T0 findings
+# describe, would otherwise give the rows without an outcome.
+dh_alternatives_chain <- function(p, case) {
+  d <- case$data
+  m <- sum(is.na(d$y))
+  out <- dz_common_alternatives(case, "y", "subject")
+  for (subject in unique(d$subject[!is.na(d$subject) & !is.na(d$y)])) {
+    rows <- which(d$subject == subject)
+    out[[paste0("row_added_", subject)]] <- dz_alt(dz_add_rows(case,
+      list(subject = subject, trial = max(d$trial[rows]) + 1L, x = d$x[rows[1L]])), m + 1L)
+  }
+  out
+}
+
 dh_family_chain <- function() {
   dh_family(
     name = "chain",
     probe = "^(keys\\.duplicates|sample\\.raw_vs_analysis|structure\\.cluster_sizes)",
     description = "table, design sample and analysis sample nested, observation key, Poisson, T1",
+    alternatives = dh_alternatives_chain,
     params = list(
       single = dh_param(0:2, person = TRUE),
       double = dh_param(4:6, person = TRUE),
@@ -440,6 +497,7 @@ dh_family_sizes <- function(unit, wide = FALSE) {
     gate = !wide,
     probe = "^(structure|identifiability|sample|design|labels)\\.",
     description = "subjects of one to three rows, missing covariate and outcome, gaussian, T1",
+    alternatives = dh_alternatives_sizes,
     params = list(
       single = dh_param(0:3, person = TRUE),
       double = dh_param(2:5, person = TRUE),
@@ -467,6 +525,25 @@ dh_family_sizes <- function(unit, wide = FALSE) {
            args = c(list(declaration = declaration), dh_t1()))
     }
   )
+}
+
+# The alternatives of the sizes families (dh_alternatives()): those that
+# the zoo families share, each described by its own rows of the design
+# sample without an outcome in subjects of two such rows or more (y_missing)
+# and subjects of one such row without an outcome (single_lost). A subject
+# of two rows whose second lacks the covariate has one row in the design
+# sample, which can lose its outcome as a subject of one row can.
+dh_alternatives_sizes <- function(p, case) {
+  lapply(dz_common_alternatives(case, "y", "subject"), function(alternative) {
+    d <- alternative$data
+    design <- !is.na(d$x) & !is.na(d$subject)
+    sizes <- as.vector(table(d$subject[design])[d$subject])
+    sizes[is.na(sizes)] <- 0L
+    lost <- design & is.na(d$y)
+    attr(alternative, "params") <- list(y_missing = sum(lost & sizes >= 2L),
+                                        single_lost = sum(lost & sizes == 1L))
+    alternative
+  })
 }
 
 # Subjects of one to four rows, with the counts of each size as parameters,
@@ -626,6 +703,7 @@ dh_family_assign <- function() {
     name = "assign",
     probe = "^assignment\\.",
     description = "two nested assignments between subjects, missing outcome, T1",
+    alternatives = dh_alternatives_assign,
     params = list(
       subjects = dh_param(4:7, person = TRUE),
       z1_missing = dh_param(0:3, person = TRUE),
@@ -657,6 +735,15 @@ dh_family_assign <- function() {
            formula = "y ~ x + (1 | subject)", args = c(list(declaration = declaration), dh_t1()))
     }
   )
+}
+
+# The alternatives of assign (dh_alternatives()): those that the zoo
+# families share. The subject whose z1 varies is the last subject with an
+# outcome in the family, so its place, which the findings of the T0 checks
+# show, gives y_missing within the family alone, and a table with a row
+# without an outcome moved, or with one more, traces it.
+dh_alternatives_assign <- function(p, case) {
+  dz_common_alternatives(case, "y", "subject")
 }
 
 # Classes of pupils within schools, the arm assigned by class in blocks of
@@ -1282,6 +1369,7 @@ dh_family_binomial <- function() {
     gate = FALSE,
     probe = "^outcome\\.separation",
     description = "binomial rows with no, some and all events, missing outcomes, T2",
+    alternatives = dh_alternatives_binomial,
     params = list(
       none = dh_param(0:4, person = TRUE, tier = "A"),
       all = dh_param(0:4, person = TRUE, tier = "A"),
@@ -1299,6 +1387,103 @@ dh_family_binomial <- function() {
     }
   )
 }
+
+# The alternatives of binomial (dh_alternatives()): those that the zoo
+# families share, for each row with an outcome the table in which that row
+# has each other number of events, and two rows recoded with the same events,
+# each described by its own counts of rows with no, some and all events and
+# without an outcome. The family
+# places the outcomes in a fixed order of the rows, whose covariates follow
+# their positions, so the verdict of outcome.separation, which privacy.md
+# accepts to show, can give the counts within the family alone.
+dh_alternatives_binomial <- function(p, case) {
+  describe <- function(alternative) {
+    k <- alternative$data$k
+    attr(alternative, "params") <- list(none = sum(k == 0, na.rm = TRUE),
+                                        all = sum(k == 2, na.rm = TRUE),
+                                        some = sum(k == 1, na.rm = TRUE),
+                                        y_missing = sum(is.na(k)))
+    alternative
+  }
+  out <- dz_common_alternatives(case, "k", character(0))
+  k <- case$data$k
+  for (i in which(!is.na(k))) {
+    for (events in setdiff(0:2, k[i])) {
+      recoded <- case
+      recoded$data$k[i] <- events
+      out[[sprintf("row_%d_events_%d", i, events)]] <- recoded
+    }
+  }
+  # Two rows of one event each recoded as one row of two and one of none,
+  # and the reverse, which keep the events and the trials.
+  some <- which(k == 1)
+  if (length(some) >= 2L) {
+    split <- case
+    split$data$k[some[1:2]] <- c(2, 0)
+    out$pair_split <- split
+  }
+  all <- which(k == 2)
+  none <- which(k == 0)
+  if (length(all) && length(none)) {
+    joined <- case
+    joined$data$k[c(all[1L], none[1L])] <- 1
+    out$pair_joined <- joined
+  }
+  # Rows without an outcome on the recording grids of x and z, found by a
+  # search over the grid points, one or two, beside the design of n rows,
+  # that leave the statuses of design.collinearity, and every other value of
+  # the document, as they are. The covariates follow the positions of the
+  # rows, so the statuses of the GVIF over the design sample, which rows
+  # without an outcome change, would otherwise give their number.
+  sets <- dh_binomial_grid_rows[[as.character(min(nrow(case$data), 5L))]]
+  for (j in seq_along(sets)) {
+    added <- case
+    added$data <- rbind(added$data, data.frame(k = NA, n = 2, x = sets[[j]]$x, z = sets[[j]]$z))
+    out[[paste0("grid_rows_", j)]] <- added
+  }
+  # One or two rows without an outcome on the grids, in place of the table's,
+  # that keep the correlation of x and z over the rows exactly. The GVIF of
+  # design.collinearity is a function of that correlation, and its status
+  # near_threshold, whose band is a relative 1e-9, shows it within that band
+  # of a threshold, which few designs on the grids reach.
+  analysed <- case$data[!is.na(k), , drop = FALSE]
+  grid <- expand.grid(x = seq(0.5, 10.5, 1), z = seq(0.5, 6.5, 1))
+  r2 <- function(x, z) suppressWarnings(stats::cor(x, z)^2)
+  target <- r2(case$data$x, case$data$z)
+  if (is.finite(target)) {
+    pairs <- rbind(cbind(seq_len(nrow(grid)), NA),
+                   which(upper.tri(diag(nrow(grid)), diag = TRUE), arr.ind = TRUE))
+    found <- 0L
+    for (row in seq_len(nrow(pairs))) {
+      chosen <- stats::na.omit(pairs[row, ])
+      if (length(chosen) == sum(is.na(k))) {
+        next
+      }
+      value <- r2(c(analysed$x, grid$x[chosen]), c(analysed$z, grid$z[chosen]))
+      if (is.finite(value) && abs(value - target) <= 1e-9 * target) {
+        moved <- case
+        moved$data <- rbind(analysed, data.frame(k = NA, n = 2, x = grid$x[chosen],
+                                                 z = grid$z[chosen]))
+        found <- found + 1L
+        out[[paste0("correlation_kept_", found)]] <- moved
+        if (found == 4L) {
+          break
+        }
+      }
+    }
+  }
+  lapply(out, describe)
+}
+
+# The rows of dh_alternatives_binomial() for a table of 3, 4 and 5 rows or
+# more, each a set of grid points: one or two found for a table without a
+# row without an outcome, and for five rows or more a second for a table
+# with one.
+dh_binomial_grid_rows <- list(
+  `3` = list(list(x = 10.5, z = 1.5)),
+  `4` = list(list(x = c(10.5, 9.5), z = c(2.5, 4.5))),
+  `5` = list(list(x = 0.5, z = 0.5), list(x = 10.5, z = 2.5))
+)
 
 # Three arms of three, four and five rows with any number of events in
 # each, a bernoulli outcome, in a T2 run.

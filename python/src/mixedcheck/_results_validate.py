@@ -319,6 +319,7 @@ def shareable_finding_issues(
     pattern = bundle.resolve(
         "urn:mixedcheck:schema:results#/$defs/pseudonym", "urn:mixedcheck:schema:results"
     ).schema["pattern"]
+    unspaced = unspaced_quantiles(finding.get("statistics", {}), k)
     for name, statistic in finding.get("statistics", {}).items():
         value = statistic.get("value")
         if value is None:
@@ -334,7 +335,9 @@ def shareable_finding_issues(
         ):
             issues.append(raw_issue("E7021", at, {"rule": rule}))
         elif quantile is not None and (
-            quantile.get("n") is None or not quantile_shown(quantile["n"], quantile["p"], k)
+            quantile.get("n") is None
+            or not quantile_shown(quantile["n"], quantile["p"], k)
+            or name in unspaced
         ):
             issues.append(raw_issue("E7022", at, {"limit": k}))
         elif kind == "labels":
@@ -349,26 +352,82 @@ def quantile_shown(n: int | float, p: str | int | float, k: int | float) -> bool
     written only when n x min(m, 10^d - m) >= k x 10^d in integer arithmetic,
     where m / 10^d is the shortest decimal that represents p, so that p = 0
     and p = 1 never are. p is a number from 0 to 1 or a decimal string."""
+    decimal = quantile_decimal(p)
+    if decimal is None:
+        return False
+    m, d = decimal
+    power: int = 10**d
+    return int(n) * min(m, power - m) >= int(k) * power
+
+
+def quantiles_spaced(
+    n: int | float, p: str | int | float, q: str | int | float, k: int | float
+) -> bool:
+    """The spacing condition of the quantile rule (privacy.md, Steps, 4): two
+    quantiles p and q of the same n values, each of which meets the quantile
+    rule, are both written only when n x |m_p - m_q| >= k x 10^d in integer
+    arithmetic, where m_p / 10^d and m_q / 10^d are p and q to the larger of
+    their numbers of decimals. Two quantiles with the same p are the same
+    value and always spaced."""
+    a = quantile_decimal(p)
+    b = quantile_decimal(q)
+    assert a is not None and b is not None
+    d = max(a[1], b[1])
+    scale_p: int = 10 ** (d - a[1])
+    scale_q: int = 10 ** (d - b[1])
+    power: int = 10**d
+    difference = abs(a[0] * scale_p - b[0] * scale_q)
+    return difference == 0 or int(n) * difference >= int(k) * power
+
+
+def unspaced_quantiles(statistics: dict[str, Any], k: int | float) -> set[str]:
+    """The written quantiles of a finding of a shareable document that meet
+    the quantile rule but lie fewer than k values from another such quantile
+    with the same n, which the spacing condition of E7022 refuses, both
+    members of each such pair."""
+    shown = []
+    for name, statistic in statistics.items():
+        quantile = statistic.get("quantile")
+        if (
+            statistic.get("value") is not None
+            and quantile is not None
+            and quantile.get("n") is not None
+            and quantile_shown(quantile["n"], quantile["p"], k)
+        ):
+            shown.append((name, quantile))
+    return {
+        name
+        for name, quantile in shown
+        for other, paired in shown
+        if other != name
+        and quantile["n"] == paired["n"]
+        and not quantiles_spaced(quantile["n"], quantile["p"], paired["p"], k)
+    }
+
+
+def quantile_decimal(p: str | int | float) -> tuple[int, int] | None:
+    """The p of a quantile as m / 10^d, the pair (m, d), or None when p is 0
+    or at least 1. p is a number from 0 to 1 or a decimal string, and m / 10^d
+    is the shortest decimal that represents it."""
     if isinstance(p, str):
         whole, _, fraction = p.partition(".")
         if whole != "0" or _DIGITS.fullmatch(fraction) is None:
-            return False
+            return None
         m = int(fraction)
         d = len(fraction)
     else:
         value = float(p)
         if not value > 0:
-            return False
+            return None
         # p = 0.s x 10^e, so m = s and d = len(s) - e.
         s, e = shortest_parts(value)
         if e >= 1:
-            return False
+            return None
         m = int(s)
         d = len(s) - e
     if m == 0:
-        return False
-    power: int = 10**d
-    return int(n) * min(m, power - m) >= int(k) * power
+        return None
+    return m, d
 
 
 def results_registry_issues(d: dict[str, Any]) -> list[dict[str, Any]]:

@@ -1,4 +1,4 @@
-# mixedcheck 0.0.0.9000 (development version)
+# mixedcheck 0.1.0
 
 ## Added
 
@@ -106,6 +106,22 @@
   from the written values and replaces labels with pseudonyms, which the
   sidecar maps back to them. The tests run every case of the audit corpus,
   those of the privacy filter in both modes, and validate every document.
+  On CRAN they run the first case of each file of the corpus and every
+  fifth after it.
+
+* The privacy filter keeps k values between two quantiles of one count that
+  a shareable document writes, the spacing condition of the quantile rule,
+  and `validate_results()` reports E7022 for two written quantiles without
+  it. No finding of registry 0.1.0 changes, since a quartile that the
+  quantile rule writes already lies k values from the median.
+
+* The privacy filter hides the analysed levels of an item wherever the
+  firing of rule 3, beside the class non_person of the item in a sample
+  whose rows or contributors rule 1 hides, would give the rows or members
+  without an outcome, and the table's rows beside the analysis sample when
+  the names of sample.raw_vs_analysis show k - 1 rows that leave the design
+  sample. The first acts at k = 3 for rows and at any k for contributors,
+  the second at k of 4 or less.
 
 * `design_matrices()` refuses events or trials of a response with a trials
   column that are not integers with 0 <= events <= trials (E6078).

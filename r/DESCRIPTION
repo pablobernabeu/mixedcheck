@@ -1,6 +1,6 @@
 Package: mixedcheck
 Title: Design Audits and Diagnostics for Mixed-Effects Models
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R:
     person("Pablo", "Bernabeu", role = c("aut", "cre"),
            email = "pcbernabeu@gmail.com",

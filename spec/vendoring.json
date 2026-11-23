@@ -618,6 +618,8 @@
     "fixtures/conformance/results/shareable/016.json",
     "fixtures/conformance/results/shareable/017.json",
     "fixtures/conformance/results/shareable/018.json",
+    "fixtures/conformance/results/shareable/019.json",
+    "fixtures/conformance/results/shareable/020.json",
     "fixtures/conformance/results/sidecar/april_sidecar.json",
     "fixtures/conformance/results/sidecar/arm.csv",
     "fixtures/conformance/results/sidecar/bad_key_id_sidecar.json",

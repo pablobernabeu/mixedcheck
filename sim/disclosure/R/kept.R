@@ -54,13 +54,16 @@ dh_kept_quantities <- function(ns, run) {
 # The quantity of dh_kept_quantities() that a target measures, as a list
 # with its name and whether the target is its difference between the design
 # sample and the analysis sample, or NULL: a difference of the design sample
-# from the analysis sample (dh_difference_targets()), or a count of a finding
-# on the analysis sample that measures its rows, its contributors or the
-# levels, or levels with two rows, of the grouping factor that its scope
-# names. The difference of the table from the analysis sample, a status and
-# every other target measure none.
+# or of the table from the analysis sample (dh_difference_targets()), or a
+# count of a finding on the analysis sample that measures its rows, its
+# contributors or the levels, or levels with two rows, of the grouping factor
+# that its scope names. The design sample lies between the table and the
+# analysis sample, so a difference of 0 from the table is a difference of 0
+# from the design sample too, beside none lost to the predictors and keys,
+# which the names of sample.raw_vs_analysis show. A status and every other
+# target measure none.
 dh_kept_quantity <- function(finding, member, findings, ids, entries) {
-  if (identical(finding, "D design minus analysis")) {
+  if (finding %in% c("D design minus analysis", "D table minus analysis")) {
     return(list(name = member, difference = TRUE))
   }
   i <- match(finding, ids)
@@ -110,14 +113,14 @@ dh_rule_hides <- function(result, targets) {
 # Whether each target of one table is a determination of the class
 # kept-levels, as a logical vector. A target is of the class when three
 # conditions hold:
-# - its value shows that none is lost: a difference of 0, or a count of the
-#   analysis sample equal to the same count of the design sample
+# - its value shows that none is lost: a difference of 0 from the design
+#   sample or the table, or a count of the analysis sample equal to the same
+#   count of the design sample
 # - it measures the levels of a grouping factor or its levels with two rows,
 #   or the contributors, so that the number lost is the number of levels or
 #   members without any outcome or with fewer than two analysed rows
 # - those levels or members are not the rows themselves.
-# The rows, the difference of the table, a status and every other target
-# are outside the class.
+# The rows, a status and every other target are outside the class.
 dh_kept_levels <- function(ns, result, targets) {
   run <- result$run
   document <- result$document
@@ -252,6 +255,12 @@ dh_kept_levels_cases <- function() {
          targets = targets("levels school" = TRUE, "levels class" = TRUE,
                            "levels_with_two_rows school" = TRUE, "rows" = FALSE,
                            "contributors" = FALSE)),
+    list(name = "chain, two rows without a subject and one second outcome missing", k = 3,
+         build = function() dh_family_chain()$build(list(single = 1L, double = 5L, triple = 1L,
+                                                         x_lost = 0L, missing_key = 2L,
+                                                         y_missing = 1L)),
+         targets = targets("D table minus analysis", "levels subject" = TRUE,
+                           "contributors" = TRUE)),
     list(name = "y ~ x, 12 rows, nothing missing, the contributors with the basis rows", k = 3,
          build = function() list(data = data.frame(y = dh_outcome(12L), x = dh_covariate(12L)),
                                  formula = "y ~ x", args = dh_t1()),

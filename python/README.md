@@ -2,7 +2,7 @@
 
 The Python package of mixedcheck, which audits study designs before mixed-effects models are fitted and diagnoses and reports fitted models. It shares the registry of checks, the schemas and the test fixtures with the R package of the same name, and each component is ported from the R implementation against shared JSON fixtures.
 
-The package is in development and has not been released. So far it provides `mixedcheck.spec_versions()`, which returns the versions of the shared specification installed with the package, the layer that every reader and writer of the package builds on, the data layer of the audits, which reads tables and builds the canonical model and its design matrices, and the audits themselves:
+Version 0.1 is the first release. It provides `mixedcheck.spec_versions()`, which returns the versions of the shared specification installed with the package, the layer that every reader and writer of the package builds on, the data layer of the audits, which reads tables and builds the canonical model and its design matrices, and the audits themselves:
 
 - `read_json_strict()` reads JSON in the hashable or data profile and reports the first problem with a stable code.
 - `canonical_bytes()` writes a value by RFC 8785, with numbers in ECMAScript's shortest form, and `canonical_hash()` returns the SHA-256 hash of those bytes. `hash_bytes()` and `hash_file()` hash bytes and files.
@@ -61,7 +61,13 @@ mixedcheck.write_results(
 )
 ```
 
-It needs Python 3.11 or later, with numpy, pandas and scipy. To install the package from a clone of the repository, with PyYAML for declarations written in YAML:
+It needs Python 3.11 or later, with numpy, pandas and scipy. To install the release from PyPI, with PyYAML for declarations written in YAML:
+
+```bash
+python -m pip install "mixedcheck[yaml]"
+```
+
+or the development version from a clone of the repository:
 
 ```bash
 python -m pip install "./python[yaml]"

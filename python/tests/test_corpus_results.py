@@ -83,7 +83,7 @@ def test_results_corpus(case: dict[str, Any]) -> None:
         assert verified["issues"][len(found["issues"]) :] == expected["sidecar_issues"], label
 
 
-def test_the_results_corpus_holds_152_cases_in_nine_files() -> None:
-    assert len(CASES) == 152
-    assert len({case["id"] for case in CASES}) == 152
+def test_the_results_corpus_holds_154_cases_in_nine_files() -> None:
+    assert len(CASES) == 154
+    assert len({case["id"] for case in CASES}) == 154
     assert sum("sidecar" in case for case in CASES) > 0

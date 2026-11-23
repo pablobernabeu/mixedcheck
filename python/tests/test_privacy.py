@@ -13,6 +13,7 @@ import re
 import statistics
 import warnings
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
@@ -34,7 +35,9 @@ from mixedcheck._privacy import (
     privacy_absent,
     privacy_minimum_rules,
     privacy_pseudonyms,
+    privacy_quantile_hidden,
     privacy_render,
+    privacy_unspaced_quantiles,
     separation_shared_values,
 )
 from mixedcheck._privacy_across import (
@@ -415,6 +418,40 @@ def test_quartiles_of_many_levels_are_written_and_minima_and_maxima_never() -> N
     assert detail(shared, "smallest") == "quantile"
     assert detail(shared, "largest") == "quantile"
     assert detail(shared, "singletons") == "secondary"
+
+
+def quantile_finding(n: dict[str, int], quantiles: dict[str, tuple[str, str]]) -> Any:
+    """A finding with the counts n and the quantiles of an entry, by name,
+    each with its p and the count that gives its n, which is all that the
+    spacing condition of step 4 reads."""
+    statistics: dict[str, Any] = {name: {"kind": "count"} for name in n}
+    values: dict[str, Any] = dict(n)
+    for position, (name, (p, count)) in enumerate(quantiles.items()):
+        statistics[name] = {"kind": "count", "quantile": {"p": p, "n": count}}
+        values[name] = position + 1
+    return SimpleNamespace(statistics=statistics, values=values)
+
+
+def test_the_spacing_condition_keeps_the_quantiles_nearest_the_median() -> None:
+    # Of the deciles of 50 values, the quantile rule writes 0.2 to 0.8, and
+    # the spacing condition needs 0.2 between two written ones, so 0.5, 0.3
+    # and 0.7 stay. With 100 values, every decile is 10 values from the next.
+    deciles = {f"q{i}": (f"0.{i}", "levels") for i in range(1, 10)}
+    finding = quantile_finding({"levels": 50}, deciles)
+    assert sorted(privacy_unspaced_quantiles(finding, 10)) == ["q2", "q4", "q6", "q8"]
+    assert [privacy_quantile_hidden(finding, f"q{i}", 10) for i in range(1, 10)] == [
+        True, True, False, True, False, True, False, True, True,
+    ]  # fmt: skip
+    finding.values["levels"] = 100
+    assert privacy_unspaced_quantiles(finding, 10) == []
+    # At equal distances from 0.5, the smaller p is kept: 60 x 0.1 values lie
+    # between 0.45 and 0.55. Quantiles whose n comes from counts of different
+    # values are not compared.
+    pair = {"low": ("0.45", "levels"), "high": ("0.55", "levels")}
+    assert privacy_unspaced_quantiles(quantile_finding({"levels": 60}, pair), 10) == ["high"]
+    pair["high"] = ("0.55", "other")
+    finding = quantile_finding({"levels": 60, "other": 61}, pair)
+    assert privacy_unspaced_quantiles(finding, 10) == []
 
 
 def test_the_sizes_of_two_samples_do_not_give_back_the_rows_that_a_missing_outcome_removes() -> (
@@ -3613,3 +3650,107 @@ def test_the_rows_without_a_key_value_count_towards_the_bound_of_the_keys_levels
     expect_same_reading(first, second)
     zeros = finding_of(first, "outcome.zero_shares", factor="subject")
     assert detail(zeros, "rows") == "secondary"
+
+
+def school_pupils(sizes: list[int], lost: list[int]) -> dict[str, Any]:
+    """Schools of pupils, the disclosure unit, with a Poisson count, in a T1
+    run: ``sizes`` gives the pupils of each school and ``lost`` the positions
+    of the pupils without an outcome, counted from 1."""
+    n = sum(sizes)
+    count: list[float | None] = [float(i % 3 + 1) for i in seq_len(n)]
+    for position in lost:
+        count[position - 1] = None
+    data = frame(
+        count=count,
+        x=[(i * 7) % 11 + 0.5 for i in seq_len(n)],
+        school=rep(labels("S%02d", seq_len(len(sizes))), sizes),
+        pupil=labels("p%02d", seq_len(n)),
+    )
+    declaration = {
+        "vocabulary": "0.1.0",
+        "units": [
+            {"name": "school", "columns": ["school"], "role": "cluster"},
+            {
+                "name": "pupil",
+                "columns": ["pupil"],
+                "role": "participant",
+                "nested_in": "school",
+                "id_scope": "global",
+            },
+        ],
+    }
+    return audit_both(
+        data,
+        "count ~ x + (1 | school)",
+        declaration=declaration,
+        family="poisson",
+        outcome_access="T1",
+        reason="Schools of pupils.",
+    )
+
+
+def test_the_analysed_levels_are_hidden_where_rule_3_could_pin_the_rows_without_an_outcome(
+    min_count: Any,
+) -> None:
+    # At k = 3, 5 schools of two pupils, 2 without an outcome: rule 3 hides the
+    # 5 analysed schools, beside 8 analysed rows, and its firing would show 5
+    # or more, which beside the class non_person of the schools of the design
+    # sample would show 10 rows there, while rule 1 shows fewer than 11. The
+    # analysed schools are hidden as well for 4 schools of 2, 2, 2 and 3
+    # pupils, one without an outcome, where rule 3 does not fire, so that
+    # their loss shows nothing. At k = 4 the bound leaves the rows several
+    # values, and the 4 schools are written.
+    min_count(3)
+    five = school_pupils([2] * 5, [8, 10])
+    four = school_pupils([2, 2, 2, 3], [5])
+    for found in (five, four):
+        zeros = finding_of(found["shareable"], "outcome.zero_shares", factor="school")
+        assert detail(zeros, "levels") == "secondary"
+        assert written(zeros, "rows") == 8
+    internal = finding_of(four["internal"], "outcome.zero_shares", factor="school")
+    assert written(internal, "levels") == 4
+    min_count(4)
+    shared = school_pupils([2, 2, 2, 3], [5])["shareable"]
+    assert written(finding_of(shared, "outcome.zero_shares", factor="school"), "levels") == 4
+
+
+def keyed_subjects(doubles: int, x_lost: int, missing_key: int) -> dict[str, Any]:
+    """Subjects of two rows with an observation key, subjects of one row
+    without x and rows without a subject, every outcome present, in a T1 run
+    of a Poisson model."""
+    subject: list[str | None] = [*rep(labels("s%02d", seq_len(doubles)), each=2)]
+    subject += labels("u%02d", seq_len(x_lost)) + [None] * missing_key
+    trial = rep([1, 2], doubles) + [1] * (x_lost + missing_key)
+    n = len(subject)
+    x: list[float | None] = [(i * 7) % 11 + 0.5 for i in seq_len(n)]
+    for i, label in enumerate(subject):
+        if label is not None and label.startswith("u"):
+            x[i] = None
+    data = frame(y=[(i * 5) % 4 for i in seq_len(n)], x=x, subject=subject, trial=trial)
+    declaration = {"vocabulary": "0.1.0", "observation": {"key": ["subject", "trial"]}}
+    return audit_both(
+        data,
+        "y ~ x + (1 | subject)",
+        declaration=declaration,
+        family="poisson",
+        outcome_access="T1",
+        reason="Rows that leave the design sample.",
+    )
+
+
+def test_the_table_loses_its_rows_where_the_names_show_k_less_1_rows_that_leave(
+    min_count: Any,
+) -> None:
+    # At k = 3, 4 subjects of two rows with every outcome. With 2 subjects of
+    # one row without x and a row without a subject, the names show a subject
+    # that loses its level and a row without a subject, 2 rows that leave the
+    # design sample, which beside the firing of rule 1 would show that no
+    # outcome is missing. The 11 rows of the table exceed the 8 analysed rows
+    # by 3, which rule 1 alone would leave written, and the table loses them.
+    # With 3 subjects without x and no row without a subject, the names show
+    # one row, and the table's rows are written.
+    min_count(3)
+    keyed = keyed_subjects(4, 2, 1)["shareable"]
+    assert detail(finding_of(keyed, "sample.raw_vs_analysis"), "rows_raw") == "secondary"
+    plain = keyed_subjects(4, 3, 0)["shareable"]
+    assert written(finding_of(plain, "sample.raw_vs_analysis"), "rows_raw") == 11

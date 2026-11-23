@@ -1,4 +1,4 @@
-# mixedcheck 0.0.0.9000 (development version)
+# mixedcheck 0.1.0
 
 ## Added
 

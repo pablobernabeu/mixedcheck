@@ -1,0 +1,70 @@
+# Build and publish the Python package to PyPI through trusted publishing
+# (OIDC), so no API token is ever stored in the repository.
+#
+# The mixedcheck project on PyPI must list this repository as a trusted
+# publisher (workflow file 'publish.yml', environment 'pypi'). The workflow
+# runs when a GitHub release is published, and can also be run by hand. The
+# publish step's skip-existing leaves a version already on PyPI untouched.
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+# Read-only at the workflow level: the build job only checks out and builds,
+# and without this line it would inherit whatever the repository default
+# happens to be. The publish job declares the one elevation it needs, the OIDC
+# id-token, at the job level, and a job-level block replaces this one entirely
+# instead of adding to it.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+      # The wheel and the sdist carry the vendored copies of the shared
+      # specification and the zoo, so the vendoring check runs first and a
+      # copy that differs from its source stops the release.
+      - name: Check the vendored copies
+        run: python -I spec/tools/vendor.py check
+      - name: Build the sdist and wheel
+        working-directory: python
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - name: Check the distribution
+        working-directory: python
+        run: |
+          python -m pip install --upgrade twine
+          python -m twine check --strict dist/*
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: dist
+          path: python/dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: pypi
+      url: https://pypi.org/project/mixedcheck/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086  # v1.14.3
+        with:
+          skip-existing: true

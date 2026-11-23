@@ -5,11 +5,11 @@ models are fitted and diagnoses and reports fitted models. It shares the
 registry of checks, the schemas and the test fixtures with the Python package
 of the same name. Each component is built in R first.
 
-The package is in development and has not been released. So far it provides
-`spec_versions()`, which returns the versions of the shared specification
-installed with the package, and the functions below. They read and write the
-shared formats, read tables, build the canonical model and its design
-matrices, run the audits and write and validate their results:
+Version 0.1 is the first release. It provides `spec_versions()`, which
+returns the versions of the shared specification installed with the package,
+and the functions below. They read and write the shared formats, read tables,
+build the canonical model and its design matrices, run the audits and write
+and validate their results:
 
 - `read_json_strict()` reads JSON in the hashable or data profile and reports
   the first problem with a stable code.
@@ -76,7 +76,13 @@ fixture <- pathology_zoo("Z08")
 do.call(audit, c(list(fixture$data, fixture$formula, fixture$declaration), fixture$arguments))
 ```
 
-It needs R 4.2.0 or later. To install it from a clone of the repository:
+It needs R 4.2.0 or later. To install the release from CRAN:
+
+``` r
+install.packages("mixedcheck")
+```
+
+or the development version from a clone of the repository:
 
 ``` sh
 R CMD INSTALL r

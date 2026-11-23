@@ -418,7 +418,7 @@ The rules behind these codes, the stages in which they are checked and their loc
 | E7010 | results_file_suffix | `write_results()` is given a file name whose suffix does not match the privacy mode of the document, or a sidecar name without the internal suffix |
 | E7020 | results_person_count_shown | a shareable document writes a person count below the minimum count |
 | E7021 | results_statistic_shown | a shareable document writes a statistic of a finding that fails the minimum-count or dominance rule |
-| E7022 | results_quantile_shown | a shareable document writes a quantile without its n or one that the quantile rule suppresses |
+| E7022 | results_quantile_shown | a shareable document writes a quantile without its n, one that the quantile rule suppresses or two of the same n that its spacing condition does not allow together |
 | E7023 | results_label_not_pseudonym | a shareable document writes a label that is not a pseudonym |
 | E7024 | results_ratio_shown | a shareable document writes a ratio whose numerator or denominator is suppressed, or is a person count below the minimum count |
 | E7025 | results_quantile_n | a finding writes the n of a quantile without the count that gives it, or with a value other than that count's |

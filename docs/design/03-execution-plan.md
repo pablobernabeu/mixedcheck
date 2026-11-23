@@ -348,13 +348,13 @@ M3b also checks that rung 0 leaves out the slopes of within-unit factors that ea
 
 ## R0 and P1
 
-Stream B ships to CRAN, PyPI and R-universe as 0.1, with the results object, console output and the preregistration text, all passed through the privacy filter. Examples and tests use only bundled zoo fixtures and stay within CRAN's limits of two cores and short run times. Before R0, both privacy filters add the spacing condition of the quantile rule and the registry options for the SRS's dominance rule and for a threshold on counts of organisational units, with unit tests and parity cases (02-decisions.md, Q5). Early users also give JOSS its evidence of research use.
+Stream B ships to CRAN, PyPI and R-universe as 0.1, with the results object, console output and the preregistration text, all passed through the privacy filter. Examples and tests use only bundled zoo fixtures and stay within CRAN's limits of two cores and short run times. Both privacy filters and both validators of results documents apply the spacing condition of the quantile rule (privacy.md, Steps, 4), with unit tests in each package and the cases results-shareable-019 and 020 of the results corpus (02-decisions.md, Q5). It changes no finding of registry 0.1.0, since a quartile that the quantile rule writes already lies k values from the median. The registry options for the SRS's dominance rule and for a threshold on counts of organisational units, off by default, move to M4: they change no default output, and they need a way for users to set the parameters of the filter, which 0.1 reads from the registry alone, and disclosure-attack tests under those parameters. Early users also give JOSS its evidence of research use.
 
 P1 is the Stage 1 Registered Report, or the OSF preregistration if the maintainer chooses the regular route (02-decisions.md, Q9). It is written in the local session from the H0 results.
 
 ## M4. Reports
 
-M4 builds the reports of Q5 and Q6 (02-decisions.md) on the shared view model from M2, which formats every number in printf style and applies the privacy filter. It adds the in-house Mustache renderer, the inline SVG layouts with the aggregated CSV per figure, the accessibility measures and the cross-language comparison of strings and values. Reports ship as 0.2.
+M4 builds the reports of Q5 and Q6 (02-decisions.md) on the shared view model from M2, which formats every number in printf style and applies the privacy filter. It adds the in-house Mustache renderer, the inline SVG layouts with the aggregated CSV per figure, the accessibility measures and the cross-language comparison of strings and values. M4 also adds the registry options of Q5 for the SRS's dominance rule and for a threshold on counts of organisational units, off by default, with an argument through which users set them (R0 and P1). Reports ship as 0.2.
 
 ## M5. Stream A for Gaussian LMMs
 

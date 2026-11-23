@@ -20,6 +20,7 @@ The marks of a finding are:
 from __future__ import annotations
 
 from collections.abc import Iterable
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
 from mixedcheck._checks import Finding, Run
@@ -27,7 +28,7 @@ from mixedcheck._hash import commitment_key_bytes, hmac_sha256
 from mixedcheck._json_write import canonical_bytes
 from mixedcheck._messages import render_message
 from mixedcheck._registry import registry_document
-from mixedcheck._results_validate import quantile_shown
+from mixedcheck._results_validate import quantile_decimal, quantile_shown, quantiles_spaced
 
 if TYPE_CHECKING:
     from mixedcheck._checks import Array
@@ -169,7 +170,8 @@ def privacy_small_counts(finding: Finding, k: int) -> Finding:
 
 def privacy_quantiles(finding: Finding, k: int) -> Finding:
     """Step 4: a p-quantile of n values unless n x min(m, 10^d - m) >= k x 10^d,
-    with n the internal value of the count that the entry names."""
+    with n the internal value of the count that the entry names, and a
+    quantile that the spacing condition drops."""
     names = [name for name in finding.values if privacy_quantile_hidden(finding, name, k)]
     return privacy_suppress(finding, names, "quantile")
 
@@ -177,12 +179,56 @@ def privacy_quantiles(finding: Finding, k: int) -> Finding:
 def privacy_quantile_hidden(finding: Finding, name: str, k: int) -> bool:
     """Whether a statistic is a quantile that step 4 suppresses: its n, the
     internal value of the count that its entry names, is absent or fails the
-    quantile rule, as it always does for a minimum or a maximum."""
+    quantile rule, as it always does for a minimum or a maximum, or the
+    spacing condition drops it."""
     quantile = finding.statistics[name].get("quantile")
     if quantile is None:
         return False
     n = finding.values.get(quantile["n"])
-    return n is None or not quantile_shown(n, quantile["p"], k)
+    return (
+        n is None
+        or not quantile_shown(n, quantile["p"], k)
+        or name in privacy_unspaced_quantiles(finding, k)
+    )
+
+
+def privacy_unspaced_quantiles(finding: Finding, k: int) -> list[str]:
+    """The quantiles of a finding that the spacing condition of step 4 drops.
+    The quantiles that meet the quantile rule are taken by increasing distance
+    of p from 0.5 and, at equal distances, by increasing p, and each is kept
+    when it is spaced from every quantile with the same n kept before it, and
+    dropped otherwise, so that the quantiles nearest the median stay. They
+    depend on the entry and the internal values alone, so that steps 3 and 4
+    agree on them whatever other rules suppress."""
+    shown: list[tuple[str, Any, str]] = []
+    for name in finding.values:
+        quantile = finding.statistics[name].get("quantile")
+        if quantile is None:
+            continue
+        n = finding.values.get(quantile["n"])
+        if n is not None and quantile_shown(n, quantile["p"], k):
+            shown.append((name, n, quantile["p"]))
+    if len(shown) < 2:
+        return []
+    shown.sort(key=lambda item: quantile_centre_key(item[2]))
+    kept: list[tuple[str, Any, str]] = []
+    dropped: list[str] = []
+    for name, n, p in shown:
+        if all(n != other_n or quantiles_spaced(n, p, other_p, k) for _, other_n, other_p in kept):
+            kept.append((name, n, p))
+        else:
+            dropped.append(name)
+    return dropped
+
+
+def quantile_centre_key(p: str) -> tuple[Fraction, Fraction]:
+    """The key that orders quantiles p, decimal strings strictly between 0 and
+    1, by increasing distance from 0.5 and, at equal distances, increasing p,
+    both exact."""
+    decimal = quantile_decimal(p)
+    assert decimal is not None
+    value = Fraction(decimal[0], 10 ** decimal[1])
+    return abs(value - Fraction(1, 2)), value
 
 
 def privacy_ratios(finding: Finding, k: int) -> Finding:

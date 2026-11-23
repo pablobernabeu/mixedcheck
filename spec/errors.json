@@ -2109,7 +2109,7 @@
       "name": "results_quantile_shown",
       "area": "results",
       "location": "pointer",
-      "template": "The quantile at {location} must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below {limit}.",
+      "template": "The quantile at {location} must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below {limit}.",
       "args": {
         "limit": "integer"
       }

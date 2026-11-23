@@ -22,7 +22,7 @@
   "$defs": {
     "privacy": {
       "title": "privacy parameters",
-      "description": "The parameters of the privacy filter that shareable output passes through (02-decisions.md, Q5). A displayed cell, bin or band holds at least min_count distinct members of the disclosure unit. A person count below min_count is shown as '<' followed by min_count. The 'contributors' largest contributors supply less than 'share' of a bin's rows. A quantile p is shown only if n * min(p, 1 - p) >= min_count. Suppressed tables have every cell rounded to a multiple of rounding_base. Zeros in cross-tabulations of person attributes are treated as disclosive when zeros_disclosive is true.",
+      "description": "The parameters of the privacy filter that shareable output passes through (02-decisions.md, Q5). A displayed cell, bin or band holds at least min_count distinct members of the disclosure unit. A person count below min_count is shown as '<' followed by min_count. The 'contributors' largest contributors supply less than 'share' of a bin's rows. A quantile p is shown only if n * min(p, 1 - p) >= min_count, and two quantiles p and q of the same n only if n * |p - q| >= min_count. Suppressed tables have every cell rounded to a multiple of rounding_base. Zeros in cross-tabulations of person attributes are treated as disclosive when zeros_disclosive is true.",
       "type": "object",
       "additionalProperties": false,
       "required": ["dominance", "min_count", "rounding_base", "sources", "zeros_disclosive"],

@@ -242,6 +242,45 @@ test_that("quartiles of many levels are written, and minima and maxima never", {
   expect_identical(detail(shared, "singletons"), "secondary")
 })
 
+# A finding with the counts n and the quantiles of an entry, by name, each
+# with its p and the count that gives its n, which is all that the spacing
+# condition of step 4 reads.
+quantile_finding <- function(n, quantiles) {
+  statistics <- lapply(n, function(count) list(kind = "count"))
+  values <- as.list(n)
+  for (i in seq_along(quantiles)) {
+    name <- names(quantiles)[i]
+    statistics[[name]] <- list(kind = "count",
+                               quantile = list(p = quantiles[[i]][1L], n = quantiles[[i]][2L]))
+    values[[name]] <- i
+  }
+  list(statistics = statistics, values = values)
+}
+
+test_that("the spacing condition keeps the quantiles nearest the median", {
+  # Of the deciles of 50 values, the quantile rule writes 0.2 to 0.8, and the
+  # spacing condition needs 0.2 between two written ones, so 0.5, 0.3 and 0.7
+  # stay. With 100 values, every decile is 10 values from the next.
+  deciles <- setNames(lapply(1:9, function(i) c(sprintf("0.%d", i), "levels")),
+                      sprintf("q%d", 1:9))
+  finding <- quantile_finding(list(levels = 50), deciles)
+  expect_identical(sort(privacy_unspaced_quantiles(finding, 10)), c("q2", "q4", "q6", "q8"))
+  expect_identical(vapply(sprintf("q%d", 1:9), privacy_quantile_hidden, logical(1),
+                          finding = finding, k = 10, USE.NAMES = FALSE),
+                   c(TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE))
+  finding$values$levels <- 100
+  expect_identical(privacy_unspaced_quantiles(finding, 10), character(0))
+  # At equal distances from 0.5, the smaller p is kept: 60 x 0.1 values lie
+  # between 0.45 and 0.55. Quantiles whose n comes from counts of different
+  # values are not compared.
+  pair <- list(low = c("0.45", "levels"), high = c("0.55", "levels"))
+  expect_identical(privacy_unspaced_quantiles(quantile_finding(list(levels = 60), pair), 10),
+                   "high")
+  pair$high <- c("0.55", "other")
+  finding <- quantile_finding(list(levels = 60, other = 61), pair)
+  expect_identical(privacy_unspaced_quantiles(finding, 10), character(0))
+})
+
 test_that("the sizes of two samples do not give back the rows that a missing outcome removes", {
   # 3 of 40 rows lack the outcome: the rows of the design sample minus those
   # of the analysis sample would give 3.

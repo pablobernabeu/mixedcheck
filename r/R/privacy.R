@@ -137,7 +137,8 @@ privacy_small_counts <- function(finding, k) {
 }
 
 # Step 4: a p-quantile of n values unless n x min(m, 10^d - m) >= k x 10^d,
-# with n the internal value of the count that the entry names.
+# with n the internal value of the count that the entry names, and a
+# quantile that the spacing condition drops.
 privacy_quantiles <- function(finding, k) {
   names <- Filter(function(name) privacy_quantile_hidden(finding, name, k),
                   names(finding$values))
@@ -146,14 +147,76 @@ privacy_quantiles <- function(finding, k) {
 
 # Whether a statistic is a quantile that step 4 suppresses: its n, the
 # internal value of the count that its entry names, is absent or fails the
-# quantile rule, as it always does for a minimum or a maximum.
+# quantile rule, as it always does for a minimum or a maximum, or the
+# spacing condition drops it.
 privacy_quantile_hidden <- function(finding, name, k) {
   quantile <- finding$statistics[[name]]$quantile
   if (is.null(quantile)) {
     return(FALSE)
   }
   n <- finding$values[[quantile[["n"]]]]
-  is.null(n) || !quantile_shown(n, quantile[["p"]], k)
+  is.null(n) || !quantile_shown(n, quantile[["p"]], k) ||
+    name %in% privacy_unspaced_quantiles(finding, k)
+}
+
+# The quantiles of a finding that the spacing condition of step 4 drops. The
+# quantiles that meet the quantile rule are taken by increasing distance of
+# p from 0.5 and, at equal distances, by increasing p, and each is kept when
+# it is spaced from every quantile with the same n kept before it, and
+# dropped otherwise, so that the quantiles nearest the median stay. They
+# depend on the entry and the internal values alone, so that steps 3 and 4
+# agree on them whatever other rules suppress.
+privacy_unspaced_quantiles <- function(finding, k) {
+  n_of <- function(name) finding$values[[finding$statistics[[name]]$quantile[["n"]]]]
+  p_of <- function(name) finding$statistics[[name]]$quantile[["p"]]
+  shown <- Filter(function(name) {
+    !is.null(finding$statistics[[name]]$quantile) && !is.null(n_of(name)) &&
+      quantile_shown(n_of(name), p_of(name), k)
+  }, names(finding$values))
+  if (length(shown) < 2L) {
+    return(character(0))
+  }
+  shown <- shown[quantile_centre_order(vapply(shown, p_of, character(1)))]
+  kept <- character(0)
+  dropped <- character(0)
+  for (name in shown) {
+    spaced <- vapply(kept, function(other) {
+      n_of(name) != n_of(other) || quantiles_spaced(n_of(name), p_of(name), p_of(other), k)
+    }, logical(1))
+    if (all(spaced)) {
+      kept <- c(kept, name)
+    } else {
+      dropped <- c(dropped, name)
+    }
+  }
+  dropped
+}
+
+# The order of quantiles p, decimal strings strictly between 0 and 1, by
+# increasing distance from 0.5 and, at equal distances, increasing p, with
+# both compared exactly as integers over the largest number of decimals.
+quantile_centre_order <- function(p) {
+  decimals <- lapply(p, quantile_decimal)
+  d <- max(vapply(decimals, function(decimal) decimal$d, numeric(1)))
+  scaled <- lapply(decimals, function(decimal) bn_mul(decimal$m, bn_ten(d - decimal$d)))
+  half <- bn_ten(d)
+  distance <- lapply(scaled, function(m) {
+    twice <- bn_add(m, m)
+    if (bn_compare(twice, half) >= 0L) bn_sub(twice, half) else bn_sub(half, twice)
+  })
+  before <- function(i, j) {
+    order <- bn_compare(distance[[i]], distance[[j]])
+    order < 0L || (order == 0L && bn_compare(scaled[[i]], scaled[[j]]) < 0L)
+  }
+  result <- integer(0)
+  for (i in seq_along(p)) {
+    position <- 1L
+    while (position <= length(result) && !before(i, result[position])) {
+      position <- position + 1L
+    }
+    result <- append(result, i, after = position - 1L)
+  }
+  result
 }
 
 # Step 5: a ratio whose numerator or denominator is suppressed, whatever its

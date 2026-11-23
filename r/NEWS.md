@@ -107,6 +107,12 @@
   sidecar maps back to them. The tests run every case of the audit corpus,
   those of the privacy filter in both modes, and validate every document.
 
+* The privacy filter keeps k values between two quantiles of one count that
+  a shareable document writes, the spacing condition of the quantile rule,
+  and `validate_results()` reports E7022 for two written quantiles without
+  it. No finding of registry 0.1.0 changes, since a quartile that the
+  quantile rule writes already lies k values from the median.
+
 * `design_matrices()` refuses events or trials of a response with a trials
   column that are not integers with 0 <= events <= trials (E6078).
 

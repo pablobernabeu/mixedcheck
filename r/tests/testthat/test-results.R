@@ -310,6 +310,25 @@ test_that("the quantile rule is exact in integer arithmetic", {
   expect_identical(bn_compare(bn_from_digits("12"), bn_from_digits("13")), -1L)
 })
 
+test_that("the spacing condition of the quantile rule is exact in integer arithmetic", {
+  # 100 x (7 - 6) = 10 x 10, where 100 x (0.7 - 0.6) in doubles is below 10.
+  expect_lt((0.7 - 0.6) * 100, 10)
+  expect_true(quantiles_spaced(100, 0.6, 0.7, 10))
+  expect_true(quantiles_spaced(100, "0.7", "0.6", 10))
+  expect_false(quantiles_spaced(99, 0.6, 0.7, 10))
+  # A quartile that meets the quantile rule is spaced from the median.
+  expect_true(quantiles_spaced(40, "0.25", "0.5", 10))
+  expect_false(quantiles_spaced(39, "0.25", "0.5", 10))
+  # Decimals of different lengths are compared over the longer.
+  expect_true(quantiles_spaced(200, "0.05", 0.1, 10))
+  expect_false(quantiles_spaced(199, "0.05", "0.1", 10))
+  # Two quantiles with the same p are one value.
+  expect_true(quantiles_spaced(1, "0.5", 0.5, 10))
+  # Counts of more than seven digits span several limbs.
+  expect_true(quantiles_spaced(2e8, "0.25", "0.75", 1e8))
+  expect_false(quantiles_spaced(2e8 - 1, "0.25", "0.75", 1e8))
+})
+
 test_that("the analysis table and outcome column commitments match documents.md", {
   declaration <- list(observation = list(key = list("pupil", "wave")),
                       variables = list(post = list(role = "outcome")))

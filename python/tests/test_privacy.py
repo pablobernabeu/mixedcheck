@@ -13,6 +13,7 @@ import re
 import statistics
 import warnings
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import numpy as np
@@ -34,7 +35,9 @@ from mixedcheck._privacy import (
     privacy_absent,
     privacy_minimum_rules,
     privacy_pseudonyms,
+    privacy_quantile_hidden,
     privacy_render,
+    privacy_unspaced_quantiles,
     separation_shared_values,
 )
 from mixedcheck._privacy_across import (
@@ -415,6 +418,40 @@ def test_quartiles_of_many_levels_are_written_and_minima_and_maxima_never() -> N
     assert detail(shared, "smallest") == "quantile"
     assert detail(shared, "largest") == "quantile"
     assert detail(shared, "singletons") == "secondary"
+
+
+def quantile_finding(n: dict[str, int], quantiles: dict[str, tuple[str, str]]) -> Any:
+    """A finding with the counts n and the quantiles of an entry, by name,
+    each with its p and the count that gives its n, which is all that the
+    spacing condition of step 4 reads."""
+    statistics: dict[str, Any] = {name: {"kind": "count"} for name in n}
+    values: dict[str, Any] = dict(n)
+    for position, (name, (p, count)) in enumerate(quantiles.items()):
+        statistics[name] = {"kind": "count", "quantile": {"p": p, "n": count}}
+        values[name] = position + 1
+    return SimpleNamespace(statistics=statistics, values=values)
+
+
+def test_the_spacing_condition_keeps_the_quantiles_nearest_the_median() -> None:
+    # Of the deciles of 50 values, the quantile rule writes 0.2 to 0.8, and
+    # the spacing condition needs 0.2 between two written ones, so 0.5, 0.3
+    # and 0.7 stay. With 100 values, every decile is 10 values from the next.
+    deciles = {f"q{i}": (f"0.{i}", "levels") for i in range(1, 10)}
+    finding = quantile_finding({"levels": 50}, deciles)
+    assert sorted(privacy_unspaced_quantiles(finding, 10)) == ["q2", "q4", "q6", "q8"]
+    assert [privacy_quantile_hidden(finding, f"q{i}", 10) for i in range(1, 10)] == [
+        True, True, False, True, False, True, False, True, True,
+    ]  # fmt: skip
+    finding.values["levels"] = 100
+    assert privacy_unspaced_quantiles(finding, 10) == []
+    # At equal distances from 0.5, the smaller p is kept: 60 x 0.1 values lie
+    # between 0.45 and 0.55. Quantiles whose n comes from counts of different
+    # values are not compared.
+    pair = {"low": ("0.45", "levels"), "high": ("0.55", "levels")}
+    assert privacy_unspaced_quantiles(quantile_finding({"levels": 60}, pair), 10) == ["high"]
+    pair["high"] = ("0.55", "other")
+    finding = quantile_finding({"levels": 60, "other": 61}, pair)
+    assert privacy_unspaced_quantiles(finding, 10) == []
 
 
 def test_the_sizes_of_two_samples_do_not_give_back_the_rows_that_a_missing_outcome_removes() -> (

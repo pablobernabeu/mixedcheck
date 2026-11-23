@@ -155,17 +155,17 @@
         "issues": [
           {
             "code": "E7022",
-            "message": "The quantile at /findings/1/statistics/largest/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "message": "The quantile at /findings/1/statistics/largest/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
             "pointer": "/findings/1/statistics/largest/value"
           },
           {
             "code": "E7022",
-            "message": "The quantile at /findings/1/statistics/median/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "message": "The quantile at /findings/1/statistics/median/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
             "pointer": "/findings/1/statistics/median/value"
           },
           {
             "code": "E7022",
-            "message": "The quantile at /findings/1/statistics/smallest/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "message": "The quantile at /findings/1/statistics/smallest/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
             "pointer": "/findings/1/statistics/smallest/value"
           }
         ]
@@ -304,7 +304,7 @@
         "issues": [
           {
             "code": "E7022",
-            "message": "The quantile at /findings/1/statistics/upper_quartile/value must be suppressed in a shareable document, because its n is not written or n times min(p, 1 - p) is below 10.",
+            "message": "The quantile at /findings/1/statistics/upper_quartile/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
             "pointer": "/findings/1/statistics/upper_quartile/value"
           }
         ]
@@ -320,6 +320,44 @@
             "code": "E7024",
             "message": "The ratio at /findings/0/statistics/constant_share/value must be suppressed in a shareable document, because a count behind it is suppressed or is a person count below the minimum count.",
             "pointer": "/findings/0/statistics/constant_share/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-019",
+      "description": "The spacing condition of the quantile rule: the quantiles 0.3 and 0.5 of 40 values each meet the rule, but 40 times 0.2 is below 10, so both get E7022. The quantile 0.75 of 41 values meets the rule and is not compared with the median, whose n is 40, and the quantile 0.8 of 41 values gets E7022 for failing the rule itself and is not compared with 0.75, since only quantiles that meet the rule are.",
+      "document": "shareable/019.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/largest/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
+            "pointer": "/findings/1/statistics/largest/value"
+          },
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/lower_quartile/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
+            "pointer": "/findings/1/statistics/lower_quartile/value"
+          },
+          {
+            "code": "E7022",
+            "message": "The quantile at /findings/1/statistics/median/value must be suppressed in a shareable document, because its n is not written or the smaller of n times min(p, 1 - p) and n times its distance from another written quantile with the same n is below 10.",
+            "pointer": "/findings/1/statistics/median/value"
+          }
+        ]
+      }
+    },
+    {
+      "id": "results-shareable-020",
+      "description": "The quantiles 0.6, 0.7 and 0.9 of 100 values meet the spacing condition: 100 times (7 - 6) equals 10 times 10 in integer arithmetic, where 100 times (0.7 - 0.6) in doubles is 9.999999999999998, so none gets E7022. The person count of 9 in the first finding gives E7020, so that stage 4 reports its issues and stage 5 does not run.",
+      "document": "shareable/020.json",
+      "expected": {
+        "issues": [
+          {
+            "code": "E7020",
+            "message": "The person count at /findings/0/statistics/at_floor/value is below the minimum count of 10 and must be suppressed in a shareable document.",
+            "pointer": "/findings/0/statistics/at_floor/value"
           }
         ]
       }

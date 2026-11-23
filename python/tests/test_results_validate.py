@@ -45,7 +45,7 @@ from mixedcheck._commitments import (
 )
 from mixedcheck._errors import finish_issues
 from mixedcheck._formula_ir import ModelTable, model_table
-from mixedcheck._results_validate import quantile_shown
+from mixedcheck._results_validate import quantile_shown, quantiles_spaced
 from mixedcheck._schema import Node, schema_bundle, schema_issues, simple_schema_valid
 
 
@@ -351,6 +351,24 @@ def test_the_quantile_rule_is_exact_in_integer_arithmetic() -> None:
     # Counts beyond the doubles stay exact.
     assert quantile_shown(2 * 10**30 + 1, "0.5", 10**30)
     assert not quantile_shown(2 * 10**30 - 1, "0.5", 10**30)
+
+
+def test_the_spacing_condition_of_the_quantile_rule_is_exact_in_integer_arithmetic() -> None:
+    # 100 x (7 - 6) = 10 x 10, where 100 x (0.7 - 0.6) in doubles is below 10.
+    assert (0.7 - 0.6) * 100 < 10
+    assert quantiles_spaced(100, 0.6, 0.7, 10)
+    assert quantiles_spaced(100, "0.7", "0.6", 10)
+    assert not quantiles_spaced(99, 0.6, 0.7, 10)
+    # A quartile that meets the quantile rule is spaced from the median.
+    assert quantiles_spaced(40, "0.25", "0.5", 10)
+    assert not quantiles_spaced(39, "0.25", "0.5", 10)
+    # Decimals of different lengths are compared over the longer.
+    assert quantiles_spaced(200, "0.05", 0.1, 10)
+    assert not quantiles_spaced(199, "0.05", "0.1", 10)
+    # Two quantiles with the same p are one value.
+    assert quantiles_spaced(1, "0.5", 0.5, 10)
+    assert quantiles_spaced(2 * 10**30, "0.25", "0.75", 10**30)
+    assert not quantiles_spaced(2 * 10**30 - 1, "0.25", "0.75", 10**30)
 
 
 # --- Commitments -------------------------------------------------------------------

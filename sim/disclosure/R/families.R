@@ -396,6 +396,7 @@ dh_family_chain <- function() {
     name = "chain",
     probe = "^(keys\\.duplicates|sample\\.raw_vs_analysis|structure\\.cluster_sizes)",
     description = "table, design sample and analysis sample nested, observation key, Poisson, T1",
+    alternatives = function(p, case) dz_common_alternatives(case, "y", "subject"),
     params = list(
       single = dh_param(0:2, person = TRUE),
       double = dh_param(4:6, person = TRUE),
@@ -440,6 +441,7 @@ dh_family_sizes <- function(unit, wide = FALSE) {
     gate = !wide,
     probe = "^(structure|identifiability|sample|design|labels)\\.",
     description = "subjects of one to three rows, missing covariate and outcome, gaussian, T1",
+    alternatives = dh_alternatives_sizes,
     params = list(
       single = dh_param(0:3, person = TRUE),
       double = dh_param(2:5, person = TRUE),
@@ -467,6 +469,20 @@ dh_family_sizes <- function(unit, wide = FALSE) {
            args = c(list(declaration = declaration), dh_t1()))
     }
   )
+}
+
+# The alternatives of the sizes families (dh_alternatives()): those that
+# the zoo families share, each described by its own rows without an outcome
+# in subjects of two rows or more (y_missing) and subjects of one row
+# without an outcome (single_lost).
+dh_alternatives_sizes <- function(p, case) {
+  lapply(dz_common_alternatives(case, "y", "subject"), function(alternative) {
+    d <- alternative$data
+    sizes <- as.vector(table(d$subject)[d$subject])
+    attr(alternative, "params") <- list(y_missing = sum(is.na(d$y) & sizes >= 2L),
+                                        single_lost = sum(is.na(d$y) & sizes == 1L))
+    alternative
+  })
 }
 
 # Subjects of one to four rows, with the counts of each size as parameters,
@@ -626,6 +642,7 @@ dh_family_assign <- function() {
     name = "assign",
     probe = "^assignment\\.",
     description = "two nested assignments between subjects, missing outcome, T1",
+    alternatives = dh_alternatives_assign,
     params = list(
       subjects = dh_param(4:7, person = TRUE),
       z1_missing = dh_param(0:3, person = TRUE),
@@ -657,6 +674,15 @@ dh_family_assign <- function() {
            formula = "y ~ x + (1 | subject)", args = c(list(declaration = declaration), dh_t1()))
     }
   )
+}
+
+# The alternatives of assign (dh_alternatives()): those that the zoo
+# families share. The subject whose z1 varies is the last subject with an
+# outcome in the family, so its place, which the findings of the T0 checks
+# show, gives y_missing within the family alone, and a table with a row
+# without an outcome moved, or with one more, traces it.
+dh_alternatives_assign <- function(p, case) {
+  dz_common_alternatives(case, "y", "subject")
 }
 
 # Classes of pupils within schools, the arm assigned by class in blocks of
@@ -1282,6 +1308,7 @@ dh_family_binomial <- function() {
     gate = FALSE,
     probe = "^outcome\\.separation",
     description = "binomial rows with no, some and all events, missing outcomes, T2",
+    alternatives = dh_alternatives_binomial,
     params = list(
       none = dh_param(0:4, person = TRUE, tier = "A"),
       all = dh_param(0:4, person = TRUE, tier = "A"),
@@ -1298,6 +1325,34 @@ dh_family_binomial <- function() {
            formula = "k ~ x + z", args = c(list(declaration = declaration), dh_t2()))
     }
   )
+}
+
+# The alternatives of binomial (dh_alternatives()): those that the zoo
+# families share and, for each row with an outcome, the table in which that
+# row has each other number of events, each described by its own counts of
+# rows with no, some and all events and without an outcome. The family
+# places the outcomes in a fixed order of the rows, whose covariates follow
+# their positions, so the verdict of outcome.separation, which privacy.md
+# accepts to show, can give the counts within the family alone.
+dh_alternatives_binomial <- function(p, case) {
+  describe <- function(alternative) {
+    k <- alternative$data$k
+    attr(alternative, "params") <- list(none = sum(k == 0, na.rm = TRUE),
+                                        all = sum(k == 2, na.rm = TRUE),
+                                        some = sum(k == 1, na.rm = TRUE),
+                                        y_missing = sum(is.na(k)))
+    alternative
+  }
+  out <- dz_common_alternatives(case, "k", character(0))
+  k <- case$data$k
+  for (i in which(!is.na(k))) {
+    for (events in setdiff(0:2, k[i])) {
+      recoded <- case
+      recoded$data$k[i] <- events
+      out[[sprintf("row_%d_events_%d", i, events)]] <- recoded
+    }
+  }
+  lapply(out, describe)
 }
 
 # Three arms of three, four and five rows with any number of events in

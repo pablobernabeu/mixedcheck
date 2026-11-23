@@ -257,6 +257,7 @@ def privacy_across(run: Run, findings: list[Finding], k: int) -> list[Finding]:
         factor_items,
         unit_item,
         basis,
+        privacy_names_bound(run, available),
         k,
     )
     marks = privacy_rule_1(quantities, others, lost, marks, k)
@@ -497,7 +498,69 @@ def privacy_analysis_marks(
     design = quantities["design"]
     marks = privacy_single_row_items(design, marks, basis, unit_item)
     marks = privacy_rule_3(analysis, design, privacy_rule_2(analysis, marks, k), quartiles, k)
+    marks = privacy_rule_3_bound(analysis, quantities, holders, marks, quartiles, basis, k)
     return privacy_rule_2(analysis, privacy_single_row_items(design, marks, basis, unit_item), k)
+
+
+def privacy_rule_3_bound(
+    analysis: SampleQuantities,
+    quantities: dict[str, SampleQuantities],
+    holders: list[str],
+    marks: SampleMarks,
+    quartiles: list[tuple[int | None, list[tuple[str, int]]]],
+    basis: str,
+    k: int,
+) -> SampleMarks:
+    """The end of rule 3: its firing on an item shows that the analysed rows
+    fall short of the fewest rows that the item's analysed levels can hold
+    without a level of one row, so that those levels number at least the
+    fewest J for which that floor exceeds the analysed rows. In a sample that
+    holds the analysis sample's rows and in which the item resolves as
+    non-person, each of those levels holds two rows or more, so that its rows
+    are at least 2J, and with the basis disclosure_unit its contributors too.
+    Rule 1 hiding that sample's rows beside the analysis sample shows them
+    below the analysed rows plus k, so when 2J equals the analysed rows plus
+    k - 1, or rule 1 hides its contributors and 2J equals the analysed
+    contributors plus k - 1, the firing of rule 3 would leave the rows or
+    members without an outcome a single value. A bound above that would
+    contradict the firing of rule 1, so that the item cannot be non-person
+    there, as its class shows anyway. The analysis sample then loses its levels
+    of the item whether or not rule 3 fires, and whatever the item's class in
+    the other sample, so that the loss shows neither, since J depends only on
+    the analysed rows and the written quantiles. For the rows, 2J exceeds the
+    analysed rows by at most 2, so only at k = 3: 5 schools of two pupils, 2 of
+    whom lack the outcome, give 8 analysed rows, whose 5 analysed schools rule
+    3 hides, which beside the class non_person of the schools of the design
+    sample would show 10 rows there. The contributors can meet the bound at any
+    k when members hold several rows: 50 schools of 99 analysed rows and 91
+    analysed pupils, at k = 10, would show 100 pupils in the design sample.
+    ``marks`` holds the levels with one row that rule 2 hides, which rule 3
+    reads."""
+    design = quantities["design"]
+    for i, item in enumerate(analysis.items):
+        if (
+            not item.person
+            or not marks.items[i]["levels_with_one_row"]
+            or design.items[i].levels_with_two_rows == 0
+        ):
+            continue
+        written: list[tuple[str, int]] = []
+        for position, quantiles in quartiles:
+            if position == i:
+                written = quantiles
+        least = 1
+        while privacy_rows_without_singletons(least, written) <= analysis.rows:
+            least += 1
+        bound = 2 * least
+        for s in holders:
+            other = quantities[s]
+            if (privacy_close(other.rows, analysis.rows, k) and bound == analysis.rows + k - 1) or (
+                basis == "disclosure_unit"
+                and privacy_close(other.contributors, analysis.contributors, k)
+                and bound == analysis.contributors + k - 1
+            ):
+                marks.items[i]["levels"] = True
+    return marks
 
 
 def privacy_key_bound(run: Run, findings: list[Finding], k: int) -> int:
@@ -859,6 +922,7 @@ def privacy_lost(
     factor_items: list[int | None],
     unit_item: int | None,
     basis: str,
+    leaving: int,
     k: int,
 ) -> dict[str, SampleMarks]:
     """The quantities that the samples lose beside the analysis sample, as
@@ -902,6 +966,20 @@ def privacy_lost(
                 privacy_quantity(larger, member), privacy_quantity(smaller, member), k
             ):
                 mark(loser, member)
+        # When the names of sample.raw_vs_analysis show k - 1 or more rows of
+        # the table that leave the design sample (privacy_names_bound()) and
+        # rule 1 hides the design sample's rows beside the analysis sample, the
+        # table loses its rows beside it whatever they exceed the analysed rows
+        # by, since the firing of rule 1 would otherwise show the table's rows
+        # within k - 1 of the analysed rows, and so no outcome missing.
+        if (
+            comparison.larger == "table"
+            and comparison.smaller == "analysis"
+            and leaving >= k - 1
+            and "design" in quantities
+            and privacy_close(quantities["design"].rows, smaller.rows, k)
+        ):
+            lost["table"].rows = True
         inside = comparison.smaller == "analysis" and comparison.loser == comparison.larger
         # A quantity that the analysis sample loses is lost by every sample
         # that holds its rows, whose written quantity would show that rule 1
@@ -995,6 +1073,36 @@ def privacy_lost(
                         chain(measure, i)
         if lost == before:
             return lost
+
+
+def privacy_names_bound(run: Run, findings: list[Finding]) -> int:
+    """The rows of the table that leave the design sample which the names of
+    sample.raw_vs_analysis show to be distinct rows. For one variable, a row in
+    which its column, or a column of its grouping factor, is missing
+    (incomplete_columns), a row at a level of it that leaves the design sample
+    (emptied_factors or factors_losing_levels) and a row of a level that keeps
+    one row there (new_singletons) are three different rows, while rows that
+    the names of different variables show can be one row. The bound is the
+    most rows that the names show for one variable, 0 to 3, or 0 when the
+    check is not available."""
+    for finding in findings:
+        if finding.check != "sample.raw_vs_analysis" or not finding.available:
+            continue
+        values = finding.values
+        incomplete = list(values["incomplete_columns"])
+        losing = list(values["emptied_factors"]) + list(values["factors_losing_levels"])
+        singletons = list(values["new_singletons"])
+        best = 0
+        for name in dict.fromkeys(losing + singletons + incomplete):
+            columns = list(run.factors[name]) if name in run.factors else [name]
+            count = (
+                int(any(column in incomplete for column in columns))
+                + int(name in losing)
+                + int(name in singletons)
+            )
+            best = max(best, count)
+        return best
+    return 0
 
 
 def privacy_sizes_close(

@@ -756,7 +756,8 @@ dz_alternatives_mobility <- function(p, case) {
 
 # zoo-crt: a further pupil without an outcome in the class of the second or
 # of the last row, a further class or school whose pupils lack the outcome,
-# and the rows without an outcome moved to a school of their own.
+# the rows without an outcome moved to a school of their own and two classes
+# of a school merged.
 dz_alternatives_crt <- function(p, case) {
   d <- case$data
   m <- sum(is.na(d$y))
@@ -790,6 +791,39 @@ dz_alternatives_crt <- function(p, case) {
         list(school = "S9", class = "C90", arm = "control", pupil = "P091"),
         list(school = "S9", class = "C91", arm = "tutoring", pupil = "P092")), 2L)
     }
+  }
+  if (m > 1L) {
+    # The class of the second row without an outcome merged into the class
+    # of the first, without that row, so that the school holds one class
+    # fewer and one row fewer lacks the outcome. In the family every class
+    # holds the same pupils, so the classes would otherwise give the rows.
+    first <- miss[1L]
+    second <- miss[2L]
+    if (d$school[first] == d$school[second] && d$class[first] != d$class[second]) {
+      c1 <- case
+      c1$data$class[d$class == d$class[second]] <- d$class[first]
+      c1$data <- c1$data[-second, , drop = FALSE]
+      rownames(c1$data) <- NULL
+      out$classes_merged <- dz_alt(c1, m - 1L)
+    }
+  }
+  # A school that loses every outcome replaced by classes of one pupil
+  # without an outcome in the last school, all of them or one, with the
+  # first remaining school in one arm, so that some school still holds one
+  # arm, as the contaminated class of a lost school makes it do.
+  analysed <- unique(d$school[!is.na(d$y)])
+  lost <- setdiff(unique(d$school[miss]), analysed)
+  if (length(lost) == 1L && length(analysed) >= 2L) {
+    kept <- case
+    kept$data <- d[d$school != lost, , drop = FALSE]
+    first <- kept$data$school == analysed[1L]
+    kept$data$arm[first] <- kept$data$arm[first][1L]
+    rows <- lapply(seq_len(sum(d$school == lost)), function(j) {
+      list(school = analysed[length(analysed)], class = sprintf("C9%d", j),
+           arm = if (j %% 2L) "control" else "tutoring", pupil = sprintf("P09%d", j))
+    })
+    out$school_lost_elsewhere <- dz_alt(do.call(dz_add_rows, c(list(kept), rows)), length(rows))
+    out$school_lost_elsewhere_one <- dz_alt(dz_add_rows(kept, rows[[1L]]), 1L)
   }
   out
 }
@@ -837,7 +871,11 @@ dz_alternatives_reference <- function(p, case) {
 }
 
 # zoo-multisite: a further site of one treatment participant, or of one
-# participant in each arm, without an outcome.
+# participant in each arm, without an outcome, and a further participant
+# without an outcome in the site and arm of each row. In the family a row
+# without an outcome is the last participant of a site or a site of its own,
+# so a document that shows no site of one participant would otherwise tell
+# that no outcome is missing.
 dz_alternatives_multisite <- function(p, case) {
   d <- case$data
   m <- sum(is.na(d$y))
@@ -848,6 +886,10 @@ dz_alternatives_multisite <- function(p, case) {
   out$new_site_two <- dz_alt(dz_add_rows(case,
     list(site = site, participant = "P90", arm = "control"),
     list(site = site, participant = "P91", arm = "treatment")), m + 2L)
+  for (i in seq_len(nrow(d))) {
+    out[[sprintf("participant_like_%d", i)]] <- dz_alt(dz_add_rows(case,
+      list(site = d$site[i], participant = "P90", arm = d$arm[i])), m + 1L)
+  }
   out
 }
 

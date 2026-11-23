@@ -119,7 +119,8 @@ privacy_across <- function(run, findings, k) {
   measured <- privacy_measured_items(run, findings[available], finding_samples[available], items,
                                      k)
   lost <- privacy_lost(samples, quantities, comparisons, beside, shown, items, written,
-                       marks$analysis, factor_items, unit_item, basis, k)
+                       marks$analysis, factor_items, unit_item, basis,
+                       privacy_names_bound(run, findings[available]), k)
   marks <- privacy_rule_1(quantities, comparisons[!beside], lost, marks, k)
   for (s in names(marks)) {
     marks[[s]] <- privacy_or_marks(marks[[s]], lost[[s]])
@@ -284,10 +285,67 @@ privacy_analysis_marks <- function(findings, finding_samples, run, items, quanti
     }
   }
   marks <- privacy_single_row_items(quantities$design, marks, basis, unit_item)
-  marks <- privacy_rule_3(analysis, quantities$design, privacy_rule_2(analysis, marks, k),
-                          quartiles, k)
+  ruled <- privacy_rule_2(analysis, marks, k)
+  marks <- privacy_rule_3(analysis, quantities$design, ruled, quartiles, k)
+  marks <- privacy_rule_3_bound(analysis, quantities, holders, ruled, marks, quartiles, basis, k)
   privacy_rule_2(analysis, privacy_single_row_items(quantities$design, marks, basis, unit_item),
                  k)
+}
+
+# The end of rule 3: its firing on an item shows that the analysed rows fall
+# short of the fewest rows that the item's analysed levels can hold without
+# a level of one row, so that those levels number at least the fewest J for
+# which that floor exceeds the analysed rows. In a sample that holds the
+# analysis sample's rows and in which the item resolves as non-person, each
+# of those levels holds two rows or more, so that its rows are at least 2J,
+# and with the basis disclosure_unit its contributors too. Rule 1 hiding
+# that sample's rows beside the analysis sample shows them below the
+# analysed rows plus k, so when 2J equals the analysed rows plus k - 1, or
+# rule 1 hides its contributors and 2J equals the analysed contributors plus
+# k - 1, the firing of rule 3 would leave the rows or members without an
+# outcome a single value. A bound above that would contradict the firing of
+# rule 1, so that the item cannot be non-person there, as its class shows
+# anyway. The analysis sample then loses its levels of the item whether or
+# not rule 3 fires, and whatever the item's class in the other sample, so
+# that the loss shows neither, since J depends only on the analysed rows and
+# the written quantiles. For the rows, 2J exceeds the analysed rows by at
+# most 2, so only at k = 3: 5 schools of two pupils, 2 of whom lack the
+# outcome, give 8 analysed rows, whose 5 analysed schools rule 3 hides,
+# which beside the class non_person of the schools of the design sample
+# would show 10 rows there. The contributors can meet the bound at any k
+# when members hold several rows: 50 schools of 99 analysed rows and 91
+# analysed pupils, at k = 10, would show 100 pupils in the design sample.
+# ruled holds the marks that rule 3 reads.
+privacy_rule_3_bound <- function(analysis, quantities, holders, ruled, marks, quartiles, basis,
+                                 k) {
+  for (i in seq_along(analysis$items)) {
+    item <- analysis$items[[i]]
+    if (!item$person || !ruled$items[[i]][["levels_with_one_row"]] ||
+        quantities$design$items[[i]]$levels_with_two_rows == 0L) {
+      next
+    }
+    written <- list()
+    for (q in quartiles) {
+      if (identical(q$item, i)) {
+        written <- q$quantiles
+      }
+    }
+    least <- 1L
+    while (privacy_rows_without_singletons(least, written) <= analysis$rows) {
+      least <- least + 1L
+    }
+    bound <- 2 * least
+    for (s in holders) {
+      other <- quantities[[s]]
+      if ((privacy_close(other$rows, analysis$rows, k) && bound == analysis$rows + k - 1L) ||
+          (identical(basis, "disclosure_unit") &&
+             privacy_close(other$contributors, analysis$contributors, k) &&
+             bound == analysis$contributors + k - 1L)) {
+        marks$items[[i]][["levels"]] <- TRUE
+      }
+    }
+  }
+  marks
 }
 
 # The bound that a declared observation key places on the rows of the design
@@ -666,7 +724,7 @@ privacy_items_in <- function(items, codes, rows) {
 # sample's rows, loses the quantity unless the analysis sample's exceeds it
 # by k or more. The two steps repeat until nothing changes.
 privacy_lost <- function(samples, quantities, comparisons, beside, shown, items, written,
-                         hidden, factor_items, unit_item, basis, k) {
+                         hidden, factor_items, unit_item, basis, leaving, k) {
   lost <- privacy_blank_marks(quantities)
   if (!shown) {
     return(lost)
@@ -679,6 +737,17 @@ privacy_lost <- function(samples, quantities, comparisons, beside, shown, items,
       if (privacy_close(larger[[member]], smaller[[member]], k)) {
         lost[[loser]][[member]] <- TRUE
       }
+    }
+    # When the names of sample.raw_vs_analysis show k - 1 or more rows of the
+    # table that leave the design sample (privacy_names_bound()) and rule 1
+    # hides the design sample's rows beside the analysis sample, the table
+    # loses its rows beside it whatever they exceed the analysed rows by,
+    # since the firing of rule 1 would otherwise show the table's rows within
+    # k - 1 of the analysed rows, and so no outcome missing.
+    if (comparison$larger == "table" && comparison$smaller == "analysis" &&
+        leaving >= k - 1L && !is.null(quantities$design) &&
+        privacy_close(quantities$design$rows, smaller$rows, k)) {
+      lost$table$rows <- TRUE
     }
     # A quantity that the analysis sample loses is lost by every sample that
     # holds its rows, whose written quantity would show that rule 1 did not
@@ -774,6 +843,35 @@ privacy_lost <- function(samples, quantities, comparisons, beside, shown, items,
       return(lost)
     }
   }
+}
+
+# The rows of the table that leave the design sample which the names of
+# sample.raw_vs_analysis show to be distinct rows. For one variable, a row
+# in which its column, or a column of its grouping factor, is missing
+# (incomplete_columns), a row at a level of it that leaves the design sample
+# (emptied_factors or factors_losing_levels) and a row of a level that keeps
+# one row there (new_singletons) are three different rows, while rows that
+# the names of different variables show can be one row. The bound is the
+# most rows that the names show for one variable, 0 to 3, or 0 when the
+# check is not available.
+privacy_names_bound <- function(run, findings) {
+  for (finding in findings) {
+    if (finding$check != "sample.raw_vs_analysis" || !isTRUE(finding$available)) {
+      next
+    }
+    values <- finding$values
+    incomplete <- unlist(values$incomplete_columns)
+    losing <- c(unlist(values$emptied_factors), unlist(values$factors_losing_levels))
+    singletons <- unlist(values$new_singletons)
+    best <- 0L
+    for (name in unique(c(losing, singletons, incomplete))) {
+      columns <- if (name %in% names(run$factors)) unlist(run$factors[[name]]) else name
+      best <- max(best, any(columns %in% incomplete) + (name %in% losing) +
+                    (name %in% singletons))
+    }
+    return(best)
+  }
+  0L
 }
 
 # Whether the sizes in a larger sample of the levels of an item that hold an

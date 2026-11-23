@@ -2961,3 +2961,76 @@ test_that("the rows without a key value count towards the bound of the key's lev
   zeros <- finding_of(pair[[1L]], "outcome.zero_shares", factor = "subject")
   expect_identical(detail(zeros, "rows"), "secondary")
 })
+
+# Schools of pupils, the disclosure unit, with a Poisson count, in a T1 run:
+# sizes gives the pupils of each school and lost the positions of the pupils
+# without an outcome.
+school_pupils <- function(sizes, lost) {
+  n <- sum(sizes)
+  count <- seq_len(n) %% 3L + 1
+  count[lost] <- NA
+  data <- data.frame(count = count, x = (seq_len(n) * 7L) %% 11L + 0.5,
+                     school = rep(sprintf("S%02d", seq_along(sizes)), sizes),
+                     pupil = sprintf("p%02d", seq_len(n)), stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", units = list(
+    list(name = "school", columns = list("school"), role = "cluster"),
+    list(name = "pupil", columns = list("pupil"), role = "participant", nested_in = "school",
+         id_scope = "global")))
+  audit_both(data, "count ~ x + (1 | school)", declaration = declaration, family = "poisson",
+             outcome_access = "T1", reason = "Schools of pupils.")
+}
+
+test_that("the analysed levels are hidden wherever rule 3 could fire with a bound that gives the rows without an outcome", {
+  # At k = 3, 5 schools of two pupils, 2 without an outcome: rule 3 hides the
+  # 5 analysed schools, beside 8 analysed rows, and its firing would show 5
+  # or more, which beside the class non_person of the schools of the design
+  # sample would show 10 rows there, while rule 1 shows fewer than 11. The
+  # analysed schools are hidden as well for 4 schools of 2, 2, 2 and 3
+  # pupils, one without an outcome, where rule 3 does not fire, so that
+  # their loss shows nothing. At k = 4 the bound leaves the rows several
+  # values, and the 4 schools are written.
+  five <- with_min_count(3L, school_pupils(rep(2L, 5L), c(8L, 10L)))
+  four <- with_min_count(3L, school_pupils(c(2L, 2L, 2L, 3L), 5L))
+  for (found in list(five, four)) {
+    zeros <- finding_of(found$shareable, "outcome.zero_shares", factor = "school")
+    expect_identical(detail(zeros, "levels"), "secondary")
+    expect_identical(written(zeros, "rows"), 8)
+  }
+  internal <- finding_of(four$internal, "outcome.zero_shares", factor = "school")
+  expect_identical(written(internal, "levels"), 4)
+  shared <- with_min_count(4L, school_pupils(c(2L, 2L, 2L, 3L), 5L))$shareable
+  zeros <- finding_of(shared, "outcome.zero_shares", factor = "school")
+  expect_identical(written(zeros, "levels"), 4)
+})
+
+# Subjects of two rows with an observation key, subjects of one row without
+# x and rows without a subject, every outcome present, in a T1 run of a
+# Poisson model.
+keyed_subjects <- function(doubles, x_lost, missing_key) {
+  subject <- c(rep(sprintf("s%02d", seq_len(doubles)), each = 2L),
+               sprintf("u%02d", seq_len(x_lost)), rep(NA_character_, missing_key))
+  trial <- c(rep(1:2, doubles), rep(1L, x_lost + missing_key))
+  n <- length(subject)
+  x <- (seq_len(n) * 7L) %% 11L + 0.5
+  x[startsWith(subject, "u") %in% TRUE] <- NA
+  data <- data.frame(y = (seq_len(n) * 5L) %% 4L, x = x, subject = subject, trial = trial,
+                     stringsAsFactors = FALSE)
+  declaration <- list(vocabulary = "0.1.0", observation = list(key = list("subject", "trial")))
+  audit_both(data, "y ~ x + (1 | subject)", declaration = declaration, family = "poisson",
+             outcome_access = "T1", reason = "Rows that leave the design sample.")
+}
+
+test_that("the table loses its rows beside the analysis sample when the names show k - 1 rows that leave the design sample", {
+  # At k = 3, 4 subjects of two rows with every outcome. With 2 subjects of
+  # one row without x and a row without a subject, the names show a subject
+  # that loses its level and a row without a subject, 2 rows that leave the
+  # design sample, which beside the firing of rule 1 would show that no
+  # outcome is missing. The 11 rows of the table exceed the 8 analysed rows
+  # by 3, which rule 1 alone would leave written, and the table loses them.
+  # With 3 subjects without x and no row without a subject, the names show
+  # one row, and the table's rows are written.
+  keyed <- with_min_count(3L, keyed_subjects(4L, 2L, 1L))$shareable
+  expect_identical(detail(finding_of(keyed, "sample.raw_vs_analysis"), "rows_raw"), "secondary")
+  plain <- with_min_count(3L, keyed_subjects(4L, 3L, 0L))$shareable
+  expect_identical(written(finding_of(plain, "sample.raw_vs_analysis"), "rows_raw"), 11)
+})

@@ -252,12 +252,20 @@ run_audit_corpus_case <- function(case) {
   }
 }
 
+# On CRAN, the first case of each file and every fifth after it run, which
+# reaches every file and keeps the check within CRAN's time. CI runs every
+# case in this file and, through the parity harness, in both languages.
 for (file in c("assignment.json", "design.json", "identifiability.json", "keys.json",
                "labels.json", "outcome.json", "privacy.json", "sample.json", "structure.json")) {
-  for (case in corpus_cases("audits", file)) {
+  cases <- corpus_cases("audits", file)
+  for (i in seq_along(cases)) {
     local({
-      case <- case
+      case <- cases[[i]]
+      sampled <- i %% 5L == 1L
       test_that(paste("audit corpus case", case$id, "passes"), {
+        if (!sampled) {
+          skip_on_cran()
+        }
         run_audit_corpus_case(case)
       })
     })

@@ -106,6 +106,8 @@
   from the written values and replaces labels with pseudonyms, which the
   sidecar maps back to them. The tests run every case of the audit corpus,
   those of the privacy filter in both modes, and validate every document.
+  On CRAN they run the first case of each file of the corpus and every
+  fifth after it.
 
 * The privacy filter keeps k values between two quantiles of one count that
   a shareable document writes, the spacing condition of the quantile rule,

@@ -233,7 +233,9 @@ test_that("identifiability.gram_rank bounds the error of a basis of X that is fa
   # with a residual ratio of about 1.4e-7, has the span of 1, x1 and w, so
   # that y ~ x1 + w gives the same exact values with a well-conditioned
   # basis. The rounding of the basis of x1 and x2 changes the level ratios
-  # by about 1e-10, far more than the sums over the rows explain.
+  # by 5e-12 to 1e-10, depending on the platform and its BLAS, far
+  # more than the sums over the rows explain. That size is asserted only
+  # off CRAN, after the bound that the check guarantees on every platform.
   local_seed(3)
   entry <- registry_entry("identifiability.gram_rank")
   n <- 100L
@@ -248,8 +250,9 @@ test_that("identifiability.gram_rank bounds the error of a basis of X that is fa
   reference <- audit_check_identifiability_gram_rank(run, entry, NULL)[[1L]]$proximity$rank_tolerance
   expect_length(found, length(reference))
   error <- abs(as.vector(found) - as.vector(reference))
-  expect_gt(max(error), 1e-11)
   expect_true(all(error <= attr(found, "bound") + attr(reference, "bound")))
+  skip_on_cran()
+  expect_gt(max(error), 1e-12)
 })
 
 test_that("identifiability.gram_rank leaves exactly confounded designs of 1,000 rows clear", {

@@ -430,12 +430,29 @@ dh_family_cross_tier <- function() {
 # missing_key_rows fire or not beside a design sample that loses its rows to
 # the analysis sample, the chains of comparisons of rules 1 and 4 of Across
 # findings.
+# The alternatives of chain (dh_alternatives()): those that the zoo families
+# share and, for each subject with an outcome, a further row of it without
+# an outcome under the next trial. In the family only a second row lacks an
+# outcome, so the subjects of one and three rows, which the T0 findings
+# describe, would otherwise give the rows without an outcome.
+dh_alternatives_chain <- function(p, case) {
+  d <- case$data
+  m <- sum(is.na(d$y))
+  out <- dz_common_alternatives(case, "y", "subject")
+  for (subject in unique(d$subject[!is.na(d$subject) & !is.na(d$y)])) {
+    rows <- which(d$subject == subject)
+    out[[paste0("row_added_", subject)]] <- dz_alt(dz_add_rows(case,
+      list(subject = subject, trial = max(d$trial[rows]) + 1L, x = d$x[rows[1L]])), m + 1L)
+  }
+  out
+}
+
 dh_family_chain <- function() {
   dh_family(
     name = "chain",
     probe = "^(keys\\.duplicates|sample\\.raw_vs_analysis|structure\\.cluster_sizes)",
     description = "table, design sample and analysis sample nested, observation key, Poisson, T1",
-    alternatives = function(p, case) dz_common_alternatives(case, "y", "subject"),
+    alternatives = dh_alternatives_chain,
     params = list(
       single = dh_param(0:2, person = TRUE),
       double = dh_param(4:6, person = TRUE),
@@ -1418,20 +1435,55 @@ dh_alternatives_binomial <- function(p, case) {
   # the document, as they are. The covariates follow the positions of the
   # rows, so the statuses of the GVIF over the design sample, which rows
   # without an outcome change, would otherwise give their number.
-  extra <- dh_binomial_grid_rows[[as.character(nrow(case$data))]]
-  if (!is.null(extra)) {
+  sets <- dh_binomial_grid_rows[[as.character(min(nrow(case$data), 5L))]]
+  for (j in seq_along(sets)) {
     added <- case
-    added$data <- rbind(added$data, data.frame(k = NA, n = 2, x = extra$x, z = extra$z))
-    out$grid_rows <- added
+    added$data <- rbind(added$data, data.frame(k = NA, n = 2, x = sets[[j]]$x, z = sets[[j]]$z))
+    out[[paste0("grid_rows_", j)]] <- added
+  }
+  # One or two rows without an outcome on the grids, in place of the table's,
+  # that keep the correlation of x and z over the rows exactly. The GVIF of
+  # design.collinearity is a function of that correlation, and its status
+  # near_threshold, whose band is a relative 1e-9, shows it within that band
+  # of a threshold, which few designs on the grids reach.
+  analysed <- case$data[!is.na(k), , drop = FALSE]
+  grid <- expand.grid(x = seq(0.5, 10.5, 1), z = seq(0.5, 6.5, 1))
+  r2 <- function(x, z) suppressWarnings(stats::cor(x, z)^2)
+  target <- r2(case$data$x, case$data$z)
+  if (is.finite(target)) {
+    pairs <- rbind(cbind(seq_len(nrow(grid)), NA),
+                   which(upper.tri(diag(nrow(grid)), diag = TRUE), arr.ind = TRUE))
+    found <- 0L
+    for (row in seq_len(nrow(pairs))) {
+      chosen <- stats::na.omit(pairs[row, ])
+      if (length(chosen) == sum(is.na(k))) {
+        next
+      }
+      value <- r2(c(analysed$x, grid$x[chosen]), c(analysed$z, grid$z[chosen]))
+      if (is.finite(value) && abs(value - target) <= 1e-9 * target) {
+        moved <- case
+        moved$data <- rbind(analysed, data.frame(k = NA, n = 2, x = grid$x[chosen],
+                                                 z = grid$z[chosen]))
+        found <- found + 1L
+        out[[paste0("correlation_kept_", found)]] <- moved
+        if (found == 4L) {
+          break
+        }
+      }
+    }
   }
   lapply(out, describe)
 }
 
-# The rows of dh_alternatives_binomial() for a table of n rows, by n: two
-# for the four rows of 'none', 'all' and 'some' without a row without an
-# outcome, and one for five rows.
-dh_binomial_grid_rows <- list(`4` = list(x = c(10.5, 9.5), z = c(2.5, 4.5)),
-                              `5` = list(x = 10.5, z = 2.5))
+# The rows of dh_alternatives_binomial() for a table of 3, 4 and 5 rows or
+# more, each a set of grid points: one or two found for a table without a
+# row without an outcome, and for five rows or more a second for a table
+# with one.
+dh_binomial_grid_rows <- list(
+  `3` = list(list(x = 10.5, z = 1.5)),
+  `4` = list(list(x = c(10.5, 9.5), z = c(2.5, 4.5))),
+  `5` = list(list(x = 0.5, z = 0.5), list(x = 10.5, z = 2.5))
+)
 
 # Three arms of three, four and five rows with any number of events in
 # each, a bernoulli outcome, in a T2 run.
